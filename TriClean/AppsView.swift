@@ -5,13 +5,6 @@
 //  Created by changyu Kang on 08/12/2025.
 //
 
-//
-//  AppsView.swift
-//  TriClean
-//
-//  Created by changyu Kang on 08/12/2025.
-//
-
 import SwiftUI
 import Combine
 import AppKit
@@ -123,6 +116,14 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
         self.path = rawPath
         self.name = url.lastPathComponent
     }
+
+    static func == (lhs: AppsRelatedItem, rhs: AppsRelatedItem) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 struct AppsSelectedAppInfo: Sendable {
@@ -133,14 +134,16 @@ struct AppsSelectedAppInfo: Sendable {
 
 enum AppsActiveAlert: Identifiable {
     case uninstallApps
+    case uninstallPartialFail(successCount: Int, failedCount: Int) // ✅ 실패 알림
     case removeRelatedFiles
     case resetPermissions
 
-    var id: Int {
+    var id: String {
         switch self {
-        case .uninstallApps: return 1
-        case .removeRelatedFiles: return 2
-        case .resetPermissions: return 3
+        case .uninstallApps: return "uninstallApps"
+        case .uninstallPartialFail: return "uninstallPartialFail"
+        case .removeRelatedFiles: return "removeRelatedFiles"
+        case .resetPermissions: return "resetPermissions"
         }
     }
 }
@@ -170,6 +173,9 @@ final class AppsViewModel: ObservableObject {
     @Published var isRemoving: Bool = false
     @Published var lastStatusMessage: String?
     @Published var lastStatusIsError: Bool = false
+    
+    // 실패한 앱 임시 저장소 (Finder Reveal용)
+    private var lastFailedApps: [AppsInstalledApp] = []
 
     init() {
         applicationsFolderURL = AppsSecurityScopedBookmarks.load(key: .applicationsFolder)
@@ -362,7 +368,6 @@ final class AppsViewModel: ObservableObject {
             let sorted = scanned.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
             DispatchQueue.main.async {
-                // 스캔 중 폴더가 바뀌었으면 결과 폐기(역전 방지)
                 guard self.applicationsFolderURL?.standardizedFileURL == rootStd else {
                     _ = token
                     return
@@ -483,10 +488,9 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = nil
 
         DispatchQueue.global(qos: .userInitiated).async {
-            let found = self.collectRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
+            let found = self.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
 
             DispatchQueue.main.async {
-                // 스캔 중 권한 폴더가 바뀌었으면 결과 폐기
                 guard self.userLibraryFolderURL?.standardizedFileURL == libraryStd else {
                     self.isScanning = false
                     _ = token
@@ -508,96 +512,82 @@ final class AppsViewModel: ObservableObject {
             }
         }
     }
-
-    nonisolated private func collectRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
+    
+    nonisolated private func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
+        var results: Set<AppsRelatedItem> = []
         let fm = FileManager.default
-        let candidateSubfolders: [(String, Int)] = [
-            ("Preferences", 1), ("Containers", 1), ("Application Support", 2), ("Caches", 2)
-        ]
 
-        var keys: [String] = []
         if let bundleID = bundleID, !bundleID.isEmpty {
-            let lower = bundleID.lowercased()
-            keys.append(lower)
-            if let last = bundleID.split(separator: ".").last {
-                keys.append(String(last).lowercased())
-            }
-        }
-        keys.append(appName.lowercased())
+            let mdfindResults = runMdfind(in: libraryRoot, bundleID: bundleID)
+            results.formUnion(mdfindResults)
 
-        func hits(_ name: String) -> Bool {
-            let lowerName = name.lowercased()
+            let strictPaths: [(sub: String, suffix: String?)] = [
+                ("Preferences", ".plist"),
+                ("Containers", nil),
+                ("Group Containers", nil),
+                ("Caches", nil),
+                ("Saved Application State", ".savedState"),
+                ("WebKit", nil),
+                ("HTTPStorages", nil)
+            ]
 
-            // keys 구성은 현재: [bundleID 전체?, bundleID last?, appName]
-            // :contentReference[oaicite:4]{index=4} 를 그대로 전제하고, 마지막을 appName으로 간주
-            let appNameKey = keys.last ?? ""
-            let bundleKeys = keys.dropLast()   // bundleID / last token
-
-            // bundleID 계열: 기존의 엄격한 규칙 유지
-            for key in bundleKeys {
-                if lowerName == key { return true }
-                if lowerName.hasPrefix(key + ".") { return true }
-            }
-
-            // appName: 단어 경계(prefix) 허용
-            if !appNameKey.isEmpty {
-                if lowerName == appNameKey { return true }
-                if lowerName.hasPrefix(appNameKey + ".") { return true }
-
-                // "단어 경계"로 인정할 구분자 집합
-                let separators: Set<Character> = [
-                    " ", ".", "-", "_", "(", ")", "[", "]", "{", "}", "+", "&"
-                ]
-
-                if lowerName.hasPrefix(appNameKey) {
-                    if lowerName.count == appNameKey.count { return true }
-                    let idx = lowerName.index(lowerName.startIndex, offsetBy: appNameKey.count)
-                    if separators.contains(lowerName[idx]) { return true }
-                }
-            }
-
-            return false
-        }
-
-        var results: [AppsRelatedItem] = []
-        var seen = Set<String>()
-
-        for (sub, depth) in candidateSubfolders {
-            let base = libraryRoot.appendingPathComponent(sub, isDirectory: true)
-            guard fm.fileExists(atPath: base.path) else { continue }
-
-            var queue: [(URL, Int)] = [(base, 0)]
-            while let (current, d) = queue.first {
-                queue.removeFirst()
-                if d > depth { continue }
-
-                guard let contents = try? fm.contentsOfDirectory(
-                    at: current,
-                    includingPropertiesForKeys: [.isDirectoryKey],
-                    options: [.skipsHiddenFiles]
-                ) else { continue }
-
-                for url in contents {
-                    let values = try? url.resourceValues(forKeys: [.isDirectoryKey])
-                    let isDir = values?.isDirectory ?? false
-                    let name = url.lastPathComponent
-
-                    if hits(name) {
-                        let id = url.path
-                        if !seen.contains(id) {
-                            seen.insert(id)
-                            results.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir))
-                        }
-                    }
-
-                    if isDir && (d + 1) <= depth {
-                        queue.append((url, d + 1))
-                    }
+            for (sub, suffix) in strictPaths {
+                let dir = libraryRoot.appendingPathComponent(sub)
+                var targetName = bundleID
+                if let s = suffix { targetName += s }
+                let targetURL = dir.appendingPathComponent(targetName)
+                
+                if fm.fileExists(atPath: targetURL.path) {
+                    let isDir = (try? targetURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+                    results.insert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: isDir))
                 }
             }
         }
 
-        return results.sorted { $0.path.localizedCaseInsensitiveCompare($1.path) == .orderedAscending }
+        if !appName.isEmpty {
+            let namePaths = ["Application Support", "Caches"]
+            for sub in namePaths {
+                let dir = libraryRoot.appendingPathComponent(sub)
+                let targetURL = dir.appendingPathComponent(appName)
+                var isDir: ObjCBool = false
+                if fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
+                    results.insert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: true))
+                }
+            }
+        }
+
+        return Array(results).sorted { $0.path.localizedCaseInsensitiveCompare($1.path) == .orderedAscending }
+    }
+
+    nonisolated private func runMdfind(in searchScope: URL, bundleID: String) -> [AppsRelatedItem] {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/mdfind")
+        process.arguments = ["-onlyin", searchScope.path, "kMDItemCFBundleIdentifier == '\(bundleID)'"]
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            guard let output = String(data: data, encoding: .utf8) else { return [] }
+            
+            var found: [AppsRelatedItem] = []
+            let lines = output.split(separator: "\n").map(String.init)
+            
+            for path in lines where !path.isEmpty {
+                let url = URL(fileURLWithPath: path)
+                if url.path.hasPrefix(searchScope.path) {
+                    let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+                    found.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir))
+                }
+            }
+            return found
+        } catch {
+            return []
+        }
     }
 
     // MARK: - Uninstall
@@ -605,8 +595,16 @@ final class AppsViewModel: ObservableObject {
     func revealInFinder(app: AppsInstalledApp) {
         NSWorkspace.shared.activateFileViewerSelecting([app.url])
     }
+    
+    // ✅ 실패한 앱들을 Finder에 보여주는 기능 추가
+    func revealFailedApps() {
+        guard !lastFailedApps.isEmpty else { return }
+        let urls = lastFailedApps.map { $0.url }
+        NSWorkspace.shared.activateFileViewerSelecting(urls)
+    }
 
-    func uninstallSelectedInstalledApps() {
+    // ✅ 콜백을 통해 View에서 Alert 제어
+    func uninstallSelectedInstalledApps(completion: @escaping (AppsActiveAlert?) -> Void) {
         let targets = deletableSelectedApps
         guard !targets.isEmpty else {
             lastStatusIsError = true
@@ -618,63 +616,117 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = nil
         lastStatusIsError = false
 
-        var tokens: [AppsScopedAccessToken] = []
-        if let root = applicationsFolderURL, let t = AppsScopedAccessToken(url: root) { tokens.append(t) }
-        if let manual = manualAppBundleURL, let t = AppsScopedAccessToken(url: manual) { tokens.append(t) }
+        let appFolder = applicationsFolderURL
+        let manualURL = manualAppBundleURL
 
         Task {
-            let ok = await self.performUninstall(targets: targets)
+            // (성공, 실패) 튜플 반환
+            let (succeeded, failed) = await self.performUninstall(targets: targets, appFolderURL: appFolder, manualURL: manualURL)
             
             self.isRemoving = false
+            self.lastFailedApps = failed
 
-            if ok.isEmpty {
-                self.lastStatusIsError = true
-                self.lastStatusMessage = "선택한 앱을 휴지통으로 이동하지 못했습니다."
-            } else {
-                let names = ok.map(\.name).joined(separator: ", ")
-                self.lastStatusIsError = false
-                self.lastStatusMessage = "앱 \(ok.count)개(\(names))을 휴지통으로 이동했습니다."
-
-                let okIDs = Set(ok.map(\.id))
-                self.installedApps.removeAll { okIDs.contains($0.id) }
-                self.selectedInstalledAppIDs.subtract(okIDs)
-
-                if let selected = self.selectedApp, okIDs.contains(selected.appPath) {
+            // 목록 업데이트
+            let successIDs = Set(succeeded.map(\.id))
+            if !successIDs.isEmpty {
+                self.installedApps.removeAll { successIDs.contains($0.id) }
+                self.selectedInstalledAppIDs.subtract(successIDs)
+                if let selected = self.selectedApp, successIDs.contains(selected.appPath) {
                     self.selectedApp = nil
                     self.relatedItems = []
                 }
             }
-            _ = tokens
+
+            // 메시지 처리 및 Alert 결정
+            if succeeded.isEmpty && failed.isEmpty {
+                // 이상 케이스
+            } else if succeeded.isEmpty && !failed.isEmpty {
+                self.lastStatusIsError = true
+                self.lastStatusMessage = "선택한 앱을 자동으로 삭제할 수 없습니다. (시스템/Admin 권한 필요)"
+                // 🔴 전부 실패 시 Alert 띄움 -> 사용자에게 Finder에서 삭제 유도
+                completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
+            } else if !succeeded.isEmpty && failed.isEmpty {
+                // 전부 성공
+                let names = succeeded.map(\.name).joined(separator: ", ")
+                self.lastStatusIsError = false
+                self.lastStatusMessage = "앱 \(succeeded.count)개(\(names))을 휴지통으로 이동했습니다."
+                completion(nil)
+            } else {
+                // 일부 성공, 일부 실패
+                self.lastStatusIsError = true
+                self.lastStatusMessage = "\(succeeded.count)개 성공, \(failed.count)개 실패 (시스템/Admin 권한 필요)"
+                // 🔴 일부 실패 시 Alert 띄움
+                completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
+            }
         }
     }
     
-    nonisolated private func performUninstall(targets: [AppsInstalledApp]) async -> [AppsInstalledApp] {
+    // ✅ [수정] 2단계 전략 (FileManager -> NSWorkspace) 후 실패 시 "실패 목록"에 추가
+    // 불필요한 '사용자 권한 요청(Panel)' 제거 (Root 권한 문제이므로 Panel로 해결 안 됨)
+    nonisolated private func performUninstall(targets: [AppsInstalledApp], appFolderURL: URL?, manualURL: URL?) async -> ([AppsInstalledApp], [AppsInstalledApp]) {
         let fm = FileManager.default
-        var ok: [AppsInstalledApp] = []
+        var succeeded: [AppsInstalledApp] = []
+        var failed: [AppsInstalledApp] = []
+        
+        var tokens: [AppsScopedAccessToken] = []
+        if let url = appFolderURL, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
+        if let url = manualURL, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
+
         for app in targets {
             let itemToken = AppsScopedAccessToken(url: app.url)
+            var success = false
+            
+            // 시도 1: FileManager
             do {
                 var resultingURL: NSURL?
                 try fm.trashItem(at: app.url, resultingItemURL: &resultingURL)
-                ok.append(app)
+                success = true
             } catch {
-                print("앱 휴지통 이동 실패: \(app.url.path) - \(error)")
+                print("FileManager 삭제 실패 (\(app.name)): \(error). NSWorkspace로 재시도.")
+                // 시도 2: NSWorkspace
+                success = await moveItemToTrashUsingWorkspace(url: app.url)
             }
+            
+            if success {
+                succeeded.append(app)
+            } else {
+                print("최종 삭제 실패: \(app.name). 사용자에게 Finder 삭제를 안내합니다.")
+                failed.append(app)
+            }
+            
             _ = itemToken
         }
-        return ok
+        
+        _ = tokens
+        return (succeeded, failed)
+    }
+    
+    nonisolated private func moveItemToTrashUsingWorkspace(url: URL) async -> Bool {
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                NSWorkspace.shared.recycle([url]) { resultDict, error in
+                    if let error = error {
+                        print("NSWorkspace 삭제 실패: \(error)")
+                        continuation.resume(returning: false)
+                    } else {
+                        continuation.resume(returning: true)
+                    }
+                }
+            }
+        }
     }
 
     func removeSelectedRelatedItems() {
         let targets = relatedItems.filter { $0.selected }
         guard !targets.isEmpty else { return }
-        guard let libraryRoot = userLibraryFolderURL, let rootToken = AppsScopedAccessToken(url: libraryRoot) else { return }
+        
+        let libURL = userLibraryFolderURL
 
         isRemoving = true
         lastStatusMessage = nil
 
         Task {
-            let count = await self.performRelatedRemoval(targets: targets)
+            let count = await self.performRelatedRemoval(targets: targets, libraryRoot: libURL)
             self.isRemoving = false
             if count > 0 {
                 self.lastStatusIsError = false
@@ -685,24 +737,34 @@ final class AppsViewModel: ObservableObject {
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "휴지통으로 이동할 수 있는 항목이 없습니다."
             }
-            _ = rootToken
         }
     }
     
-    nonisolated private func performRelatedRemoval(targets: [AppsRelatedItem]) async -> Int {
+    nonisolated private func performRelatedRemoval(targets: [AppsRelatedItem], libraryRoot: URL?) async -> Int {
         let fm = FileManager.default
         var count = 0
+        
+        var tokens: [AppsScopedAccessToken] = []
+        if let url = libraryRoot, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
+        
         for item in targets {
             let itemToken = AppsScopedAccessToken(url: item.url)
+            var success = false
+            
             do {
                 var resultingURL: NSURL?
                 try fm.trashItem(at: item.url, resultingItemURL: &resultingURL)
-                count += 1
+                success = true
             } catch {
-                print("관련 파일 휴지통 이동 실패: \(item.url.path) - \(error)")
+                print("FileManager 삭제 실패 (RelatedItem): \(error). NSWorkspace로 재시도.")
+                success = await moveItemToTrashUsingWorkspace(url: item.url)
             }
+            
+            if success { count += 1 }
             _ = itemToken
         }
+        
+        _ = tokens
         return count
     }
 }
@@ -716,7 +778,7 @@ struct AppsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-
+            
             // ✅ 상단: layoutPriority(1)을 주어 공간 부족 시에도 잘리지 않도록 보호
             GroupBox {
                 VStack(spacing: 10) {
@@ -1005,8 +1067,24 @@ struct AppsView: View {
                 return Alert(
                     title: Text("선택한 앱 삭제"),
                     message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
-                    primaryButton: .destructive(Text("Uninstall")) { viewModel.uninstallSelectedInstalledApps() },
+                    primaryButton: .destructive(Text("Uninstall")) {
+                        // ✅ 콜백을 통해 결과 Alert 처리
+                        viewModel.uninstallSelectedInstalledApps { nextAlert in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                self.activeAlert = nextAlert
+                            }
+                        }
+                    },
                     secondaryButton: .cancel()
+                )
+
+            case .uninstallPartialFail(let success, let failed):
+                return Alert(
+                    title: Text("자동 삭제 실패 (권한 제한)"),
+                    message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
+                    dismissButton: .default(Text("Show in Finder")) {
+                        viewModel.revealFailedApps()
+                    }
                 )
 
             case .removeRelatedFiles:
