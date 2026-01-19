@@ -44,7 +44,15 @@ final class MemoryViewModel: ObservableObject {
 
     /// vm_stat 를 다시 읽어서 최신 메모리 정보로 갱신
     func refresh() {
-        stats = MemoryReader.fetchStats()
+        DispatchQueue.global(qos: .userInitiated).async {
+            let latest = MemoryReader.fetchStats()
+
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    self.stats = latest
+                }
+            }
+        }
     }
 
     /// 가벼운 메모리 압박을 통해 OS 가 캐시를 정리하도록 유도하고,
@@ -80,33 +88,33 @@ final class MemoryViewModel: ObservableObject {
 
 /// vm_stat 를 실행해서 페이지 수를 읽고, MemoryStats 로 변환
 enum MemoryReader {
-
+    
     static func fetchStats() -> MemoryStats {
         let pageSize = Int64(sysconf(Int32(_SC_PAGESIZE)))
         let lines = runVMStat()
-
+        
         var values: [String: Int64] = [:]
-
+        
         for line in lines {
             // 예: "Pages free:                               1234."
             let parts = line.components(separatedBy: ":")
             guard parts.count == 2 else { continue }
-
+            
             let key = parts[0].trimmingCharacters(in: .whitespaces)
-
+            
             let numberPart = parts[1]
                 .components(separatedBy: CharacterSet.decimalDigits.inverted)
                 .joined()
-
+            
             if let v = Int64(numberPart) {
                 values[key] = v
             }
         }
-
+        
         func pages(_ key: String) -> Int64 {
             values[key] ?? 0
         }
-
+        
         // vm_stat 기준으로 대략적인 매핑
         let freePages        = pages("Pages free")
         let activePages      = pages("Pages active")
@@ -116,10 +124,10 @@ enum MemoryReader {
         let compressedPages  = pages("Pages occupied by compressor")
         let fileBacked       = pages("File-backed pages")
         let purgeable        = pages("Pages purgeable")
-
+        
         let appPages   = activePages + speculativePages
         let cachedPages = inactivePages + fileBacked + purgeable
-
+        
         return MemoryStats(
             appBytes:        appPages       * pageSize,
             wiredBytes:      wiredPages     * pageSize,
@@ -128,10 +136,10 @@ enum MemoryReader {
             freeBytes:       freePages      * pageSize
         )
     }
-
+    
     private static func runVMStat() -> [String] {
         let process = Process()
-        process.launchPath = "/usr/bin/vm_stat"
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/vm_stat")
 
         let pipe = Pipe()
         process.standardOutput = pipe
@@ -153,6 +161,7 @@ enum MemoryReader {
             .split(separator: "\n")
             .map { String($0) }
     }
+
 }
 
 /// 가벼운 메모리 압박을 통해 inactive / cache 등이 정리될 여지를 만드는 유틸리티
