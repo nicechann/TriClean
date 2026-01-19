@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 import Darwin       // sysconf
-import SwiftUI      // 🔹 withAnimation 을 쓰려면 필요
+import SwiftUI      // withAnimation
 
 final class MemoryViewModel: ObservableObject {
 
@@ -17,15 +17,30 @@ final class MemoryViewModel: ObservableObject {
 
     // MARK: - 공개 계산 값
 
+    /// Activity Monitor 기준 '사용된 메모리' (App + Wired + Compressed)
+    var realUsedBytes: Int64 {
+        stats.appBytes + stats.wiredBytes + stats.compressedBytes
+    }
+
     var usagePercent: Int {
         let total = max(stats.totalBytes, 1)
         return Int(
-            (Double(stats.usedBytes) / Double(total) * 100).rounded()
+            (Double(realUsedBytes) / Double(total) * 100).rounded()
         )
     }
 
     var usageText: String {
         "\(usagePercent)%"
+    }
+    
+    /// ✅ 현재 설정된 단위(%, MB)에 맞춰 변환된 문자열 (뷰에서 사용)
+    var formattedCurrentUsage: String {
+        switch displayUnit {
+        case .percent:
+            return "\(usagePercent)%"
+        case .megabytes:
+            return formatBytes(realUsedBytes)
+        }
     }
 
     var totalMemoryText: String {
@@ -33,11 +48,15 @@ final class MemoryViewModel: ObservableObject {
     }
 
     var usedMemoryText: String {
-        formatBytes(stats.usedBytes)
+        formatBytes(realUsedBytes)
     }
 
     var freeMemoryText: String {
         formatBytes(stats.freeBytes)
+    }
+    
+    var cachedMemoryText: String {
+        formatBytes(stats.cachedBytes)
     }
 
     // MARK: - API
@@ -55,14 +74,13 @@ final class MemoryViewModel: ObservableObject {
         }
     }
 
-    /// 가벼운 메모리 압박을 통해 OS 가 캐시를 정리하도록 유도하고,
-    /// 정리 전/후의 실제 vm_stat 값을 completion 으로 반환
+    /// 가벼운 메모리 압박을 통해 OS 가 캐시를 정리하도록 유도
     func performClean(completion: @escaping (MemoryStats, MemoryStats) -> Void) {
         let before = stats
 
         DispatchQueue.global(qos: .userInitiated).async {
             MemoryCleaner.performLightClean(totalBytes: before.totalBytes)
-
+            Thread.sleep(forTimeInterval: 0.5)
             let after = MemoryReader.fetchStats()
 
             DispatchQueue.main.async {
@@ -94,17 +112,15 @@ enum MemoryReader {
         let lines = runVMStat()
         
         var values: [String: Int64] = [:]
-        
+      
         for line in lines {
-            // 예: "Pages free:                               1234."
             let parts = line.components(separatedBy: ":")
             guard parts.count == 2 else { continue }
             
             let key = parts[0].trimmingCharacters(in: .whitespaces)
-            
             let numberPart = parts[1]
-                .components(separatedBy: CharacterSet.decimalDigits.inverted)
-                .joined()
+               .trimmingCharacters(in: .whitespacesAndNewlines)
+               .replacingOccurrences(of: ".", with: "")
             
             if let v = Int64(numberPart) {
                 values[key] = v
@@ -115,7 +131,6 @@ enum MemoryReader {
             values[key] ?? 0
         }
         
-        // vm_stat 기준으로 대략적인 매핑
         let freePages        = pages("Pages free")
         let activePages      = pages("Pages active")
         let speculativePages = pages("Pages speculative")
@@ -125,8 +140,12 @@ enum MemoryReader {
         let fileBacked       = pages("File-backed pages")
         let purgeable        = pages("Pages purgeable")
         
-        let appPages   = activePages + speculativePages
-        let cachedPages = inactivePages + fileBacked + purgeable
+        // Activity Monitor 로직: Used = (Anonymous + Wired + Compressed)
+        let totalResident = activePages + inactivePages + speculativePages
+        let anonymousPages = totalResident - fileBacked
+        
+        let appPages = max(0, anonymousPages - purgeable)
+        let cachedPages = fileBacked + purgeable
         
         return MemoryStats(
             appBytes:        appPages       * pageSize,
@@ -158,39 +177,25 @@ enum MemoryReader {
         }
 
         return output
-            .split(separator: "\n")
-            .map { String($0) }
+           .split(separator: "\n")
+           .map { String($0) }
     }
-
 }
 
-/// 가벼운 메모리 압박을 통해 inactive / cache 등이 정리될 여지를 만드는 유틸리티
 private enum MemoryCleaner {
-
     static func performLightClean(totalBytes: Int64) {
-        // 너무 적은 용량이면 굳이 시도하지 않음
         guard totalBytes > 256 * 1024 * 1024 else { return }
-
-        // 전체의 5~10% 정도 선에서 clamp
-        let rawTarget = totalBytes / 10
-        let target = min(
-            max(rawTarget, 64 * 1024 * 1024),     // 최소 64MB
-            512 * 1024 * 1024                     // 최대 512MB
-        )
-
-        let count = Int(target / 4) // UInt32 기준
+        let rawTarget = totalBytes / 5
+        let target = min(max(rawTarget, 64 * 1024 * 1024), 1024 * 1024 * 1024)
+        let count = Int(target / 4)
         if count <= 0 { return }
-
+        
         var buffer = [UInt32](repeating: 0, count: count)
-
-        // 페이지를 실제로 touch 해서 OS 가 진짜 메모리를 할당하게 만듦
-        let step = max(count / 1024, 1)
+        let step = 4096 / 4
         var i = 0
         while i < count {
-            buffer[i] = 1
+            buffer[i] = UInt32.random(in: 0...100)
             i += step
         }
-
-        // 함수가 끝나면 buffer 가 해제되면서 OS 가 메모리 회수 기회를 가짐
     }
 }

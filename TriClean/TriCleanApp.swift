@@ -23,17 +23,17 @@ struct TriCleanApp: App {
         WindowGroup {
             ContentView()
                 .frame(minWidth: 900, minHeight: 600)
-                .environmentObject(memoryViewModel)   // 🔹 인스턴스 #1 아님, 공용 인스턴스
+                .environmentObject(memoryViewModel)
         }
 
         // 메뉴바
         MenuBarExtra {
             // 메뉴바 팝업 내용
             MenuMemoryView()
-                .environmentObject(memoryViewModel)   // 🔹 같은 인스턴스 재사용
+                .environmentObject(memoryViewModel)
         } label: {
-            // 메뉴바에 보이는 텍스트/아이콘
-            Text("\(memoryViewModel.usagePercent)%")
+            // ✅ [수정] 고정된 "%" 대신 ViewModel의 설정된 단위(%, MB)를 따라감
+            Text(memoryViewModel.formattedCurrentUsage)
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
         }
         .menuBarExtraStyle(.window)

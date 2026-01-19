@@ -11,8 +11,6 @@ struct MemoryView: View {
 
     // 앱 전체에서 공유하는 환경 객체 사용
     @EnvironmentObject var viewModel: MemoryViewModel
-    //@StateObject private var viewModel = MemoryViewModel()
-    //@ObservedObject var viewModel: MemoryViewModel   // ✅ 외부에서 주입
 
     // Clean Memory 후 우측 하단에 뜨는 트레이 상태
     @State private var showTray = false
@@ -52,6 +50,7 @@ struct MemoryView: View {
                 .bold()
 
             HStack(spacing: 12) {
+                // ViewModel에서 계산된(캐시 제외) 값을 표시
                 Text("Usage: \(viewModel.usageText)")
                     .font(.headline)
 
@@ -70,12 +69,6 @@ struct MemoryView: View {
 
                 // 단위 토글 (% / MB)
                 unitToggle
-
-//                Button {
-//                    viewModel.refresh()
-//                } label: {
-//                    Label("Refresh", systemImage: "arrow.clockwise")
-//                }
                 .controlSize(.small)
             }
         }
@@ -233,17 +226,21 @@ struct MemoryView: View {
 
     private func runClean() {
         viewModel.performClean { before, after in
+            // Activity Monitor 기준 (캐시 제외)으로 % 다시 계산해서 보여주기
             let totalBefore = max(before.totalBytes, 1)
             let totalAfter  = max(after.totalBytes, 1)
 
+            let usedBefore = before.appBytes + before.wiredBytes + before.compressedBytes
+            let usedAfter  = after.appBytes + after.wiredBytes + after.compressedBytes
+            
             let beforeUsage = Int(
-                (Double(before.usedBytes) / Double(totalBefore) * 100).rounded()
+                (Double(usedBefore) / Double(totalBefore) * 100).rounded()
             )
             let afterUsage = Int(
-                (Double(after.usedBytes) / Double(totalAfter) * 100).rounded()
+                (Double(usedAfter) / Double(totalAfter) * 100).rounded()
             )
 
-            trayMessage = "정리 전 \(beforeUsage)% → 정리 후 \(afterUsage)% (실제 시스템 기준)"
+            trayMessage = "정리 전 \(beforeUsage)% → 정리 후 \(afterUsage)% (캐시 제외 기준)"
             withAnimation {
                 showTray = true
             }
@@ -261,6 +258,8 @@ struct MemoryView: View {
 
 struct MemoryDonutView: View {
 
+    // ✅ ViewModel의 단위를 감지하기 위해 EnvironmentObject 추가
+    @EnvironmentObject var viewModel: MemoryViewModel
     let stats: MemoryStats
 
     var body: some View {
@@ -277,37 +276,70 @@ struct MemoryDonutView: View {
 
                 // 가운데 텍스트
                 VStack(spacing: 4) {
-                    Text("\(usagePercent)%")
-                        .font(.system(size: size * 0.24, weight: .bold))
+                    // ✅ 단위(Percent/Megabytes)에 따라 텍스트 변경
+                    Text(centerValueText)
+                        .font(.system(size: size * 0.22, weight: .bold)) // 글자가 길어질 수 있어 약간 줄임
+                        .minimumScaleFactor(0.6)                         // GB 단위 표시 시 잘리지 않도록 축소 허용
+                        .lineLimit(1)
+
                     Text("Usage")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+                .frame(width: size * 0.7) // 텍스트 영역 너비 제한
             }
             .frame(width: size, height: size)
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
     }
 
+    // ✅ 단위에 따른 표시 텍스트 계산
+    private var centerValueText: String {
+        switch viewModel.displayUnit {
+        case .percent:
+            return "\(usagePercent)%"
+        case .megabytes:
+            // Activity Monitor 기준 실사용량 (App + Wired + Compressed)
+            let realUsedBytes = stats.appBytes + stats.wiredBytes + stats.compressedBytes
+            return formatBytes(realUsedBytes)
+        }
+    }
+    
+    // 내부 포맷터 (MB/GB 변환)
+    private func formatBytes(_ bytes: Int64) -> String {
+        let gb = Double(bytes) / (1024.0 * 1024.0 * 1024.0)
+        if gb >= 1.0 {
+            return String(format: "%.1f GB", gb)
+        }
+        let mb = Double(bytes) / (1024.0 * 1024.0)
+        return String(format: "%.0f MB", mb)
+    }
+
     private var usagePercent: Int {
         let total = max(stats.totalBytes, 1)
+        
+        // ViewModel과 동일하게 '캐시(Cached)'를 제외한 실사용량으로 계산
+        // Activity Monitor: Used = App + Wired + Compressed
+        let realUsedBytes = stats.appBytes + stats.wiredBytes + stats.compressedBytes
+        
         return Int(
-            (Double(stats.usedBytes) / Double(total) * 100).rounded()
+            (Double(realUsedBytes) / Double(total) * 100).rounded()
         )
     }
 
     private func donutSegments(size: CGFloat, lineWidth: CGFloat) -> some View {
         let total = max(stats.totalBytes, 1)
 
+        // 각 영역별 비율 계산
         let appRatio        = Double(stats.appBytes)        / Double(total)
         let wiredRatio      = Double(stats.wiredBytes)      / Double(total)
         let compressedRatio = Double(stats.compressedBytes) / Double(total)
         let cachedRatio     = Double(stats.cachedBytes)     / Double(total)
-        //let freeRatio       = Double(stats.freeBytes)       / Double(total)
-
+        
         let startAngle = Angle(degrees: -90)
 
         return ZStack {
+            // 1. App Memory
             Circle()
                 .trim(from: 0,
                       to: CGFloat(appRatio))
@@ -315,6 +347,7 @@ struct MemoryDonutView: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
+            // 2. Wired Memory
             Circle()
                 .trim(from: CGFloat(appRatio),
                       to: CGFloat(appRatio + wiredRatio))
@@ -322,6 +355,7 @@ struct MemoryDonutView: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
+            // 3. Compressed
             Circle()
                 .trim(from: CGFloat(appRatio + wiredRatio),
                       to: CGFloat(appRatio + wiredRatio + compressedRatio))
@@ -329,6 +363,7 @@ struct MemoryDonutView: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
+            // 4. Cached Files
             Circle()
                 .trim(from: CGFloat(appRatio + wiredRatio + compressedRatio),
                       to: CGFloat(appRatio + wiredRatio + compressedRatio + cachedRatio))
@@ -336,12 +371,15 @@ struct MemoryDonutView: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
+            // 5. Free (나머지, 회색 배경이 보여지므로 그리지 않아도 되지만 명시적으로 그릴 수도 있음)
+            /*
             Circle()
                 .trim(from: CGFloat(appRatio + wiredRatio + compressedRatio + cachedRatio),
                       to: 1.0)
                 .stroke(Color.gray.opacity(0.7),
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
+             */
         }
     }
 }
@@ -370,12 +408,6 @@ private struct TrayView: View {
 
 #Preview {
     MemoryView()
-        .environmentObject(MemoryViewModel())   // ✅ 미리보기 전용
+        .environmentObject(MemoryViewModel())
         .frame(width: 950, height: 600)
 }
-
-//#Preview {
-//    MemoryView()
-//    //MemoryView(viewModel: memoryViewModel)
-//        .frame(width: 950, height: 600)
-//}
