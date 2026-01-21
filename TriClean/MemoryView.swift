@@ -44,7 +44,14 @@ struct MemoryView: View {
     // MARK: - 상단 요약
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        // ✅ Available = Cached + Free (Usage는 Cached 제외이므로, 보완값은 Available이 맞음)
+        let total = max(viewModel.stats.totalBytes, 1)
+        let availableBytes = max(
+            min(viewModel.stats.cachedBytes + viewModel.stats.freeBytes, total),
+            0
+        )
+
+        return VStack(alignment: .leading, spacing: 4) {
             Text("Memory")
                 .font(.largeTitle)
                 .bold()
@@ -60,7 +67,9 @@ struct MemoryView: View {
                     .font(.caption)
                 Text("·  Used: \(viewModel.usedMemoryText)")
                     .font(.caption)
-                Text("·  Free: \(viewModel.freeMemoryText)")
+
+                // ✅ Free 대신 Available 표시
+                Text("·  Available: \(formatBytes(availableBytes))")
                     .font(.caption)
             }
 
@@ -69,9 +78,19 @@ struct MemoryView: View {
 
                 // 단위 토글 (% / MB)
                 unitToggle
-                .controlSize(.small)
+                    .controlSize(.small)
             }
         }
+    }
+
+    // ✅ headerSection에서만 쓰는 포맷터(뷰모델 formatBytes와 동일 포맷)
+    private func formatBytes(_ bytes: Int64) -> String {
+        let gb = Double(bytes) / (1024.0 * 1024.0 * 1024.0)
+        if gb >= 1.0 {
+            return String(format: "%.1f GB", gb)
+        }
+        let mb = Double(bytes) / (1024.0 * 1024.0)
+        return String(format: "%.0f MB", mb)
     }
 
     // MARK: - 단위 토글 (% / MB)
@@ -210,8 +229,12 @@ struct MemoryView: View {
 
         switch viewModel.displayUnit {
         case .percent:
-            let ratio = Double(bytes) / Double(total)
-            return String(format: "%.0f%%", ratio * 100.0)
+            let percent = (Double(bytes) / Double(total)) * 100.0
+            if percent > 0, percent < 1 {
+                return "<1%"
+            }
+            return String(format: "%.0f%%", percent)
+
         case .megabytes:
             let mb = Double(bytes) / (1024.0 * 1024.0)
             if mb >= 1024 {

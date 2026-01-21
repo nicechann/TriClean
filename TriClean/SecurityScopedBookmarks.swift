@@ -61,13 +61,25 @@ final class SecurityScopedAccessToken {
     private let url: URL
     private let didStart: Bool
 
+    private let lock = NSLock()
+    private var didStop = false
+
     init?(url: URL) {
         self.url = url
         self.didStart = url.startAccessingSecurityScopedResource()
         if !didStart { return nil }
     }
 
+    func stop() {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard didStart, !didStop else { return }
+        didStop = true
+        url.stopAccessingSecurityScopedResource()
+    }
+
     deinit {
-        if didStart { url.stopAccessingSecurityScopedResource() }
+        stop()
     }
 }

@@ -226,7 +226,7 @@ struct ContentView: View {
                     HStack {
                         Label("Memory", systemImage: "memorychip")
                         Spacer()
-                        Text("\(memoryViewModel.usagePercent)%")
+                        Text(memoryViewModel.formattedCurrentUsage)
                             .font(.caption)
                     }
                 }
