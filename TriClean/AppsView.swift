@@ -50,21 +50,29 @@ private enum AppsSecurityScopedBookmarks {
     }
 }
 
-// @unchecked Sendable 적용 및 init을 nonisolated로 선언
 private final class AppsScopedAccessToken: @unchecked Sendable {
     private let url: URL
     private let started: Bool
 
-    nonisolated init?(url: URL) {
+    private var isStopped = false
+    private let lock = NSLock()
+
+    init?(url: URL) {
         self.url = url
         self.started = url.startAccessingSecurityScopedResource()
-        if !started { return nil }
+        if !self.started { return nil }
+    }
+
+    func stop() {
+        guard started else { return }
+        lock.lock(); defer { lock.unlock() }
+        guard !isStopped else { return }
+        isStopped = true
+        url.stopAccessingSecurityScopedResource()
     }
 
     deinit {
-        if started {
-            url.stopAccessingSecurityScopedResource()
-        }
+        stop() // ✅ 안전망(호출 누락 방지)
     }
 }
 
@@ -603,7 +611,6 @@ final class AppsViewModel: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting(urls)
     }
 
-    // ✅ 콜백을 통해 View에서 Alert 제어
     func uninstallSelectedInstalledApps(completion: @escaping (AppsActiveAlert?) -> Void) {
         let targets = deletableSelectedApps
         guard !targets.isEmpty else {
@@ -620,9 +627,11 @@ final class AppsViewModel: ObservableObject {
         let manualURL = manualAppBundleURL
 
         Task {
-            // (성공, 실패) 튜플 반환
-            let (succeeded, failed) = await self.performUninstall(targets: targets, appFolderURL: appFolder, manualURL: manualURL)
-            
+            // ✅ 삭제 루프는 detached로 백그라운드 실행
+            let (succeeded, failed) = await Task.detached(priority: .userInitiated) {
+                await Self.performUninstall(targets: targets, appFolderURL: appFolder, manualURL: manualURL)
+            }.value
+
             self.isRemoving = false
             self.lastFailedApps = failed
 
@@ -640,42 +649,44 @@ final class AppsViewModel: ObservableObject {
             // 메시지 처리 및 Alert 결정
             if succeeded.isEmpty && failed.isEmpty {
                 // 이상 케이스
+                completion(nil)
             } else if succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "선택한 앱을 자동으로 삭제할 수 없습니다. (시스템/Admin 권한 필요)"
-                // 🔴 전부 실패 시 Alert 띄움 -> 사용자에게 Finder에서 삭제 유도
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
-                // 전부 성공
                 let names = succeeded.map(\.name).joined(separator: ", ")
                 self.lastStatusIsError = false
                 self.lastStatusMessage = "앱 \(succeeded.count)개(\(names))을 휴지통으로 이동했습니다."
                 completion(nil)
             } else {
-                // 일부 성공, 일부 실패
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "\(succeeded.count)개 성공, \(failed.count)개 실패 (시스템/Admin 권한 필요)"
-                // 🔴 일부 실패 시 Alert 띄움
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             }
         }
     }
-    
-    // ✅ [수정] 2단계 전략 (FileManager -> NSWorkspace) 후 실패 시 "실패 목록"에 추가
-    // 불필요한 '사용자 권한 요청(Panel)' 제거 (Root 권한 문제이므로 Panel로 해결 안 됨)
-    nonisolated private func performUninstall(targets: [AppsInstalledApp], appFolderURL: URL?, manualURL: URL?) async -> ([AppsInstalledApp], [AppsInstalledApp]) {
+
+    nonisolated private static func performUninstall(
+        targets: [AppsInstalledApp],
+        appFolderURL: URL?,
+        manualURL: URL?
+    ) async -> ([AppsInstalledApp], [AppsInstalledApp]) {
         let fm = FileManager.default
         var succeeded: [AppsInstalledApp] = []
         var failed: [AppsInstalledApp] = []
-        
+
         var tokens: [AppsScopedAccessToken] = []
         if let url = appFolderURL, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
         if let url = manualURL, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
+        defer { tokens.forEach { $0.stop() } } // ✅ 명시 stop
 
         for app in targets {
             let itemToken = AppsScopedAccessToken(url: app.url)
+            defer { itemToken?.stop() } // ✅ 명시 stop
+
             var success = false
-            
+
             // 시도 1: FileManager
             do {
                 var resultingURL: NSURL?
@@ -684,27 +695,24 @@ final class AppsViewModel: ObservableObject {
             } catch {
                 print("FileManager 삭제 실패 (\(app.name)): \(error). NSWorkspace로 재시도.")
                 // 시도 2: NSWorkspace
-                success = await moveItemToTrashUsingWorkspace(url: app.url)
+                success = await Self.moveItemToTrashUsingWorkspace(url: app.url)
             }
-            
+
             if success {
                 succeeded.append(app)
             } else {
                 print("최종 삭제 실패: \(app.name). 사용자에게 Finder 삭제를 안내합니다.")
                 failed.append(app)
             }
-            
-            _ = itemToken
         }
-        
-        _ = tokens
+
         return (succeeded, failed)
     }
-    
-    nonisolated private func moveItemToTrashUsingWorkspace(url: URL) async -> Bool {
+
+    nonisolated private static func moveItemToTrashUsingWorkspace(url: URL) async -> Bool {
         return await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
-                NSWorkspace.shared.recycle([url]) { resultDict, error in
+                NSWorkspace.shared.recycle([url]) { _, error in
                     if let error = error {
                         print("NSWorkspace 삭제 실패: \(error)")
                         continuation.resume(returning: false)
@@ -719,14 +727,17 @@ final class AppsViewModel: ObservableObject {
     func removeSelectedRelatedItems() {
         let targets = relatedItems.filter { $0.selected }
         guard !targets.isEmpty else { return }
-        
+
         let libURL = userLibraryFolderURL
 
         isRemoving = true
         lastStatusMessage = nil
 
         Task {
-            let count = await self.performRelatedRemoval(targets: targets, libraryRoot: libURL)
+            let count = await Task.detached(priority: .userInitiated) {
+                await Self.performRelatedRemoval(targets: targets, libraryRoot: libURL)
+            }.value
+
             self.isRemoving = false
             if count > 0 {
                 self.lastStatusIsError = false
@@ -739,34 +750,51 @@ final class AppsViewModel: ObservableObject {
             }
         }
     }
-    
-    nonisolated private func performRelatedRemoval(targets: [AppsRelatedItem], libraryRoot: URL?) async -> Int {
+
+    nonisolated private static func performRelatedRemoval(
+        targets: [AppsRelatedItem],
+        libraryRoot: URL?
+    ) async -> Int {
         let fm = FileManager.default
         var count = 0
-        
+
         var tokens: [AppsScopedAccessToken] = []
         if let url = libraryRoot, let t = AppsScopedAccessToken(url: url) { tokens.append(t) }
-        
+        defer { tokens.forEach { $0.stop() } } // ✅ 명시 stop
+
         for item in targets {
             let itemToken = AppsScopedAccessToken(url: item.url)
+            defer { itemToken?.stop() } // ✅ 명시 stop
+
             var success = false
-            
             do {
                 var resultingURL: NSURL?
                 try fm.trashItem(at: item.url, resultingItemURL: &resultingURL)
                 success = true
             } catch {
                 print("FileManager 삭제 실패 (RelatedItem): \(error). NSWorkspace로 재시도.")
-                success = await moveItemToTrashUsingWorkspace(url: item.url)
+                success = await Self.moveItemToTrashUsingWorkspace(url: item.url)
             }
-            
+
             if success { count += 1 }
-            _ = itemToken
         }
-        
-        _ = tokens
+
         return count
     }
+
+    func failedAppNamesForAlert(maxCount: Int = 6) -> String {
+        let names = lastFailedApps.map(\.name).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard !names.isEmpty else { return "" }
+
+        if names.count <= maxCount {
+            return names.joined(separator: ", ")
+        }
+
+        let head = names.prefix(maxCount).joined(separator: ", ")
+        return "\(head) 외 \(names.count - maxCount)개"
+    }
+
+
 }
 
 // MARK: - View
@@ -1060,53 +1088,105 @@ struct AppsView: View {
             Spacer(minLength: 0)
         }
         .padding()
-        .alert(item: $activeAlert) { alert in
-            switch alert {
-            case .uninstallApps:
-                let count = viewModel.deletableSelectedApps.count
-                return Alert(
-                    title: Text("선택한 앱 삭제"),
-                    message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
-                    primaryButton: .destructive(Text("Uninstall")) {
-                        // ✅ 콜백을 통해 결과 Alert 처리
-                        viewModel.uninstallSelectedInstalledApps { nextAlert in
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                self.activeAlert = nextAlert
-                            }
-                        }
-                    },
-                    secondaryButton: .cancel()
-                )
-
-            case .uninstallPartialFail(let success, let failed):
-                return Alert(
-                    title: Text("자동 삭제 실패 (권한 제한)"),
-                    message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
-                    dismissButton: .default(Text("Show in Finder")) {
-                        viewModel.revealFailedApps()
-                    }
-                )
-
-            case .removeRelatedFiles:
-                let count = viewModel.relatedItems.filter { $0.selected }.count
-                return Alert(
-                    title: Text("관련 파일 삭제"),
-                    message: Text("선택한 \(count)개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?"),
-                    primaryButton: .destructive(Text("Move to Trash")) { viewModel.removeSelectedRelatedItems() },
-                    secondaryButton: .cancel()
-                )
-
-            case .resetPermissions:
-                return Alert(
-                    title: Text("권한 초기화"),
-                    message: Text("선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다."),
-                    primaryButton: .destructive(Text("초기화")) { viewModel.resetPermissions() },
-                    secondaryButton: .cancel()
-                )
-            }
-        }
+        .alert(item: $activeAlert) { makeAlert($0) }
+//        .alert(item: $activeAlert) { alert in
+//            switch alert {
+//            case .uninstallApps:
+//                let count = viewModel.deletableSelectedApps.count
+//                return Alert(
+//                    title: Text("선택한 앱 삭제"),
+//                    message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
+//                    primaryButton: .destructive(Text("Uninstall")) {
+//                        // ✅ 콜백을 통해 결과 Alert 처리
+//                        viewModel.uninstallSelectedInstalledApps { nextAlert in
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                                self.activeAlert = nextAlert
+//                            }
+//                        }
+//                    },
+//                    secondaryButton: .cancel()
+//                )
+//
+//            case .uninstallPartialFail(let success, let failed):
+//                return Alert(
+//                    title: Text("자동 삭제 실패 (권한 제한)"),
+//                    message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
+//                    dismissButton: .default(Text("Show in Finder")) {
+//                        viewModel.revealFailedApps()
+//                    }
+//                )
+//
+//            case .removeRelatedFiles:
+//                let count = viewModel.relatedItems.filter { $0.selected }.count
+//                return Alert(
+//                    title: Text("관련 파일 삭제"),
+//                    message: Text("선택한 \(count)개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?"),
+//                    primaryButton: .destructive(Text("Move to Trash")) { viewModel.removeSelectedRelatedItems() },
+//                    secondaryButton: .cancel()
+//                )
+//
+//            case .resetPermissions:
+//                return Alert(
+//                    title: Text("권한 초기화"),
+//                    message: Text("선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다."),
+//                    primaryButton: .destructive(Text("초기화")) { viewModel.resetPermissions() },
+//                    secondaryButton: .cancel()
+//                )
+//            }
+//        }
     }
 
+    private func makeAlert(_ alert: AppsActiveAlert) -> Alert {
+        switch alert {
+        case .uninstallApps:
+            let count = viewModel.deletableSelectedApps.count
+            return Alert(
+                title: Text("선택한 앱 삭제"),
+                message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
+                primaryButton: .destructive(Text("휴지통으로 이동")) {
+                    viewModel.uninstallSelectedInstalledApps { nextAlert in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.activeAlert = nextAlert
+                        }
+                    }
+                },
+                secondaryButton: .cancel(Text("취소"))
+            )
+
+        case .uninstallPartialFail(_, let failed):
+            let names = viewModel.failedAppNamesForAlert()
+            let namesLine = names.isEmpty ? "" : "\n\n실패한 앱: \(names)"
+
+            return Alert(
+                title: Text("자동 삭제 실패 (권한 제한)"),
+                message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\(namesLine)\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
+                primaryButton: .default(Text("Finder에서 보기")) {
+                    viewModel.revealFailedApps()
+                },
+                secondaryButton: .cancel(Text("닫기"))
+            )
+
+        case .removeRelatedFiles:
+            let count = viewModel.relatedItems.filter { $0.selected }.count
+            return Alert(
+                title: Text("관련 파일 삭제"),
+                message: Text("선택한 \(count)개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?"),
+                primaryButton: .destructive(Text("휴지통으로 이동")) {
+                    viewModel.removeSelectedRelatedItems()
+                },
+                secondaryButton: .cancel(Text("취소"))
+            )
+
+        case .resetPermissions:
+            return Alert(
+                title: Text("권한 초기화"),
+                message: Text("선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다."),
+                primaryButton: .destructive(Text("초기화")) { viewModel.resetPermissions() },
+                secondaryButton: .cancel(Text("취소"))
+            )
+        }
+    }
+    
     private func binding(for item: AppsRelatedItem) -> Binding<Bool> {
         Binding(
             get: { viewModel.relatedItems.first(where: { $0.id == item.id })?.selected ?? false },
