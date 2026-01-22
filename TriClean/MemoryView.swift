@@ -11,6 +11,7 @@ struct MemoryView: View {
 
     // 앱 전체에서 공유하는 환경 객체 사용
     @EnvironmentObject var viewModel: MemoryViewModel
+    @Environment(\.colorScheme) private var colorScheme
 
     // Clean Memory 후 우측 하단에 뜨는 트레이 상태
     @State private var showTray = false
@@ -41,44 +42,42 @@ struct MemoryView: View {
         }
     }
 
+    private var availableBytes: Int64 {
+        let s = viewModel.stats
+        return max(s.totalBytes - (s.appBytes + s.wiredBytes + s.compressedBytes), Int64(0))
+    }
+
+    private func formatHeaderBytes(_ bytes: Int64) -> String {
+        let gb = Double(bytes) / (1024.0 * 1024.0 * 1024.0)
+        if gb >= 1.0 { return String(format: "%.1f GB", gb) }
+        let mb = Double(bytes) / (1024.0 * 1024.0)
+        return String(format: "%.0f MB", mb)
+    }
+
     // MARK: - 상단 요약
 
     private var headerSection: some View {
-        // ✅ Available = Cached + Free (Usage는 Cached 제외이므로, 보완값은 Available이 맞음)
-        let total = max(viewModel.stats.totalBytes, 1)
-        let availableBytes = max(
-            min(viewModel.stats.cachedBytes + viewModel.stats.freeBytes, total),
-            0
-        )
-
-        return VStack(alignment: .leading, spacing: 4) {
-            Text("Memory")
-                .font(.largeTitle)
-                .bold()
-
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
-                // ViewModel에서 계산된(캐시 제외) 값을 표시
-                Text("Usage: \(viewModel.usageText)")
+                Text("In Use: \(viewModel.usageText)")
                     .font(.headline)
-
-                Spacer()
 
                 Text("Total: \(viewModel.totalMemoryText)")
                     .font(.caption)
+                    .foregroundColor(.secondary)
+
                 Text("·  Used: \(viewModel.usedMemoryText)")
                     .font(.caption)
+                    .foregroundColor(.secondary)
 
-                // ✅ Free 대신 Available 표시
-                Text("·  Available: \(formatBytes(availableBytes))")
+                Text("·  Available:  \(formatHeaderBytes(availableBytes))")
                     .font(.caption)
+                    .foregroundColor(.secondary)
             }
 
             HStack {
                 Spacer()
-
-                // 단위 토글 (% / MB)
                 unitToggle
-                    .controlSize(.small)
             }
         }
     }
@@ -172,7 +171,8 @@ struct MemoryView: View {
                 .padding(.top, 16)      // 제목과 도넛 사이
                 .padding(.bottom, 30)    // 도넛과 하단 설명 사이
 
-                Text("※ App / Wired / Compressed / Cached / Free 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
+                //Text("※ App / Wired / Compressed / Cached / Free 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
+                Text("※ App / Wired / Compressed / Available 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .padding(.top, 4)
@@ -182,6 +182,12 @@ struct MemoryView: View {
 
     private var legendSection: some View {
         let s = viewModel.stats
+
+        // ✅ 도넛의 Available과 같은 톤으로 맞춤
+        let availableColor: Color = (colorScheme == .dark)
+            ? Color.white.opacity(0.38)
+            : Color.black.opacity(0.10)
+
         return VStack(alignment: .leading, spacing: 8) {
             legendRow(
                 color: Color(red: 0.43, green: 0.84, blue: 0.41),
@@ -199,14 +205,9 @@ struct MemoryView: View {
                 bytes: s.compressedBytes
             )
             legendRow(
-                color: Color(red: 0.28, green: 0.62, blue: 1.0),
-                name: "Cached Files",
-                bytes: s.cachedBytes
-            )
-            legendRow(
-                color: Color.gray.opacity(0.7),
-                name: "Free",
-                bytes: s.freeBytes
+                color: availableColor,
+                name: "Available",
+                bytes: availableBytes
             )
         }
     }
@@ -283,37 +284,55 @@ struct MemoryDonutView: View {
 
     // ✅ ViewModel의 단위를 감지하기 위해 EnvironmentObject 추가
     @EnvironmentObject var viewModel: MemoryViewModel
+    @Environment(\.colorScheme) private var colorScheme
+
     let stats: MemoryStats
 
     var body: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
-            let lineWidth = size * 0.18  // 도넛 두께
+            let lineWidth = size * 0.18
 
             ZStack {
-                // 배경 링
+                // ✅ 배경 링은 “은은한 링”으로 (Available과 동일색 쓰지 않음)
                 Circle()
-                    .stroke(Color.gray.opacity(0.35), lineWidth: lineWidth)
+                    .stroke(ringBackgroundColor, lineWidth: lineWidth)
 
                 donutSegments(size: size, lineWidth: lineWidth)
 
-                // 가운데 텍스트
                 VStack(spacing: 4) {
-                    // ✅ 단위(Percent/Megabytes)에 따라 텍스트 변경
                     Text(centerValueText)
-                        .font(.system(size: size * 0.22, weight: .bold)) // 글자가 길어질 수 있어 약간 줄임
-                        .minimumScaleFactor(0.6)                         // GB 단위 표시 시 잘리지 않도록 축소 허용
+                        .font(.system(size: size * 0.22, weight: .bold))
+                        .minimumScaleFactor(0.6)
                         .lineLimit(1)
 
-                    Text("Usage")
+                    Text(centerLabelText)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                .frame(width: size * 0.7) // 텍스트 영역 너비 제한
+                .frame(width: size * 0.7)
             }
             .frame(width: size, height: size)
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
+    }
+
+    private var ringBackgroundColor: Color {
+        colorScheme == .dark
+        ? Color.white.opacity(0.10)
+        : Color.black.opacity(0.06)
+    }
+
+    private var availableColor: Color {
+        // ✅ 사용자가 원한 “흰색 계열(다크)” 톤
+        colorScheme == .dark
+        ? Color.white.opacity(0.38)
+        : Color.black.opacity(0.10)
+    }
+
+    // ✅ 중앙 라벨: "Usage" 대신 "In Use"(= Used 의미)로 명확화
+    private var centerLabelText: String {
+        "In Use"
     }
 
     // ✅ 단위에 따른 표시 텍스트 계산
@@ -353,58 +372,44 @@ struct MemoryDonutView: View {
     private func donutSegments(size: CGFloat, lineWidth: CGFloat) -> some View {
         let total = max(stats.totalBytes, 1)
 
-        // 각 영역별 비율 계산
         let appRatio        = Double(stats.appBytes)        / Double(total)
         let wiredRatio      = Double(stats.wiredBytes)      / Double(total)
         let compressedRatio = Double(stats.compressedBytes) / Double(total)
-        let cachedRatio     = Double(stats.cachedBytes)     / Double(total)
-        
+
+        let usedRatio = max(0.0, min(appRatio + wiredRatio + compressedRatio, 1.0))
+        let availableRatio = max(0.0, 1.0 - usedRatio) // Available = Cached + Free
+
         let startAngle = Angle(degrees: -90)
 
         return ZStack {
-            // 1. App Memory
             Circle()
-                .trim(from: 0,
-                      to: CGFloat(appRatio))
+                .trim(from: 0, to: CGFloat(appRatio))
                 .stroke(Color(red: 0.43, green: 0.84, blue: 0.41),
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
-            // 2. Wired Memory
             Circle()
-                .trim(from: CGFloat(appRatio),
-                      to: CGFloat(appRatio + wiredRatio))
+                .trim(from: CGFloat(appRatio), to: CGFloat(appRatio + wiredRatio))
                 .stroke(Color(red: 0.99, green: 0.71, blue: 0.31),
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
-            // 3. Compressed
             Circle()
-                .trim(from: CGFloat(appRatio + wiredRatio),
-                      to: CGFloat(appRatio + wiredRatio + compressedRatio))
+                .trim(from: CGFloat(appRatio + wiredRatio), to: CGFloat(usedRatio))
                 .stroke(Color(red: 0.69, green: 0.48, blue: 1.0),
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
 
-            // 4. Cached Files
+            // ✅ Available 색상 적용 (흰색 계열)
             Circle()
-                .trim(from: CGFloat(appRatio + wiredRatio + compressedRatio),
-                      to: CGFloat(appRatio + wiredRatio + compressedRatio + cachedRatio))
-                .stroke(Color(red: 0.28, green: 0.62, blue: 1.0),
+                .trim(from: CGFloat(usedRatio),
+                      to: CGFloat(min(1.0, usedRatio + availableRatio)))
+                .stroke(availableColor,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
                 .rotationEffect(startAngle)
-
-            // 5. Free (나머지, 회색 배경이 보여지므로 그리지 않아도 되지만 명시적으로 그릴 수도 있음)
-            /*
-            Circle()
-                .trim(from: CGFloat(appRatio + wiredRatio + compressedRatio + cachedRatio),
-                      to: 1.0)
-                .stroke(Color.gray.opacity(0.7),
-                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
-                .rotationEffect(startAngle)
-             */
         }
     }
+
 }
 
 // MARK: - 트레이 뷰

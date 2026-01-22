@@ -59,6 +59,15 @@ final class MemoryViewModel: ObservableObject {
         formatBytes(stats.cachedBytes)
     }
 
+    // ✅ Available = Cached + Free (Activity Monitor의 “사용 가능” 개념에 맞춤)
+    var availableBytes: Int64 {
+        stats.cachedBytes + stats.freeBytes
+    }
+
+    var availableMemoryText: String {
+        formatBytes(availableBytes)
+    }
+
     // MARK: - API
 
     /// vm_stat 를 다시 읽어서 최신 메모리 정보로 갱신
