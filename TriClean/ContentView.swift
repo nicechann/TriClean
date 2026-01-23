@@ -140,6 +140,7 @@ enum SidebarItem: Hashable {
     case storage
     case memory
     case apps
+    case settings
 }
 
 struct ContentView: View {
@@ -173,6 +174,11 @@ struct ContentView: View {
                 NavigationLink(value: SidebarItem.apps) {
                     Label("Apps", systemImage: "app.dashed")
                 }
+
+                // SETTINGS
+                NavigationLink(value: SidebarItem.settings) {
+                    Label("Settings", systemImage: "gearshape")
+                }
             }
             .listStyle(.sidebar)
 
@@ -187,6 +193,10 @@ struct ContentView: View {
 
             case .apps:
                 AppsView()
+
+
+            case .settings:
+                SettingsView()
             }
         }
         .onAppear {
@@ -200,7 +210,201 @@ struct ContentView: View {
     }
 }
 
+
+
+// MARK: - Settings
+
+/// 디버그/표시 옵션을 런타임에 바꾸기 위한 설정 화면
+struct SettingsView: View {
+    @EnvironmentObject var memoryViewModel: MemoryViewModel
+
+    private var appVersion: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "—"
+    }
+
+    private var buildNumber: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "—"
+    }
+
+    private var macOSVersion: String {
+        ProcessInfo.processInfo.operatingSystemVersionString
+    }
+
+    #if DEBUG
+    // Debug 빌드에서만 노출되는 테스트 옵션 (출시본에서는 컴파일 제외)
+    private enum CleanPreset: String, CaseIterable, Identifiable {
+        case random = "Random"
+        case touch  = "Touch"
+        case zero   = "0x00"
+        case a5     = "0xA5"
+
+        var id: String { rawValue }
+
+        var mode: MemoryCleanFillMode {
+            switch self {
+            case .random: return .randomFill
+            case .touch:  return .pageTouch
+            case .zero:   return .zeroFill
+            case .a5:     return .patternA5
+            }
+        }
+
+        static func from(_ mode: MemoryCleanFillMode) -> CleanPreset {
+            switch mode {
+            case .randomFill:
+                return .random
+            case .pageTouch:
+                return .touch
+            case .memsetFill(let value):
+                return value == 0xA5 ? .a5 : .zero
+            }
+        }
+    }
+
+    private var cleanPresetBinding: Binding<CleanPreset> {
+        Binding(
+            get: { CleanPreset.from(memoryViewModel.cleanFillMode) },
+            set: { memoryViewModel.cleanFillMode = $0.mode }
+        )
+    }
+    #endif
+
+    var body: some View {
+        ScrollView {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 12) {
+
+                    // Display
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .center, spacing: 12) {
+                                Text("Menu Bar Unit")
+                                    .frame(width: 120, alignment: .leading)
+
+                                Picker("", selection: $memoryViewModel.displayUnit) {
+                                    ForEach(MemoryDisplayUnit.allCases) { unit in
+                                        Text(unit.title).tag(unit)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .labelsHidden()
+                                .frame(width: 180)
+                            }
+
+                            Text("메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(10)
+                    } label: {
+                        Text("Display")
+                    }
+
+                    // About
+                    GroupBox {
+                        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
+                            GridRow {
+                                Text("Version")
+                                Text(appVersion)
+                                    .foregroundColor(.secondary)
+                            }
+                            GridRow {
+                                Text("Build")
+                                Text(buildNumber)
+                                    .foregroundColor(.secondary)
+                            }
+                            GridRow {
+                                Text("macOS")
+                                Text(macOSVersion)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("About")
+                    }
+
+                    // Help (요약 + 자세히 보기)
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 10) {
+
+                            DisclosureGroup {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("• 임시 버퍼를 할당/쓰기하여 메모리 압박을 만들고, OS가 캐시/압축 정책을 조정하도록 유도합니다.")
+                                    Text("• 환경(여유 메모리/압축/스왑 상태)에 따라 변화 폭이 다를 수 있습니다.")
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 6)
+                            } label: {
+                                Text("Clean Memory: OS 메모리 정책 조정 유도")
+                                    .font(.callout)
+                            }
+
+                            DisclosureGroup {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.")
+                                    Text("• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.")
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 6)
+                            } label: {
+                                Text("Apps 검색: Spotlight 인덱싱/제외 설정 영향")
+                                    .font(.callout)
+                            }
+                        }
+                        .padding(10)
+                    } label: {
+                        Text("Help")
+                    }
+
+                    #if DEBUG
+                    // Debug (Debug 빌드에서만 노출)
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .center, spacing: 12) {
+                                Text("Clean Fill Mode")
+                                    .frame(width: 120, alignment: .leading)
+
+                                Picker("", selection: cleanPresetBinding) {
+                                    ForEach(CleanPreset.allCases) { preset in
+                                        Text(preset.rawValue).tag(preset)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .labelsHidden()
+                                .frame(maxWidth: 420)
+                            }
+
+                            Text("메모리 정리 시 버퍼를 채우는 방식(랜덤/페이지 터치/패턴)을 선택합니다. Release 빌드에서는 Touch로 고정됩니다.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(10)
+                    } label: {
+                        Text("Debug")
+                    }
+                    #endif
+                }
+                .frame(minWidth: 560, idealWidth: 600, maxWidth: 640, alignment: .leading)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle("Settings")
+    }
+}
+
 #Preview {
+
     ContentView()
         .environmentObject(MemoryViewModel())
 }
