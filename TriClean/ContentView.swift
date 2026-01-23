@@ -64,79 +64,17 @@ final class SidebarStatusViewModel: ObservableObject {
         isRefreshing = true
 
         DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/vm_stat")
-
-            let pipe = Pipe()
-            process.standardOutput = pipe
-
-            do {
-                try process.run()
-            } catch {
-                DispatchQueue.main.async {
-                    self.isRefreshing = false
-                }
-                return
-            }
-
-            process.waitUntilExit()
-
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else {
-                DispatchQueue.main.async {
-                    self.isRefreshing = false
-                }
-                return
-            }
-
-            var freePages: Double = 0
-            var activePages: Double = 0
-            var inactivePages: Double = 0
-            var wiredPages: Double = 0
-            var compressedPages: Double = 0
-
-            for line in output.split(separator: "\n") {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-
-                if trimmed.hasPrefix("Pages free") {
-                    freePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages active") {
-                    activePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages inactive") {
-                    inactivePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages wired down") {
-                    wiredPages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages occupied by compressor") {
-                    compressedPages = Self.parsePages(from: trimmed)
-                }
-            }
-
-            let totalPages = freePages + activePages + inactivePages + wiredPages + compressedPages
-            let usedPages  = activePages + inactivePages + wiredPages + compressedPages
-
-            let percent: Int
-            if totalPages > 0 {
-                // Double 비율 → Int %
-                percent = Int((usedPages / totalPages) * 100.0)
-            } else {
-                percent = 0
-            }
+            // Native Mach VM 통계 기반 (vm_stat 프로세스 호출 제거)
+            let stats = MemoryReader.fetchStats()
+            let used = max(stats.appBytes + stats.wiredBytes + stats.compressedBytes, 0)
+            let total = max(stats.totalBytes, 1)
+            let percent = Int((Double(used) / Double(total)) * 100.0)
 
             DispatchQueue.main.async {
                 self.memoryUsagePercent = max(0, min(100, percent))
                 self.isRefreshing = false
             }
         }
-    }
-
-    private static func parsePages(from line: String) -> Double {
-        let comps = line.components(separatedBy: CharacterSet.decimalDigits.inverted)
-        for part in comps {
-            if let value = Double(part) {
-                return value
-            }
-        }
-        return 0
     }
 }
 
@@ -391,3 +329,4 @@ struct ContentView: View {
 //#Preview {
 //    ContentView()
 //}
+

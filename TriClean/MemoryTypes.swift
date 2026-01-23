@@ -23,7 +23,7 @@ enum MemoryDisplayUnit: String, CaseIterable, Identifiable {
     }
 }
 
-/// vm_stat 를 기반으로 구성한 메모리 구성 값
+/// macOS Mach VM 통계(host_statistics64)를 기반으로 구성한 메모리 구성 값
 struct MemoryStats {
     var appBytes: Int64        // 활성/사용 중 메모리
     var wiredBytes: Int64      // Wired
@@ -47,3 +47,4 @@ struct MemoryStats {
         freeBytes: 0
     )
 }
+

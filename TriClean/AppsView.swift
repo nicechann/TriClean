@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import AppKit
 import UniformTypeIdentifiers
+import CoreServices
 
 // MARK: - AppsView 전용 Security-Scoped Bookmark 유틸
 
@@ -547,7 +548,7 @@ final class AppsViewModel: ObservableObject {
         }
 
         if let bundleID, !bundleID.isEmpty {
-            for item in runMdfind(in: libraryRoot, bundleID: bundleID) {
+            for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
                 upsert(item)
             }
 
@@ -589,35 +590,50 @@ final class AppsViewModel: ObservableObject {
         return Array(dict.values).sorted { $0.path.localizedCaseInsensitiveCompare($1.path) == .orderedAscending }
     }
 
-    nonisolated private static func runMdfind(in searchScope: URL, bundleID: String) -> [AppsRelatedItem] {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/mdfind")
-        process.arguments = ["-onlyin", searchScope.path, "kMDItemCFBundleIdentifier == '\(bundleID)'"]
+    /// 외부 프로세스(`/usr/bin/mdfind`) 대신 Spotlight File Metadata API(MDQuery)로 검색합니다.
+    ///
+    /// - Note:
+    ///   * Spotlight 인덱싱/사용자 Spotlight 제외 설정 등에 따라 결과가 0일 수 있습니다.
+    ///   * 검색 범위는 `searchScope` 하위로 제한합니다(샌드박스에서 접근 가능한 위치에 한함).
+    nonisolated private static func runSpotlightQuery(in searchScope: URL, bundleID: String) -> [AppsRelatedItem] {
+        // Query expression syntax: attribute == "value"
+        // 문자열에 따옴표/역슬래시가 들어갈 수 있으므로 escaping
+        let escaped = bundleID
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
+        let queryString = "kMDItemCFBundleIdentifier == \"\(escaped)\""
 
-        do {
-            try process.run()
-            process.waitUntilExit()
-
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else { return [] }
-
-            var found: [AppsRelatedItem] = []
-            let lines = output.split(separator: "\n").map(String.init)
-
-            for path in lines where !path.isEmpty {
-                let url = URL(fileURLWithPath: path)
-                if url.path.hasPrefix(searchScope.path) {
-                    let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
-                    found.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir))
-                }
-            }
-            return found
-        } catch {
+        guard let query = MDQueryCreate(kCFAllocatorDefault, queryString as CFString, nil, nil) else {
             return []
         }
+
+        // 제한 범위 설정: `mdfind -onlyin <path>`와 동일한 목적
+        MDQuerySetSearchScope(query, [searchScope.path] as CFArray, 0)
+
+        // 동기 실행(백그라운드 Task에서 호출)
+        let ok = MDQueryExecute(query, CFOptionFlags(kMDQuerySynchronous.rawValue))
+        guard ok else { return [] }
+
+        let count = Int(MDQueryGetResultCount(query))
+        guard count > 0 else { return [] }
+
+        var found: [AppsRelatedItem] = []
+        found.reserveCapacity(min(count, 512))
+
+        for i in 0..<count {
+            guard let rawPtr = MDQueryGetResultAtIndex(query, i) else { continue }
+            let item = Unmanaged<MDItem>.fromOpaque(rawPtr).takeUnretainedValue()
+
+            guard let path = MDItemCopyAttribute(item, kMDItemPath) as? String, !path.isEmpty else { continue }
+            let url = URL(fileURLWithPath: path)
+            guard url.path.hasPrefix(searchScope.path) else { continue }
+
+            let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+            found.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir))
+        }
+
+        return found
     }
 
     // MARK: - Uninstall
@@ -1219,3 +1235,4 @@ struct AppsView: View {
 #Preview {
     AppsView()
 }
+
