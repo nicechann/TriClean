@@ -356,6 +356,7 @@ struct StorageView: View {
     @State private var selectedFolderURL: URL? = nil
     @State private var isScanning: Bool = false
     @State private var isAutoUpdating: Bool = false
+    @State private var scanTask: Task<Void, Never>? = nil
     @State private var scanMessage: String =
         "스캔 결과가 없습니다. 상단의 'Select Folder & Scan' 버튼을 눌러 분석을 시작하세요."
 
@@ -771,7 +772,7 @@ struct StorageView: View {
             let token = StorageSecurityScopedAccessToken(homeURL)
             defer { token.stop() }
 
-            let size = folderSizeBytes(at: homeURL)
+            let size = Self.folderSizeBytes(at: homeURL)
 
             DispatchQueue.main.async {
                 self.homeFolderBytes = size
@@ -796,7 +797,7 @@ struct StorageView: View {
             for url in targets {
                 let token = StorageSecurityScopedAccessToken(url)
                 defer { token.stop() }
-                total += folderSizeBytes(at: url)
+                total += Self.folderSizeBytes(at: url)
             }
 
             DispatchQueue.main.async {
@@ -876,66 +877,135 @@ struct StorageView: View {
         }
     }
 
-    private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
-        let scanID = UUID()
-        activeScanID = scanID
+    
+private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
+    // ✅ 새로운 스캔이 시작되면 이전 스캔 Task를 취소(슬라이더 연속 변경/대용량 폴더에서 UI 멈춤 방지)
+    scanTask?.cancel()
 
-        // 버튼 문구 분리용
-        isAutoUpdating = (trigger == .auto)
-        isScanning = true
-        tableSelection.removeAll()
+    let scanID = UUID()
+    activeScanID = scanID
 
-        // 수동 스캔은 리스트 초기화(선택 직후 깔끔)
-        if trigger == .manual {
-            folderResults = []
-        }
+    let root = url.standardizedFileURL
+    let ignoredSnapshot = ignoredFolderURLs   // 스캔 시작 시점 스냅샷
+    let isAuto = (trigger == .auto)
 
-        // 진행 문구
-        switch trigger {
-        case .manual:
-            scanMessage = "'\(url.lastPathComponent)' 폴더를 분석 중입니다…"
-        case .auto:
-            scanMessage = "조건 변경으로 다시 분석 중입니다…"
-        }
+    // 버튼 문구 분리용
+    isAutoUpdating = isAuto
+    isScanning = true
+    tableSelection.removeAll()
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            let root = url.standardizedFileURL
+    // 진행 문구
+    switch trigger {
+    case .manual:
+        scanMessage = "'\(url.lastPathComponent)' 폴더를 분석 중입니다…"
+    case .auto:
+        scanMessage = "조건 변경으로 다시 분석 중입니다…"
+    }
 
-            // ✅ 선택 폴더에 대한 Security-Scoped 접근 시작/종료
-            let token = StorageSecurityScopedAccessToken(root)
-            defer { token.stop() }
+    // ✅ manual은 즉시 비우고 시작, auto는 첫 배치가 오기 전까지 기존 결과 유지(깜빡임 최소화)
+    if trigger == .manual {
+        folderResults = []
+    }
 
-            let results = scanStructuredItems(of: root, minSizeMB: minSizeMB)
+    scanTask = Task(priority: .userInitiated) {
+        // ✅ 선택 폴더에 대한 Security-Scoped 접근 시작/종료
+        let token = StorageSecurityScopedAccessToken(root)
+        defer { token.stop() }
 
-            DispatchQueue.main.async {
+        var didReplace = (trigger == .manual)
+
+        // 결과를 한 번에 할당하지 않고, 배치 단위로 스트리밍
+        let stream = Self.scanStructuredItemsBatches(
+            of: root,
+            minSizeMB: minSizeMB,
+            ignoredFolderURLs: ignoredSnapshot,
+            batchSize: 220
+        )
+
+        for await batch in stream {
+            if Task.isCancelled { break }
+
+            let shouldReplace = !didReplace
+            await MainActor.run {
                 // 슬라이더 연속 변경 등으로 "이전 스캔" 결과면 버림
                 guard self.activeScanID == scanID else { return }
 
-                self.isScanning = false
-                self.isAutoUpdating = false
-                self.folderResults = results
-                self.lastScannedMinSizeMB = minSizeMB
-
-                let folderCount = results.filter { $0.isDirectory && $0.depth == 0 }.count
-                let fileCount = results.filter { !$0.isDirectory }.count
-
-                if results.isEmpty {
-                    self.scanMessage = "'\(root.lastPathComponent)' 폴더에 조건에 맞는 하위 항목이 없습니다."
+                if shouldReplace {
+                    self.folderResults = batch
                 } else {
-                    self.scanMessage = "'\(root.lastPathComponent)' 폴더 분석이 완료되었습니다. (폴더 \(folderCount)개 / 파일 \(fileCount)개)"
+                    self.folderResults.append(contentsOf: batch)
                 }
+            }
+
+            didReplace = true
+        }
+
+        await MainActor.run {
+            guard self.activeScanID == scanID else { return }
+
+            self.isScanning = false
+            self.isAutoUpdating = false
+            self.lastScannedMinSizeMB = minSizeMB
+
+            // 취소면 메시지만 갱신하고 종료
+            if Task.isCancelled {
+                self.scanMessage = "분석이 취소되었습니다."
+                return
+            }
+
+            let results = self.folderResults
+            let folderCount = results.filter { $0.isDirectory && $0.depth == 0 }.count
+            let fileCount = results.filter { !$0.isDirectory }.count
+
+            if results.isEmpty {
+                self.scanMessage = "'\(root.lastPathComponent)' 폴더에 조건에 맞는 하위 항목이 없습니다."
+            } else {
+                self.scanMessage = "'\(root.lastPathComponent)' 폴더 분석이 완료되었습니다. (폴더 \(folderCount)개 / 파일 \(fileCount)개)"
             }
         }
     }
+}
 
-    /// 선택한 폴더를 기준으로,
+/// `scanStructuredItems` 결과를 한 번에 UI에 올리지 않고 배치 단위로 흘려보냅니다.
+/// - Note: Table/State에 대량 배열을 한 번에 세팅하면 MainActor에서 UI가 잠깐 멈출 수 있어,
+///         대용량 폴더 스캔에서는 배치 단위 업데이트가 체감이 좋습니다.
+private static func scanStructuredItemsBatches(
+    of root: URL,
+    minSizeMB: Double,
+    ignoredFolderURLs: Set<URL>,
+    batchSize: Int
+) -> AsyncStream<[FolderInfo]> {
+    AsyncStream { continuation in
+        // ✅ child Task(취소 전파됨)로 스캔 수행
+        Task(priority: .userInitiated) {
+            let results = Self.scanStructuredItems(of: root, minSizeMB: minSizeMB, ignoredFolderURLs: ignoredFolderURLs)
+
+            var index = 0
+            while index < results.count {
+                if Task.isCancelled { break }
+
+                let end = min(index + max(batchSize, 1), results.count)
+                continuation.yield(Array(results[index..<end]))
+                index = end
+
+                // UI 업데이트 기회를 조금이라도 더 주기 위해 협조적 양보
+                await Task.yield()
+            }
+
+            continuation.finish()
+        }
+    }
+}
+
+/// 선택한 폴더를 기준으로,
+
     /// - 루트 직계 하위 "폴더"(폴더 크기) + 루트 직계 "파일"
     /// - 그리고 각 폴더 내부(재귀)에서 조건(minSizeMB) 이상인 파일을
     ///   **해당 폴더 아래(depth=1)** 로 붙여서 반환합니다.
     ///
     /// ⚠️ macOS 14+ 의 Table(children:) 를 쓰지 않고도,
     /// Table에서 들여쓰기(depth)로 "하위 파일처럼" 보이게 하기 위한 구조입니다.
-    private func scanStructuredItems(of root: URL, minSizeMB: Double) -> [FolderInfo] {
+    private static func scanStructuredItems(of root: URL, minSizeMB: Double, ignoredFolderURLs: Set<URL>) -> [FolderInfo] {
         let fm = FileManager.default
         let rootStd = root.standardizedFileURL
 
@@ -954,12 +1024,13 @@ struct StorageView: View {
         var topFolderURLSet: Set<URL> = []
 
         for raw in items {
+            if Task.isCancelled { return [] }
             let url = raw.standardizedFileURL
             let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
             guard isDir else { continue }
             if ignoredFolderURLs.contains(url) { continue }
 
-            let size = folderSizeBytes(at: url)
+            let size = Self.folderSizeBytes(at: url)
             let sizeMB = Double(size) / 1024.0 / 1024.0
             if sizeMB >= minSizeMB {
                 topFolders.append(FolderInfo(url: url, sizeBytes: size, isDirectory: true, depth: 0, parentURL: nil))
@@ -990,6 +1061,7 @@ struct StorageView: View {
         var childFilesByTopFolder: [URL: [FolderInfo]] = [:]  // 상위 폴더URL -> (하위 파일들)
 
         for case let rawURL as URL in enumerator {
+            if Task.isCancelled { break }
             let url = rawURL.standardizedFileURL
 
             // ignored 폴더면 하위도 전부 스킵
@@ -1132,7 +1204,7 @@ struct StorageView: View {
     
     // MARK: - Size Utilities
 
-    private func folderSizeBytes(at url: URL) -> Int64 {
+    private static func folderSizeBytes(at url: URL) -> Int64 {
         let fileManager = FileManager.default
         let keys: [URLResourceKey] = [.isRegularFileKey, .fileAllocatedSizeKey, .totalFileAllocatedSizeKey]
 
@@ -1148,6 +1220,7 @@ struct StorageView: View {
         var total: Int64 = 0
 
         for case let fileURL as URL in enumerator {
+            if Task.isCancelled { break }
             guard let values = try? fileURL.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
 
@@ -1159,3 +1232,4 @@ struct StorageView: View {
         return total
     }
 }
+
