@@ -953,6 +953,12 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
                 return
             }
 
+
+            // ✅ auto 스캔에서 결과가 0개라 스트림이 한 번도 yield되지 않으면, 기존 결과가 남아있을 수 있어 비웁니다.
+            if !didReplace {
+                self.folderResults = []
+            }
+
             let results = self.folderResults
             let folderCount = results.filter { $0.isDirectory && $0.depth == 0 }.count
             let fileCount = results.filter { !$0.isDirectory }.count
@@ -967,8 +973,15 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
 }
 
 /// `scanStructuredItems` 결과를 한 번에 UI에 올리지 않고 배치 단위로 흘려보냅니다.
-/// - Note: Table/State에 대량 배열을 한 번에 세팅하면 MainActor에서 UI가 잠깐 멈출 수 있어,
-///         대용량 폴더 스캔에서는 배치 단위 업데이트가 체감이 좋습니다.
+///
+/// - v11: 전체 결과를 먼저 만든 뒤, 배치로 잘라 UI에 반영(최종 반영 시 멈춤 방지)
+/// - v12: **폴더 트리 탐색형 UX에 맞춰**, 스캔 진행 중에도 "폴더(상위) → 하위 파일" 단위로
+///        순차적으로 yield 합니다. (대용량 폴더에서도 결과가 점진적으로 나타남)
+///
+/// - Note:
+///   - `batchSize`는 **UI 업데이트 빈도 제한(Throttle)** 용도입니다.
+///   - 스캔 도중 정렬을 반복하면 Table diff 비용이 커질 수 있어,
+///     여기서는 "폴더는 이름(안정성)" / "하위 파일은 size desc"로 정렬합니다.
 private static func scanStructuredItemsBatches(
     of root: URL,
     minSizeMB: Double,
@@ -976,20 +989,175 @@ private static func scanStructuredItemsBatches(
     batchSize: Int
 ) -> AsyncStream<[FolderInfo]> {
     AsyncStream { continuation in
-        // ✅ child Task(취소 전파됨)로 스캔 수행
         Task(priority: .userInitiated) {
-            let results = Self.scanStructuredItems(of: root, minSizeMB: minSizeMB, ignoredFolderURLs: ignoredFolderURLs)
+            let fm = FileManager.default
+            let rootStd = root.standardizedFileURL
 
-            var index = 0
-            while index < results.count {
+            // 1) 루트 직계 하위 항목
+            let directKeys: [URLResourceKey] = [
+                .isDirectoryKey,
+                .isRegularFileKey,
+                .fileAllocatedSizeKey,
+                .totalFileAllocatedSizeKey
+            ]
+
+            guard let directItems = try? fm.contentsOfDirectory(
+                at: rootStd,
+                includingPropertiesForKeys: directKeys,
+                options: [.skipsHiddenFiles]
+            ) else {
+                continuation.finish()
+                return
+            }
+
+            var topFolders: [URL] = []
+            var rootFiles: [FolderInfo] = []
+            rootFiles.reserveCapacity(64)
+
+            for raw in directItems {
                 if Task.isCancelled { break }
 
-                let end = min(index + max(batchSize, 1), results.count)
-                continuation.yield(Array(results[index..<end]))
-                index = end
+                let url = raw.standardizedFileURL
+                if ignoredFolderURLs.contains(url) { continue }
 
-                // UI 업데이트 기회를 조금이라도 더 주기 위해 협조적 양보
+                guard let values = try? url.resourceValues(forKeys: Set(directKeys)) else { continue }
+
+                if values.isDirectory == true {
+                    topFolders.append(url)
+                    continue
+                }
+
+                if values.isRegularFile == true {
+                    let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
+                    let sizeMB = Double(size) / 1024.0 / 1024.0
+                    if sizeMB >= minSizeMB {
+                        rootFiles.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 0, parentURL: nil))
+                    }
+                }
+            }
+
+            // 2) 루트 직계 파일(크기 기준) 먼저 표시
+            rootFiles.sort { $0.sizeBytes > $1.sizeBytes }
+
+            var idx = 0
+            while idx < rootFiles.count {
+                if Task.isCancelled { break }
+
+                let end = min(idx + max(batchSize, 1), rootFiles.count)
+                continuation.yield(Array(rootFiles[idx..<end]))
+                idx = end
                 await Task.yield()
+            }
+
+            // 3) 상위 폴더는 "안정성"을 위해 이름 기준 정렬(스캔 중 재정렬로 UI가 흔들리는 것을 방지)
+            topFolders.sort {
+                $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending
+            }
+
+            // 4) 각 상위 폴더를 "폴더(상위) → 하위 파일" 단위로 순차 yield
+            //    - 폴더 크기(allocated size 합) 계산 + 하위 대용량 파일 수집(패키지 내부 파일은 목록에서 제외)
+            let scanKeys: [URLResourceKey] = [
+                .isDirectoryKey,
+                .isRegularFileKey,
+                .fileAllocatedSizeKey,
+                .totalFileAllocatedSizeKey,
+                .isPackageKey
+            ]
+
+            for folderURL in topFolders {
+                if Task.isCancelled { break }
+
+                let folder = folderURL.standardizedFileURL
+                if ignoredFolderURLs.contains(folder) { continue }
+
+                guard let enumerator = fm.enumerator(
+                    at: folder,
+                    includingPropertiesForKeys: scanKeys,
+                    options: [.skipsHiddenFiles],
+                    errorHandler: { _, _ in true }
+                ) else {
+                    continue
+                }
+
+                var total: Int64 = 0
+                var children: [FolderInfo] = []
+                children.reserveCapacity(64)
+
+                // 패키지(.app 등) 내부 파일은 목록에 노출하지 않기 위해 prefix 목록을 유지
+                // (size 계산은 포함)
+                var packagePrefixes: [String] = []
+                packagePrefixes.reserveCapacity(8)
+
+                let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
+
+                for case let rawURL as URL in enumerator {
+                    if Task.isCancelled { break }
+
+                    let url = rawURL.standardizedFileURL
+
+                    // ignored 폴더면 하위도 전부 스킵
+                    if ignoredFolderURLs.contains(url) {
+                        if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
+                            enumerator.skipDescendants()
+                        }
+                        continue
+                    }
+
+                    guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else { continue }
+
+                    if values.isDirectory == true && values.isPackage == true {
+                        let prefix = url.path.hasSuffix("/") ? url.path : (url.path + "/")
+                        packagePrefixes.append(prefix)
+                        continue
+                    }
+
+                    guard values.isRegularFile == true else { continue }
+
+                    let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
+                    total += size
+
+                    // 하위 파일 리스트는 최소 크기 조건에 맞는 것만
+                    guard size >= minBytes else { continue }
+
+                    // 패키지 내부 파일은 제외
+                    let path = url.path
+                    var isInsidePackage = false
+                    for prefix in packagePrefixes {
+                        if path.hasPrefix(prefix) {
+                            isInsidePackage = true
+                            break
+                        }
+                    }
+                    if isInsidePackage { continue }
+
+                    children.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 1, parentURL: folder))
+                }
+
+                if Task.isCancelled { break }
+
+                // 폴더 자체도 minSizeMB 이상일 때만 표시
+                guard total >= minBytes else { continue }
+
+                // 4-1) 폴더(상위) 먼저 yield
+                continuation.yield([
+                    FolderInfo(url: folder, sizeBytes: total, isDirectory: true, depth: 0, parentURL: nil)
+                ])
+                await Task.yield()
+
+                // 4-2) 하위 파일은 size desc로 정렬 후 배치 yield
+                if !children.isEmpty {
+                    children.sort { $0.sizeBytes > $1.sizeBytes }
+
+                    var j = 0
+                    while j < children.count {
+                        if Task.isCancelled { break }
+
+                        let end = min(j + max(batchSize, 1), children.count)
+                        continuation.yield(Array(children[j..<end]))
+                        j = end
+                        await Task.yield()
+                    }
+                }
             }
 
             continuation.finish()
@@ -1005,127 +1173,17 @@ private static func scanStructuredItemsBatches(
     ///
     /// ⚠️ macOS 14+ 의 Table(children:) 를 쓰지 않고도,
     /// Table에서 들여쓰기(depth)로 "하위 파일처럼" 보이게 하기 위한 구조입니다.
+    ///
+    /// - Note: v12에서는 스트리밍 방식으로 교체되어, 이 함수는 사용하지 않습니다.
+    ///         (기존 구조 설명/참고용으로만 남겨둡니다)
     private static func scanStructuredItems(of root: URL, minSizeMB: Double, ignoredFolderURLs: Set<URL>) -> [FolderInfo] {
-        let fm = FileManager.default
-        let rootStd = root.standardizedFileURL
-
-        // 1) 루트 직계 하위 항목 읽기(폴더/파일 구분용)
-        let dirKeys: [URLResourceKey] = [.isDirectoryKey]
-        guard let items = try? fm.contentsOfDirectory(
-            at: rootStd,
-            includingPropertiesForKeys: dirKeys,
-            options: [.skipsHiddenFiles]
-        ) else {
-            return []
-        }
-
-        // 2) 직계 하위 폴더(= 그룹의 상위 폴더) 크기 계산
-        var topFolders: [FolderInfo] = []
-        var topFolderURLSet: Set<URL> = []
-
-        for raw in items {
-            if Task.isCancelled { return [] }
-            let url = raw.standardizedFileURL
-            let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
-            guard isDir else { continue }
-            if ignoredFolderURLs.contains(url) { continue }
-
-            let size = Self.folderSizeBytes(at: url)
-            let sizeMB = Double(size) / 1024.0 / 1024.0
-            if sizeMB >= minSizeMB {
-                topFolders.append(FolderInfo(url: url, sizeBytes: size, isDirectory: true, depth: 0, parentURL: nil))
-                topFolderURLSet.insert(url)
-            }
-        }
-
-        // 3) 재귀 파일 스캔(하위 파일을 "어느 상위 폴더 아래"로 붙일지 그룹핑)
-        let fileKeys: [URLResourceKey] = [
-            .isDirectoryKey,
-            .isRegularFileKey,
-            .fileAllocatedSizeKey,
-            .totalFileAllocatedSizeKey
-        ]
-
-        guard let enumerator = fm.enumerator(
-            at: rootStd,
-            includingPropertiesForKeys: fileKeys,
-            options: [.skipsHiddenFiles, .skipsPackageDescendants],
-            errorHandler: { _, _ in true }
-        ) else {
-            return topFolders.sorted { $0.sizeBytes > $1.sizeBytes }
-        }
-
-        let rootComponents = rootStd.pathComponents
-
-        var directFiles: [FolderInfo] = []                 // 루트 직계 파일
-        var childFilesByTopFolder: [URL: [FolderInfo]] = [:]  // 상위 폴더URL -> (하위 파일들)
-
-        for case let rawURL as URL in enumerator {
-            if Task.isCancelled { break }
-            let url = rawURL.standardizedFileURL
-
-            // ignored 폴더면 하위도 전부 스킵
-            if ignoredFolderURLs.contains(url) {
-                if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
-                    enumerator.skipDescendants()
-                }
-                continue
-            }
-
-            guard let values = try? url.resourceValues(forKeys: Set(fileKeys)) else { continue }
-            guard values.isRegularFile == true else { continue }
-
-            let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
-            let sizeMB = Double(size) / 1024.0 / 1024.0
-            guard sizeMB >= minSizeMB else { continue }
-
-            // root 기준 상대 경로 components 계산
-            let comps = url.pathComponents
-            guard comps.count >= rootComponents.count else { continue }
-            let rel = Array(comps.dropFirst(rootComponents.count))
-            guard !rel.isEmpty else { continue }
-
-            if rel.count == 1 {
-                // 루트 직계 파일
-                directFiles.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 0, parentURL: nil))
-            } else {
-                // root/TopFolder/.../file
-                let topFolderName = rel[0]
-                let topFolderURL = rootStd.appendingPathComponent(topFolderName, isDirectory: true).standardizedFileURL
-
-                if topFolderURLSet.contains(topFolderURL) {
-                    let child = FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 1, parentURL: topFolderURL)
-                    childFilesByTopFolder[topFolderURL, default: []].append(child)
-                } else {
-                    // 상위 폴더가(필터 때문에) 표시되지 않는 경우엔, 파일을 최상위로라도 노출
-                    directFiles.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 0, parentURL: nil))
-                }
-            }
-        }
-
-        // 정렬
-        topFolders.sort { $0.sizeBytes > $1.sizeBytes }
-        directFiles.sort { $0.sizeBytes > $1.sizeBytes }
-
-        // 최상위(폴더 + 루트직계 파일) 크기 기준 정렬
-        let topLevel = (topFolders + directFiles).sorted { $0.sizeBytes > $1.sizeBytes }
-
-        // 최종 출력: 폴더 바로 아래에 파일이 "하위 항목"처럼 나오도록 붙임
-        var final: [FolderInfo] = []
-        for entry in topLevel {
-            final.append(entry)
-
-            if entry.isDirectory {
-                let children = (childFilesByTopFolder[entry.url] ?? []).sorted { $0.sizeBytes > $1.sizeBytes }
-                final.append(contentsOf: children)
-            }
-        }
-
-        return final
+        // v12부터는 scanStructuredItemsBatches(스트리밍) 경로를 사용합니다.
+        // 기존 코드 경로를 유지하고 싶다면 v11 버전을 참고하세요.
+        return []
     }
 
 
-    // MARK: - Ignore & Delete
+// MARK: - Ignore & Delete
 
     /// Finder에서 해당 폴더/앱을 바로 표시
     private func openInFinder(_ item: FolderInfo) {
