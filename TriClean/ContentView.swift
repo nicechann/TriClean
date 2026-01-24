@@ -181,6 +181,7 @@ struct ContentView: View {
                 }
             }
             .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320) // ✅ 추가
 
         } detail: {
             // MARK: - 오른쪽 상세 화면
@@ -217,6 +218,10 @@ struct ContentView: View {
 /// 디버그/표시 옵션을 런타임에 바꾸기 위한 설정 화면
 struct SettingsView: View {
     @EnvironmentObject var memoryViewModel: MemoryViewModel
+
+    // Significant Memory Usage 영역에서 앱 아이콘 클릭 시 전환 방식
+    // - single: 앱 전환(기본) / all: 앱의 모든 창을 앞으로
+    @AppStorage("significantAppActivationMode") private var significantAppActivationMode: String = "single"
 
     private var appVersion: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "—"
@@ -276,26 +281,58 @@ struct SettingsView: View {
 
                     // Display
                     GroupBox {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(alignment: .center, spacing: 12) {
+                        Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+
+                            // Menu Bar Unit
+                            GridRow(alignment: .top) {
                                 Text("Menu Bar Unit")
                                     .frame(width: 120, alignment: .leading)
 
-                                Picker("", selection: $memoryViewModel.displayUnit) {
-                                    ForEach(MemoryDisplayUnit.allCases) { unit in
-                                        Text(unit.title).tag(unit)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $memoryViewModel.displayUnit) {
+                                        ForEach(MemoryDisplayUnit.allCases) { unit in
+                                            Text(unit.title).tag(unit)
+                                        }
                                     }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 180, alignment: .leading)
+
+                                    Text("메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
-                                .pickerStyle(.segmented)
-                                .labelsHidden()
-                                .frame(width: 180)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
 
-                            Text("메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
+                            // App Activation
+                            GridRow(alignment: .top) {
+                                Text("App Activation")
+                                    .frame(width: 120, alignment: .leading)
+
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $significantAppActivationMode) {
+                                        Text("Single").tag("single")
+                                        Text("All").tag("all")
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 180, alignment: .leading)
+
+                                    Text("Significant Memory Usage에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
                     } label: {
                         Text("Display")
@@ -377,6 +414,7 @@ struct SettingsView: View {
                                 }
                                 .pickerStyle(.segmented)
                                 .labelsHidden()
+                                .controlSize(.small)
                                 .frame(maxWidth: 420)
                             }
 
@@ -408,129 +446,3 @@ struct SettingsView: View {
     ContentView()
         .environmentObject(MemoryViewModel())
 }
-
-//struct ContentView: View {
-//
-//    // TriCleanApp 에서 주입한 MemoryViewModel 환경 객체
-//    @EnvironmentObject var memoryViewModel: MemoryViewModel
-//
-//    var body: some View {
-//        NavigationSplitView {
-//            // MARK: - 사이드바
-//            List {
-//                // STORAGE
-//                NavigationLink {
-//                    StorageView()
-//                } label: {
-//                    Label("Storage", systemImage: "internaldrive")
-//                }
-//
-//                // MEMORY
-//                NavigationLink {
-//                    MemoryView()    // ✅ 여기서도 같은 환경 객체 사용
-//                } label: {
-//                    HStack {
-//                        Label("Memory", systemImage: "memorychip")
-//                        Spacer()
-//                        // ✅ 도넛/상단 Usage 와 동일한 값
-//                        Text("\(memoryViewModel.usagePercent)%")
-//                            .font(.caption)
-//                    }
-//                }
-//
-//                // APPS
-//                NavigationLink {
-//                    AppsView()
-//                } label: {
-//                    Label("Apps", systemImage: "app.dashed")
-//                }
-//            }
-//            .listStyle(.sidebar)
-//
-//        } detail: {
-//            // 기본 Detail 화면 – 필요하면 StorageView() 등으로 변경 가능
-//            MemoryView()
-//        }
-//        .onAppear {
-//            // 앱 처음 뜰 때 실제 메모리 값 한 번 갱신
-//            memoryViewModel.refresh()
-//        }
-//    }
-//}
-//
-//#Preview {
-//    ContentView()
-//        .environmentObject(MemoryViewModel())
-//}
-
-//struct ContentView: View {
-//    @State private var selection: TriCleanSection? = .storage
-//    @StateObject private var statusViewModel = SidebarStatusViewModel()
-//    // ✅ TriCleanApp 에서 내려준 MemoryViewModel
-//    @EnvironmentObject var memoryViewModel: MemoryViewModel
-//    //@StateObject private var memoryViewModel = MemoryViewModel()
-//
-//    var body: some View {
-//        NavigationSplitView {
-//            sidebar
-//        } detail: {
-//            detailView
-//        }
-//        .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 280)
-//        .frame(minWidth: 900, minHeight: 600)
-//    }
-//
-//    // MARK: - Sidebar
-//
-//    private var sidebar: some View {
-//        List(selection: $selection) {
-//            Section {
-//                SidebarStatusView(viewModel: statusViewModel)
-//            }
-//
-//            Section("기능") {
-//                ForEach(TriCleanSection.allCases) { section in
-//                    HStack(spacing: 8) {
-//                        Image(systemName: section.systemImage)
-//                            .frame(width: 20)
-//                        VStack(alignment: .leading, spacing: 2) {
-//                            Text(section.title)
-//                                .font(.headline)
-//                            Text(section.subtitle)
-//                                .font(.caption)
-//                                .foregroundColor(.secondary)
-//                        }
-//                    }
-//                    .padding(.vertical, 4)
-//                    .tag(section as TriCleanSection?)
-//                }
-//            }
-//        }
-//        .listStyle(.sidebar)
-//    }
-//
-//    // MARK: - Detail
-//
-//    @ViewBuilder
-//    private var detailView: some View {
-//        switch selection {
-//        case .storage, .none:
-//            StorageView()
-//                //.navigationTitle("Storage")
-//        case .memory:
-////            MemoryView(viewModel: memoryViewModel)
-////            Text("\(memoryViewModel.usagePercent)%")
-//
-//            MemoryView()
-//                //.navigationTitle("Memory")
-//        case .apps:
-//            AppsView()
-//                //.navigationTitle("Apps")
-//        }
-//    }
-//}
-//
-//#Preview {
-//    ContentView()
-//}
-

@@ -25,6 +25,7 @@ struct MemoryView: View {
                 headerSection
                 cleanSection
                 compositionSection
+                significantAppsSection
                 Spacer()
             }
             .padding()
@@ -39,6 +40,7 @@ struct MemoryView: View {
         .animation(.spring(response: 0.3, dampingFraction: 0.85), value: showTray)
         .onAppear {
             viewModel.refresh()
+            viewModel.refreshSignificantApps()
         }
     }
 
@@ -172,7 +174,7 @@ struct MemoryView: View {
                 .padding(.bottom, 30)    // 도넛과 하단 설명 사이
 
                 //Text("※ App / Wired / Compressed / Cached / Free 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
-                Text("※ App / Wired / Compressed / Available 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
+                Text("※ App / Wired / Compressed / Available 값은 macOS Mach VM 통계(host_statistics64)를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .padding(.top, 4)
@@ -180,7 +182,86 @@ struct MemoryView: View {
         }
     }
 
-    private var legendSection: some View {
+    
+
+// MARK: - Significant Memory Usage (Top Apps)
+
+private var significantAppsSection: some View {
+    GroupBox {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                Text("Significant Memory Usage")
+                    .font(.headline)
+
+                Spacer()
+
+                if viewModel.isLoadingSignificantApps {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Button {
+                        viewModel.refreshSignificantApps()
+                    } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+            }
+
+            if viewModel.significantApps.isEmpty {
+                Text("표시할 실행 앱이 없습니다.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.significantApps) { app in
+                            Button {
+                                viewModel.activateSignificantApp(app)
+                            } label: {
+                                VStack(spacing: 6) {
+                                    Group {
+                                        if let icon = app.icon {
+                                            Image(nsImage: icon)
+                                                .resizable()
+                                                .scaledToFit()
+                                        } else {
+                                            Image(systemName: "app")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .frame(width: 34, height: 34)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                                    // 메모리 사용량(읽기 쉬운 단위)
+                                    Text(formatBytes(app.residentBytes))
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(width: 60)
+                            }
+                            .buttonStyle(.plain)
+                            .help("\(app.name)\n\(formatBytes(app.residentBytes))\n클릭하면 앱이 앞으로 나옵니다.")
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
+            if let updated = viewModel.significantAppsUpdatedAt {
+                Text("Updated: \(updated.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+private var legendSection: some View {
         let s = viewModel.stats
 
         // ✅ 도넛의 Available과 같은 톤으로 맞춤
@@ -439,3 +520,4 @@ private struct TrayView: View {
         .environmentObject(MemoryViewModel())
         .frame(width: 950, height: 600)
 }
+

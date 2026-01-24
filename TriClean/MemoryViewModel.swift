@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Darwin       // Mach + sysconf (mach_host_self, host_statistics64, host_page_size, etc.)
 import SwiftUI      // withAnimation
+import AppKit
 
 /// 메모리 압박(캐시/퍼지 유도)을 만들기 위해 "버퍼에 무엇을 쓰는지"를 선택하는 옵션입니다.
 ///
@@ -27,6 +28,24 @@ enum MemoryCleanFillMode: Equatable {
     static let patternA5: MemoryCleanFillMode = .memsetFill(value: 0xA5)
 }
 
+
+
+/// 메모리 사용량 상위 앱(실행 중)을 표시하기 위한 모델입니다.
+struct SignificantMemoryApp: Identifiable {
+    let pid: pid_t
+    let name: String
+    let bundleIdentifier: String?
+    let bundleURL: URL?
+    let icon: NSImage?
+    /// Resident memory(bytes). (Activity Monitor의 'Memory'와 완전히 동일하진 않을 수 있음)
+    let residentBytes: Int64
+
+    var id: String {
+        // bundle id가 있으면 안정적 key로 사용, 없으면 pid 기반
+        bundleIdentifier ?? "pid_\(pid)"
+    }
+}
+
 final class MemoryViewModel: ObservableObject {
 
     @Published var stats: MemoryStats = .empty
@@ -43,7 +62,18 @@ final class MemoryViewModel: ObservableObject {
     #endif
     }()
 
-    // MARK: - 공개 계산 값
+    
+
+// MARK: - Significant Memory Usage (Top Apps)
+
+/// 메모리를 많이 사용 중인(상위) 실행 앱 목록입니다.
+/// - `NSWorkspace.shared.runningApplications`로 앱 목록을 얻고,
+/// - `proc_pidinfo(…, PROC_PIDTASKINFO, …)`로 각 PID의 resident memory를 조회합니다.
+@Published var significantApps: [SignificantMemoryApp] = []
+@Published var isLoadingSignificantApps: Bool = false
+@Published var significantAppsUpdatedAt: Date? = nil
+
+// MARK: - 공개 계산 값
 
     /// Activity Monitor 기준 '사용된 메모리' (App + Wired + Compressed)
     var realUsedBytes: Int64 {
@@ -111,6 +141,86 @@ final class MemoryViewModel: ObservableObject {
         }
     }
 
+
+/// 실행 중인 앱 중 메모리를 많이 사용하는(상위) 앱 목록을 갱신합니다.
+/// - UI 프리징을 막기 위해 백그라운드에서 계산한 뒤 MainActor에서 Published 값을 갱신합니다.
+func refreshSignificantApps(limit: Int = 10) {
+    // 너무 잦은 갱신은 피로감/CPU 사용 증가로 이어질 수 있어, 호출 측에서 주기를 제어하는 것을 권장합니다.
+    isLoadingSignificantApps = true
+
+    DispatchQueue.global(qos: .utility).async {
+        let apps = Self.fetchSignificantApps(limit: limit)
+
+        DispatchQueue.main.async {
+            self.significantApps = apps
+            self.significantAppsUpdatedAt = Date()
+            self.isLoadingSignificantApps = false
+        }
+    }
+}
+
+    /// Significant Apps 영역에서 앱 아이콘을 클릭했을 때, 해당 앱을 전면으로 활성화합니다.
+    /// - Note: MAS/Sandbox 환경을 고려해 외부 프로세스 실행 없이 AppKit API만 사용합니다.
+    func activateSignificantApp(_ app: SignificantMemoryApp) {
+        guard app.pid > 0 else { return }
+        guard let running = NSRunningApplication(processIdentifier: app.pid) else { return }
+        // Settings에서 선택한 정책에 따라 활성화 강도를 조절합니다.
+        // - single: 앱만 활성화(기본에 가까움) + 필요 시 전면 전환
+        // - all: 앱의 모든 윈도우를 전면으로 올림
+        let raw = UserDefaults.standard.string(forKey: "significantAppActivationMode") ?? "single"
+
+        // NSRunningApplication.activate(options:) 가 요구하는 타입은
+        // NSRunningApplication.ActivationOptions 가 아니라 NSApplication.ActivationOptions 입니다.
+        // (옵션 enum 은 NSApplication 에 정의됨)
+        var options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
+        if raw == "all" {
+            // 타입 추론 이슈를 피하기 위해 fully-qualified 로 넣습니다.
+            options.insert(NSApplication.ActivationOptions.activateAllWindows)
+        }
+
+        _ = running.activate(options: options)
+    }
+
+private static func fetchSignificantApps(limit: Int) -> [SignificantMemoryApp] {
+    // 사용자에게 의미 있는 앱 위주로: 일반 앱(activationPolicy == .regular)만 우선 표시
+    let running = NSWorkspace.shared.runningApplications
+        .filter { $0.activationPolicy == .regular }
+
+    var items: [SignificantMemoryApp] = []
+    items.reserveCapacity(running.count)
+
+    for app in running {
+        let pid = app.processIdentifier
+        guard pid > 0 else { continue }
+        guard let bytes = residentMemoryBytes(pid: pid) else { continue }
+
+        let item = SignificantMemoryApp(
+            pid: pid,
+            name: app.localizedName ?? "App",
+            bundleIdentifier: app.bundleIdentifier,
+            bundleURL: app.bundleURL,
+            icon: app.icon,
+            residentBytes: bytes
+        )
+        items.append(item)
+    }
+
+    items.sort { $0.residentBytes > $1.residentBytes }
+    if items.count > limit { items.removeSubrange(limit..<items.count) }
+    return items
+}
+
+/// `libproc` 기반으로 프로세스의 resident memory(bytes)를 읽습니다.
+/// - sandbox/MAS 환경에서도 외부 프로세스 실행 없이 동작하도록 하기 위한 방식입니다.
+private static func residentMemoryBytes(pid: pid_t) -> Int64? {
+    var info = proc_taskinfo()
+    let expectedSize = Int32(MemoryLayout<proc_taskinfo>.size)
+    let result = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, expectedSize)
+    guard result == expectedSize else { return nil }
+    return Int64(info.pti_resident_size)
+}
+
+
     /// 가벼운 메모리 압박을 통해 OS 가 캐시를 정리하도록 유도
     func performClean(completion: @escaping (MemoryStats, MemoryStats) -> Void) {
         let before = stats
@@ -129,6 +239,8 @@ final class MemoryViewModel: ObservableObject {
                 withAnimation(.easeInOut(duration: 0.6)) {
                     self.stats = after
                 }
+                // Clean 이후 앱 메모리 순위도 새로 반영
+                self.refreshSignificantApps()
                 completion(before, after)
             }
         }
