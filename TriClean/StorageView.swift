@@ -380,8 +380,30 @@ struct StorageView: View {
     @State private var activeScanID = UUID()
     @State private var lastScannedMinSizeMB: Double? = nil
 
+    // 상위 폴더 정렬(발견순/이름/크기) — 스캔 중에는 항상 '발견순'으로 표시하고, 완료 후에만 1회 정렬 적용
+    @State private var topFolderSort: TopFolderSort = .discovered
+
+    // 스캔 결과의 '발견순' 스냅샷 (정렬 토글을 바꿔도 되돌릴 수 있도록 유지)
+    @State private var discoveredResults: [FolderInfo] = []
+
     private var scanButtonBusyText: String {
         isAutoUpdating ? "Updating…" : "Scanning…"
+    }
+
+    private enum TopFolderSort: String, CaseIterable, Identifiable {
+        case discovered
+        case name
+        case size
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .discovered: return "Default"
+            case .name: return "Name"
+            case .size: return "Size"
+            }
+        }
     }
 
     private enum ScanTrigger {
@@ -408,7 +430,6 @@ struct StorageView: View {
             Spacer(minLength: 10)
         }
         .padding()
-        .padding(.top, 36)
         .onAppear {
             loadDiskInfo()
 
@@ -596,8 +617,10 @@ struct StorageView: View {
             HStack(spacing: 12) {
                 Text("Min Folder Size")
                     .font(.subheadline)
+                    .frame(width: 120, alignment: .leading)
 
                 Slider(value: $minFolderSizeMB, in: 10...2000, step: 10)
+                    .controlSize(.small)
                     .frame(maxWidth: 260)
 
                 Text("\(Int(minFolderSizeMB)) MB+")
@@ -605,6 +628,36 @@ struct StorageView: View {
                     .frame(width: 90, alignment: .trailing)
 
                 Spacer()
+            }
+
+
+            HStack(spacing: 12) {
+                Text("Top Folder Sort")
+                    .font(.subheadline)
+                    .frame(width: 120, alignment: .leading)
+                Picker("", selection: $topFolderSort) {
+                    ForEach(TopFolderSort.allCases) { mode in
+                        Text(mode.title).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .controlSize(.small)
+                .font(.subheadline)
+                .frame(maxWidth: 270)
+
+                Spacer()
+            }
+            .onChange(of: topFolderSort) { _ in
+                // 스캔 중에는 재정렬하지 않고(흔들림/비용 방지), 완료 후에만 1회 적용
+                guard !isScanning else { return }
+                applyTopFolderSortFromDiscovered()
+            }
+
+            if isScanning && topFolderSort != .discovered {
+                Text("스캔 중에는 발견순으로 표시되며, 완료 후 정렬이 1회 적용됩니다.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
 
             Text(scanMessage)
@@ -716,6 +769,89 @@ struct StorageView: View {
                 Text("‘\(target.name)’ \(target.isDirectory ? "폴더" : "파일")를 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.")
             }
         }
+    }
+
+
+    // MARK: - Sorting Policy (Top folders)
+
+    @MainActor
+    private func applyTopFolderSortFromDiscovered() {
+        // 스캔 중에는 호출하지 않는 것을 전제로 합니다.
+        switch topFolderSort {
+        case .discovered:
+            folderResults = discoveredResults
+        case .name, .size:
+            folderResults = Self.sortedTopFolderGroups(in: discoveredResults, by: topFolderSort)
+        }
+    }
+
+    private static func sortedTopFolderGroups(in results: [FolderInfo], by mode: TopFolderSort) -> [FolderInfo] {
+        guard mode != .discovered else { return results }
+
+        var rootItems: [FolderInfo] = []
+        rootItems.reserveCapacity(64)
+
+        var topFolders: [FolderInfo] = []
+        topFolders.reserveCapacity(64)
+
+        var childrenByParent: [URL: [FolderInfo]] = [:]
+        childrenByParent.reserveCapacity(64)
+
+        // 1) 분류 + child map (원래 순서를 유지해 children 배열의 안정성을 보장)
+        for item in results {
+            if item.depth == 0, item.parentURL == nil, item.isDirectory {
+                topFolders.append(item)
+            } else if item.depth == 0, item.parentURL == nil, !item.isDirectory {
+                // 루트 직계 파일(또는 기타 depth=0 파일)
+                rootItems.append(item)
+            } else if let parent = item.parentURL {
+                childrenByParent[parent.standardizedFileURL, default: []].append(item)
+            } else {
+                rootItems.append(item)
+            }
+        }
+
+        // 2) 상위 폴더 정렬 (폴더 row만 기준으로 그룹 단위 이동)
+        switch mode {
+        case .name:
+            topFolders.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        case .size:
+            topFolders.sort {
+                if $0.sizeBytes != $1.sizeBytes { return $0.sizeBytes > $1.sizeBytes }
+                return $0.name.localizedStandardCompare($1.name) == .orderedAscending
+            }
+        case .discovered:
+            break
+        }
+
+        // 3) 재구성: root 파일 → (상위 폴더 + 하위 파일)
+        var output: [FolderInfo] = []
+        output.reserveCapacity(results.count)
+
+        var included = Set<FolderInfo.ID>()
+        included.reserveCapacity(results.count)
+
+        output.append(contentsOf: rootItems)
+        for i in rootItems { included.insert(i.id) }
+
+        for folder in topFolders {
+            output.append(folder)
+            included.insert(folder.id)
+
+            if let children = childrenByParent[folder.url.standardizedFileURL] {
+                output.append(contentsOf: children)
+                for c in children { included.insert(c.id) }
+            }
+        }
+
+        // 4) 안전망: 구조가 바뀌었거나 누락이 있으면 원래 순서대로 뒤에 추가
+        if included.count != results.count {
+            for item in results where !included.contains(item.id) {
+                output.append(item)
+            }
+        }
+
+        return output
     }
 
     // MARK: - Disk Info
@@ -905,6 +1041,7 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
     // ✅ manual은 즉시 비우고 시작, auto는 첫 배치가 오기 전까지 기존 결과 유지(깜빡임 최소화)
     if trigger == .manual {
         folderResults = []
+        discoveredResults = []
     }
 
     scanTask = Task(priority: .userInitiated) {
@@ -932,8 +1069,10 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
 
                 if shouldReplace {
                     self.folderResults = batch
+                    self.discoveredResults = batch
                 } else {
                     self.folderResults.append(contentsOf: batch)
+                    self.discoveredResults.append(contentsOf: batch)
                 }
             }
 
@@ -957,7 +1096,11 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
             // ✅ auto 스캔에서 결과가 0개라 스트림이 한 번도 yield되지 않으면, 기존 결과가 남아있을 수 있어 비웁니다.
             if !didReplace {
                 self.folderResults = []
+                self.discoveredResults = []
             }
+
+            // ✅ 스캔 완료 후에만 상위 폴더 정렬을 1회 적용(스캔 중 UI 흔들림 방지)
+            self.applyTopFolderSortFromDiscovered()
 
             let results = self.folderResults
             let folderCount = results.filter { $0.isDirectory && $0.depth == 0 }.count
@@ -1049,10 +1192,8 @@ private static func scanStructuredItemsBatches(
                 await Task.yield()
             }
 
-            // 3) 상위 폴더는 "안정성"을 위해 이름 기준 정렬(스캔 중 재정렬로 UI가 흔들리는 것을 방지)
-            topFolders.sort {
-                $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending
-            }
+            // 3) 상위 폴더는 스캔 중에는 '발견순'(나열된 순서)을 유지합니다.
+            //    정렬(Name/Size)은 스캔 완료 후 UI에서 1회 적용합니다.
 
             // 4) 각 상위 폴더를 "폴더(상위) → 하위 파일" 단위로 순차 yield
             //    - 폴더 크기(allocated size 합) 계산 + 하위 대용량 파일 수집(패키지 내부 파일은 목록에서 제외)
@@ -1208,8 +1349,10 @@ private static func scanStructuredItemsBatches(
             if item.isDirectory {
                 // 폴더를 무시하면, 표시된 하위 파일도 같이 제거
                 folderResults.removeAll { $0.url == item.url || $0.parentURL == item.url }
+                discoveredResults.removeAll { $0.url == item.url || $0.parentURL == item.url }
             } else {
                 folderResults.removeAll { $0.url == item.url }
+                discoveredResults.removeAll { $0.url == item.url }
             }
         }
 
@@ -1229,6 +1372,7 @@ private static func scanStructuredItemsBatches(
 
         ignoredFolderURLs.insert(target.url.standardizedFileURL)
         folderResults.removeAll { $0.url == target.url || $0.parentURL == target.url }
+        discoveredResults.removeAll { $0.url == target.url || $0.parentURL == target.url }
         tableSelection.removeAll()
 
         deleteTarget = nil
