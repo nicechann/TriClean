@@ -27,7 +27,7 @@ struct MenuMemoryView: View {
                 .font(.caption)
             Text("Used:  \(viewModel.usedMemoryText)")
                 .font(.caption)
-            Text("Free:  \(viewModel.freeMemoryText)")
+            Text("Available:  \(viewModel.availableMemoryText)")
                 .font(.caption)
 
             Divider()

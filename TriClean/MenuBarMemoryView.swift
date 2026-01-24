@@ -7,23 +7,24 @@
 
 import SwiftUI
 import Combine
+import AppKit
 
 // 메뉴바 전용, 간단 메모리 정보
 struct MenuBarMemoryInfo {
-    let total: Double   // MB
+    let total: Double
     let used: Double
-    let free: Double
+    let available: Double   // MB (Cached + Free)
 
     var usagePercent: Int {
         guard total > 0 else { return 0 }
-        return Int(used / total * 100)
+        return Int((used / total * 100).rounded())
     }
 }
 
 final class MenuBarMemoryViewModel: ObservableObject {
     let objectWillChange = ObservableObjectPublisher()
 
-    @Published var info = MenuBarMemoryInfo(total: 0, used: 0, free: 0) {
+    @Published var info = MenuBarMemoryInfo(total: 0, used: 0, available: 0) {
         willSet { objectWillChange.send() }
     }
 
@@ -36,69 +37,27 @@ final class MenuBarMemoryViewModel: ObservableObject {
     }
 
     func refresh() {
-        // vm_stat을 이용해서 간단히 메모리 정보 가져오기
+        // ✅ 외부 프로세스(/usr/bin/vm_stat) 실행/파싱 제거
+        // ✅ MemoryViewModel과 동일하게 Native Mach API 기반 MemoryReader.fetchStats() 사용
         DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/vm_stat")
+            let stats = MemoryReader.fetchStats()
 
-            let pipe = Pipe()
-            process.standardOutput = pipe
+            let mb = 1024.0 * 1024.0
+            let totalMB = Double(stats.totalBytes) / mb
 
-            do {
-                try process.run()
-            } catch {
-                print("vm_stat 실행 실패: \(error)")
-                return
-            }
+            // Activity Monitor 기준 Used = App + Wired + Compressed
+            let usedBytes = stats.appBytes + stats.wiredBytes + stats.compressedBytes
+            let usedMB = Double(usedBytes) / mb
 
-            process.waitUntilExit()
-
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else {
-                return
-            }
-
-            var pageSize: Double = 4096
-            var freePages: Double = 0
-            var activePages: Double = 0
-            var inactivePages: Double = 0
-            var wiredPages: Double = 0
-            var compressedPages: Double = 0
-
-            for line in output.split(separator: "\n") {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-
-                if trimmed.hasPrefix("Mach Virtual Memory Statistics") {
-                    if let range = trimmed.range(of: "page size of") {
-                        let suffix = trimmed[range.upperBound...]
-                        let comps = suffix.split(separator: " ")
-                        if let first = comps.first, let ps = Double(first) {
-                            pageSize = ps
-                        }
-                    }
-                } else if trimmed.hasPrefix("Pages free") {
-                    freePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages active") {
-                    activePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages inactive") {
-                    inactivePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages wired down") {
-                    wiredPages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages occupied by compressor") {
-                    compressedPages = Self.parsePages(from: trimmed)
-                }
-            }
-
-            let totalPages = freePages + activePages + inactivePages + wiredPages + compressedPages
-            let totalMB = totalPages * pageSize / 1024.0 / 1024.0
-            let usedMB  = (activePages + inactivePages + wiredPages + compressedPages) * pageSize / 1024.0 / 1024.0
-            let freeMB  = totalMB - usedMB
+            // Available = Cached + Free (표시 라벨은 기존 UI를 유지)
+            let availableBytes = stats.cachedBytes + stats.freeBytes
+            let availableMB = Double(availableBytes) / mb
 
             DispatchQueue.main.async {
                 self.info = MenuBarMemoryInfo(
-                    total: totalMB,
-                    used: usedMB,
-                    free: max(freeMB, 0)
+                    total: max(totalMB, 0),
+                    used:  max(usedMB, 0),
+                    available: max(availableMB, 0)
                 )
             }
         }
@@ -109,8 +68,7 @@ final class MenuBarMemoryViewModel: ObservableObject {
         isCleaning = true
 
         DispatchQueue.global(qos: .userInitiated).async {
-            // 실제로는 메모리 정리 로직을 넣을 부분
-            // 여기서는 2초 정도 "작업 중" 표시만
+            // TODO: 실제 메모리 정리 로직 연결 시 여기에 구현
             Thread.sleep(forTimeInterval: 2.0)
 
             DispatchQueue.main.async {
@@ -118,16 +76,6 @@ final class MenuBarMemoryViewModel: ObservableObject {
                 self.isCleaning = false
             }
         }
-    }
-
-    private static func parsePages(from line: String) -> Double {
-        let comps = line.components(separatedBy: CharacterSet.decimalDigits.inverted)
-        for part in comps {
-            if let v = Double(part) {
-                return v
-            }
-        }
-        return 0
     }
 }
 
@@ -143,7 +91,7 @@ struct MenuBarMemoryView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Total: \(Int(viewModel.info.total)) MB")
                     Text("Used:  \(Int(viewModel.info.used)) MB")
-                    Text("Free:  \(Int(viewModel.info.free)) MB")
+                    Text("Available:  \(Int(viewModel.info.available)) MB")
                 }
                 .font(.system(.caption, design: .monospaced))
 
@@ -185,7 +133,6 @@ struct MenuBarMemoryView: View {
             Divider()
 
             Button {
-                // 메인 앱 포커스
                 NSApplication.shared.activate(ignoringOtherApps: true)
             } label: {
                 Text("Open TriClean")
@@ -200,3 +147,4 @@ struct MenuBarMemoryView: View {
 #Preview {
     MenuBarMemoryView()
 }
+
