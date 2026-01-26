@@ -18,17 +18,17 @@ enum TriCleanSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .storage: return "Storage"
-        case .memory:  return "Memory"
-        case .apps:    return "Apps"
+        case .storage: return "sidebar.storage".localized
+        case .memory:  return "sidebar.memory".localized
+        case .apps:    return "sidebar.apps".localized
         }
     }
 
     var subtitle: String {
         switch self {
-        case .storage: return "대용량 폴더 정리"
-        case .memory:  return "메모리 모니터 & 정리"
-        case .apps:    return "앱 관련 파일 정리"
+        case .storage: return "sidebar.storage.subtitle".localized
+        case .memory:  return "sidebar.memory.subtitle".localized
+        case .apps:    return "sidebar.apps.subtitle".localized
         }
     }
 
@@ -97,7 +97,7 @@ struct SidebarStatusView: View {
             }
 
             HStack {
-                Text("Memory")
+                Text("sidebar.memory".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -113,7 +113,7 @@ struct SidebarStatusView: View {
             }
 
             HStack {
-                Text("현재 사용 중인 메모리 비율입니다.")
+                Text("sidebar.status.memory_usage".localized)
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -285,7 +285,7 @@ struct SettingsView: View {
 
                             // Menu Bar Unit
                             GridRow(alignment: .top) {
-                                Text("Menu Bar Unit")
+                                Text("settings.menubar_unit".localized)
                                     .frame(width: 120, alignment: .leading)
 
                                 VStack(alignment: .leading, spacing: 6) {
@@ -299,7 +299,7 @@ struct SettingsView: View {
                                     .controlSize(.small)
                                     .frame(width: 180, alignment: .leading)
 
-                                    Text("메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.")
+                                    Text("settings.menubar_unit_desc".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.leading)
@@ -310,7 +310,7 @@ struct SettingsView: View {
 
                             // App Activation
                             GridRow(alignment: .top) {
-                                Text("App Activation")
+                                Text("settings.app_activation".localized)
                                     .frame(width: 120, alignment: .leading)
 
                                 VStack(alignment: .leading, spacing: 6) {
@@ -323,7 +323,7 @@ struct SettingsView: View {
                                     .controlSize(.small)
                                     .frame(width: 180, alignment: .leading)
 
-                                    Text("Significant Memory Usage에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.")
+                                    Text("settings.app_activation_desc".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.leading)
@@ -335,7 +335,7 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
                     } label: {
-                        Text("Display")
+                        Text("settings.display".localized)
                     }
 
                     // About
@@ -361,7 +361,7 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
                     } label: {
-                        Text("About")
+                        Text("settings.about".localized)
                     }
 
                     // Help (요약 + 자세히 보기)
@@ -370,33 +370,33 @@ struct SettingsView: View {
 
                             DisclosureGroup {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("• 임시 버퍼를 할당/쓰기하여 메모리 압박을 만들고, OS가 캐시/압축 정책을 조정하도록 유도합니다.")
-                                    Text("• 환경(여유 메모리/압축/스왑 상태)에 따라 변화 폭이 다를 수 있습니다.")
+                                    Text("settings.help.clean_desc".localized)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 6)
                             } label: {
-                                Text("Clean Memory: OS 메모리 정책 조정 유도")
+                                Text("settings.help.clean_title".localized)
                                     .font(.callout)
                             }
 
                             DisclosureGroup {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.")
-                                    Text("• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.")
+                                    Text("settings.help.search_desc".localized)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 6)
                             } label: {
-                                Text("Apps 검색: Spotlight 인덱싱/제외 설정 영향")
+                                Text("settings.help.search_title".localized)
                                     .font(.callout)
                             }
                         }
                         .padding(10)
                     } label: {
-                        Text("Help")
+                        Text("settings.help".localized)
                     }
 
                     #if DEBUG

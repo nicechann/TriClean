@@ -90,10 +90,10 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let location: String
 
     var typeDescription: String {
-        if isSystemApp { return "시스템 앱" }
-        return canUninstall ? "사용자 앱" : "보호됨"
+        if isSystemApp { return "apps.type.system".localized }
+        return canUninstall ? "apps.type.user".localized : "apps.type.protected".localized
     }
-    
+
     nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool) {
         self.name = name
         self.bundleID = bundleID
@@ -213,23 +213,23 @@ final class AppsViewModel: ObservableObject {
     }
 
     var uninstallButtonHelpText: String {
-        if isRemoving { return "앱 삭제 작업이 진행 중입니다." }
+        if isRemoving { return "apps.help.removing".localized }
 
         let selected = selectedInstalledApps.count
         let deletable = deletableSelectedApps.count
 
-        if selected == 0 { return "삭제할 앱을 먼저 선택해 주세요." }
-        if deletable == 0 { return "선택된 앱은 모두 시스템/보호 앱이거나 현재 권한 범위에서 삭제할 수 없습니다." }
-        if deletable < selected { return "선택된 앱 중 일부만 삭제 가능합니다. 삭제 가능한 앱만 휴지통으로 이동됩니다." }
-        return "선택한 앱 번들을 휴지통으로 이동합니다."
+        if selected == 0 { return "apps.help.select_first".localized }
+        if deletable == 0 { return "apps.help.all_protected".localized }
+        if deletable < selected { return "apps.help.partial_protected".localized }
+        return "apps.help.move_trash".localized
     }
 
     // MARK: - User Choice: Scope selection
 
     func selectApplicationsFolder() {
         let panel = NSOpenPanel()
-        panel.title = "Applications 폴더 선택"
-        panel.message = "설치 앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다."
+        panel.title = "apps.scope.apps_folder".localized
+        panel.message = "apps.scope.apps_msg".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -240,19 +240,19 @@ final class AppsViewModel: ObservableObject {
                 try AppsSecurityScopedBookmarks.save(url: url, key: .applicationsFolder)
                 applicationsFolderURL = url
                 lastStatusIsError = false
-                lastStatusMessage = "Applications 폴더를 선택했습니다: \(url.path)"
+                lastStatusMessage = "apps.status.folder_selected".localized(with: url.path)
                 loadInstalledApps()
             } catch {
                 lastStatusIsError = true
-                lastStatusMessage = "폴더 권한(북마크) 저장에 실패했습니다: \(error.localizedDescription)"
+                lastStatusMessage = "apps.status.bookmark_fail".localized(with: error.localizedDescription)
             }
         }
     }
 
     func selectUserLibraryFolder() {
         let panel = NSOpenPanel()
-        panel.title = "Home Library(~/Library) 선택"
-        panel.message = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 Home Library 범위 안에서만 TriClean이 관련 파일을 탐지/삭제합니다."
+        panel.title = "apps.scope.library_folder".localized
+        panel.message = "apps.scope.library_msg".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -263,10 +263,10 @@ final class AppsViewModel: ObservableObject {
                 try AppsSecurityScopedBookmarks.save(url: url, key: .userLibraryFolder)
                 userLibraryFolderURL = url
                 lastStatusIsError = false
-                lastStatusMessage = "Home Library를 선택했습니다: \(url.path)"
+                lastStatusMessage = "apps.status.library_selected".localized(with: url.path)
             } catch {
                 lastStatusIsError = true
-                lastStatusMessage = "폴더 권한(북마크) 저장에 실패했습니다: \(error.localizedDescription)"
+                lastStatusMessage = "apps.status.bookmark_fail".localized(with: error.localizedDescription)
             }
         }
     }
@@ -286,15 +286,15 @@ final class AppsViewModel: ObservableObject {
         relatedItems = []
 
         lastStatusIsError = false
-        lastStatusMessage = "선택 권한을 초기화했습니다. 다시 폴더를 선택해 주세요."
+        lastStatusMessage = "apps.status.reset_success".localized
     }
 
     // MARK: - Manual app selection (.app)
 
     func selectAppBundleManually() {
         let panel = NSOpenPanel()
-        panel.title = "앱 선택"
-        panel.message = "TriClean이 분석/삭제 대상으로 사용할 .app 번들을 직접 선택합니다.\n(선택한 앱 번들 범위 안에서만 접근 가능)"
+        panel.title = "apps.manual.title".localized
+        panel.message = "apps.manual.msg".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
@@ -308,7 +308,7 @@ final class AppsViewModel: ObservableObject {
                 handleManuallySelectedApp(at: url)
             } catch {
                 lastStatusIsError = true
-                lastStatusMessage = "앱 권한(북마크) 저장에 실패했습니다: \(error.localizedDescription)"
+                lastStatusMessage = "apps.status.app_bookmark_fail".localized(with: error.localizedDescription)
             }
         }
     }
@@ -317,7 +317,7 @@ final class AppsViewModel: ObservableObject {
         // 선택된 .app 의 상위 폴더 범위를 스코프로 잡음
         guard let token = AppsScopedAccessToken(url: appURL.deletingLastPathComponent()) else {
             lastStatusIsError = true
-            lastStatusMessage = "앱 접근 권한(Security-Scoped)이 없습니다. 다시 선택해 주세요."
+            lastStatusMessage = "apps.status.no_permission".localized
             return
         }
         defer { token.stop() }
@@ -325,7 +325,7 @@ final class AppsViewModel: ObservableObject {
         let std = appURL.standardizedFileURL
         guard std.pathExtension.lowercased() == "app" else {
             lastStatusIsError = true
-            lastStatusMessage = ".app 번들을 선택해 주세요."
+            lastStatusMessage = "apps.status.not_app_bundle".localized
             return
         }
 
@@ -334,14 +334,14 @@ final class AppsViewModel: ObservableObject {
             selectedInstalledAppIDs = [existing.id]
             analyzeInstalledApp(app: existing) // ✅ selectedApp는 여기서 AppsSelectedAppInfo(name/bundleID/appPath)로 세팅됨
             lastStatusIsError = false
-            lastStatusMessage = "앱을 선택했습니다: \(existing.name)"
+            lastStatusMessage = "apps.status.app_selected".localized(with: existing.name)
             return
         }
 
         // 2) 없으면: 현재 파일이 가진 모델 생성 함수로 모델 생성
         guard let new = buildInstalledAppOnMain(from: std) else {
             lastStatusIsError = true
-            lastStatusMessage = "앱 정보를 읽지 못했습니다."
+            lastStatusMessage = "apps.status.read_fail".localized
             return
         }
 
@@ -351,7 +351,7 @@ final class AppsViewModel: ObservableObject {
         selectedInstalledAppIDs = [new.id]
         analyzeInstalledApp(app: new)
         lastStatusIsError = false
-        lastStatusMessage = "앱을 추가했습니다: \(new.name)"
+        lastStatusMessage = "apps.status.app_added".localized(with: new.name)
     }
 
     private func buildInstalledAppOnMain(from url: URL) -> AppsInstalledApp? {
@@ -368,12 +368,12 @@ final class AppsViewModel: ObservableObject {
     func loadInstalledApps() {
         guard let root = applicationsFolderURL?.standardizedFileURL else {
             lastStatusIsError = true
-            lastStatusMessage = "Applications 폴더 권한이 없습니다. 먼저 폴더를 선택해 주세요."
+            lastStatusMessage = "apps.status.folder_needed".localized
             return
         }
         guard let token = AppsScopedAccessToken(url: root) else {
             lastStatusIsError = true
-            lastStatusMessage = "Applications 폴더 접근 권한(Security-Scoped)이 없습니다."
+            lastStatusMessage = "apps.status.scoped_error".localized
             return
         }
 
@@ -381,7 +381,7 @@ final class AppsViewModel: ObservableObject {
 
         isLoadingInstalledApps = true
         lastStatusIsError = false
-        lastStatusMessage = "설치된 앱 목록을 불러오는 중…"
+        lastStatusMessage = "apps.list.loading".localized
 
         Task {
             defer { token.stop() } // ✅ 스캔 끝난 뒤 stop
@@ -405,7 +405,7 @@ final class AppsViewModel: ObservableObject {
 
             self.isLoadingInstalledApps = false
             self.lastStatusIsError = false
-            self.lastStatusMessage = "앱 목록 로드 완료 (\(sorted.count)개)"
+            lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
         }
     }
 
@@ -493,7 +493,7 @@ final class AppsViewModel: ObservableObject {
 
         guard userLibraryFolderURL != nil else {
             lastStatusIsError = false
-            lastStatusMessage = "관련 파일 분석을 하려면 먼저 Home Library(~/Library)를 선택해 주세요."
+            lastStatusMessage = "apps.status.library_guide".localized
             return
         }
 
@@ -503,12 +503,12 @@ final class AppsViewModel: ObservableObject {
     private func scanRelatedFiles(for appName: String, bundleID: String?) {
         guard let library = userLibraryFolderURL?.standardizedFileURL else {
             lastStatusIsError = true
-            lastStatusMessage = "Home Library 권한이 없습니다. 먼저 ~/Library 를 선택해 주세요."
+            lastStatusMessage = "apps.status.library_needed".localized
             return
         }
         guard let token = AppsScopedAccessToken(url: library) else {
             lastStatusIsError = true
-            lastStatusMessage = "Home Library 접근 권한(Security-Scoped)이 없습니다."
+            lastStatusMessage = "apps.status.library_scoped_error".localized
             return
         }
 
@@ -516,7 +516,7 @@ final class AppsViewModel: ObservableObject {
 
         isScanning = true
         lastStatusIsError = false
-        lastStatusMessage = "관련 파일을 찾는 중…"
+        lastStatusMessage = "apps.status.scanning".localized
 
         Task {
             defer { token.stop() }
@@ -534,8 +534,8 @@ final class AppsViewModel: ObservableObject {
             self.isScanning = false
 
             self.lastStatusMessage = found.isEmpty
-                ? "관련 파일을 찾지 못했습니다."
-                : "관련 파일 \(found.count)개를 찾았습니다."
+                ? "apps.status.scan_empty".localized
+                : "apps.status.scan_found".localized(with: found.count)
         }
     }
 
@@ -653,7 +653,7 @@ final class AppsViewModel: ObservableObject {
         let targets = deletableSelectedApps
         guard !targets.isEmpty else {
             lastStatusIsError = true
-            lastStatusMessage = "휴지통으로 이동할 수 있는 앱이 없습니다."
+            lastStatusMessage = "apps.status.nothing_to_trash".localized
             return
         }
 
@@ -691,15 +691,15 @@ final class AppsViewModel: ObservableObject {
             // 메시지/Alert
             if succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "선택한 앱을 자동으로 삭제할 수 없습니다. (시스템/Admin 권한 필요)"
+                self.lastStatusMessage = "apps.status.uninstall_all_fail".localized
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
                 self.lastStatusIsError = false
-                self.lastStatusMessage = "앱 \(succeeded.count)개를 휴지통으로 이동했습니다."
+                self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count)
                 completion(nil)
             } else if !succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "\(succeeded.count)개 성공, \(failed.count)개 실패 (시스템/Admin 권한 필요)"
+                self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count)
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             } else {
                 completion(nil)
@@ -770,13 +770,13 @@ final class AppsViewModel: ObservableObject {
 
             if !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "\(succeeded.count)개 이동, \(failed.count)개 실패(권한/사용 중). 실패 항목은 목록에 남겨두었습니다."
+                self.lastStatusMessage = "apps.status.related_partial_fail".localized(with: succeeded.count, failed.count)
             } else if !succeeded.isEmpty {
                 self.lastStatusIsError = false
-                self.lastStatusMessage = "선택한 \(succeeded.count)개 항목을 휴지통으로 이동했습니다."
+                self.lastStatusMessage = "apps.status.related_success".localized(with: succeeded.count)
             } else {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "휴지통으로 이동할 수 있는 항목이 없습니다."
+                self.lastStatusMessage = "apps.status.related_none".localized
             }
         }
     }
@@ -838,9 +838,9 @@ struct AppsView: View {
                             .frame(width: 24)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Installed Apps 목록")
+                            Text("apps.list.title".localized)
                                 .font(.subheadline).bold()
-                            Text(viewModel.applicationsFolderURL?.path ?? "권한 필요: Applications 폴더를 선택해 주세요.")
+                            Text(viewModel.applicationsFolderURL?.path ?? "apps.scope.apps_folder".localized) // 권한 필요 메시지로 대체 가능
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
@@ -849,7 +849,7 @@ struct AppsView: View {
                         
                         Spacer()
                         
-                        Button("Applications 폴더 선택…") {
+                        Button("apps.scope.apps_folder".localized) {
                             viewModel.selectApplicationsFolder()
                         }
                     }
@@ -864,9 +864,9 @@ struct AppsView: View {
                             .frame(width: 24)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("관련 파일 분석(캐시/Preferences)")
+                            Text("apps.scope.library_analysis".localized)
                                 .font(.subheadline).bold()
-                            Text(viewModel.userLibraryFolderURL?.path ?? "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.")
+                            Text(viewModel.userLibraryFolderURL?.path ?? "apps.status.library_needed".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
@@ -875,7 +875,7 @@ struct AppsView: View {
                         
                         Spacer()
                         
-                        Button("Home Library 선택…") {
+                        Button("apps.scope.library_folder".localized) {
                             viewModel.selectUserLibraryFolder()
                         }
                     }
@@ -891,7 +891,7 @@ struct AppsView: View {
                         
                         Spacer()
                         
-                        Button("권한 초기화…") {
+                        Button("apps.scope.reset".localized) { // "권한 초기화..."
                             activeAlert = .resetPermissions
                         }
                         .buttonStyle(.borderless)
@@ -906,16 +906,16 @@ struct AppsView: View {
             // 헤더
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("App Uninstall")
+                    Text("apps.header.uninstall".localized)
                         .font(.title).bold()
-                    Text("선택한 폴더/앱 범위 안에서만 목록을 스캔하고, 사용자가 선택한 항목만 휴지통으로 이동합니다. macOS 시스템/보호 앱은 App Store 버전 TriClean에서 직접 삭제할 수 없습니다.")
+                    Text("apps.header.desc".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Button("앱 파일 직접 선택…") {
+                Button("apps.btn.manual_select".localized) {
                     viewModel.selectAppBundleManually()
                 }
             }
@@ -924,7 +924,7 @@ struct AppsView: View {
             HStack(spacing: 12) {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                    TextField("앱 이름 또는 Bundle ID 검색", text: $viewModel.searchText)
+                    TextField("apps.search.placeholder".localized, text: $viewModel.searchText)
                         .textFieldStyle(.plain)
                 }
                 .padding(6)
@@ -945,12 +945,12 @@ struct AppsView: View {
             GroupBox {
                 VStack(alignment: .leading, spacing: 10) {
                     if viewModel.isLoadingInstalledApps {
-                        HStack { ProgressView(); Text("설치된 앱 목록을 불러오는 중…"); Spacer() }
+                        HStack { ProgressView(); Text("apps.list.loading".localized); Spacer() }
                     } else if viewModel.applicationsFolderURL == nil {
-                        Text("먼저 상단에서 Applications 폴더를 선택한 뒤 Scan을 눌러 주세요.")
+                        Text("apps.list.guide_select".localized)
                             .foregroundStyle(.secondary)
                     } else if viewModel.filteredInstalledApps.isEmpty {
-                        Text("표시할 앱이 없습니다. (검색 조건/선택 폴더를 확인해 주세요)")
+                        Text("apps.list.empty".localized)
                             .foregroundStyle(.secondary)
                     } else {
                         Table(viewModel.filteredInstalledApps) {
@@ -1032,7 +1032,7 @@ struct AppsView: View {
             // Related
             if let selected = viewModel.selectedApp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Selected App").font(.headline)
+                    Text("apps.details.selected".localized).font(.headline)
 
                     HStack(alignment: .firstTextBaseline, spacing: 10) {
                         Text(selected.name)
@@ -1058,17 +1058,18 @@ struct AppsView: View {
                     .cornerRadius(8)
 
                     if viewModel.userLibraryFolderURL == nil {
-                        Text("관련 파일 분석을 하려면 상단에서 Home Library(~/Library)를 선택해 주세요.")
+                        Text("apps.details.library_guide".localized)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     } else if viewModel.isScanning {
-                        HStack { ProgressView(); Text("관련 파일 검색 중…"); Spacer() }
+                        HStack { ProgressView(); Text("apps.details.scanning".localized); Spacer() }
                     } else if viewModel.relatedItems.isEmpty {
-                        Text("관련 파일이 없거나 찾지 못했습니다.")
+                        Text("apps.details.no_related".localized)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("관련 파일 (\(viewModel.relatedItems.count))")
+                        Text("apps.details.found_count".localized(with: viewModel.relatedItems.count))
+                        //Text("관련 파일 (\(viewModel.relatedItems.count))")
                             .font(.headline)
 
                         Table(viewModel.relatedItems) {
@@ -1090,7 +1091,7 @@ struct AppsView: View {
                         .frame(minHeight: 160) // 관련 파일 목록은 고정 최소 높이 유지
 
                         HStack {
-                            Button("선택 항목 휴지통으로 이동") {
+                            Button("apps.details.trash_selected".localized) {
                                 activeAlert = .removeRelatedFiles
                             }
                             .disabled(viewModel.isRemoving || viewModel.relatedItems.allSatisfy { !$0.selected })
@@ -1100,7 +1101,7 @@ struct AppsView: View {
                     }
                 }
             } else {
-                Text("테이블에서 앱을 선택해 ‘Details’를 누르거나, 상단의 ‘앱 파일 직접 선택…’ 버튼으로 앱을 지정하면 관련 파일을 분석합니다.")
+                Text("apps.details.guide".localized)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -1109,51 +1110,6 @@ struct AppsView: View {
         }
         .padding()
         .alert(item: $activeAlert) { makeAlert($0) }
-//        .alert(item: $activeAlert) { alert in
-//            switch alert {
-//            case .uninstallApps:
-//                let count = viewModel.deletableSelectedApps.count
-//                return Alert(
-//                    title: Text("선택한 앱 삭제"),
-//                    message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
-//                    primaryButton: .destructive(Text("Uninstall")) {
-//                        // ✅ 콜백을 통해 결과 Alert 처리
-//                        viewModel.uninstallSelectedInstalledApps { nextAlert in
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                                self.activeAlert = nextAlert
-//                            }
-//                        }
-//                    },
-//                    secondaryButton: .cancel()
-//                )
-//
-//            case .uninstallPartialFail(let success, let failed):
-//                return Alert(
-//                    title: Text("자동 삭제 실패 (권한 제한)"),
-//                    message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
-//                    dismissButton: .default(Text("Show in Finder")) {
-//                        viewModel.revealFailedApps()
-//                    }
-//                )
-//
-//            case .removeRelatedFiles:
-//                let count = viewModel.relatedItems.filter { $0.selected }.count
-//                return Alert(
-//                    title: Text("관련 파일 삭제"),
-//                    message: Text("선택한 \(count)개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?"),
-//                    primaryButton: .destructive(Text("Move to Trash")) { viewModel.removeSelectedRelatedItems() },
-//                    secondaryButton: .cancel()
-//                )
-//
-//            case .resetPermissions:
-//                return Alert(
-//                    title: Text("권한 초기화"),
-//                    message: Text("선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다."),
-//                    primaryButton: .destructive(Text("초기화")) { viewModel.resetPermissions() },
-//                    secondaryButton: .cancel()
-//                )
-//            }
-//        }
     }
 
     private func makeAlert(_ alert: AppsActiveAlert) -> Alert {
@@ -1161,48 +1117,48 @@ struct AppsView: View {
         case .uninstallApps:
             let count = viewModel.deletableSelectedApps.count
             return Alert(
-                title: Text("선택한 앱 삭제"),
-                message: Text("선택한 \(count)개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다."),
-                primaryButton: .destructive(Text("휴지통으로 이동")) {
+                title: Text("apps.alert.uninstall.title".localized),
+                message: Text("apps.alert.uninstall.msg".localized(with: count)),
+                primaryButton: .destructive(Text("common.trash".localized)) {
                     viewModel.uninstallSelectedInstalledApps { nextAlert in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.activeAlert = nextAlert
                         }
                     }
                 },
-                secondaryButton: .cancel(Text("취소"))
+                secondaryButton: .cancel(Text("common.cancel".localized))
             )
 
         case .uninstallPartialFail(_, let failed):
             let names = viewModel.failedAppNamesForAlert()
-            let namesLine = names.isEmpty ? "" : "\n\n실패한 앱: \(names)"
+            let namesLine = names.isEmpty ? "" : "apps.alert.fail.list".localized(with: names)
 
             return Alert(
-                title: Text("자동 삭제 실패 (권한 제한)"),
-                message: Text("\(failed)개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.\(namesLine)\n\n‘Finder에서 보기’를 누른 후, Cmd+Backspace로 직접 삭제해주세요."),
-                primaryButton: .default(Text("Finder에서 보기")) {
+                title: Text("apps.alert.fail.title".localized),
+                message: Text("apps.alert.fail.msg".localized(with: failed, namesLine)),
+                primaryButton: .default(Text("common.finder".localized)) {
                     viewModel.revealFailedApps()
                 },
-                secondaryButton: .cancel(Text("닫기"))
+                secondaryButton: .cancel(Text("common.close".localized))
             )
 
         case .removeRelatedFiles:
             let count = viewModel.relatedItems.filter { $0.selected }.count
             return Alert(
-                title: Text("관련 파일 삭제"),
-                message: Text("선택한 \(count)개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?"),
-                primaryButton: .destructive(Text("휴지통으로 이동")) {
+                title: Text("apps.alert.related.title".localized),
+                message: Text("apps.alert.related.msg".localized(with: count)),
+                primaryButton: .destructive(Text("common.trash".localized)) {
                     viewModel.removeSelectedRelatedItems()
                 },
-                secondaryButton: .cancel(Text("취소"))
+                secondaryButton: .cancel(Text("common.cancel".localized))
             )
 
         case .resetPermissions:
             return Alert(
-                title: Text("권한 초기화"),
-                message: Text("선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다."),
-                primaryButton: .destructive(Text("초기화")) { viewModel.resetPermissions() },
-                secondaryButton: .cancel(Text("취소"))
+                title: Text("apps.alert.reset.title".localized),
+                message: Text("apps.alert.reset.msg".localized),
+                primaryButton: .destructive(Text("common.clear".localized)) { viewModel.resetPermissions() },
+                secondaryButton: .cancel(Text("common.cancel".localized))
             )
         }
     }

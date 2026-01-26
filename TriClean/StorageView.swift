@@ -241,14 +241,14 @@ private struct DiskUsageSummaryView: View {
                 name: "Home Folder",
                 bytes: homeUsed,
                 color: Color(red: 0.98, green: 0.46, blue: 0.33),
-                note: isHomeSelected ? nil : "(권한 필요)",
+                note: isHomeSelected ? nil : "(\("common.permission_needed".localized))",
                 isPlaceholder: !isHomeSelected
             ),
             .init(
                 name: "Applications",
                 bytes: appsUsed,
                 color: Color(red: 0.99, green: 0.77, blue: 0.30),
-                note: isAppsSelected ? nil : "(권한 필요)",
+                note: isHomeSelected ? nil : "(\("common.permission_needed".localized))",
                 isPlaceholder: !isAppsSelected
             ),
             .init(
@@ -274,7 +274,7 @@ private struct DiskUsageSummaryView: View {
                 Text(info.name)
                     .font(.headline)
                 Spacer()
-                Text("\(info.totalString) 중 \(info.usedString) 사용됨")
+                Text("storage.usage.format".localized(with: info.usedString, info.totalString))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -318,7 +318,7 @@ private struct DiskUsageSummaryView: View {
                 HStack(spacing: 8) {
                     ProgressView()
                         .scaleEffect(0.6)
-                    Text("Home/Applications 폴더 사용량 분석 중…")
+                    Text("storage.msg.analyzing_home_apps".localized)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -357,9 +357,7 @@ struct StorageView: View {
     @State private var isScanning: Bool = false
     @State private var isAutoUpdating: Bool = false
     @State private var scanTask: Task<Void, Never>? = nil
-    @State private var scanMessage: String =
-        "스캔 결과가 없습니다. 상단의 'Select Folder & Scan' 버튼을 눌러 분석을 시작하세요."
-
+    @State private var scanMessage: String = "storage.scan.default_msg".localized
     @State private var folderResults: [FolderInfo] = []
     @State private var ignoredFolderURLs: Set<URL> = []
     @State private var tableSelection = Set<FolderInfo.ID>()   // Table 선택 상태
@@ -460,7 +458,7 @@ struct StorageView: View {
 
     private var diskHeaderSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Disk Usage")
+            Text("storage.header".localized)
                 .font(.title2.bold())
 
             if let diskInfo {
@@ -475,7 +473,7 @@ struct StorageView: View {
 
                 diskUsageScopeControls
             } else {
-                Text("디스크 정보를 불러오는 중…")
+                Text("storage.loading".localized)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -521,18 +519,18 @@ struct StorageView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Home Folder")
                         .font(.caption.bold())
-                    Text(homeScopeURL?.path ?? "권한 필요: Home 폴더를 선택해 주세요.")
+                    Text(homeScopeURL?.path ?? "storage.scope.home_needed".localized)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button(homeScopeURL == nil ? "선택…" : "변경…") {
+                Button(homeScopeURL == nil ? "common.select".localized : "common.change".localized) {
                     selectHomeFolderForDiskUsage()
                 }
                 if homeScopeURL != nil {
-                    Button("해제") { clearHomeFolderScope() }
+                    Button("common.clear".localized) { clearHomeFolderScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
                 }
@@ -544,24 +542,24 @@ struct StorageView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Applications")
                         .font(.caption.bold())
-                    Text(appsScopeURLs.isEmpty ? "권한 필요: Applications 폴더를 선택해 주세요." : appsScopeURLs.map { $0.path }.joined(separator: " · "))
+                    Text(appsScopeURLs.isEmpty ? "storage.scope.apps_needed".localized : appsScopeURLs.map { $0.path }.joined(separator: " · "))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button(appsScopeURLs.isEmpty ? "선택…" : "변경…") {
+                Button(appsScopeURLs.isEmpty ? "common.select".localized : "common.change".localized) {
                     selectApplicationsFoldersForDiskUsage()
                 }
                 if !appsScopeURLs.isEmpty {
-                    Button("해제") { clearApplicationsFoldersScope() }
+                    Button("common.clear".localized) { clearApplicationsFoldersScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
                 }
             }
 
-            Text("※ Home/Applications 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다. 선택하지 않으면 ‘Other Used’로만 표시됩니다.")
+            Text("storage.scope.guide".localized)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -571,7 +569,7 @@ struct StorageView: View {
     private var folderScanSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Disk Scan")
+                Text("storage.scan.header".localized)
                     .font(.title3.bold())
 
                 Spacer()
@@ -583,11 +581,11 @@ struct StorageView: View {
                     ZStack {
                         // size anchor (invisible) — 가장 큰 케이스(텍스트 + 스피너) 기준으로 고정
                         Group {
-                            Text("Select Folder & Scan")
+                            Text("storage.scan.btn".localized)
                             HStack(spacing: 6) {
                                 ProgressView()
                                     .controlSize(.small)
-                                Text("Updating…")
+                                Text("storage.scan.updating".localized)
                             }
                         }
                         .opacity(0)
@@ -600,7 +598,7 @@ struct StorageView: View {
                                     .lineLimit(1)
                             }
                         } else {
-                            Text("Select Folder & Scan")
+                            Text("storage.scan.btn".localized)
                                 .lineLimit(1)
                         }
                     }
@@ -610,12 +608,12 @@ struct StorageView: View {
             }
 
             // 안내 문구
-            Text("Tip: 시스템 폴더보다는 홈 폴더(~)/나 /Users 하위 폴더를 선택하는 것을 권장합니다.")
+            Text("storage.scan.tip".localized)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 12) {
-                Text("Min Folder Size")
+                Text("storage.scan.min_size".localized)
                     .font(.subheadline)
                     .frame(width: 120, alignment: .leading)
 
@@ -632,7 +630,7 @@ struct StorageView: View {
 
 
             HStack(spacing: 12) {
-                Text("Top Folder Sort")
+                Text("storage.scan.sort".localized)
                     .font(.subheadline)
                     .frame(width: 120, alignment: .leading)
                 Picker("", selection: $topFolderSort) {
@@ -655,7 +653,7 @@ struct StorageView: View {
             }
 
             if isScanning && topFolderSort != .discovered {
-                Text("스캔 중에는 발견순으로 표시되며, 완료 후 정렬이 1회 적용됩니다.")
+                Text("storage.scan.sort.note".localized)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -669,7 +667,7 @@ struct StorageView: View {
     private var resultsTableSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Results")
+                Text("storage.results.header".localized)
                     .font(.title3.bold())
 
                 Spacer()
@@ -677,7 +675,7 @@ struct StorageView: View {
                 Button(role: .destructive) {
                     deleteSelectedFolders()
                 } label: {
-                    Text("Move to Trash")
+                    Text("common.trash".localized) // 버튼
                 }
                 .disabled(isScanning || tableSelection.isEmpty)
             }
@@ -757,16 +755,24 @@ struct StorageView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .width(min: 44, ideal: 48, max: 52)
-            }            .frame(minHeight: 320)
-            .alert("정말 삭제하시겠습니까?", isPresented: $showingDeleteAlert, presenting: deleteTarget) { _ in
-                Button("휴지통으로 이동", role: .destructive) {
+            }
+            .frame(minHeight: 320)
+            .alert("storage.alert.delete.title".localized, isPresented: $showingDeleteAlert, presenting: deleteTarget) { _ in
+                // "휴지통으로 이동"
+                Button("common.move_to_trash".localized, role: .destructive) {
                     confirmDelete()
                 }
-                Button("취소", role: .cancel) {
+                // "취소"
+                Button("common.cancel".localized, role: .cancel) {
                     deleteTarget = nil
                 }
             } message: { target in
-                Text("‘\(target.name)’ \(target.isDirectory ? "폴더" : "파일")를 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.")
+                // 폴더면 '폴더를', 파일이면 '파일을'로 조사가 다르므로 키를 분리
+                let key = target.isDirectory
+                ? "storage.alert.delete.msg_folder"
+                : "storage.alert.delete.msg_file"
+                
+                Text(key.localized(with: target.name))
             }
         }
     }
@@ -949,8 +955,8 @@ struct StorageView: View {
 
     private func selectHomeFolderForDiskUsage() {
         let panel = NSOpenPanel()
-        panel.title = "Home Folder 선택"
-        panel.message = "Disk Usage의 Home Folder 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다."
+        panel.title = "storage.scope.select_home_title".localized
+        panel.message = "storage.scope.select_home_msg".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -966,8 +972,8 @@ struct StorageView: View {
 
     private func selectApplicationsFoldersForDiskUsage() {
         let panel = NSOpenPanel()
-        panel.title = "Applications 폴더 선택"
-        panel.message = "Disk Usage의 Applications 구간 계산을 위해 폴더를 선택합니다. (/Applications, ~/Applications 등 복수 선택 가능)"
+        panel.title = "storage.scope.select_apps_title".localized
+        panel.message = "storage.scope.select_apps_msg".localized
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -1033,9 +1039,9 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
     // 진행 문구
     switch trigger {
     case .manual:
-        scanMessage = "'\(url.lastPathComponent)' 폴더를 분석 중입니다…"
+        scanMessage = "storage.msg.manual".localized(with: url.lastPathComponent)
     case .auto:
-        scanMessage = "조건 변경으로 다시 분석 중입니다…"
+        scanMessage = "storage.msg.auto".localized
     }
 
     // ✅ manual은 즉시 비우고 시작, auto는 첫 배치가 오기 전까지 기존 결과 유지(깜빡임 최소화)
@@ -1088,7 +1094,7 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
 
             // 취소면 메시지만 갱신하고 종료
             if Task.isCancelled {
-                self.scanMessage = "분석이 취소되었습니다."
+                self.scanMessage = "storage.msg.canceled".localized
                 return
             }
 
@@ -1107,9 +1113,9 @@ private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
             let fileCount = results.filter { !$0.isDirectory }.count
 
             if results.isEmpty {
-                self.scanMessage = "'\(root.lastPathComponent)' 폴더에 조건에 맞는 하위 항목이 없습니다."
+                self.scanMessage = "storage.msg.no_items".localized(with: root.lastPathComponent)
             } else {
-                self.scanMessage = "'\(root.lastPathComponent)' 폴더 분석이 완료되었습니다. (폴더 \(folderCount)개 / 파일 \(fileCount)개)"
+                self.scanMessage = "storage.msg.completed".localized(with: root.lastPathComponent, folderCount, fileCount)
             }
         }
     }

@@ -1,0 +1,158 @@
+/* 
+  Localizable.strings
+  TriClean
+
+  Created by nicechann on 1/25/26.
+  
+*/
+
+/* Common */
+"common.cancel" = "Cancel";
+"common.confirm" = "Confirm";
+"common.close" = "Close";
+"common.delete" = "Delete";
+"common.refresh" = "Refresh";
+"common.trash" = "Move to Trash";
+"common.finder" = "Reveal in Finder";
+"common.permission_needed" = "Permission Required";
+"common.select" = "Select…";
+"common.change" = "Change…";
+"common.clear" = "Clear";
+"common.scan" = "Scan";
+"common.updated" = "Updated: %@";
+"common.version" = "Version";
+"common.build" = "Build";
+
+/* Sidebar */
+"sidebar.storage" = "Storage";
+"sidebar.memory" = "Memory";
+"sidebar.apps" = "Apps";
+"sidebar.settings" = "Settings";
+"sidebar.storage.subtitle" = "Clean up large folders";
+"sidebar.memory.subtitle" = "Monitor & clean memory";
+"sidebar.apps.subtitle" = "Clean up app leftovers";
+"sidebar.status.memory_usage" = "Current memory usage ratio.";
+
+/* Memory View */
+"memory.in_use" = "In Use: %@";
+"memory.total" = "Total: %@";
+"memory.used" = "Used: %@";
+"memory.available" = "Available: %@";
+"memory.clean_btn" = "Clean Memory";
+"memory.clean_desc" = "Frees up memory by purging inactive caches. Active apps will not be closed.";
+"memory.composition" = "Memory Composition";
+"memory.composition_note" = "※ Based on macOS Mach VM statistics (host_statistics64).";
+"memory.significant_usage" = "Significant Memory Usage";
+"memory.significant_empty" = "No running apps to display.";
+"memory.legend.app" = "App Memory";
+"memory.legend.wired" = "Wired Memory";
+"memory.legend.compressed" = "Compressed";
+"memory.legend.available" = "Available";
+"memory.tray_message" = "Before %d%% → After %d%% (Excluding Cache)";
+
+/* Storage View */
+"storage.header" = "Disk Usage";
+"storage.loading" = "Loading disk info…";
+"storage.legend.home" = "Home Folder";
+"storage.legend.apps" = "Applications";
+"storage.legend.other" = "Other Used";
+"storage.legend.free" = "Free Space";
+"storage.permission.home" = "Permission Required: Select Home Folder";
+"storage.permission.apps" = "Permission Required: Select Applications Folder";
+"storage.scope_note" = "※ Home/Applications usage is calculated only within selected scopes. Otherwise shown as ‘Other Used’.";
+"storage.scan.header" = "Disk Scan";
+"storage.scan.btn" = "Select Folder & Scan";
+"storage.scan.updating" = "Updating…";
+"storage.scan.scanning" = "Scanning…";
+"storage.scan.tip" = "Tip: Scanning Home Folder (~) or subfolders of /Users is recommended.";
+"storage.scan.min_size" = "Min Folder Size";
+"storage.scan.sort" = "Top Folder Sort";
+"storage.scan.sort.default" = "Default";
+"storage.scan.sort.name" = "Name";
+"storage.scan.sort.size" = "Size";
+"storage.scan.sort.note" = "Displayed in discovery order during scan. Sort applies once finished.";
+"storage.results.header" = "Results";
+"storage.alert.delete.title" = "Are you sure you want to delete?";
+"storage.alert.delete.message" = "‘%@’ %@ will be moved to Trash. You can restore it from Finder.";
+"storage.item.folder" = "Folder";
+"storage.item.file" = "File";
+"storage.msg.empty" = "No scan results. Click 'Select Folder & Scan' to start.";
+"storage.msg.manual" = "Analyzing '%@' folder…";
+"storage.msg.auto" = "Re-analyzing due to condition change…";
+"storage.msg.canceled" = "Scan canceled.";
+"storage.msg.no_items" = "No items found in '%@' matching the criteria.";
+"storage.msg.completed" = "Analysis of '%@' completed. (%d folders / %d files)";
+"storage.scope.select_home_msg" = "Disk Usage for Home Folder is calculated only within the selected folder scope.";
+"storage.scope.select_home_title" = "Select Home Folder";
+"storage.scope.select_apps_title" = "Select Applications Folder";
+"storage.scope.select_apps_msg" = "Select folders to calculate Disk Usage for Applications. (Multiple selections allowed, e.g., /Applications, ~/Applications)";
+"storage.scope.guide" = "※ Home/Applications usage is calculated only within selected scopes. Otherwise, it appears as 'Other Used'.";
+"storage.scan.default_msg" = "No scan results. Click 'Select Folder & Scan' above to start analysis.";
+"storage.scope.home_needed" = "Permission required: Please select Home folder.";
+"storage.scope.apps_needed" = "Permission required: Please select Applications folder.";
+/* Used / Total (Arguments: 1=Used, 2=Total) */
+"storage.usage.format" = "%1$@ used of %2$@";
+
+/* Apps View */
+"apps.header.uninstall" = "App Uninstall";
+"apps.header.desc" = "Scans installed apps within selected scopes. Only selected items are moved to Trash. System/Protected apps cannot be removed.";
+"apps.btn.manual_select" = "Select .app Manually…";
+"apps.search.placeholder" = "Search App Name or Bundle ID";
+"apps.btn.uninstall" = "Uninstall";
+"apps.scope.apps_folder" = "Select Applications Folder";
+"apps.scope.apps_msg" = "Select a folder to scan for apps (e.g., /Applications or ~/Applications).\nTriClean scans only within the selected scope.";
+"apps.scope.library_folder" = "Select Home Library(~/Library)";
+"apps.scope.library_msg" = "Define scope for related files (Preferences/Caches).\nTriClean detects leftovers only within the selected Library.";
+"apps.scope.reset" = "Reset Permissions…";
+"apps.list.title" = "Installed Apps";
+"apps.list.loading" = "Loading installed apps…";
+"apps.list.guide_select" = "Please select Applications folder and click Scan.";
+"apps.list.empty" = "No apps to display. (Check search or scope)";
+"apps.type.system" = "System App";
+"apps.type.user" = "User App";
+"apps.type.protected" = "Protected";
+"apps.details.selected" = "Selected App";
+"apps.details.library_guide" = "Select Home Library(~/Library) above to analyze related files.";
+"apps.details.scanning" = "Searching related files…";
+"apps.details.no_related" = "No related files found.";
+"apps.details.found_count" = "Related files (%d)";
+"apps.details.trash_selected" = "Move Selected to Trash";
+"apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to analyze details.";
+"apps.alert.uninstall.title" = "Uninstall Selected Apps";
+"apps.alert.uninstall.msg" = "Moving %d app bundles to Trash. You can clean related files from the list below.";
+"apps.alert.fail.title" = "Deletion Failed (Permission)";
+"apps.alert.fail.msg" = "%d apps could not be deleted automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
+"apps.alert.related.title" = "Delete Related Files";
+"apps.alert.related.msg" = "Move %d selected files/folders to Trash?";
+"apps.alert.reset.title" = "Reset Permissions";
+"apps.alert.reset.msg" = "This will clear all folder access permissions. You will need to re-select folders to scan/delete.";
+"apps.status.scoped_error" = "No access permission (Security-Scoped) for Applications folder.";
+"apps.manual.msg" = "Select the app (.app) to analyze its related files.";
+"apps.manual.title" = "Select App Manually";
+"apps.status.library_selected" = "Home Library selected.";
+"apps.status.library_guide" = "Permission required: Please select Home Library (~/Library).";
+"apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
+"apps.status.library_scoped_error" = "No access permission (Security-Scoped) for Home Library folder.";
+"apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
+/* Argument: App Count (Int) */
+"apps.status.loaded_count" = "Loaded %d apps.";
+"apps.status.reset_success" = "Reset complete.";
+"apps.status.no_permission" = "No access permission.";
+"apps.status.not_app_bundle" = "Selected file is not an app bundle.";
+"apps.status.app_selected" = "App selected.";
+"apps.status.read_fail" = "Failed to read file.";
+"apps.status.app_added" = "App added.";
+"apps.status.folder_needed" = "Permission required: Please select a folder.";
+
+/* Settings View */
+"settings.display" = "Display";
+"settings.menubar_unit" = "Menu Bar Unit";
+"settings.menubar_unit_desc" = "Select memory unit displayed in menu bar and sidebar.";
+"settings.app_activation" = "App Activation";
+"settings.app_activation_desc" = "Select behavior when clicking an app icon in Significant Memory Usage (Single window vs All windows).";
+"settings.about" = "About";
+"settings.help" = "Help";
+"settings.help.clean_title" = "Clean Memory: Inducing OS Memory Policy";
+"settings.help.clean_desc" = "• Allocates temporary buffer to induce memory pressure, causing OS to purge caches.\n• Effectiveness depends on current memory/swap state.";
+"settings.help.search_title" = "Apps Search: Spotlight Indexing";
+"settings.help.search_desc" = "• Search results may be empty if Spotlight indexing is disabled.\n• In Sandbox, only accessible paths are searched.";

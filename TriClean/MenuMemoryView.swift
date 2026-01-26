@@ -19,7 +19,7 @@ struct MenuMemoryView: View {
                 Spacer()
                 
                 // ✅ [수정] 단위(Percent/MB)에 따라 텍스트가 변경됨
-                Text("\(viewModel.formattedCurrentUsage) 사용중")
+                Text("memory.in_use".localized(with: viewModel.formattedCurrentUsage))
                     .font(.headline)
             }
 

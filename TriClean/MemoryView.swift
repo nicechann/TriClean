@@ -61,18 +61,18 @@ struct MemoryView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
-                Text("In Use: \(viewModel.usageText)")
+                Text("memory.in_use".localized(with: viewModel.usageText))
                     .font(.headline)
 
-                Text("Total: \(viewModel.totalMemoryText)")
+                Text("memory.total".localized(with: viewModel.totalMemoryText))
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text("·  Used: \(viewModel.usedMemoryText)")
+                Text("memory.used".localized(with: viewModel.usedMemoryText))
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text("·  Available:  \(formatHeaderBytes(availableBytes))")
+                Text("memory.available".localized(with: formatHeaderBytes(availableBytes)))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -131,9 +131,9 @@ struct MemoryView: View {
         GroupBox {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Memory Clean")
+                    Text("memory.clean_btn".localized) // 제목 겸 버튼
                         .font(.headline)
-                    Text("사용 중인 메모리를 가볍게 정리해 여유 메모리를 확보합니다. 현재 작업 중인 앱은 종료하지 않습니다.")
+                    Text("memory.clean_desc".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -155,7 +155,7 @@ struct MemoryView: View {
     private var compositionSection: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 8) {
-                Text("메모리 구성")
+                Text("memory.composition".localized)
                     .font(.headline)
 
                 HStack(alignment: .center, spacing: 32) {
@@ -173,8 +173,7 @@ struct MemoryView: View {
                 .padding(.top, 16)      // 제목과 도넛 사이
                 .padding(.bottom, 30)    // 도넛과 하단 설명 사이
 
-                //Text("※ App / Wired / Compressed / Cached / Free 값은 macOS vm_stat 정보를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
-                Text("※ App / Wired / Compressed / Available 값은 macOS Mach VM 통계(host_statistics64)를 기반으로 계산한 실제 시스템 메모리 구성입니다.")
+                Text("memory.composition_note".localized)
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .padding(.top, 4)
@@ -190,7 +189,7 @@ private var significantAppsSection: some View {
     GroupBox {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 12) {
-                Text("Significant Memory Usage")
+                Text("memory.significant_usage".localized)
                     .font(.headline)
 
                 Spacer()
@@ -202,7 +201,7 @@ private var significantAppsSection: some View {
                     Button {
                         viewModel.refreshSignificantApps()
                     } label: {
-                        Label("Refresh", systemImage: "arrow.clockwise")
+                        Label("common.refresh".localized, systemImage: "arrow.clockwise")
                             .labelStyle(.titleAndIcon)
                     }
                     .buttonStyle(.bordered)
@@ -211,7 +210,7 @@ private var significantAppsSection: some View {
             }
 
             if viewModel.significantApps.isEmpty {
-                Text("표시할 실행 앱이 없습니다.")
+                Text("memory.significant_empty".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
@@ -245,7 +244,7 @@ private var significantAppsSection: some View {
                                 .frame(width: 60)
                             }
                             .buttonStyle(.plain)
-                            .help("\(app.name)\n\(formatBytes(app.residentBytes))\n클릭하면 앱이 앞으로 나옵니다.")
+                            .help("memory.tooltip.app_click".localized(with: app.name, formatBytes(app.residentBytes)))
                         }
                     }
                     .padding(.vertical, 4)
@@ -345,7 +344,7 @@ private var legendSection: some View {
                 (Double(usedAfter) / Double(totalAfter) * 100).rounded()
             )
 
-            trayMessage = "정리 전 \(beforeUsage)% → 정리 후 \(afterUsage)% (캐시 제외 기준)"
+            trayMessage = "memory.tray_message".localized(with: beforeUsage, afterUsage)
             withAnimation {
                 showTray = true
             }
