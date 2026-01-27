@@ -22,6 +22,7 @@
 "common.updated" = "Updated: %@";
 "common.version" = "Version";
 "common.build" = "Build";
+"common.move_to_trash" = "Move to Trash";
 
 /* Sidebar */
 "sidebar.storage" = "Storage";
@@ -49,6 +50,7 @@
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
 "memory.tray_message" = "Before %d%% → After %d%% (Excluding Cache)";
+"memory.tooltip.app_click" = "Activate %@ (%@)";
 
 /* Storage View */
 "storage.header" = "Disk Usage";
@@ -92,6 +94,10 @@
 "storage.scope.apps_needed" = "Permission required: Please select Applications folder.";
 /* Used / Total (Arguments: 1=Used, 2=Total) */
 "storage.usage.format" = "%1$@ used of %2$@";
+"storage.msg.analyzing_home_apps" = "Analyzing Home & Applications…";
+"storage.alert.delete.msg_folder" = "‘%@’ folder will be moved to Trash. You can restore it from Finder.";
+"storage.alert.delete.msg_file" = "‘%@’ file will be moved to Trash. You can restore it from Finder.";
+"storage.alert.delete.msg_multi" = "%d selected items will be moved to Trash. You can restore them from Finder.";
 
 /* Apps View */
 "apps.header.uninstall" = "App Uninstall";
@@ -143,6 +149,26 @@
 "apps.status.read_fail" = "Failed to read file.";
 "apps.status.app_added" = "App added.";
 "apps.status.folder_needed" = "Permission required: Please select a folder.";
+"apps.alert.fail.list" = "\\n\\nFailed: %@";
+"apps.help.select_first" = "Select at least one app to uninstall.";
+"apps.help.all_protected" = "All selected apps are protected by macOS (Admin required).";
+"apps.help.partial_protected" = "Some selected apps are protected by macOS (Admin required).";
+"apps.help.move_trash" = "Move selected apps to Trash.";
+"apps.help.removing" = "Removing…";
+"apps.scope.library_analysis" = "Home Library (~/Library) — scan related files";
+"apps.status.folder_selected" = "Folder selected: %@";
+"apps.status.bookmark_fail" = "Failed to save folder permission: %@";
+"apps.status.app_bookmark_fail" = "Failed to save app permission: %@";
+"apps.status.nothing_to_trash" = "No removable apps selected.";
+"apps.status.scanning" = "Scanning related files…";
+"apps.status.scan_empty" = "No related files found.";
+"apps.status.scan_found" = "Found %d related items.";
+"apps.status.related_success" = "Moved %d related items to Trash.";
+"apps.status.related_partial_fail" = "Moved %d items, failed %d.";
+"apps.status.related_none" = "Nothing was moved to Trash.";
+"apps.status.uninstall_success" = "Uninstalled %d apps (moved to Trash).";
+"apps.status.uninstall_partial_fail" = "Uninstalled %d apps, failed %d.";
+"apps.status.uninstall_all_fail" = "Failed to uninstall selected apps (permission required).";
 
 /* Settings View */
 "settings.display" = "Display";

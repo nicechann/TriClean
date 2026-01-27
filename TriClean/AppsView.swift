@@ -314,8 +314,8 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
-        // 선택된 .app 의 상위 폴더 범위를 스코프로 잡음
-        guard let token = AppsScopedAccessToken(url: appURL.deletingLastPathComponent()) else {
+        // ✅ 수동 선택은 appURL 자체를 북마크로 저장하므로, appURL에 대해 scope를 여는 게 일관됨
+        guard let token = AppsScopedAccessToken(url: appURL) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.no_permission".localized
             return

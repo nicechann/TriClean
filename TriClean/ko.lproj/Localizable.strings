@@ -22,6 +22,7 @@
 "common.updated" = "업데이트됨: %@";
 "common.version" = "버전";
 "common.build" = "빌드";
+"common.move_to_trash" = "휴지통으로 이동";
 
 /* Sidebar */
 "sidebar.storage" = "Storage";
@@ -49,6 +50,7 @@
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
 "memory.tray_message" = "정리 전 %d%% → 정리 후 %d%% (캐시 제외 기준)";
+"memory.tooltip.app_click" = "%@ (%@) 활성화";
 
 /* Storage View */
 "storage.header" = "Disk Usage";
@@ -92,6 +94,10 @@
 "storage.scope.apps_needed" = "권한 필요: Applications 폴더를 선택해 주세요.";
 /* 사용량 / 전체 용량 (인자 순서: 1=Used, 2=Total) */
 "storage.usage.format" = "%2$@ 중 %1$@ 사용됨";
+"storage.msg.analyzing_home_apps" = "Home/Applications 분석 중…";
+"storage.alert.delete.msg_folder" = "‘%@’ 폴더를 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
+"storage.alert.delete.msg_file" = "‘%@’ 파일을 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
+"storage.alert.delete.msg_multi" = "선택한 %d개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
 
 /* Apps View */
 "apps.header.uninstall" = "App Uninstall";
@@ -142,6 +148,26 @@
 "apps.status.read_fail" = "파일을 읽는 데 실패했습니다.";
 "apps.status.app_added" = "앱이 추가되었습니다.";
 "apps.status.folder_needed" = "권한 필요: 폴더를 선택해 주세요.";
+"apps.alert.fail.list" = "\\n\\n실패: %@";
+"apps.help.select_first" = "삭제할 앱을 1개 이상 선택해 주세요.";
+"apps.help.all_protected" = "선택한 앱은 모두 macOS 보안 정책으로 자동 삭제할 수 없습니다(관리자 권한 필요).";
+"apps.help.partial_protected" = "선택한 앱 중 일부는 macOS 보안 정책으로 자동 삭제할 수 없습니다(관리자 권한 필요).";
+"apps.help.move_trash" = "선택한 앱을 휴지통으로 이동합니다.";
+"apps.help.removing" = "삭제 중…";
+"apps.scope.library_analysis" = "Home Library(~/Library) — 관련 파일 스캔";
+"apps.status.folder_selected" = "폴더 선택됨: %@";
+"apps.status.bookmark_fail" = "폴더 권한 저장 실패: %@";
+"apps.status.app_bookmark_fail" = "앱 권한 저장 실패: %@";
+"apps.status.nothing_to_trash" = "휴지통으로 이동할 앱이 없습니다.";
+"apps.status.scanning" = "관련 파일을 스캔 중…";
+"apps.status.scan_empty" = "관련 파일을 찾지 못했습니다.";
+"apps.status.scan_found" = "관련 항목 %d개를 찾았습니다.";
+"apps.status.related_success" = "관련 항목 %d개를 휴지통으로 이동했습니다.";
+"apps.status.related_partial_fail" = "%d개는 이동, %d개는 실패했습니다.";
+"apps.status.related_none" = "이동할 항목이 없습니다.";
+"apps.status.uninstall_success" = "앱 %d개를 휴지통으로 이동했습니다.";
+"apps.status.uninstall_partial_fail" = "%d개는 이동, %d개는 실패했습니다.";
+"apps.status.uninstall_all_fail" = "선택한 앱을 이동할 수 없습니다(권한 필요).";
 
 /* Settings View */
 "settings.display" = "Display";
