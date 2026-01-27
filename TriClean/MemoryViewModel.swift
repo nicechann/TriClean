@@ -231,7 +231,8 @@ private static func residentMemoryBytes(pid: pid_t) -> Int64? {
         #endif
 
         DispatchQueue.global(qos: .userInitiated).async {
-            MemoryCleaner.performLightClean(totalBytes: before.totalBytes, fillMode: mode)
+            let available = max(before.cachedBytes + before.freeBytes, 0)
+            MemoryCleaner.performLightClean(totalBytes: before.totalBytes, availableBytes: available, fillMode: mode)
             Thread.sleep(forTimeInterval: 0.5)
             let after = MemoryReader.fetchStats()
 
@@ -321,21 +322,72 @@ enum MemoryReader {
     }
 }
 
-private enum MemoryCleaner {
+enum MemoryCleaner {
     @inline(never)
     private static func consume(_ value: UInt32) {
         // Release 빌드 최적화에서 버퍼 할당/쓰기 루틴이 통째로 제거되는 것을 방지하기 위한 sink 입니다.
         _ = value
     }
 
-    static func performLightClean(totalBytes: Int64, fillMode: MemoryCleanFillMode) {
-        guard totalBytes > 256 * 1024 * 1024 else { return }
-        let rawTarget = totalBytes / 5
-        let target = min(max(rawTarget, 64 * 1024 * 1024), 1024 * 1024 * 1024)
+#if DEBUG
+    private struct XSwUsage {
+        var xsu_total: UInt64 = 0
+        var xsu_avail: UInt64 = 0
+        var xsu_used: UInt64 = 0
+        var xsu_pagesize: UInt32 = 0
+        var xsu_encrypted: UInt32 = 0
+    }
+
+    private static func debugMB(_ bytes: Int64) -> String {
+        let mb = Double(bytes) / 1048576.0
+        return String(format: "%.0fMB", mb)
+    }
+
+    private static func debugSwapUsageString() -> String {
+        var x = XSwUsage()
+        var size = MemoryLayout<XSwUsage>.size
+        let rc = sysctlbyname("vm.swapusage", &x, &size, nil, 0)
+        guard rc == 0 else { return "swap: n/a" }
+
+        func mb(_ v: UInt64) -> String {
+            let m = Double(v) / 1048576.0
+            return String(format: "%.0fMB", m)
+        }
+        return "swap used \(mb(x.xsu_used))/\(mb(x.xsu_total)) (avail \(mb(x.xsu_avail)))"
+    }
+#endif
+
+
+    static func performLightClean(totalBytes: Int64, availableBytes: Int64, fillMode: MemoryCleanFillMode) {
+        let MB: Int64 = 1024 * 1024
+
+        // totalBytes 기반으로 과도하게 큰 버퍼를 잡지 않도록,
+        // Activity Monitor의 "Available(= Cached + Free)"를 기준으로 target을 계산합니다.
+        let total = max(totalBytes, 0)
+        let available = max(availableBytes, 0)
+
+        // 너무 작은 메모리/여유 메모리 환경에서는 동작하지 않게 방어
+        guard total > 256 * MB else { return }
+        guard available > 128 * MB else { return }
+
+        // 안전 마진(사용자 체감 성능/스왑 방지)
+        let safety: Int64 = 128 * MB
+        let maxAllowed = max(available - safety, 0)
+
+        // Available이 충분치 않으면 아무 것도 하지 않음
+        guard maxAllowed >= 16 * MB else { return }
+
+        // Available의 일부만 사용 (너무 공격적이지 않게)
+        let rawTarget = available / 3
+        let target = min(min(max(rawTarget, 32 * MB), 256 * MB), maxAllowed)
+
+#if DEBUG
+        print("[MemoryCleaner] total=\(debugMB(total)), available=\(debugMB(available)), safety=\(debugMB(safety)), maxAllowed=\(debugMB(maxAllowed))")
+        print("[MemoryCleaner] rawTarget=\(debugMB(rawTarget)), target=\(debugMB(target)), mode=\(fillMode), \(debugSwapUsageString())")
+#endif
         let count = Int(target / 4)
         if count <= 0 { return }
-        
-        // NOTE:
+// NOTE:
         // - 외부 프로세스/파싱 없이, 메모리 압박을 만들기 위해 큰 버퍼를 할당하고 실제로 "쓰기"를 발생시킵니다.
         // - 기존에는 페이지 단위(step)로 일부만 터치했지만, arc4random_buf로 전체를 빠르게 채우면
         //   커널이 실제 페이지를 더 많이 commit 하게 되어(= 메모리 압박 증가) 캐시/퍼지 유도에 유리합니다.
@@ -373,4 +425,5 @@ private enum MemoryCleaner {
         }
     }
 }
+
 

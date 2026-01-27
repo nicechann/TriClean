@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   TriClean
 
@@ -14,6 +14,8 @@
 "common.refresh" = "Refresh";
 "common.trash" = "Move to Trash";
 "common.finder" = "Reveal in Finder";
+"common.finder_app" = "Finder";
+"common.macos" = "macOS";
 "common.permission_needed" = "Permission Required";
 "common.select" = "Select…";
 "common.change" = "Change…";
@@ -33,6 +35,7 @@
 "sidebar.memory.subtitle" = "Monitor & clean memory";
 "sidebar.apps.subtitle" = "Clean up app leftovers";
 "sidebar.status.memory_usage" = "Current memory usage ratio.";
+"sidebar.status.refresh_help" = "Refresh memory usage";
 
 /* Memory View */
 "memory.in_use" = "In Use: %@";
@@ -105,6 +108,7 @@
 "apps.btn.manual_select" = "Select .app Manually…";
 "apps.search.placeholder" = "Search App Name or Bundle ID";
 "apps.btn.uninstall" = "Uninstall";
+"apps.btn.details" = "Details";
 "apps.scope.apps_folder" = "Select Applications Folder";
 "apps.scope.apps_msg" = "Select a folder to scan for apps (e.g., /Applications or ~/Applications).\nTriClean scans only within the selected scope.";
 "apps.scope.library_folder" = "Select Home Library(~/Library)";
@@ -176,9 +180,22 @@
 "settings.menubar_unit_desc" = "Select memory unit displayed in menu bar and sidebar.";
 "settings.app_activation" = "App Activation";
 "settings.app_activation_desc" = "Select behavior when clicking an app icon in Significant Memory Usage (Single window vs All windows).";
+"settings.app_activation.single" = "Single";
+"settings.app_activation.all" = "All";
 "settings.about" = "About";
 "settings.help" = "Help";
 "settings.help.clean_title" = "Clean Memory: Inducing OS Memory Policy";
 "settings.help.clean_desc" = "• Allocates temporary buffer to induce memory pressure, causing OS to purge caches.\n• Effectiveness depends on current memory/swap state.";
 "settings.help.search_title" = "Apps Search: Spotlight Indexing";
 "settings.help.search_desc" = "• Search results may be empty if Spotlight indexing is disabled.\n• In Sandbox, only accessible paths are searched.";
+
+/* Menu Bar */
+"menubar.memory.title" = "TriClean – Memory";
+"menubar.clean" = "Clean";
+"menubar.open_triclean" = "Open TriClean";
+
+/* Debug */
+"settings.debug" = "Debug";
+"settings.debug.clean_fill_mode" = "Clean Fill Mode";
+"settings.debug.clean_fill_desc" = "Select how the buffer is filled during Clean Memory (Random/Page Touch/Pattern). In Release builds it is fixed to Touch.";
+

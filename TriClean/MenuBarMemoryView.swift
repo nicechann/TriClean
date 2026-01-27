@@ -68,10 +68,19 @@ final class MenuBarMemoryViewModel: ObservableObject {
         isCleaning = true
 
         DispatchQueue.global(qos: .userInitiated).async {
-            // TODO: 실제 메모리 정리 로직 연결 시 여기에 구현
-            Thread.sleep(forTimeInterval: 2.0)
+            let stats = MemoryReader.fetchStats()
+            let availableBytes = max(stats.cachedBytes + stats.freeBytes, 0)
 
-            DispatchQueue.main.async {
+            // 메뉴바에서는 안정성을 위해 Touch 방식으로 고정
+            MemoryCleaner.performLightClean(
+                totalBytes: stats.totalBytes,
+                availableBytes: availableBytes,
+                fillMode: .pageTouch
+            )
+
+            // 압박 이후 약간의 여유를 두고 다시 갱신
+            Thread.sleep(forTimeInterval: 0.35)
+DispatchQueue.main.async {
                 self.refresh()
                 self.isCleaning = false
             }
@@ -84,14 +93,14 @@ struct MenuBarMemoryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("TriClean – Memory")
+            Text("menubar.memory.title".localized)
                 .font(.headline)
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Total: \(Int(viewModel.info.total)) MB")
-                    Text("Used:  \(Int(viewModel.info.used)) MB")
-                    Text("Available:  \(Int(viewModel.info.available)) MB")
+                    Text("memory.total".localized(with: "\(Int(viewModel.info.total)) MB"))
+                    Text("memory.used".localized(with: "\(Int(viewModel.info.used)) MB"))
+                    Text("memory.available".localized(with: "\(Int(viewModel.info.available)) MB"))
                 }
                 .font(.system(.caption, design: .monospaced))
 
@@ -114,7 +123,7 @@ struct MenuBarMemoryView: View {
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
-                .help("Refresh")
+                .help("common.refresh".localized)
 
                 Spacer()
 
@@ -124,7 +133,7 @@ struct MenuBarMemoryView: View {
                     if viewModel.isCleaning {
                         ProgressView()
                     } else {
-                        Text("Clean")
+                        Text("menubar.clean".localized)
                     }
                 }
                 .disabled(viewModel.isCleaning)
@@ -135,7 +144,7 @@ struct MenuBarMemoryView: View {
             Button {
                 NSApplication.shared.activate(ignoringOtherApps: true)
             } label: {
-                Text("Open TriClean")
+                Text("menubar.open_triclean".localized)
             }
             .buttonStyle(.link)
         }
@@ -147,4 +156,5 @@ struct MenuBarMemoryView: View {
 #Preview {
     MenuBarMemoryView()
 }
+
 

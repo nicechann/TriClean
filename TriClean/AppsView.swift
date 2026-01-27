@@ -607,7 +607,7 @@ final class AppsViewModel: ObservableObject {
         guard let query = MDQueryCreate(kCFAllocatorDefault, queryString as CFString, nil, nil) else {
             return []
         }
-
+        
         // 제한 범위 설정: `mdfind -onlyin <path>`와 동일한 목적
         MDQuerySetSearchScope(query, [searchScope.path] as CFArray, 0)
 
@@ -885,7 +885,7 @@ struct AppsView: View {
                         Button {
                             viewModel.loadInstalledApps()
                         } label: {
-                            Label("Scan", systemImage: "arrow.clockwise")
+                            Label("common.scan".localized, systemImage: "arrow.clockwise")
                         }
                         .disabled(viewModel.applicationsFolderURL == nil || viewModel.isLoadingInstalledApps || viewModel.isRemoving)
                         
@@ -933,7 +933,7 @@ struct AppsView: View {
 
                 Spacer()
 
-                Button("Uninstall") {
+                Button("apps.btn.uninstall".localized) {
                     activeAlert = .uninstallApps
                 }
                 .frame(width: 88)
@@ -999,8 +999,8 @@ struct AppsView: View {
                             TableColumn("Operation") { app in
                                 rowBackground(appID: app.id) {
                                     HStack(spacing: 8) {
-                                        Button("Details") { viewModel.analyzeInstalledApp(app: app) }
-                                        Button("Finder") { viewModel.revealInFinder(app: app) }
+                                        Button("apps.btn.details".localized) { viewModel.analyzeInstalledApp(app: app) }
+                                        Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
                                     }
                                 }
                             }
@@ -1017,7 +1017,7 @@ struct AppsView: View {
                 .frame(maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .topLeading)
                 .padding(8)
             } label: {
-                Text("Installed Apps").font(.headline)
+                Text("apps.list.title".localized).font(.headline)
             }
 
             // 상태 메시지
@@ -1191,4 +1191,5 @@ struct AppsView: View {
 #Preview {
     AppsView()
 }
+
 

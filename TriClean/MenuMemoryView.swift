@@ -14,7 +14,7 @@ struct MenuMemoryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Memory")
+                Text("sidebar.memory".localized)
                     .font(.headline)
                 Spacer()
                 
@@ -23,11 +23,11 @@ struct MenuMemoryView: View {
                     .font(.headline)
             }
 
-            Text("Total: \(viewModel.totalMemoryText)")
+            Text("memory.total".localized(with: viewModel.totalMemoryText))
                 .font(.caption)
-            Text("Used:  \(viewModel.usedMemoryText)")
+            Text("memory.used".localized(with: viewModel.usedMemoryText))
                 .font(.caption)
-            Text("Available:  \(viewModel.availableMemoryText)")
+            Text("memory.available".localized(with: viewModel.availableMemoryText))
                 .font(.caption)
 
             Divider()
@@ -35,7 +35,7 @@ struct MenuMemoryView: View {
             Button {
                 viewModel.performClean { _, _ in }
             } label: {
-                Label("Clean Memory", systemImage: "sparkles")
+                Label("memory.clean_btn".localized, systemImage: "sparkles")
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -52,3 +52,4 @@ struct MenuMemoryView: View {
     MenuMemoryView()
         .environmentObject(MemoryViewModel())
 }
+

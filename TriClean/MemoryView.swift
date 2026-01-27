@@ -143,7 +143,7 @@ struct MemoryView: View {
                 Button {
                     runClean()
                 } label: {
-                    Text("Clean Memory")
+                    Text("memory.clean_btn".localized)
                 }
                 .keyboardShortcut("m", modifiers: [.command])
             }
@@ -252,7 +252,7 @@ private var significantAppsSection: some View {
             }
 
             if let updated = viewModel.significantAppsUpdatedAt {
-                Text("Updated: \(updated.formatted(date: .abbreviated, time: .shortened))")
+                Text("common.updated".localized(with: updated.formatted(date: .abbreviated, time: .shortened)))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -519,4 +519,5 @@ private struct TrayView: View {
         .environmentObject(MemoryViewModel())
         .frame(width: 950, height: 600)
 }
+
 

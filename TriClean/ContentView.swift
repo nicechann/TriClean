@@ -90,7 +90,7 @@ struct SidebarStatusView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("TriClean")
                         .font(.headline)
-                    Text("v1.0.0")
+                    Text(verbatim: "v\((Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0.0")")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -128,7 +128,7 @@ struct SidebarStatusView: View {
                     }
                 }
                 .buttonStyle(.borderless)
-                .help("메모리 사용률 새로고침")
+                .help("sidebar.status.refresh_help".localized)
             }
         }
         .padding(.vertical, 6)
@@ -157,13 +157,13 @@ struct ContentView: View {
             List(selection: $selection) {
                 // STORAGE
                 NavigationLink(value: SidebarItem.storage) {
-                    Label("Storage", systemImage: "internaldrive")
+                    Label("sidebar.storage".localized, systemImage: "internaldrive")
                 }
 
                 // MEMORY
                 NavigationLink(value: SidebarItem.memory) {
                     HStack {
-                        Label("Memory", systemImage: "memorychip")
+                        Label("sidebar.memory".localized, systemImage: "memorychip")
                         Spacer()
                         Text(memoryViewModel.formattedCurrentUsage)
                             .font(.caption)
@@ -172,12 +172,12 @@ struct ContentView: View {
 
                 // APPS
                 NavigationLink(value: SidebarItem.apps) {
-                    Label("Apps", systemImage: "app.dashed")
+                    Label("sidebar.apps".localized, systemImage: "app.dashed")
                 }
 
                 // SETTINGS
                 NavigationLink(value: SidebarItem.settings) {
-                    Label("Settings", systemImage: "gearshape")
+                    Label("sidebar.settings".localized, systemImage: "gearshape")
                 }
             }
             .listStyle(.sidebar)
@@ -315,8 +315,8 @@ struct SettingsView: View {
 
                                 VStack(alignment: .leading, spacing: 6) {
                                     Picker("", selection: $significantAppActivationMode) {
-                                        Text("Single").tag("single")
-                                        Text("All").tag("all")
+                                        Text("settings.app_activation.single".localized).tag("single")
+                                        Text("settings.app_activation.all".localized).tag("all")
                                     }
                                     .pickerStyle(.segmented)
                                     .labelsHidden()
@@ -342,17 +342,17 @@ struct SettingsView: View {
                     GroupBox {
                         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
                             GridRow {
-                                Text("Version")
+                                Text("common.version".localized)
                                 Text(appVersion)
                                     .foregroundColor(.secondary)
                             }
                             GridRow {
-                                Text("Build")
+                                Text("common.build".localized)
                                 Text(buildNumber)
                                     .foregroundColor(.secondary)
                             }
                             GridRow {
-                                Text("macOS")
+                                Text("common.macos".localized)
                                 Text(macOSVersion)
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -404,7 +404,7 @@ struct SettingsView: View {
                     GroupBox {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(alignment: .center, spacing: 12) {
-                                Text("Clean Fill Mode")
+                                Text("settings.debug.clean_fill_mode".localized)
                                     .frame(width: 120, alignment: .leading)
 
                                 Picker("", selection: cleanPresetBinding) {
@@ -418,14 +418,14 @@ struct SettingsView: View {
                                 .frame(maxWidth: 420)
                             }
 
-                            Text("메모리 정리 시 버퍼를 채우는 방식(랜덤/페이지 터치/패턴)을 선택합니다. Release 빌드에서는 Touch로 고정됩니다.")
+                            Text("settings.debug.clean_fill_desc".localized)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .padding(10)
                     } label: {
-                        Text("Debug")
+                        Text("settings.debug".localized)
                     }
                     #endif
                 }
@@ -437,7 +437,7 @@ struct SettingsView: View {
             .padding(.vertical, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .navigationTitle("Settings")
+        .navigationTitle("sidebar.settings".localized)
     }
 }
 
@@ -446,3 +446,4 @@ struct SettingsView: View {
     ContentView()
         .environmentObject(MemoryViewModel())
 }
+

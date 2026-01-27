@@ -220,10 +220,10 @@ private struct DiskUsageSummaryView: View {
     private var barCategories: [DiskUsageCategory] {
         var result: [DiskUsageCategory] = []
         if homeUsed > 0 {
-            result.append(.init(name: "Home Folder", bytes: homeUsed, color: Color(red: 0.98, green: 0.46, blue: 0.33)))
+            result.append(.init(name: "storage.legend.home".localized, bytes: homeUsed, color: Color(red: 0.98, green: 0.46, blue: 0.33)))
         }
         if appsUsed > 0 {
-            result.append(.init(name: "Applications", bytes: appsUsed, color: Color(red: 0.99, green: 0.77, blue: 0.30)))
+            result.append(.init(name: "storage.legend.apps".localized, bytes: appsUsed, color: Color(red: 0.99, green: 0.77, blue: 0.30)))
         }
         if otherUsed > 0 {
             result.append(.init(name: "Other Used", bytes: otherUsed, color: Color(red: 0.35, green: 0.70, blue: 0.90)))
@@ -238,14 +238,14 @@ private struct DiskUsageSummaryView: View {
     private var legendItems: [LegendItem] {
         [
             .init(
-                name: "Home Folder",
+                name: "storage.legend.home".localized,
                 bytes: homeUsed,
                 color: Color(red: 0.98, green: 0.46, blue: 0.33),
                 note: isHomeSelected ? nil : "(\("common.permission_needed".localized))",
                 isPlaceholder: !isHomeSelected
             ),
             .init(
-                name: "Applications",
+                name: "storage.legend.apps".localized,
                 bytes: appsUsed,
                 color: Color(red: 0.99, green: 0.77, blue: 0.30),
                 note: isAppsSelected ? nil : "(\("common.permission_needed".localized))",
@@ -517,7 +517,7 @@ struct StorageView: View {
                 Image(systemName: homeScopeURL == nil ? "xmark.circle" : "checkmark.circle")
                     .foregroundStyle(homeScopeURL == nil ? Color.secondary : Color.green)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Home Folder")
+                    Text("storage.legend.home".localized)
                         .font(.caption.bold())
                     Text(homeScopeURL?.path ?? "storage.scope.home_needed".localized)
                         .font(.caption2)
@@ -540,7 +540,7 @@ struct StorageView: View {
                 Image(systemName: appsScopeURLs.isEmpty ? "xmark.circle" : "checkmark.circle")
                     .foregroundStyle(appsScopeURLs.isEmpty ? Color.secondary : Color.green)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Applications")
+                    Text("storage.legend.apps".localized)
                         .font(.caption.bold())
                     Text(appsScopeURLs.isEmpty ? "storage.scope.apps_needed".localized : appsScopeURLs.map { $0.path }.joined(separator: " · "))
                         .font(.caption2)
@@ -730,12 +730,12 @@ struct StorageView: View {
                     Button {
                         openInFinder(item)
                     } label: {
-                        Label("Finder", systemImage: "folder")
+                        Label("common.finder_app".localized, systemImage: "folder")
                     }
                     .labelStyle(.titleAndIcon)
                     .controlSize(.small)
                     .buttonStyle(.bordered)
-                    .help("Reveal in Finder")
+                    .help("common.finder".localized)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .width(min: 90, ideal: 100, max: 110)
@@ -751,7 +751,7 @@ struct StorageView: View {
                             .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
-                    .help("Move to Trash")
+                    .help("common.trash".localized)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .width(min: 44, ideal: 48, max: 52)
@@ -1477,5 +1477,6 @@ struct StorageView: View {
         return total
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   TriClean
 
@@ -14,6 +14,8 @@
 "common.refresh" = "새로고침";
 "common.trash" = "휴지통으로 이동";
 "common.finder" = "Finder에서 보기";
+"common.finder_app" = "Finder";
+"common.macos" = "macOS";
 "common.permission_needed" = "권한 필요";
 "common.select" = "선택…";
 "common.change" = "변경…";
@@ -33,6 +35,7 @@
 "sidebar.memory.subtitle" = "메모리 모니터 & 정리";
 "sidebar.apps.subtitle" = "앱 관련 파일 정리";
 "sidebar.status.memory_usage" = "현재 사용 중인 메모리 비율입니다.";
+"sidebar.status.refresh_help" = "메모리 사용률 새로고침";
 
 /* Memory View */
 "memory.in_use" = "사용중: %@";
@@ -105,6 +108,7 @@
 "apps.btn.manual_select" = "앱 파일 직접 선택…";
 "apps.search.placeholder" = "앱 이름 또는 Bundle ID 검색";
 "apps.btn.uninstall" = "Uninstall";
+"apps.btn.details" = "Details";
 "apps.scope.apps_folder" = "Applications 폴더 선택";
 "apps.scope.apps_msg" = "설치 앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다.";
 "apps.scope.library_folder" = "Home Library(~/Library) 선택";
@@ -175,9 +179,22 @@
 "settings.menubar_unit_desc" = "메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.";
 "settings.app_activation" = "App Activation";
 "settings.app_activation_desc" = "Significant Memory Usage에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.";
+"settings.app_activation.single" = "Single";
+"settings.app_activation.all" = "All";
 "settings.about" = "About";
 "settings.help" = "Help";
 "settings.help.clean_title" = "Clean Memory: OS 메모리 정책 조정 유도";
 "settings.help.clean_desc" = "• 임시 버퍼를 할당/쓰기하여 메모리 압박을 만들고, OS가 캐시/압축 정책을 조정하도록 유도합니다.\n• 환경(여유 메모리/압축/스왑 상태)에 따라 변화 폭이 다를 수 있습니다.";
 "settings.help.search_title" = "Apps 검색: Spotlight 인덱싱/제외 설정 영향";
 "settings.help.search_desc" = "• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.\n• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.";
+
+/* Menu Bar */
+"menubar.memory.title" = "TriClean – Memory";
+"menubar.clean" = "Clean";
+"menubar.open_triclean" = "Open TriClean";
+
+/* Debug */
+"settings.debug" = "Debug";
+"settings.debug.clean_fill_mode" = "Clean Fill Mode";
+"settings.debug.clean_fill_desc" = "메모리 정리 시 버퍼를 채우는 방식(랜덤/페이지 터치/패턴)을 선택합니다. Release 빌드에서는 Touch로 고정됩니다.";
+
