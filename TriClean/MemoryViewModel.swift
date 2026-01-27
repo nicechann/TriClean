@@ -403,8 +403,10 @@ enum MemoryCleaner {
                 arc4random_buf(baseAddr, raw.count)
 
             case .memsetFill(let value):
-                // 특정 패턴 채우기: 랜덤이 필요 없고 "전체 페이지 commit"이 목적일 때
-                _ = memset(baseAddr, Int32(value), raw.count)
+                // - value는 UInt8 이므로 Int32 변환은 안전합니다.
+                // - memset은 결국 하위 8비트(1바이트)만 사용합니다.
+                let fill: Int32 = Int32(value)
+                _ = memset(baseAddr, fill, raw.count)
 
             case .pageTouch:
                 // 각 페이지에서 1바이트만 쓰기: 최소 작업량으로 페이지를 touch

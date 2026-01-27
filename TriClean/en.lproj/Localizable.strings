@@ -143,7 +143,6 @@
 "apps.status.library_guide" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_scoped_error" = "No access permission (Security-Scoped) for Home Library folder.";
-"apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
 /* Argument: App Count (Int) */
 "apps.status.loaded_count" = "Loaded %d apps.";
 "apps.status.reset_success" = "Reset complete.";

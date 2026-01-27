@@ -107,7 +107,7 @@ private struct StorageSecurityScopedAccessToken {
 
 // MARK: - 스캔 결과 모델 (폴더 + 파일)
 
-struct FolderInfo: Identifiable, Hashable {
+struct FolderInfo: Identifiable, Hashable, Sendable {
     let id = UUID()
     let url: URL
     let sizeBytes: Int64
@@ -1142,7 +1142,7 @@ struct StorageView: View {
         batchSize: Int
     ) -> AsyncStream<[FolderInfo]> {
         AsyncStream { continuation in
-            let producer = Task(priority: .userInitiated) {
+            let producer = Task.detached(priority: .utility) {
                 let fm = FileManager.default
                 let rootStd = root.standardizedFileURL
                 
