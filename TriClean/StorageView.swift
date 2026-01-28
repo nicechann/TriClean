@@ -605,6 +605,17 @@ struct StorageView: View {
                 }
                 .keyboardShortcut("s", modifiers: [.command])
                 .disabled(isScanning)
+                
+                if isScanning {
+                    Button {
+                        cancelActiveScan()
+                    } label: {
+                        Text("common.cancel".localized)
+                            .lineLimit(1)
+                    }
+                    .keyboardShortcut(.cancelAction)
+                }
+                
             }
             
             // 안내 문구
@@ -663,7 +674,13 @@ struct StorageView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
+    private func cancelActiveScan() {
+        // ✅ 스캔 중단 (UI는 즉시 "취소 중…"으로 갱신)
+        scanTask?.cancel()
+        scanMessage = "storage.msg.canceling".localized
+    }
+
     private var resultsTableSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {

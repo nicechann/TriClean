@@ -101,6 +101,7 @@
 "storage.alert.delete.msg_folder" = "‘%@’ 폴더를 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
 "storage.alert.delete.msg_file" = "‘%@’ 파일을 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
 "storage.alert.delete.msg_multi" = "선택한 %d개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 ‘휴지통 비우기’로 완전히 삭제할 수 있습니다.";
+"storage.msg.canceling" = "취소 중…";
 
 /* Apps View */
 "apps.header.uninstall" = "App Uninstall";

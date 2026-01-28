@@ -101,6 +101,7 @@
 "storage.alert.delete.msg_folder" = "‘%@’ folder will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_file" = "‘%@’ file will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_multi" = "%d selected items will be moved to Trash. You can restore them from Finder.";
+"storage.msg.canceling" = "Canceling…";
 
 /* Apps View */
 "apps.header.uninstall" = "App Uninstall";
