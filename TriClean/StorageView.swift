@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import StoreKit // ✅ 결제 기능을 위해 추가
 
 // MARK: - Disk Usage (사용자 선택 기반) : Security-scoped bookmarks
 
@@ -352,6 +353,13 @@ private struct DiskUsageSummaryView: View {
 
 struct StorageView: View {
     
+    // ✅ StoreManager, TrialManager 연결
+    @EnvironmentObject private var storeManager: StoreManager
+    @EnvironmentObject private var trialManager: TrialManager
+    
+    // ✅ Paywall 표시 여부
+    @State private var showPaywall = false
+    
     @State private var minFolderSizeMB: Double = 200
     @State private var selectedFolderURL: URL? = nil
     @State private var isScanning: Bool = false
@@ -410,24 +418,45 @@ struct StorageView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            
-            // 상단: 디스크 사용량
-            diskHeaderSection
-            
-            Divider()
-            
-            // 폴더 스캔 섹션
-            folderScanSection
-            
-            Divider()
-            
-            // 하단: 결과 테이블
-            resultsTableSection
-            
-            Spacer(minLength: 10)
+        // ✅ 인셋 규칙을 고정(섹션 간 좌우 정렬 깨짐 방지)
+        let outerPadding: CGFloat = 16
+        let sectionInset: CGFloat = 12
+
+        // ✅ 본문은 스크롤 가능, 배너는 safeAreaInset으로 하단에 고정
+        return ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 14) {
+                diskHeaderSection
+                Divider()
+                folderScanSection
+                Divider()
+                resultsTableSection
+                Spacer(minLength: 10)
+            }
+            .padding(.horizontal, outerPadding)
+            .padding(.top, outerPadding)
+            // 배너가 있을 때 본문이 배너에 가리지 않도록 충분한 하단 여백 확보
+            .padding(.bottom, storeManager.isPurchased ? outerPadding : 110)
         }
-        .padding()
+        .background(Color(nsColor: .windowBackgroundColor))
+        .safeAreaInset(edge: .bottom) {
+            if !storeManager.isPurchased {
+                Divider()
+                TrialBottomBanner(
+                    daysRemaining: trialManager.daysRemaining,
+                    onBuyTap: { showPaywall = true }
+                )
+                .frame(maxWidth: .infinity)
+                // ✅ 상단 섹션(디스크 카드 내부 12pt 인셋)과 동일한 좌우 정렬
+                .padding(.horizontal, outerPadding + sectionInset)
+                .padding(.vertical, 10)
+                // 배너 영역은 불투명 배경으로 하단 프레임/스크롤 컨텐츠와 분리
+                .background(Color(nsColor: .windowBackgroundColor))
+            }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(allowDismiss: true)
+                .environmentObject(storeManager)
+        }
         .onAppear {
             loadDiskInfo()
             
@@ -529,10 +558,13 @@ struct StorageView: View {
                 Button(homeScopeURL == nil ? "common.select".localized : "common.change".localized) {
                     selectHomeFolderForDiskUsage()
                 }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
                 if homeScopeURL != nil {
                     Button("common.clear".localized) { clearHomeFolderScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
+                        .controlSize(.small)
                 }
             }
             
@@ -552,10 +584,13 @@ struct StorageView: View {
                 Button(appsScopeURLs.isEmpty ? "common.select".localized : "common.change".localized) {
                     selectApplicationsFoldersForDiskUsage()
                 }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
                 if !appsScopeURLs.isEmpty {
                     Button("common.clear".localized) { clearApplicationsFoldersScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
+                        .controlSize(.small)
                 }
             }
             
@@ -603,6 +638,8 @@ struct StorageView: View {
                         }
                     }
                 }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
                 .keyboardShortcut("s", modifiers: [.command])
                 .disabled(isScanning)
                 
@@ -613,6 +650,8 @@ struct StorageView: View {
                         Text("common.cancel".localized)
                             .lineLimit(1)
                     }
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
                     .keyboardShortcut(.cancelAction)
                 }
                 
@@ -673,6 +712,9 @@ struct StorageView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+        // ✅ diskHeaderSection(내부 padding 12)과 같은 시작선으로 맞춤
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func cancelActiveScan() {
@@ -692,113 +734,146 @@ struct StorageView: View {
                 Button(role: .destructive) {
                     deleteSelectedFolders()
                 } label: {
-                    Text("common.trash".localized) // 버튼
+                    Text("common.trash".localized)
                 }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
                 .disabled(isScanning || tableSelection.isEmpty)
             }
             
-            Table(folderResults, selection: $tableSelection) {
-                TableColumn("Item") { item in
-                    let indent = CGFloat(item.depth) * 18
-                    
-                    // 하위 파일은 "상위 폴더 기준 상대 경로"로 보이게(가독성)
-                    let pathText: String = {
-                        if let parent = item.parentURL {
-                            let prefix = parent.path.hasSuffix("/") ? parent.path : parent.path + "/"
-                            if item.path.hasPrefix(prefix) {
-                                return String(item.path.dropFirst(prefix.count))
+            // ✅ TableColumnBuilder 안에 if를 두지 말고, Table 자체를 분기
+            if folderResults.isEmpty {
+                Table(folderResults, selection: $tableSelection) {
+                    TableColumn("Item") { item in
+                        let indent = CGFloat(item.depth) * 18
+                        let pathText: String = {
+                            if let parent = item.parentURL {
+                                let prefix = parent.path.hasSuffix("/") ? parent.path : parent.path + "/"
+                                if item.path.hasPrefix(prefix) {
+                                    return String(item.path.dropFirst(prefix.count))
+                                }
                             }
-                        }
-                        return item.path
-                    }()
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 8) {
-                            if item.depth > 0 {
-                                Image(systemName: "arrow.turn.down.right")
-                                    .foregroundStyle(.tertiary)
-                            }
-                            
-                            Image(systemName: item.isDirectory ? "folder" : "doc")
-                                .foregroundStyle(.secondary)
-                            
-                            Text(item.name)
-                                .font(item.depth > 0 ? .subheadline : .body)
-                                .foregroundStyle(item.depth > 0 ? .secondary : .primary)
-                        }
-                        .padding(.leading, indent)
+                            return item.path
+                        }()
                         
-                        Text(pathText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 8) {
+                                if item.depth > 0 {
+                                    Image(systemName: "arrow.turn.down.right")
+                                        .foregroundStyle(.tertiary)
+                                }
+                                Image(systemName: item.isDirectory ? "folder" : "doc")
+                                    .foregroundStyle(.secondary)
+                                Text(item.name)
+                                    .font(item.depth > 0 ? .subheadline : .body)
+                                    .foregroundStyle(item.depth > 0 ? .secondary : .primary)
+                            }
+                            .padding(.leading, indent)
+                            
+                            Text(pathText)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
                     }
-                }
-                
-                TableColumn("Size") { item in
-                    Text(item.sizeString)
-                        .font(.body.monospacedDigit())
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .width(min: 90, ideal: 110, max: 130)
-                
-                // Actions
-                TableColumn("") { item in
-                    Button {
-                        openInFinder(item)
-                    } label: {
-                        Label("common.finder_app".localized, systemImage: "folder")
-                    }
-                    .labelStyle(.titleAndIcon)
-                    .controlSize(.small)
-                    .buttonStyle(.bordered)
-                    .help("common.finder".localized)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .width(min: 90, ideal: 100, max: 110)
-                
-                TableColumn("") { item in
-                    Button(role: .destructive) {
-                        requestDelete(item)
-                    } label: {
-                        Image(systemName: "trash")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.red)
-                            .padding(6)
-                            .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
-                    }
-                    .buttonStyle(.plain)
-                    .help("common.trash".localized)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .width(min: 44, ideal: 48, max: 52)
-            }
-            .frame(minHeight: 320)
-            .alert("storage.alert.delete.title".localized, isPresented: $showingDeleteAlert) {
-                // "휴지통으로 이동"
-                Button("common.move_to_trash".localized, role: .destructive) {
-                    confirmDelete()
-                }
-                // "취소"
-                Button("common.cancel".localized, role: .cancel) {
-                    deleteTargets = []
-                }
-            } message: {
-                if deleteTargets.count == 1, let target = deleteTargets.first {
-                    // 폴더면 '폴더를', 파일이면 '파일을'로 조사가 다르므로 키를 분리
-                    let key = target.isDirectory
-                    ? "storage.alert.delete.msg_folder"
-                    : "storage.alert.delete.msg_file"
                     
-                    Text(key.localized(with: target.name))
-                } else {
-                    Text("storage.alert.delete.msg_multi".localized(with: deleteTargets.count))
+                    TableColumn("Size") { item in
+                        Text(item.sizeString)
+                            .font(.body.monospacedDigit())
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .width(min: 90, ideal: 110, max: 130)
+                }
+            } else {
+                Table(folderResults, selection: $tableSelection) {
+                    TableColumn("Item") { item in
+                        let indent = CGFloat(item.depth) * 18
+                        let pathText: String = {
+                            if let parent = item.parentURL {
+                                let prefix = parent.path.hasSuffix("/") ? parent.path : parent.path + "/"
+                                if item.path.hasPrefix(prefix) {
+                                    return String(item.path.dropFirst(prefix.count))
+                                }
+                            }
+                            return item.path
+                        }()
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 8) {
+                                if item.depth > 0 {
+                                    Image(systemName: "arrow.turn.down.right")
+                                        .foregroundStyle(.tertiary)
+                                }
+                                Image(systemName: item.isDirectory ? "folder" : "doc")
+                                    .foregroundStyle(.secondary)
+                                Text(item.name)
+                                    .font(item.depth > 0 ? .subheadline : .body)
+                                    .foregroundStyle(item.depth > 0 ? .secondary : .primary)
+                            }
+                            .padding(.leading, indent)
+                            
+                            Text(pathText)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    
+                    TableColumn("Size") { item in
+                        Text(item.sizeString)
+                            .font(.body.monospacedDigit())
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .width(min: 90, ideal: 110, max: 130)
+                    
+                    TableColumn("") { item in
+                        Button {
+                            openInFinder(item)
+                        } label: {
+                            Label("common.finder_app".localized, systemImage: "folder")
+                        }
+                        .labelStyle(.titleAndIcon)
+                        .controlSize(.small)
+                        .buttonStyle(.bordered)
+                        .help("common.finder".localized)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .width(min: 90, ideal: 100, max: 110)
+                    
+                    TableColumn("") { item in
+                        Button(role: .destructive) {
+                            requestDelete(item)
+                        } label: {
+                            Image(systemName: "trash")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.red)
+                                .padding(6)
+                                .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                        .help("common.trash".localized)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .width(min: 44, ideal: 48, max: 52)
                 }
             }
         }
+        .frame(minHeight: 320)
+        .alert("storage.alert.delete.title".localized, isPresented: $showingDeleteAlert) {
+            Button("common.move_to_trash".localized, role: .destructive) { confirmDelete() }
+            Button("common.cancel".localized, role: .cancel) { deleteTargets = [] }
+        } message: {
+            if deleteTargets.count == 1, let target = deleteTargets.first {
+                let key = target.isDirectory ? "storage.alert.delete.msg_folder" : "storage.alert.delete.msg_file"
+                Text(key.localized(with: target.name))
+            } else {
+                Text("storage.alert.delete.msg_multi".localized(with: deleteTargets.count))
+            }
+        }
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
-    
+
     // MARK: - Sorting Policy (Top folders)
     
     @MainActor
@@ -1494,6 +1569,3 @@ struct StorageView: View {
         return total
     }
 }
-
-
-
