@@ -41,7 +41,7 @@ struct TrialBannerView: View {
     let daysLeft: Int
     
     var body: some View {
-        Text("체험판: \(daysLeft)일 남음")
+        Text("trial.banner.status".localized(with: daysLeft))
             .font(.caption.bold())
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
@@ -77,7 +77,7 @@ struct TriCleanApp: App {
                     VStack(spacing: 12) {
                         ProgressView()
                             .controlSize(.large)
-                        Text("구매 상태 확인 중…")
+                        Text("store.status.checking".localized)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -119,7 +119,7 @@ struct TriCleanApp: App {
             // 메뉴바에 '라이선스' 관련 메뉴 추가 (선택 사항)
             CommandGroup(after: .appInfo) {
                 if !storeManager.isPurchased {
-                    Button("TriClean Pro 구매하기...") {
+                    Button("menu.buy_pro".localized) {
                         openPaywallWindow()
                     }
                 }
@@ -135,11 +135,11 @@ struct TriCleanApp: App {
             } else {
                 // 체험판 만료 시 메뉴바 기능 제한
                 VStack(spacing: 12) {
-                    Text("무료 체험 기간이 만료되었습니다.")
+                    Text("trial.expired.msg".localized)
                         .font(.headline)
                         .foregroundColor(.secondary)
                     
-                    Button("정식 버전 구매하기") {
+                    Button("trial.expired.btn".localized) {
                         NSApp.activate(ignoringOtherApps: true)
                         openPaywallWindow()
                     }

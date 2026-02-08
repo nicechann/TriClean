@@ -199,3 +199,38 @@
 "settings.debug.clean_fill_mode" = "Clean Fill Mode";
 "settings.debug.clean_fill_desc" = "메모리 정리 시 버퍼를 채우는 방식(랜덤/페이지 터치/패턴)을 선택합니다. Release 빌드에서는 Touch로 고정됩니다.";
 
+// MARK: - Trial & Banner
+"trial.banner.status" = "체험판: %d일 남음";
+"trial.bottom.title" = "무료 체험";
+"trial.bottom.days_left" = "%d일 남음";
+"trial.bottom.buy_now" = "지금 구매하기";
+"trial.expired.msg" = "무료 체험 기간이 만료되었습니다.";
+"trial.expired.btn" = "정식 버전 구매하기";
+
+// MARK: - Paywall (Features)
+"paywall.title" = "TriClean Premium";
+"paywall.subtitle" = "모든 기능을 무제한으로 사용하세요";
+"paywall.feat.memory" = "무제한 메모리 정리";
+"paywall.feat.memory_desc" = "원하는 만큼 메모리를 정리하세요";
+"paywall.feat.disk" = "고급 디스크 분석";
+"paywall.feat.disk_desc" = "대용량 파일과 폴더를 빠르게 찾으세요";
+"paywall.feat.apps" = "앱 심화 관리";
+"paywall.feat.apps_desc" = "불필요한 파일까지 완벽하게 정리";
+"paywall.feat.auto" = "자동 정기 정리";
+"paywall.feat.auto_desc" = "설정된 시간에 자동으로 정리";
+
+// MARK: - Paywall (Buttons & Status)
+"paywall.btn.buy_format" = "지금 구매 (%@)";
+"paywall.btn.restore" = "구매 복원";
+"paywall.btn.later" = "나중에";
+"store.status.checking" = "구매 상태 확인 중…";
+"store.status.loading_products" = "상품 정보를 불러오는 중…";
+"store.error.load_failed" = "상품 정보를 불러올 수 없습니다.";
+"store.btn.retry" = "다시 시도";
+
+// MARK: - Menubar
+"menu.buy_pro" = "TriClean Pro 구매하기...";
+
+// MARK: - Paywall (Links)
+"paywall.link.privacy" = "개인정보";
+"paywall.link.terms" = "이용약관";

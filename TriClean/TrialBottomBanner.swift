@@ -24,14 +24,14 @@ struct TrialBottomBanner: View {
         VStack(spacing: 12) {
             // 1. 텍스트 정보 (무료 체험 / 7일 남음)
             HStack {
-                Text("무료 체험")
+                Text("trial.bottom.title".localized)
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
                 
                 Spacer()
                 
-                Text("\(daysRemaining)일 남음")
+                Text("trial.bottom.days_left".localized(with: daysRemaining))
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundStyle(.orange)
@@ -68,7 +68,7 @@ struct TrialBottomBanner: View {
             } label: {
                 HStack {
                     Image(systemName: "lock.open.fill")
-                    Text("지금 구매하기")
+                    Text("trial.bottom.buy_now".localized)
                 }
                 .font(.headline)
                 .frame(maxWidth: .infinity)

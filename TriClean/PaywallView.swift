@@ -29,10 +29,10 @@ struct PaywallView: View {
                     .foregroundStyle(.yellow)
                     .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
                 
-                Text("TriClean Premium")
+                Text("paywall.title".localized)
                     .font(.system(size: 28, weight: .bold))
                 
-                Text("모든 기능을 무제한으로 사용하세요")
+                Text("paywall.subtitle".localized)
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
@@ -40,10 +40,10 @@ struct PaywallView: View {
             
             // 2. 기능 목록 (Features)
             VStack(alignment: .leading, spacing: 20) {
-                FeatureRow(icon: "sparkles", title: "무제한 메모리 정리", desc: "원하는 만큼 메모리를 정리하세요")
-                FeatureRow(icon: "internaldrive.fill", title: "고급 디스크 분석", desc: "대용량 파일과 폴더를 빠르게 찾으세요")
-                FeatureRow(icon: "app.fill", title: "앱 심화 관리", desc: "불필요한 파일까지 완벽하게 정리")
-                FeatureRow(icon: "clock.fill", title: "자동 정기 정리", desc: "설정된 시간에 자동으로 정리")
+                FeatureRow(icon: "sparkles", title: "paywall.feat.memory".localized, desc: "paywall.feat.memory_desc".localized)
+                FeatureRow(icon: "internaldrive.fill", title: "paywall.feat.disk".localized, desc: "paywall.feat.disk_desc".localized)
+                FeatureRow(icon: "app.fill", title: "paywall.feat.apps".localized, desc: "paywall.feat.apps_desc".localized)
+                FeatureRow(icon: "clock.fill", title: "paywall.feat.auto".localized, desc: "paywall.feat.auto_desc".localized)
             }
             .padding(.vertical, 10)
             
@@ -59,19 +59,19 @@ struct PaywallView: View {
                 }
                 // ✅ 상품 로딩 중
                 else if storeManager.isFetchingProducts {
-                    ProgressView("상품 정보를 불러오는 중…")
+                    ProgressView("store.status.loading_products".localized)
                         .controlSize(.large)
                         .frame(height: 50)
                 }
                 // ✅ 상품 로딩 실패/빈 배열
                 else if storeManager.products.first == nil {
                     VStack(spacing: 8) {
-                        Text(storeManager.productsErrorMessage ?? "상품 정보를 불러올 수 없습니다.")
+                        Text(storeManager.productsErrorMessage ?? "store.error.load_failed".localized)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 8)
-                        Button("다시 시도") {
+                        Button("store.btn.retry".localized) {
                             Task { await storeManager.reloadProducts() }
                         }
                         .buttonStyle(.borderedProminent)
@@ -85,7 +85,7 @@ struct PaywallView: View {
                         Button {
                             Task { try? await storeManager.purchase() }
                         } label: {
-                            Text("지금 구매 (\(product.displayPrice))")
+                            Text("paywall.btn.buy_format".localized(with: product.displayPrice))
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
@@ -99,7 +99,7 @@ struct PaywallView: View {
                 Button {
                     Task { await storeManager.restore() }
                 } label: {
-                    Text("구매 복원")
+                    Text("paywall.btn.restore".localized)
                         .font(.subheadline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
@@ -112,7 +112,7 @@ struct PaywallView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("나중에")
+                        Text("paywall.btn.later".localized)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
@@ -120,11 +120,11 @@ struct PaywallView: View {
                     .buttonStyle(.bordered)
                     .controlSize(.large)
                 }
-                
+
                 // 하단 링크
                 HStack(spacing: 20) {
-                    Link("개인정보", destination: URL(string: "https://nicechann.github.io/TriClean-Support/privacy")!)
-                    Link("이용약관", destination: URL(string: "https://nicechann.github.io/TriClean-Support/terms")!)
+                    Link("paywall.link.privacy".localized, destination: URL(string: "https://nicechann.github.io/TriClean-Support/privacy")!)
+                    Link("paywall.link.terms".localized, destination: URL(string: "https://nicechann.github.io/TriClean-Support/terms")!)
                 }
                 .font(.caption)
                 .foregroundStyle(.blue)

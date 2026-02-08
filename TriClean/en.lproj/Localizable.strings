@@ -199,3 +199,38 @@
 "settings.debug.clean_fill_mode" = "Clean Fill Mode";
 "settings.debug.clean_fill_desc" = "Select how the buffer is filled during Clean Memory (Random/Page Touch/Pattern). In Release builds it is fixed to Touch.";
 
+// MARK: - Trial & Banner
+"trial.banner.status" = "Trial: %d days left";
+"trial.bottom.title" = "Free Trial";
+"trial.bottom.days_left" = "%d days left";
+"trial.bottom.buy_now" = "Buy Now";
+"trial.expired.msg" = "Your free trial has expired.";
+"trial.expired.btn" = "Buy Full Version";
+
+// MARK: - Paywall (Features)
+"paywall.title" = "TriClean Premium";
+"paywall.subtitle" = "Unlock all features unlimitedly";
+"paywall.feat.memory" = "Unlimited Memory Clean";
+"paywall.feat.memory_desc" = "Clean memory as much as you want";
+"paywall.feat.disk" = "Advanced Disk Analysis";
+"paywall.feat.disk_desc" = "Find large files and folders quickly";
+"paywall.feat.apps" = "Deep App Management";
+"paywall.feat.apps_desc" = "Completely remove leftover files";
+"paywall.feat.auto" = "Automatic Cleaning";
+"paywall.feat.auto_desc" = "Auto-clean at scheduled times";
+
+// MARK: - Paywall (Buttons & Status)
+"paywall.btn.buy_format" = "Buy Now (%@)";
+"paywall.btn.restore" = "Restore Purchase";
+"paywall.btn.later" = "Maybe Later";
+"store.status.checking" = "Checking purchase status…";
+"store.status.loading_products" = "Loading products…";
+"store.error.load_failed" = "Failed to load products.";
+"store.btn.retry" = "Retry";
+
+// MARK: - Menubar
+"menu.buy_pro" = "Buy TriClean Pro...";
+
+// MARK: - Paywall (Links)
+"paywall.link.privacy" = "Privacy Policy";
+"paywall.link.terms" = "Terms of Use";
