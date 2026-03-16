@@ -122,7 +122,7 @@ struct FolderInfo: Identifiable, Hashable, Sendable {
     /// depth > 0 인 경우, 어떤 상위 폴더 아래에 붙는지(표시/삭제 동기화용)
     let parentURL: URL?
     
-    init(url: URL, sizeBytes: Int64, isDirectory: Bool, depth: Int = 0, parentURL: URL? = nil) {
+    nonisolated init(url: URL, sizeBytes: Int64, isDirectory: Bool, depth: Int = 0, parentURL: URL? = nil) {
         self.url = url
         self.sizeBytes = sizeBytes
         self.isDirectory = isDirectory
@@ -1333,7 +1333,10 @@ struct StorageView: View {
                     
                     let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
                     
-                    for case let rawURL as URL in enumerator {
+                    // Swift 6: DirectoryEnumerator를 async 컨텍스트에서 `for-in`으로 순회하면
+                    // 내부적으로 makeIterator()가 호출되어 경고/에러가 발생할 수 있음.
+                    // NSEnumerator 스타일로 nextObject()를 사용해 회피.
+                    while let rawURL = enumerator.nextObject() as? URL {
                         if Task.isCancelled { break }
                         
                         let url = rawURL.standardizedFileURL
@@ -1556,7 +1559,9 @@ struct StorageView: View {
         
         var total: Int64 = 0
         
-        for case let fileURL as URL in enumerator {
+        // Swift 6: DirectoryEnumerator의 for-in 순회는 async 컨텍스트에서 makeIterator() 이슈가 날 수 있으므로
+        // nextObject() 기반으로 순회
+        while let fileURL = enumerator.nextObject() as? URL {
             if Task.isCancelled { break }
             guard let values = try? fileURL.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }

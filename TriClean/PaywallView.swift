@@ -11,6 +11,8 @@ import StoreKit
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var storeManager: StoreManager
+    @State private var purchaseErrorMessage: String? = nil
+    @State private var showPurchaseErrorAlert: Bool = false
 
     /// true: 시트/모달 등에서 "나중에"로 닫을 수 있음
     /// false: 체험 만료 등 루트 Paywall에서는 닫기 버튼을 숨김
@@ -83,21 +85,42 @@ struct PaywallView: View {
                     // 구매 버튼
                     if let product = storeManager.products.first {
                         Button {
-                            Task { try? await storeManager.purchase() }
+                            Task {
+                                do {
+                                    try await storeManager.purchase()
+                                } catch {
+                                    purchaseErrorMessage = error.localizedDescription
+                                    showPurchaseErrorAlert = true
+                                }
+                            }
                         } label: {
-                            Text("paywall.btn.buy_format".localized(with: product.displayPrice))
-                                .font(.headline)
+                            HStack(spacing: 10) {
+                                if storeManager.isLoading {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                }
+                                Text("paywall.btn.buy_format".localized(with: product.displayPrice))
+                                    .font(.headline)
+                            }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .tint(.blue)
+                        .disabled(storeManager.isLoading)
                     }
                 }
                 // Restore (비소모성 IAP 필수)
                 Button {
-                    Task { await storeManager.restore() }
+                    Task {
+                        do {
+                            try await storeManager.restore()
+                        } catch {
+                            purchaseErrorMessage = error.localizedDescription
+                            showPurchaseErrorAlert = true
+                        }
+                    }
                 } label: {
                     Text("paywall.btn.restore".localized)
                         .font(.subheadline)
@@ -106,6 +129,7 @@ struct PaywallView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
+                .disabled(storeManager.isLoading)
 
                 // 나중에 하기 버튼 (시트에서만 표시)
                 if allowDismiss {
@@ -132,9 +156,13 @@ struct PaywallView: View {
             }
         }
         .padding(30)
-        .frame(width: 450, height: 650)
-        // 배경을 어둡게 처리 (스크린샷 느낌)
+        .frame(width: 450, height: 650) // 내용물 크기 고정
         .background(Color(nsColor: .windowBackgroundColor))
+        .cornerRadius(12)
+        .shadow(radius: 20) // 입체감 추가
+        // ✅ [추가] 루트 뷰로 쓰일 때 전체 화면을 꽉 채우는 투명/블러 배경 추가
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.3)) // 뒤쪽 배경 어둡게 처리
         .onAppear {
             // 시트로 열렸는데 이미 구매 상태라면 즉시 닫기
             if allowDismiss, storeManager.isPurchased {
@@ -146,6 +174,11 @@ struct PaywallView: View {
             if allowDismiss, newValue {
                 dismiss()
             }
+        }
+        .alert("결제 오류", isPresented: $showPurchaseErrorAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(purchaseErrorMessage ?? "알 수 없는 오류가 발생했습니다.")
         }
     }
 }

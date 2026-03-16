@@ -329,22 +329,8 @@ private var legendSection: some View {
     // MARK: - Actions
 
     private func runClean() {
-        viewModel.performClean { before, after in
-            // Activity Monitor 기준 (캐시 제외)으로 % 다시 계산해서 보여주기
-            let totalBefore = max(before.totalBytes, 1)
-            let totalAfter  = max(after.totalBytes, 1)
-
-            let usedBefore = before.appBytes + before.wiredBytes + before.compressedBytes
-            let usedAfter  = after.appBytes + after.wiredBytes + after.compressedBytes
-            
-            let beforeUsage = Int(
-                (Double(usedBefore) / Double(totalBefore) * 100).rounded()
-            )
-            let afterUsage = Int(
-                (Double(usedAfter) / Double(totalAfter) * 100).rounded()
-            )
-
-            trayMessage = "memory.tray_message".localized(with: beforeUsage, afterUsage)
+        viewModel.performClean { _, _ in
+            trayMessage = "memory.tray_message".localized
             withAnimation {
                 showTray = true
             }

@@ -55,22 +55,26 @@ struct TrialBannerView: View {
 
 @main
 struct TriCleanApp: App {
-
+    
     // ✅ 앱 상태 관리 객체들 (구매 관리, 체험 기간 관리, 메모리 뷰모델)
     @StateObject private var memoryViewModel = MemoryViewModel()
     @StateObject private var storeManager = StoreManager.shared
     @StateObject private var trialManager = TrialManager.shared
     @State private var showPaywallSheet: Bool = false
-
+    
+    @Environment(\.openWindow) private var openWindow
+    // ✅ [추가] scenePhase 감지를 위해 환경 변수 선언 (에러 해결)
+    @Environment(\.scenePhase) private var scenePhase
+    
     private let minWindowContentSize = NSSize(width: 1024, height: 820)
-
+    
     init() {
         NSWindow.allowsAutomaticWindowTabbing = false
     }
-
+    
     var body: some Scene {
         // 메인 윈도우
-        WindowGroup {
+        WindowGroup(id: "main") {
             ZStack {
                 // ✅ 초기 구매상태 로딩 전에는 로딩 화면을 보여서 Paywall 깜빡임 방지
                 if !storeManager.hasLoadedPurchaseState {
@@ -81,7 +85,7 @@ struct TriCleanApp: App {
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                    
                 } else if storeManager.isPurchased || !trialManager.isTrialExpired {
                     // (구매 완료) OR (체험 기간 유효) -> 정상 화면
                     ContentView()
@@ -94,7 +98,7 @@ struct TriCleanApp: App {
                                     }
                             }
                         }
-
+                    
                 } else {
                     // 체험 기간 만료 + 미구매 사용자 -> 루트 Paywall 표시(닫기 버튼 없음)
                     PaywallView(allowDismiss: false)
@@ -114,6 +118,12 @@ struct TriCleanApp: App {
                 PaywallView(allowDismiss: true)
                     .environmentObject(storeManager)
             }
+            // ✅ [추가] 앱이 활성화될 때마다 체험 기간 재계산
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .active {
+                    trialManager.refresh()
+                }
+            }
         }
         .commands {
             // 메뉴바에 '라이선스' 관련 메뉴 추가 (선택 사항)
@@ -125,7 +135,7 @@ struct TriCleanApp: App {
                 }
             }
         }
-
+        
         // 메뉴바 (상태 표시줄 아이콘)
         MenuBarExtra {
             // 메뉴바 팝업 내용
@@ -154,19 +164,23 @@ struct TriCleanApp: App {
         }
         .menuBarExtraStyle(.window)
     }
-
+    
     // ✅ 결제창 띄우기 헬퍼: 체험 중에는 "시트"로, 만료 시에는 앱 활성화만 수행(이미 루트 Paywall)
     private func openPaywallWindow() {
         NSApp.activate(ignoringOtherApps: true)
-
-        // 이미 구매 완료면 아무 동작도 하지 않음
+        
+        // 메인 윈도우가 닫혀 있으면 새로 열고, 이미 있으면 앞으로 가져오기
+        if let window = NSApp.windows.first(where: { $0.isVisible }) ?? NSApp.windows.first {
+            window.deminiaturize(nil)
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            openWindow(id: "main")
+        }
+        
         guard !storeManager.isPurchased else { return }
-
-        // 체험 만료라면 루트 Paywall이 이미 떠 있으니 활성화만
         guard !trialManager.isTrialExpired else { return }
-
+        
         // 체험 중(미구매)이라면 Paywall 시트를 띄움
         showPaywallSheet = true
-     }
-
+    }
 }

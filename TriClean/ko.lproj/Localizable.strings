@@ -32,7 +32,7 @@
 "sidebar.apps" = "Apps";
 "sidebar.settings" = "Settings";
 "sidebar.storage.subtitle" = "대용량 폴더 정리";
-"sidebar.memory.subtitle" = "메모리 모니터 & 정리";
+"sidebar.memory.subtitle" = "메모리 메모리 사용량";
 "sidebar.apps.subtitle" = "앱 관련 파일 정리";
 "sidebar.status.memory_usage" = "현재 사용 중인 메모리 비율입니다.";
 "sidebar.status.refresh_help" = "메모리 사용률 새로고침";
@@ -42,8 +42,8 @@
 "memory.total" = "Total: %@";
 "memory.used" = "Used: %@";
 "memory.available" = "Available: %@";
-"memory.clean_btn" = "Clean Memory";
-"memory.clean_desc" = "사용 중인 메모리를 가볍게 정리해 여유 메모리를 확보합니다. 현재 작업 중인 앱은 종료하지 않습니다.";
+"memory.clean_btn" = "메모리 최적화";
+"memory.clean_desc" = "macOS 메모리 압박을 유도하여 비활성 캐시를 정리하도록 합니다. 결과는 현재 시스템 상태에 따라 다를 수 있습니다. 현재 작업 중인 앱은 종료하지 않습니다.";
 "memory.composition" = "메모리 구성";
 "memory.composition_note" = "※ App / Wired / Compressed / Available 값은 macOS Mach VM 통계(host_statistics64)를 기반으로 계산한 실제 시스템 메모리 구성입니다.";
 "memory.significant_usage" = "Significant Memory Usage";
@@ -52,7 +52,7 @@
 "memory.legend.wired" = "Wired Memory";
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
-"memory.tray_message" = "정리 전 %d%% → 정리 후 %d%% (캐시 제외 기준)";
+"memory.tray_message" = "메모리 최적화 완료 (결과는 시스템 상태에 따라 다를 수 있습니다)";
 "memory.tooltip.app_click" = "%@ (%@) 활성화";
 
 /* Storage View */
@@ -184,7 +184,7 @@
 "settings.app_activation.all" = "All";
 "settings.about" = "About";
 "settings.help" = "Help";
-"settings.help.clean_title" = "Clean Memory: OS 메모리 정책 조정 유도";
+"settings.help.clean_title" = "메모리 최적화: OS 메모리 정책 조정 유도";
 "settings.help.clean_desc" = "• 임시 버퍼를 할당/쓰기하여 메모리 압박을 만들고, OS가 캐시/압축 정책을 조정하도록 유도합니다.\n• 환경(여유 메모리/압축/스왑 상태)에 따라 변화 폭이 다를 수 있습니다.";
 "settings.help.search_title" = "Apps 검색: Spotlight 인덱싱/제외 설정 영향";
 "settings.help.search_desc" = "• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.\n• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.";
@@ -210,14 +210,14 @@
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";
 "paywall.subtitle" = "모든 기능을 무제한으로 사용하세요";
-"paywall.feat.memory" = "무제한 메모리 정리";
-"paywall.feat.memory_desc" = "원하는 만큼 메모리를 정리하세요";
+"paywall.feat.memory" = "실시간 메모리 모니터링";
+"paywall.feat.memory_desc" = "시스템 메모리 상태를 한눈에 파악하세요";
 "paywall.feat.disk" = "고급 디스크 분석";
 "paywall.feat.disk_desc" = "대용량 파일과 폴더를 빠르게 찾으세요";
 "paywall.feat.apps" = "앱 심화 관리";
 "paywall.feat.apps_desc" = "불필요한 파일까지 완벽하게 정리";
-"paywall.feat.auto" = "자동 정기 정리";
-"paywall.feat.auto_desc" = "설정된 시간에 자동으로 정리";
+"paywall.feat.auto" = "스마트 시스템 모니터링";
+"paywall.feat.auto_desc" = "백그라운드에서 안전하게 맥 상태를 추적하세요";
 
 // MARK: - Paywall (Buttons & Status)
 "paywall.btn.buy_format" = "지금 구매 (%@)";

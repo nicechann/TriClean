@@ -12,7 +12,9 @@ import Combine
 @MainActor
 final class StoreManager: ObservableObject {
     static let shared = StoreManager()
-
+    private var updatesTask: Task<Void, Never>?
+    /// 기존 유료 앱 구매자 보호(Grandfathering) 사용 여부
+    private let enableGrandfathering: Bool = false
     // ⚠️ App Store Connect에서 생성한 '비소모성' 제품 ID를 여기에 입력하세요.
     private let productID = "com.triclean.lifetime"
     
@@ -22,29 +24,35 @@ final class StoreManager: ObservableObject {
     @Published var isLoading: Bool = false
     @Published private(set) var isFetchingProducts: Bool = false
     @Published private(set) var productsErrorMessage: String? = nil    
-    
+
     init() {
+        updatesTask = listenForTransactions()
+
         Task {
             // ✅ 둘 다 네트워크를 탈 수 있으니 병렬로 시작(한쪽 지연이 다른쪽 UI를 막지 않게)
-            async let _ = updatePurchasedStatus()
-            async let _ = loadProducts()
-            _ = await ((), ())
+            async let statusTask: Void = updatePurchasedStatus()
+            async let productsTask: Void = loadProducts()
+            _ = await (statusTask, productsTask)
         }
     }
-    
+
+    deinit {
+        updatesTask?.cancel()
+    }
+
     func purchase() async throws {
         guard let product = products.first else { return }
 
         isLoading = true
         defer { isLoading = false }
         
-    let result = try await product.purchase()
+        let result = try await product.purchase()
 
         switch result {
         case .success(let verification):
-        let transaction = try verified(verification)
-        await transaction.finish()
-        await updatePurchasedStatus()
+            let transaction = try verified(verification)
+            await transaction.finish()
+            await updatePurchasedStatus()
         case .userCancelled, .pending:
             break
         @unknown default:
@@ -52,8 +60,8 @@ final class StoreManager: ObservableObject {
         }
     }
 
-    func restore() async {
-        try? await AppStore.sync()
+    func restore() async throws {
+        try await AppStore.sync()
         await updatePurchasedStatus()
     }
     
@@ -79,43 +87,96 @@ final class StoreManager: ObservableObject {
         await loadProducts()
     }
 
-    private func updatePurchasedStatus() async {
-    defer { self.hasLoadedPurchaseState = true }
+    private func listenForTransactions() -> Task<Void, Never> {
+        let productID = self.productID
 
-    // 1. 현재 인앱 결제 내역(Pro 버전) 확인
-    for await result in Transaction.currentEntitlements {
-        do {
-            let transaction = try verified(result)
-            if transaction.productID == productID {
-                self.isPurchased = true
-                return
+        // Transaction.updates는 앱 실행 중 결제/복원 등의 변경을 스트림으로 전달합니다.
+        // 상태 변경 시점에 isPurchased를 동기화해 Paywall/메뉴 UI 반영이 늦어지는 것을 줄입니다.
+        return Task.detached(priority: .background) { [weak self] in
+            guard let self else { return }
+
+            for await result in Transaction.updates {
+                do {
+                    let transaction = try self.verified(result)
+                    await transaction.finish()
+
+                    if transaction.productID == productID {
+                        await self.updatePurchasedStatus()
+                    }
+                } catch {
+                    // unverified transaction은 무시
+                    continue
+                }
             }
-        } catch {
-            // unverified transaction은 구매로 인정하지 않음
-            continue
         }
     }
 
-    // 2. [중요] 기존 유료 앱 구매자 보호 (Grandfathering)
-    do {
-        let appTransaction = try verified(await AppTransaction.shared)
-        let version = appTransaction.originalAppVersion
+    private struct Version: Comparable {
+        let major: Int
+        let minor: Int
+        let patch: Int
 
-        // ⚠️ 무료 전환 업데이트 버전이 2.0이라면, "2.0" 미만 버전은 기존 구매자로 처리
-        // 문자열 비교보다는 Build Number(Int) 비교가 안전할 수 있습니다.
-        // 예: 현재 버전이 "1.0.0" 또는 "1.0" 또는 "1"이라면 구매자로 인정
-        if version == "1.0.0" || version == "1.0" || version == "1" {
-            self.isPurchased = true
-            return
+        static func parse(_ raw: String) -> Version? {
+            // 예: "1", "1.0", "1.0.0", "1.0.0 (100)" 등에서 숫자/점 prefix만 추출
+            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            let prefix = trimmed.prefix { $0.isNumber || $0 == "." }
+            guard !prefix.isEmpty else { return nil }
+
+            let parts = prefix.split(separator: ".").compactMap { Int($0) }
+            let major = parts.count > 0 ? parts[0] : 0
+            let minor = parts.count > 1 ? parts[1] : 0
+            let patch = parts.count > 2 ? parts[2] : 0
+            return Version(major: major, minor: minor, patch: patch)
         }
-    } catch {
-        // unverified AppTransaction(또는 실패)은 무시
+
+        static func < (lhs: Version, rhs: Version) -> Bool {
+            if lhs.major != rhs.major { return lhs.major < rhs.major }
+            if lhs.minor != rhs.minor { return lhs.minor < rhs.minor }
+            return lhs.patch < rhs.patch
+        }
     }
 
-        self.isPurchased = false
+    private func updatePurchasedStatus() async {
+        defer { hasLoadedPurchaseState = true }
+
+        // ✅ 중요: 이전 실행/테스트에서 isPurchased가 true였던 값이 남지 않도록
+        // 매번 갱신 시작 시 기본을 "미구매"로 리셋
+        isPurchased = false
+
+        // 1. 현재 인앱 결제 내역(Pro 버전) 확인
+        for await result in Transaction.currentEntitlements {
+            do {
+                let transaction = try verified(result)
+                if transaction.productID == productID {
+                    isPurchased = true
+                    return
+                }
+            } catch {
+                // unverified transaction은 구매로 인정하지 않음
+                continue
+            }
+        }
+
+        // 2. 기존 유료 앱 구매자 보호 (Grandfathering)
+        // ⚠️ 기본은 OFF. (현재 유료 구매자가 없으면, 이 로직이 오탐으로 "구매됨"을 만들 수 있음)
+        if enableGrandfathering {
+            do {
+                let appTransaction = try verified(await AppTransaction.shared)
+                let originalVersion = appTransaction.originalAppVersion
+
+                // 기존 코드의 "1.0.0 / 1.0 / 1" 조건을 버전 파싱으로 안전하게 확장
+                if let v = Version.parse(originalVersion),
+                   v <= Version(major: 1, minor: 0, patch: 0) {
+                    isPurchased = true
+                    return
+                }
+            } catch {
+                // unverified AppTransaction(또는 실패)은 무시
+            }
+        }
     }
 
-    private func verified<T>(_ result: VerificationResult<T>) throws -> T {
+    nonisolated private func verified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .verified(let safe):
             return safe
