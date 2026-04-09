@@ -14,14 +14,12 @@ struct PaywallView: View {
     @State private var purchaseErrorMessage: String? = nil
     @State private var showPurchaseErrorAlert: Bool = false
 
-    /// true: 시트/모달 등에서 "나중에"로 닫을 수 있음
-    /// false: 체험 만료 등 루트 Paywall에서는 닫기 버튼을 숨김
     let allowDismiss: Bool
 
     init(allowDismiss: Bool = true) {
         self.allowDismiss = allowDismiss
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             // 1. 상단 아이콘 및 타이틀
@@ -30,43 +28,40 @@ struct PaywallView: View {
                     .font(.system(size: 64))
                     .foregroundStyle(.yellow)
                     .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
-                
+
                 Text("paywall.title".localized)
                     .font(.system(size: 28, weight: .bold))
-                
+
                 Text("paywall.subtitle".localized)
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
             .padding(.top, 20)
-            
-            // 2. 기능 목록 (Features)
+
+            // 2. 기능 목록
             VStack(alignment: .leading, spacing: 20) {
-                FeatureRow(icon: "sparkles", title: "paywall.feat.memory".localized, desc: "paywall.feat.memory_desc".localized)
-                FeatureRow(icon: "internaldrive.fill", title: "paywall.feat.disk".localized, desc: "paywall.feat.disk_desc".localized)
-                FeatureRow(icon: "app.fill", title: "paywall.feat.apps".localized, desc: "paywall.feat.apps_desc".localized)
-                FeatureRow(icon: "clock.fill", title: "paywall.feat.auto".localized, desc: "paywall.feat.auto_desc".localized)
+                FeatureRow(icon: "sparkles",         title: "paywall.feat.memory".localized, desc: "paywall.feat.memory_desc".localized)
+                FeatureRow(icon: "internaldrive.fill", title: "paywall.feat.disk".localized,   desc: "paywall.feat.disk_desc".localized)
+                FeatureRow(icon: "app.fill",          title: "paywall.feat.apps".localized,   desc: "paywall.feat.apps_desc".localized)
+                FeatureRow(icon: "clock.fill",        title: "paywall.feat.auto".localized,   desc: "paywall.feat.auto_desc".localized)
             }
             .padding(.vertical, 10)
-            
+
             Spacer()
-            
+
             // 3. 하단 버튼 영역
             VStack(spacing: 12) {
-                // ✅ 구매 진행 중
                 if storeManager.isLoading {
                     ProgressView()
                         .controlSize(.large)
                         .frame(height: 50)
-                }
-                // ✅ 상품 로딩 중
-                else if storeManager.isFetchingProducts {
+
+                } else if storeManager.isFetchingProducts {
                     ProgressView("store.status.loading_products".localized)
                         .controlSize(.large)
                         .frame(height: 50)
-                }
-                // ✅ 상품 로딩 실패/빈 배열
-                else if storeManager.products.first == nil {
+
+                } else if storeManager.products.first == nil {
                     VStack(spacing: 8) {
                         Text(storeManager.productsErrorMessage ?? "store.error.load_failed".localized)
                             .font(.subheadline)
@@ -79,10 +74,8 @@ struct PaywallView: View {
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                     }
-                }
-                // ✅ 정상: 가격 버튼
-                else {
-                    // 구매 버튼
+
+                } else {
                     if let product = storeManager.products.first {
                         Button {
                             Task {
@@ -96,14 +89,13 @@ struct PaywallView: View {
                         } label: {
                             HStack(spacing: 10) {
                                 if storeManager.isLoading {
-                                    ProgressView()
-                                        .controlSize(.small)
+                                    ProgressView().controlSize(.small)
                                 }
                                 Text("paywall.btn.buy_format".localized(with: product.displayPrice))
                                     .font(.headline)
                             }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
@@ -111,7 +103,8 @@ struct PaywallView: View {
                         .disabled(storeManager.isLoading)
                     }
                 }
-                // Restore (비소모성 IAP 필수)
+
+                // Restore
                 Button {
                     Task {
                         do {
@@ -131,11 +124,9 @@ struct PaywallView: View {
                 .controlSize(.large)
                 .disabled(storeManager.isLoading)
 
-                // 나중에 하기 버튼 (시트에서만 표시)
+                // 나중에 하기 (시트에서만)
                 if allowDismiss {
-                    Button {
-                        dismiss()
-                    } label: {
+                    Button { dismiss() } label: {
                         Text("paywall.btn.later".localized)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity)
@@ -148,7 +139,7 @@ struct PaywallView: View {
                 // 하단 링크
                 HStack(spacing: 20) {
                     Link("paywall.link.privacy".localized, destination: URL(string: "https://nicechann.github.io/TriClean-Support/privacy")!)
-                    Link("paywall.link.terms".localized, destination: URL(string: "https://nicechann.github.io/TriClean-Support/terms")!)
+                    Link("paywall.link.terms".localized,   destination: URL(string: "https://nicechann.github.io/TriClean-Support/terms")!)
                 }
                 .font(.caption)
                 .foregroundStyle(.blue)
@@ -156,29 +147,23 @@ struct PaywallView: View {
             }
         }
         .padding(30)
-        .frame(width: 450, height: 650) // 내용물 크기 고정
+        .frame(width: 450, height: 650)
         .background(Color(nsColor: .windowBackgroundColor))
         .cornerRadius(12)
-        .shadow(radius: 20) // 입체감 추가
-        // ✅ [추가] 루트 뷰로 쓰일 때 전체 화면을 꽉 채우는 투명/블러 배경 추가
+        .shadow(radius: 20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.3)) // 뒤쪽 배경 어둡게 처리
+        .background(Color.black.opacity(0.3))
         .onAppear {
-            // 시트로 열렸는데 이미 구매 상태라면 즉시 닫기
-            if allowDismiss, storeManager.isPurchased {
-                dismiss()
-            }
+            if allowDismiss, storeManager.isPurchased { dismiss() }
         }
         .onChange(of: storeManager.isPurchased) { newValue in
-            // 구매 완료 시, 시트(allowDismiss=true)라면 자동 닫기
-            if allowDismiss, newValue {
-                dismiss()
-            }
+            if allowDismiss, newValue { dismiss() }
         }
-        .alert("결제 오류", isPresented: $showPurchaseErrorAlert) {
-            Button("확인", role: .cancel) { }
+        // ✅ [수정] 하드코딩 한국어 → localized 키로 교체
+        .alert("paywall.error.title".localized, isPresented: $showPurchaseErrorAlert) {
+            Button("common.confirm".localized, role: .cancel) { }
         } message: {
-            Text(purchaseErrorMessage ?? "알 수 없는 오류가 발생했습니다.")
+            Text(purchaseErrorMessage ?? "paywall.error.unknown".localized)
         }
     }
 }
@@ -188,20 +173,16 @@ private struct FeatureRow: View {
     let icon: String
     let title: String
     let desc: String
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundStyle(.blue)
                 .frame(width: 24)
-            
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                Text(desc)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(title).font(.headline)
+                Text(desc).font(.caption).foregroundStyle(.secondary)
             }
         }
     }

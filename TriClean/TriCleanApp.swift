@@ -61,6 +61,8 @@ struct TriCleanApp: App {
     @StateObject private var storeManager = StoreManager.shared
     @StateObject private var trialManager = TrialManager.shared
     @State private var showPaywallSheet: Bool = false
+    @AppStorage("didShowOnboarding") private var didShowOnboarding = false
+    @State private var showOnboarding = false
     
     @Environment(\.openWindow) private var openWindow
     // ✅ [추가] scenePhase 감지를 위해 환경 변수 선언 (에러 해결)
@@ -98,6 +100,14 @@ struct TriCleanApp: App {
                                     }
                             }
                         }
+                        .onAppear {
+                            if !didShowOnboarding {
+                                didShowOnboarding = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                    showOnboarding = true
+                                }
+                            }
+                        }
                     
                 } else {
                     // 체험 기간 만료 + 미구매 사용자 -> 루트 Paywall 표시(닫기 버튼 없음)
@@ -117,6 +127,10 @@ struct TriCleanApp: App {
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView(allowDismiss: true)
                     .environmentObject(storeManager)
+            }
+            // ✅ 첫 실행 온보딩
+            .sheet(isPresented: $showOnboarding) {
+                OnboardingView(isPresented: $showOnboarding)
             }
             // ✅ [추가] 앱이 활성화될 때마다 체험 기간 재계산
             .onChange(of: scenePhase) { newPhase in

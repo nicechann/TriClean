@@ -42,17 +42,32 @@
 "memory.total" = "Total: %@";
 "memory.used" = "Used: %@";
 "memory.available" = "Available: %@";
-"memory.clean_btn" = "Optimize Memory";
-"memory.clean_desc" = "Induces macOS memory pressure to encourage the OS to purge inactive caches. Results may vary based on current system state. Active apps will not be closed.";
+
+/* ✅ [수정] "Clean" 관련 키 → "Optimize/Release Cache" 로 완화 (Apple 심사 대응) */
+/* 기존 키는 하위 호환을 위해 유지하되, 신규 키로 교체 사용 */
+"memory.clean_btn" = "Release Cache";
+"memory.clean_desc" = "Suggests macOS to reclaim unused cached memory. Actual results may vary based on system conditions. Active apps will not be affected.";
+
+/* ✅ [추가] MemoryView.swift optimizeSection 전용 키 */
+"memory.optimize_btn" = "Release Cache";
+"memory.optimize_desc" = "Suggests macOS to reclaim unused cached memory. Actual results may vary based on system conditions. Active apps will not be affected.";
+"memory.optimize_done" = "Cache release complete. (Results may vary based on system state)";
+
+/* ✅ [추가] 면책 문구 — 수치가 추정값임을 명시 (Apple 심사 핵심 대응) */
+"memory.disclaimer" = "Values shown are estimates based on macOS public APIs (host_statistics64) and may differ from actual memory state.";
+"memory.menubar_disclaimer" = "Values are approximate estimates.";
+
 "memory.composition" = "Memory Composition";
-"memory.composition_note" = "※ Based on macOS Mach VM statistics (host_statistics64).";
+"memory.composition_note" = "※ Based on macOS Mach VM statistics (host_statistics64). Values are estimates and may differ from Activity Monitor.";
 "memory.significant_usage" = "Significant Memory Usage";
 "memory.significant_empty" = "No running apps to display.";
 "memory.legend.app" = "App Memory";
 "memory.legend.wired" = "Wired Memory";
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
-"memory.tray_message" = "Memory optimization complete. (Results may vary based on system state)";
+
+/* ✅ [수정] Before/After 수치 비교 완전 제거 → 단순 완료 문구 */
+"memory.tray_message" = "Cache release complete. (Results may vary based on system state)";
 "memory.tooltip.app_click" = "Activate %@ (%@)";
 
 /* Storage View */
@@ -64,7 +79,7 @@
 "storage.legend.free" = "Free Space";
 "storage.permission.home" = "Permission Required: Select Home Folder";
 "storage.permission.apps" = "Permission Required: Select Applications Folder";
-"storage.scope_note" = "※ Home/Applications usage is calculated only within selected scopes. Otherwise shown as ‘Other Used’.";
+"storage.scope_note" = "※ Home/Applications usage is calculated only within selected scopes. Otherwise shown as 'Other Used'.";
 "storage.scan.header" = "Disk Scan";
 "storage.scan.btn" = "Select Folder & Scan";
 "storage.scan.updating" = "Updating…";
@@ -78,7 +93,7 @@
 "storage.scan.sort.note" = "Displayed in discovery order during scan. Sort applies once finished.";
 "storage.results.header" = "Results";
 "storage.alert.delete.title" = "Are you sure you want to delete?";
-"storage.alert.delete.message" = "‘%@’ %@ will be moved to Trash. You can restore it from Finder.";
+"storage.alert.delete.message" = "'%@' %@ will be moved to Trash. You can restore it from Finder.";
 "storage.item.folder" = "Folder";
 "storage.item.file" = "File";
 "storage.msg.empty" = "No scan results. Click 'Select Folder & Scan' to start.";
@@ -98,8 +113,8 @@
 /* Used / Total (Arguments: 1=Used, 2=Total) */
 "storage.usage.format" = "%1$@ used of %2$@";
 "storage.msg.analyzing_home_apps" = "Analyzing Home & Applications…";
-"storage.alert.delete.msg_folder" = "‘%@’ folder will be moved to Trash. You can restore it from Finder.";
-"storage.alert.delete.msg_file" = "‘%@’ file will be moved to Trash. You can restore it from Finder.";
+"storage.alert.delete.msg_folder" = "'%@' folder will be moved to Trash. You can restore it from Finder.";
+"storage.alert.delete.msg_file" = "'%@' file will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_multi" = "%d selected items will be moved to Trash. You can restore them from Finder.";
 "storage.msg.canceling" = "Canceling…";
 
@@ -184,20 +199,27 @@
 "settings.app_activation.all" = "All";
 "settings.about" = "About";
 "settings.help" = "Help";
-"settings.help.clean_title" = "Optimize Memory: Inducing OS Memory Policy";
-"settings.help.clean_desc" = "• Allocates temporary buffer to induce memory pressure, causing OS to purge caches.\n• Effectiveness depends on current memory/swap state.";
+
+/* ✅ [수정] Settings Help 문구 — "Clean" → "Cache Release" 표현으로 완화 */
+"settings.help.clean_title" = "Cache Release: How It Works";
+"settings.help.clean_desc" = "• Allocates a temporary buffer to create memory pressure, allowing macOS to reclaim inactive caches on its own.\n• This does not forcibly terminate apps or modify system files.\n• Effectiveness depends on current memory and swap state.\n• All values are estimates based on macOS public APIs.";
 "settings.help.search_title" = "Apps Search: Spotlight Indexing";
 "settings.help.search_desc" = "• Search results may be empty if Spotlight indexing is disabled.\n• In Sandbox, only accessible paths are searched.";
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Memory";
-"menubar.clean" = "Clean";
+/* ✅ [수정] "Clean" → "Refresh" (메뉴바 버튼 제거 대응) */
+"menubar.clean" = "Refresh";
 "menubar.open_triclean" = "Open TriClean";
 
 /* Debug */
 "settings.debug" = "Debug";
-"settings.debug.clean_fill_mode" = "Clean Fill Mode";
-"settings.debug.clean_fill_desc" = "Select how the buffer is filled during Clean Memory (Random/Page Touch/Pattern). In Release builds it is fixed to Touch.";
+"settings.debug.clean_fill_mode" = "Cache Fill Mode";
+"settings.debug.clean_fill_desc" = "Select how the buffer is filled during Cache Release (Random/Page Touch/Pattern). In Release builds it is fixed to Touch.";
+
+/* ✅ [추가] Paywall — Memory 기능 설명을 "모니터링" 중심으로 변경 */
+"paywall.feat.memory" = "Real-time Memory Monitoring";
+"paywall.feat.memory_desc" = "Monitor system memory composition and usage at a glance";
 
 // MARK: - Trial & Banner
 "trial.banner.status" = "Trial: %d days left";
@@ -210,8 +232,6 @@
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";
 "paywall.subtitle" = "Unlock all features unlimitedly";
-"paywall.feat.memory" = "Real-time Memory Monitoring";
-"paywall.feat.memory_desc" = "Monitor system memory composition at a glance";
 "paywall.feat.disk" = "Advanced Disk Analysis";
 "paywall.feat.disk_desc" = "Find large files and folders quickly";
 "paywall.feat.apps" = "Deep App Management";
@@ -234,3 +254,27 @@
 // MARK: - Paywall (Links)
 "paywall.link.privacy" = "Privacy Policy";
 "paywall.link.terms" = "Terms of Use";
+
+/* Paywall 결제 오류 알림 */
+"paywall.error.title"   = "Purchase Error";
+"paywall.error.unknown" = "An unknown error occurred.";
+
+/* StoreManager 상품 로드 오류 */
+"store.error.product_not_found"   = "Product not found. Please check the Product ID or StoreKit configuration.";
+"store.error.load_failed_detail"  = "Failed to load product: %@";
+
+/* common.confirm — 이미 있으면 중복 추가 불필요 */
+"common.confirm" = "Confirm";
+
+// MARK: - Onboarding
+"onboarding.welcome.title" = "Welcome to TriClean";
+"onboarding.welcome.desc" = "Keep your Mac fast and clean with powerful disk, memory, and app management tools.";
+"onboarding.storage.title" = "Disk Cleanup";
+"onboarding.storage.desc" = "Scan your disk to find large folders and files. Select and move them to Trash to free up space quickly.";
+"onboarding.memory.title" = "Memory Monitor";
+"onboarding.memory.desc" = "Monitor real-time memory usage and release inactive caches to keep your Mac running smoothly.";
+"onboarding.apps.title" = "App Management";
+"onboarding.apps.desc" = "Uninstall apps completely — including leftover Preferences, Caches, and Containers files.";
+"onboarding.btn.next" = "Next";
+"onboarding.btn.back" = "Back";
+"onboarding.btn.start" = "Get Started";

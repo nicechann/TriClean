@@ -22,70 +22,39 @@ struct MenuBarMemoryInfo {
 }
 
 final class MenuBarMemoryViewModel: ObservableObject {
-    let objectWillChange = ObservableObjectPublisher()
-
-    @Published var info = MenuBarMemoryInfo(total: 0, used: 0, available: 0) {
-        willSet { objectWillChange.send() }
-    }
-
-    @Published var isCleaning: Bool = false {
-        willSet { objectWillChange.send() }
-    }
+    // ✅ 이중 발송 제거: @Published가 자동으로 objectWillChange를 처리함
+    @Published var info = MenuBarMemoryInfo(total: 0, used: 0, available: 0)
+    @Published var isRefreshing: Bool = false
 
     init() {
         refresh()
     }
 
     func refresh() {
-        // ✅ 외부 프로세스(/usr/bin/vm_stat) 실행/파싱 제거
-        // ✅ MemoryViewModel과 동일하게 Native Mach API 기반 MemoryReader.fetchStats() 사용
+        guard !isRefreshing else { return }
+        isRefreshing = true
+
         DispatchQueue.global(qos: .userInitiated).async {
             let stats = MemoryReader.fetchStats()
 
             let mb = 1024.0 * 1024.0
-            let totalMB = Double(stats.totalBytes) / mb
-
-            // Activity Monitor 기준 Used = App + Wired + Compressed
-            let usedBytes = stats.appBytes + stats.wiredBytes + stats.compressedBytes
-            let usedMB = Double(usedBytes) / mb
-
-            // Available = Cached + Free (표시 라벨은 기존 UI를 유지)
-            let availableBytes = stats.cachedBytes + stats.freeBytes
-            let availableMB = Double(availableBytes) / mb
+            let totalMB    = Double(stats.totalBytes) / mb
+            let usedBytes  = stats.appBytes + stats.wiredBytes + stats.compressedBytes
+            let usedMB     = Double(usedBytes) / mb
+            let availMB    = Double(stats.cachedBytes + stats.freeBytes) / mb
 
             DispatchQueue.main.async {
                 self.info = MenuBarMemoryInfo(
-                    total: max(totalMB, 0),
-                    used:  max(usedMB, 0),
-                    available: max(availableMB, 0)
+                    total:     max(totalMB, 0),
+                    used:      max(usedMB, 0),
+                    available: max(availMB, 0)
                 )
+                self.isRefreshing = false
             }
         }
     }
 
-    func cleanMemory() {
-        guard !isCleaning else { return }
-        isCleaning = true
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            let stats = MemoryReader.fetchStats()
-            let availableBytes = max(stats.cachedBytes + stats.freeBytes, 0)
-
-            // 메뉴바에서는 안정성을 위해 Touch 방식으로 고정
-            MemoryCleaner.performLightClean(
-                totalBytes: stats.totalBytes,
-                availableBytes: availableBytes,
-                fillMode: .pageTouch
-            )
-
-            // 압박 이후 약간의 여유를 두고 다시 갱신
-            Thread.sleep(forTimeInterval: 0.35)
-DispatchQueue.main.async {
-                self.refresh()
-                self.isCleaning = false
-            }
-        }
-    }
+    // ✅ cleanMemory() 완전 제거 (Apple 심사 대응)
 }
 
 struct MenuBarMemoryView: View {
@@ -117,36 +86,37 @@ struct MenuBarMemoryView: View {
             )
             .scaleEffect(x: 1, y: 1.5, anchor: .center)
 
+            // ✅ 면책 문구 추가 (Apple 심사 대응)
+            Text("memory.menubar_disclaimer".localized)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .padding(.top, 2)
+
+            Divider()
+
             HStack {
+                // ✅ Refresh 버튼만 유지 — "Clean" 버튼 완전 제거
                 Button {
                     viewModel.refresh()
                 } label: {
-                    Image(systemName: "arrow.clockwise")
+                    if viewModel.isRefreshing {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Label("common.refresh".localized, systemImage: "arrow.clockwise")
+                    }
                 }
                 .help("common.refresh".localized)
+                .disabled(viewModel.isRefreshing)
 
                 Spacer()
 
                 Button {
-                    viewModel.cleanMemory()
+                    NSApplication.shared.activate(ignoringOtherApps: true)
                 } label: {
-                    if viewModel.isCleaning {
-                        ProgressView()
-                    } else {
-                        Text("menubar.clean".localized)
-                    }
+                    Text("menubar.open_triclean".localized)
                 }
-                .disabled(viewModel.isCleaning)
+                .buttonStyle(.link)
             }
-
-            Divider()
-
-            Button {
-                NSApplication.shared.activate(ignoringOtherApps: true)
-            } label: {
-                Text("menubar.open_triclean".localized)
-            }
-            .buttonStyle(.link)
         }
         .padding(12)
         .frame(width: 280)
@@ -156,5 +126,3 @@ struct MenuBarMemoryView: View {
 #Preview {
     MenuBarMemoryView()
 }
-
-

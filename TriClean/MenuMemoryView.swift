@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MenuMemoryView: View {
-    // ✅ TriCleanApp 에서 넘겨준 공용 인스턴스를 그대로 사용
     @EnvironmentObject var viewModel: MemoryViewModel
 
     var body: some View {
@@ -17,8 +16,6 @@ struct MenuMemoryView: View {
                 Text("sidebar.memory".localized)
                     .font(.headline)
                 Spacer()
-                
-                // ✅ [수정] 단위(Percent/MB)에 따라 텍스트가 변경됨
                 Text("memory.in_use".localized(with: viewModel.formattedCurrentUsage))
                     .font(.headline)
             }
@@ -30,12 +27,20 @@ struct MenuMemoryView: View {
             Text("memory.available".localized(with: viewModel.availableMemoryText))
                 .font(.caption)
 
+            // ✅ 면책 문구 추가 — 수치가 추정값임을 명시 (Apple 심사 대응)
+            Text("memory.menubar_disclaimer".localized)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .padding(.top, 2)
+
             Divider()
 
+            // ✅ "Clean" 버튼 완전 제거 → Refresh(새로고침)만 유지
             Button {
-                viewModel.performClean { _, _ in }
+                viewModel.refresh()
+                viewModel.refreshSignificantApps()
             } label: {
-                Label("memory.clean_btn".localized, systemImage: "sparkles")
+                Label("common.refresh".localized, systemImage: "arrow.clockwise")
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -52,4 +57,3 @@ struct MenuMemoryView: View {
     MenuMemoryView()
         .environmentObject(MemoryViewModel())
 }
-

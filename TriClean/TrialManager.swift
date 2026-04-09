@@ -43,6 +43,12 @@ final class TrialManager: ObservableObject {
     
     // ✅ [수정] 내부 계산 로직 (값 변경 없이 계산 결과만 반환)
     private func calculateDaysRemaining() -> Int {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "debug.trialDaysOverrideEnabled") {
+            return UserDefaults.standard.integer(forKey: "debug.trialDaysOverride")
+        }
+        #endif
+
         let now = Date()
         
         // 1. 키체인에서 데이터 로드
@@ -86,6 +92,22 @@ final class TrialManager: ObservableObject {
         return max(remaining, 0)
     }
     
+    #if DEBUG
+    /// DEBUG 전용: 체험 기간 남은 일수를 강제 설정합니다. 앱 재시작 후에도 유지됩니다.
+    func debugSetDaysRemaining(_ days: Int) {
+        UserDefaults.standard.set(true, forKey: "debug.trialDaysOverrideEnabled")
+        UserDefaults.standard.set(days, forKey: "debug.trialDaysOverride")
+        DispatchQueue.main.async { self.daysRemaining = days }
+    }
+
+    /// DEBUG 전용: 강제 설정된 체험 기간을 해제하고 실제 키체인 값으로 되돌립니다.
+    func debugResetTrialOverride() {
+        UserDefaults.standard.removeObject(forKey: "debug.trialDaysOverrideEnabled")
+        UserDefaults.standard.removeObject(forKey: "debug.trialDaysOverride")
+        refresh()
+    }
+    #endif
+
     private func save(_ data: TrialData) {
         if let encoded = try? JSONEncoder().encode(data) {
             KeychainHelper.shared.save(encoded, service: keychainService, account: keychainAccount)
