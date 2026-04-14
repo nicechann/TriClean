@@ -304,10 +304,10 @@
 "junk.risk.safe" = "Safe";
 "junk.risk.moderate" = "Moderate";
 "junk.risk.caution" = "Caution";
-"junk.category.system_caches.title" = "System Caches";
-"junk.category.system_caches.desc" = "Cache files created by apps and macOS. They may be recreated automatically.";
-"junk.category.system_logs.title" = "System Logs";
-"junk.category.system_logs.desc" = "App and system log files that are usually only needed for debugging.";
+"junk.category.system_caches.title" = "App Caches";
+"junk.category.system_caches.desc" = "Cache files created by apps. They may be recreated automatically when apps relaunch.";
+"junk.category.system_logs.title" = "App Logs";
+"junk.category.system_logs.desc" = "App log files that are usually only needed for debugging.";
 "junk.category.xcode_derived.title" = "Xcode DerivedData";
 "junk.category.xcode_derived.desc" = "Xcode build cache. Safe to remove when you do not need it.";
 "junk.category.xcode_archives.title" = "Xcode Archives";
@@ -387,6 +387,11 @@
 "junk.section.wrong_path_warning" = "This path is not ~/Library. Junk files may not be found.";
 "junk.section.wrong_path_title" = "Wrong folder selected";
 "junk.section.wrong_path_desc" = "Junk files are located in ~/Library. Tap 'Change' to select your ~/Library folder.";
+
+/* Junk item selection */
+"junk.item.select_all" = "Select All";
+"junk.item.deselect_all" = "Deselect All";
+"junk.item.more" = "and %d more items…";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Selected Folder";

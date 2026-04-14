@@ -3,7 +3,7 @@
 //  TriClean
 //
 //  StorageView 안에 임베드되는 정크 파일 탐지 섹션
-//  ~/Library 경로 선택 → 카테고리별 정크 용량 표시 → 원클릭 정리
+//  ~/Library 경로 선택 → 카테고리별 정크 용량 표시 → 개별 항목 선택 → 정리
 //
 
 import SwiftUI
@@ -11,9 +11,11 @@ import SwiftUI
 struct JunkSectionView: View {
     @ObservedObject var viewModel: JunkScannerViewModel
     @State private var showCleanConfirm = false
+    @State private var expandedCategories: Set<String> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            // ── 헤더 ──
             HStack(spacing: 8) {
                 Image(systemName: "trash.circle")
                     .foregroundStyle(.orange)
@@ -46,6 +48,7 @@ struct JunkSectionView: View {
                 }
             }
 
+            // ── 경로 상태 ──
             HStack(spacing: 10) {
                 Image(systemName: viewModel.libraryURL == nil
                       ? "xmark.circle"
@@ -83,6 +86,7 @@ struct JunkSectionView: View {
                 .controlSize(.small)
             }
 
+            // ── 준비 상태 / 잘못된 경로 안내 ──
             if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults {
                 HStack(spacing: 10) {
                     Image(systemName: viewModel.isValidLibraryPath ? "checkmark.circle" : "exclamationmark.triangle")
@@ -107,7 +111,9 @@ struct JunkSectionView: View {
                 )
             }
 
+            // ── 스캔 결과 ──
             if viewModel.hasResults {
+                // 요약 바
                 HStack(spacing: 16) {
                     Label {
                         Text("junk.section.found".localized(with: viewModel.totalJunkString))
@@ -139,12 +145,10 @@ struct JunkSectionView: View {
                 }
                 .padding(.top, 4)
 
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: 8),
-                    GridItem(.flexible(), spacing: 8)
-                ], spacing: 8) {
+                // 카테고리 목록 (펼치기/접기 가능)
+                VStack(spacing: 6) {
                     ForEach(viewModel.results) { result in
-                        junkCategoryCard(result)
+                        junkCategoryRow(result)
                     }
                 }
 
@@ -175,38 +179,138 @@ struct JunkSectionView: View {
         }
     }
 
-    private func junkCategoryCard(_ result: JunkScanResult) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: result.category.icon)
-                .font(.title3)
-                .foregroundStyle(result.category.riskLevel.color)
-                .frame(width: 24)
+    // MARK: - 카테고리 행 (펼침/접힘)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(result.category.name)
-                    .font(.caption.bold())
-                    .lineLimit(1)
-                Text(result.totalString)
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+    private func junkCategoryRow(_ result: JunkScanResult) -> some View {
+        let isExpanded = expandedCategories.contains(result.id)
+        let selectedCount = result.items.filter(\.isSelected).count
+
+        return VStack(alignment: .leading, spacing: 0) {
+            // 카테고리 헤더 (클릭하면 펼침/접힘)
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    if isExpanded {
+                        expandedCategories.remove(result.id)
+                    } else {
+                        expandedCategories.insert(result.id)
+                    }
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: result.category.icon)
+                        .font(.body)
+                        .foregroundStyle(result.category.riskLevel.color)
+                        .frame(width: 22)
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        HStack(spacing: 6) {
+                            Text(result.category.name)
+                                .font(.caption.bold())
+                            Text("\(selectedCount)/\(result.items.count)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(result.totalString)
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Text(result.category.riskLevel.label)
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule().fill(result.category.riskLevel.color.opacity(0.15))
+                        )
+                        .foregroundStyle(result.category.riskLevel.color)
+
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
 
-            Spacer()
+            // 펼쳤을 때 — 개별 항목 목록
+            if isExpanded {
+                Divider()
+                    .padding(.horizontal, 10)
 
-            Text(result.category.riskLevel.label)
-                .font(.system(size: 9, weight: .bold))
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
-                .background(
-                    Capsule().fill(result.category.riskLevel.color.opacity(0.15))
-                )
-                .foregroundStyle(result.category.riskLevel.color)
+                // 전체 선택 / 해제
+                HStack(spacing: 8) {
+                    Button("junk.item.select_all".localized) { viewModel.selectAll(in: result.id) }
+                    Button("junk.item.deselect_all".localized) { viewModel.deselectAll(in: result.id) }
+                    Spacer()
+                    Text(result.category.description)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                }
+                .font(.caption2)
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
+                .padding(.horizontal, 12)
+                .padding(.top, 6)
+
+                // 항목 목록
+                VStack(spacing: 0) {
+                    ForEach(result.items.prefix(30)) { item in
+                        junkItemRow(item, categoryID: result.id)
+                    }
+                    if result.items.count > 30 {
+                        Text("junk.item.more".localized(with: result.items.count - 30))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                    }
+                }
+                .padding(.bottom, 6)
+            }
         }
-        .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color(nsColor: .controlBackgroundColor))
         )
         .help(result.category.description)
+    }
+
+    // MARK: - 개별 항목 행
+
+    private func junkItemRow(_ item: JunkItem, categoryID: String) -> some View {
+        HStack(spacing: 8) {
+            Toggle("", isOn: Binding(
+                get: {
+                    viewModel.results
+                        .first(where: { $0.id == categoryID })?
+                        .items.first(where: { $0.id == item.id })?
+                        .isSelected ?? false
+                },
+                set: { _ in viewModel.toggleItem(in: categoryID, itemID: item.id) }
+            ))
+            .labelsHidden()
+            .controlSize(.small)
+
+            Image(systemName: "doc")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+
+            Text(item.name)
+                .font(.caption)
+                .lineLimit(1)
+                .truncationMode(.middle)
+
+            Spacer()
+
+            Text(item.sizeString)
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 3)
     }
 }

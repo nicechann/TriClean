@@ -62,23 +62,47 @@ final class JunkScannerViewModel: ObservableObject {
     // MARK: - Bookmark 관리
     
     private let bookmarkKey = "TriClean.JunkCleaner.LibraryBookmark"
+    /// Apps 탭에서 이미 ~/Library 권한을 받았을 수 있음 — 해당 북마크 키
+    private let appsLibraryBookmarkKey = "TriClean.Apps.Bookmark.UserLibraryFolder"
     
     init() {
         loadBookmark()
     }
     
     private func loadBookmark() {
-        guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
+        // 1) Junk 전용 북마크 시도 — 유효한 Library 경로인 경우에만 사용
+        if let url = resolveBookmark(forKey: bookmarkKey), isLibraryLike(url) {
+            libraryURL = url
+            return
+        }
+        
+        // 2) Apps 탭에서 이미 ~/Library를 선택한 적이 있으면 재사용
+        if let url = resolveBookmark(forKey: appsLibraryBookmarkKey), isLibraryLike(url) {
+            libraryURL = url
+            saveBookmark(url: url)
+            return
+        }
+        
+        // 3) 둘 다 없거나 유효하지 않으면 nil — UI에서 자동 안내
+    }
+    
+    /// ~/Library 경로인지 빠르게 확인 (파일 시스템 접근 없이)
+    private func isLibraryLike(_ url: URL) -> Bool {
+        let path = url.path
+        return path.hasSuffix("/Library") || path.hasSuffix("/Library/")
+    }
+    
+    private func resolveBookmark(forKey key: String) -> URL? {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
         var stale = false
-        if let url = try? URL(
+        guard let url = try? URL(
             resolvingBookmarkData: data,
             options: [.withSecurityScope, .withoutUI],
             relativeTo: nil,
             bookmarkDataIsStale: &stale
-        ) {
-            libraryURL = url
-            if stale { saveBookmark(url: url) }
-        }
+        ) else { return nil }
+        if stale { saveBookmark(url: url) }
+        return url
     }
     
     private func saveBookmark(url: URL) {
@@ -94,14 +118,18 @@ final class JunkScannerViewModel: ObservableObject {
     // MARK: - 폴더 선택
     
     func selectLibraryFolder() {
+        let homeLibrary = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library", isDirectory: true)
+        
         let panel = NSOpenPanel()
         panel.title = "junk.scope.title".localized
         panel.message = "junk.scope.message".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library", isDirectory: true)
+        panel.directoryURL = homeLibrary
+        // ~/Library를 기본 선택 상태로 (사용자가 Open만 누르면 됨)
+        panel.nameFieldStringValue = "Library"
         
         if panel.runModal() == .OK, let url = panel.url {
             saveBookmark(url: url)
