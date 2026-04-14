@@ -42,20 +42,32 @@ struct JunkSectionView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
+                    .disabled(!viewModel.isValidLibraryPath)
                 }
             }
 
             HStack(spacing: 10) {
-                Image(systemName: viewModel.libraryURL == nil ? "xmark.circle" : "checkmark.circle")
-                    .foregroundStyle(viewModel.libraryURL == nil ? Color.secondary : Color.green)
+                Image(systemName: viewModel.libraryURL == nil
+                      ? "xmark.circle"
+                      : (viewModel.isValidLibraryPath ? "checkmark.circle" : "exclamationmark.triangle"))
+                    .foregroundStyle(viewModel.libraryURL == nil
+                                     ? Color.secondary
+                                     : (viewModel.isValidLibraryPath ? Color.green : Color.orange))
                     .frame(width: 16)
 
                 if let url = viewModel.libraryURL {
-                    Text(url.path)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(url.path)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        if !viewModel.isValidLibraryPath {
+                            Text("junk.section.wrong_path_warning".localized)
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                        }
+                    }
                 } else {
                     Text("junk.section.select_library_hint".localized)
                         .font(.caption)
@@ -73,12 +85,16 @@ struct JunkSectionView: View {
 
             if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults {
                 HStack(spacing: 10) {
-                    Image(systemName: "checkmark.circle")
-                        .foregroundStyle(.green)
+                    Image(systemName: viewModel.isValidLibraryPath ? "checkmark.circle" : "exclamationmark.triangle")
+                        .foregroundStyle(viewModel.isValidLibraryPath ? .green : .orange)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("junk.section.ready_title".localized)
+                        Text(viewModel.isValidLibraryPath
+                             ? "junk.section.ready_title".localized
+                             : "junk.section.wrong_path_title".localized)
                             .font(.caption.bold())
-                        Text("junk.section.ready_desc".localized)
+                        Text(viewModel.isValidLibraryPath
+                             ? "junk.section.ready_desc".localized
+                             : "junk.section.wrong_path_desc".localized)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }

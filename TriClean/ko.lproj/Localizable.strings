@@ -385,6 +385,9 @@
 /* Junk Section */
 "junk.section.ready_title" = "스캔 준비 완료";
 "junk.section.ready_desc" = "선택한 ~/Library 범위를 스캔해 캐시, 로그, 정리 가능한 찌꺼기를 확인합니다.";
+"junk.section.wrong_path_warning" = "이 경로는 ~/Library가 아닙니다. 정크 파일을 찾을 수 없을 수 있습니다.";
+"junk.section.wrong_path_title" = "잘못된 폴더 선택";
+"junk.section.wrong_path_desc" = "정크 파일은 ~/Library 폴더에 있습니다. '변경' 버튼을 눌러 ~/Library 폴더를 선택하세요.";
 
 /* Duplicates */
 "duplicates.selected_folder" = "선택한 폴더";
@@ -495,3 +498,11 @@
 "duplicate.action.clear_selection" = "선택 해제";
 "duplicate.action.clear_selection.help" = "현재 선택된 정리 대상을 모두 해제하고, 모든 파일을 보존 상태로 되돌립니다.";
 "duplicate.status.selection_cleared" = "정리 대상 선택을 모두 해제했습니다.";
+
+/* Duplicate scan phase */
+"duplicate.phase.idle" = "대기";
+"duplicate.phase.collecting" = "파일 수집 중...";
+"duplicate.phase.grouping" = "크기별 그룹화 중...";
+"duplicate.phase.partial_hash" = "부분 해시 비교 중...";
+"duplicate.phase.full_hash" = "전체 해시 비교 중...";
+"duplicate.phase.done" = "완료";

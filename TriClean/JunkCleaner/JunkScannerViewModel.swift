@@ -46,6 +46,19 @@ final class JunkScannerViewModel: ObservableObject {
     
     var hasResults: Bool { !results.isEmpty }
     
+    /// 선택된 경로가 ~/Library처럼 보이는지 확인
+    var isValidLibraryPath: Bool {
+        guard let url = libraryURL else { return false }
+        let path = url.path
+        if path.hasSuffix("/Library") || path.hasSuffix("/Library/") { return true }
+        let fm = FileManager.default
+        let knownSubs = ["Caches", "Logs", "Preferences", "Application Support"]
+        for sub in knownSubs {
+            if fm.fileExists(atPath: url.appendingPathComponent(sub).path) { return true }
+        }
+        return false
+    }
+    
     // MARK: - Bookmark 관리
     
     private let bookmarkKey = "TriClean.JunkCleaner.LibraryBookmark"

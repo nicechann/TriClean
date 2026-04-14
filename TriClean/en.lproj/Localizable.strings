@@ -384,6 +384,9 @@
 /* Junk Section */
 "junk.section.ready_title" = "Ready to scan";
 "junk.section.ready_desc" = "Scan your selected ~/Library scope to review caches, logs, and disposable leftovers.";
+"junk.section.wrong_path_warning" = "This path is not ~/Library. Junk files may not be found.";
+"junk.section.wrong_path_title" = "Wrong folder selected";
+"junk.section.wrong_path_desc" = "Junk files are located in ~/Library. Tap 'Change' to select your ~/Library folder.";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Selected Folder";
@@ -494,3 +497,11 @@
 "duplicate.action.clear_selection" = "Clear Selection";
 "duplicate.action.clear_selection.help" = "Clears all selected cleanup items and returns every file to the keep state.";
 "duplicate.status.selection_cleared" = "All cleanup selections were cleared.";
+
+/* Duplicate scan phase */
+"duplicate.phase.idle" = "Idle";
+"duplicate.phase.collecting" = "Collecting files...";
+"duplicate.phase.grouping" = "Grouping by size...";
+"duplicate.phase.partial_hash" = "Comparing partial hashes...";
+"duplicate.phase.full_hash" = "Comparing full hashes...";
+"duplicate.phase.done" = "Done";

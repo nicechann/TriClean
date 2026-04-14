@@ -68,10 +68,21 @@ struct DuplicateFile: Identifiable, Hashable {
 
 /// 스캔 진행 상태
 enum DuplicateScanPhase: String {
-    case idle = "대기"
-    case collectingFiles = "파일 수집 중..."
-    case groupingBySize = "크기별 그룹화 중..."
-    case hashingPartial = "부분 해시 비교 중..."
-    case hashingFull = "전체 해시 비교 중..."
-    case done = "완료"
+    case idle
+    case collectingFiles
+    case groupingBySize
+    case hashingPartial
+    case hashingFull
+    case done
+
+    var displayText: String {
+        switch self {
+        case .idle:            return "duplicate.phase.idle".localized
+        case .collectingFiles: return "duplicate.phase.collecting".localized
+        case .groupingBySize:  return "duplicate.phase.grouping".localized
+        case .hashingPartial:  return "duplicate.phase.partial_hash".localized
+        case .hashingFull:     return "duplicate.phase.full_hash".localized
+        case .done:            return "duplicate.phase.done".localized
+        }
+    }
 }

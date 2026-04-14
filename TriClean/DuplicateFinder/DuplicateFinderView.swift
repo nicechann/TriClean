@@ -153,7 +153,7 @@ struct DuplicateFinderView: View {
     private var scanningSection: some View {
         VStack(spacing: 16) {
             ProgressView(value: viewModel.progress) {
-                Text(viewModel.phase.rawValue)
+                Text(viewModel.phase.displayText)
                     .font(.subheadline.bold())
             }
             .progressViewStyle(.linear)
