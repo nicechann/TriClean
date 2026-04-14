@@ -84,6 +84,7 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let url: URL
     let canUninstall: Bool
     let isSystemApp: Bool
+    let isAppStoreApp: Bool
     
     // 미리 계산된 문자열 저장
     let id: String
@@ -91,15 +92,17 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
 
     var typeDescription: String {
         if isSystemApp { return "apps.type.system".localized }
+        if isAppStoreApp { return "apps.type.appstore".localized }
         return canUninstall ? "apps.type.user".localized : "apps.type.protected".localized
     }
 
-    nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool) {
+    nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool, isAppStoreApp: Bool) {
         self.name = name
         self.bundleID = bundleID
         self.url = url
         self.canUninstall = canUninstall
         self.isSystemApp = isSystemApp
+        self.isAppStoreApp = isAppStoreApp
         self.id = url.path(percentEncoded: false)
         self.location = url.deletingLastPathComponent().path(percentEncoded: false)
     }
@@ -466,13 +469,16 @@ final class AppsViewModel: ObservableObject {
         let isSystemPath = url.path.hasPrefix("/System/Applications")
         let isApple = bundleID?.hasPrefix("com.apple.") ?? false
         let isSystemApp = isSystemPath || (isApple && !canDelete)
+        let isAppStoreApp = fm.fileExists(atPath: url.appendingPathComponent("Contents/_MASReceipt/receipt").path)
+        let canUninstall = canDelete && !isSystemApp && !isAppStoreApp
 
         return AppsInstalledApp(
             name: name,
             bundleID: bundleID,
             url: url,
-            canUninstall: canDelete,
-            isSystemApp: isSystemApp
+            canUninstall: canUninstall,
+            isSystemApp: isSystemApp,
+            isAppStoreApp: isAppStoreApp
         )
     }
 
@@ -1056,6 +1062,12 @@ struct AppsView: View {
                     .padding(8)
                     .background(Color(nsColor: .windowBackgroundColor))
                     .cornerRadius(8)
+
+                    if let current = viewModel.installedApps.first(where: { $0.id == selected.appPath }), current.isAppStoreApp {
+                        Label("apps.details.appstore_note".localized, systemImage: "info.circle")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
 
                     if viewModel.userLibraryFolderURL == nil {
                         Text("apps.details.library_guide".localized)

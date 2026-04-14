@@ -3,7 +3,7 @@
   TriClean
 
   Created by nicechann on 1/25/26.
-  
+  ✅ [Apple 심사 대응 v2] 오해 유발 표현 전면 수정
 */
 
 /* Common */
@@ -31,11 +31,11 @@
 "sidebar.memory" = "Memory";
 "sidebar.apps" = "Apps";
 "sidebar.settings" = "Settings";
-"sidebar.storage.subtitle" = "대용량 폴더 정리";
-"sidebar.memory.subtitle" = "메모리 사용량 모니터링";
-"sidebar.apps.subtitle" = "앱 관련 파일 정리";
-"sidebar.status.memory_usage" = "현재 사용 중인 메모리 비율입니다.";
-"sidebar.status.refresh_help" = "메모리 사용률 새로고침";
+"sidebar.storage.subtitle" = "디스크 사용량 분석";
+"sidebar.memory.subtitle" = "메모리 사용량 확인";
+"sidebar.apps.subtitle" = "앱 관련 파일 검토";
+"sidebar.status.memory_usage" = "현재 메모리 사용 추정치입니다.";
+"sidebar.status.refresh_help" = "메모리 추정치 새로고침";
 
 /* Memory View */
 "memory.in_use" = "사용중: %@";
@@ -43,21 +43,20 @@
 "memory.used" = "Used: %@";
 "memory.available" = "Available: %@";
 
-/* ✅ [수정] "Clean" → "Release Cache" 완화 표현 (Apple 심사 대응) */
-"memory.clean_btn" = "캐시 해제";
-"memory.clean_desc" = "macOS가 사용하지 않는 캐시를 스스로 회수하도록 제안합니다. 실제 효과는 시스템 상태에 따라 달라질 수 있으며, 사용 중인 앱에는 영향을 주지 않습니다.";
+/* ✅ [수정 v2] "Clean/Optimize" 관련 완전 제거 → "새로고침" 전용 */
+"memory.clean_btn" = "새로고침";
+"memory.clean_desc" = "macOS 공개 API 기반 메모리 추정치를 다시 불러옵니다.";
 
-/* ✅ [추가] MemoryView optimizeSection 전용 키 */
-"memory.optimize_btn" = "캐시 해제";
-"memory.optimize_desc" = "macOS가 사용하지 않는 캐시를 스스로 회수하도록 제안합니다. 실제 효과는 시스템 상태에 따라 달라질 수 있으며, 사용 중인 앱에는 영향을 주지 않습니다.";
-"memory.optimize_done" = "캐시 해제 완료 (결과는 시스템 상태에 따라 다를 수 있습니다)";
+"memory.optimize_btn" = "새로고침";
+"memory.optimize_desc" = "macOS 공개 API 기반 메모리 추정치를 다시 불러옵니다.";
+"memory.optimize_done" = "메모리 추정치를 새로고침했습니다.";
 
-/* ✅ [추가] 면책 문구 — 수치가 추정값임을 명시 (Apple 심사 핵심 대응) */
-"memory.disclaimer" = "표시된 수치는 macOS 공개 API(host_statistics64) 기반 추정값이며, 실제 상태와 다를 수 있습니다.";
-"memory.menubar_disclaimer" = "수치는 추정값입니다.";
+/* ✅ 면책 문구 — 수치가 추정값임을 명시 */
+"memory.disclaimer" = "표시된 수치는 macOS 공개 API(host_statistics64) 기반 추정값이며, 실제 상태와 다를 수 있습니다. 이 앱은 시스템 메모리 상태를 변경하지 않습니다.";
+"memory.menubar_disclaimer" = "수치는 추정값이며 참고용입니다.";
 
 "memory.composition" = "메모리 구성";
-"memory.composition_note" = "※ macOS Mach VM 통계(host_statistics64) 기반 추정값입니다. 실제 Activity Monitor 수치와 다를 수 있습니다.";
+"memory.composition_note" = "※ macOS Mach VM 통계(host_statistics64) 기반 추정값입니다. Activity Monitor 수치와 다를 수 있습니다.";
 "memory.significant_usage" = "Significant Memory Usage";
 "memory.significant_empty" = "표시할 실행 앱이 없습니다.";
 "memory.legend.app" = "App Memory";
@@ -65,8 +64,7 @@
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
 
-/* ✅ [수정] Before/After 수치 비교 완전 제거 */
-"memory.tray_message" = "캐시 해제 완료 (결과는 시스템 상태에 따라 다를 수 있습니다)";
+"memory.tray_message" = "메모리 추정치를 새로고침했습니다.";
 "memory.tooltip.app_click" = "%@ (%@) 활성화";
 
 /* Storage View */
@@ -109,7 +107,6 @@
 "storage.scan.default_msg" = "스캔 결과가 없습니다. 상단의 'Select Folder & Scan' 버튼을 눌러 분석을 시작하세요.";
 "storage.scope.home_needed" = "권한 필요: Home 폴더를 선택해 주세요.";
 "storage.scope.apps_needed" = "권한 필요: Applications 폴더를 선택해 주세요.";
-/* 사용량 / 전체 용량 (인자 순서: 1=Used, 2=Total) */
 "storage.usage.format" = "%2$@ 중 %1$@ 사용됨";
 "storage.msg.analyzing_home_apps" = "Home/Applications 분석 중…";
 "storage.alert.delete.msg_folder" = "'%@' 폴더를 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
@@ -117,17 +114,17 @@
 "storage.alert.delete.msg_multi" = "선택한 %d개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.msg.canceling" = "취소 중…";
 
-/* Apps View */
-"apps.header.uninstall" = "App Uninstall";
-"apps.header.desc" = "선택한 폴더/앱 범위 안에서만 목록을 스캔하고, 사용자가 선택한 항목만 휴지통으로 이동합니다. macOS 시스템/보호 앱은 직접 삭제할 수 없습니다.";
+/* ✅ [수정 v2] Apps View — "앱 제거" 표현을 "관련 파일 검토/정리"로 전환 */
+"apps.header.uninstall" = "App Bundles";
+"apps.header.desc" = "선택한 폴더 범위 안의 앱 번들을 표시합니다. 사용자가 직접 설치한 일반 앱 번들만 휴지통으로 이동할 수 있으며, 시스템 앱·보호 앱·App Store 앱은 참고용으로만 표시됩니다. App Store에서 설치된 앱은 이 화면에서 제거할 수 없습니다.";
 "apps.btn.manual_select" = "앱 파일 직접 선택…";
 "apps.search.placeholder" = "앱 이름 또는 Bundle ID 검색";
-"apps.btn.uninstall" = "Uninstall";
+"apps.btn.uninstall" = "휴지통으로 이동";
 "apps.btn.details" = "Details";
 "apps.scope.apps_folder" = "Applications 폴더 선택";
-"apps.scope.apps_msg" = "설치 앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다.";
+"apps.scope.apps_msg" = "앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다.";
 "apps.scope.library_folder" = "Home Library(~/Library) 선택";
-"apps.scope.library_msg" = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 Home Library 범위 안에서만 TriClean이 관련 파일을 탐지/삭제합니다.";
+"apps.scope.library_msg" = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 Home Library 범위 안에서만 TriClean이 관련 파일을 탐지합니다.";
 "apps.scope.reset" = "권한 초기화…";
 "apps.list.title" = "Installed Apps";
 "apps.list.loading" = "설치된 앱 목록을 불러오는 중…";
@@ -136,21 +133,22 @@
 "apps.type.system" = "시스템 앱";
 "apps.type.user" = "사용자 앱";
 "apps.type.protected" = "보호됨";
+"apps.type.appstore" = "App Store";
 "apps.details.selected" = "Selected App";
 "apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 Home Library(~/Library)를 선택해 주세요.";
 "apps.details.scanning" = "관련 파일 검색 중…";
 "apps.details.no_related" = "관련 파일이 없거나 찾지 못했습니다.";
 "apps.details.found_count" = "관련 파일 (%d)";
 "apps.details.trash_selected" = "선택 항목 휴지통으로 이동";
-"apps.details.guide" = "테이블에서 앱을 선택해 'Details'를 누르거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정하면 관련 파일을 분석합니다.";
-"apps.alert.uninstall.title" = "선택한 앱 삭제";
-"apps.alert.uninstall.msg" = "선택한 %d개 앱 번들을 휴지통으로 이동합니다. 관련 파일은 아래 리스트에서 별도로 선택해 정리할 수 있습니다.";
-"apps.alert.fail.title" = "자동 삭제 실패 (권한 제한)";
-"apps.alert.fail.msg" = "%d개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 삭제가 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
-"apps.alert.related.title" = "관련 파일 삭제";
+"apps.details.guide" = "테이블에서 앱을 선택해 세부 정보를 확인하거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정해 관련 파일(캐시, 설정 등)을 검토합니다.";
+"apps.alert.uninstall.title" = "선택한 앱 번들을 휴지통으로 이동";
+"apps.alert.uninstall.msg" = "선택한 일반 앱 번들 %d개를 휴지통으로 이동하시겠습니까? App Store 앱은 포함되지 않습니다. 관련 파일은 아래 리스트에서 별도로 검토할 수 있습니다.";
+"apps.alert.fail.title" = "자동 이동 실패 (권한 제한)";
+"apps.alert.fail.msg" = "%d개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
+"apps.alert.related.title" = "관련 파일 정리";
 "apps.alert.related.msg" = "선택한 %d개 관련 파일/폴더를 휴지통으로 이동하시겠습니까?";
 "apps.alert.reset.title" = "권한 초기화";
-"apps.alert.reset.msg" = "선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔/삭제가 가능합니다.";
+"apps.alert.reset.msg" = "선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔이 가능합니다.";
 "apps.status.scoped_error" = "Applications 폴더 접근 권한(Security-Scoped)이 없습니다.";
 "apps.manual.title" = "앱 파일 직접 선택";
 "apps.manual.msg" = "관련 파일을 분석할 앱(.app)을 선택해 주세요.";
@@ -158,7 +156,6 @@
 "apps.status.library_guide" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
 "apps.status.library_needed" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
 "apps.status.library_scoped_error" = "Home Library 폴더 접근 권한(Security-Scoped)이 없습니다.";
-/* 인자: 앱 개수 (Int) */
 "apps.status.loaded_count" = "%d개의 앱을 불러왔습니다.";
 "apps.status.reset_success" = "초기화가 완료되었습니다.";
 "apps.status.no_permission" = "접근 권한이 없습니다.";
@@ -166,13 +163,15 @@
 "apps.status.app_selected" = "앱이 선택되었습니다.";
 "apps.status.read_fail" = "파일을 읽는 데 실패했습니다.";
 "apps.status.app_added" = "앱이 추가되었습니다.";
+/* ✅ [수정 v2] App Store 앱 제거 불가 안내 강화 */
+"apps.details.appstore_note" = "App Store에서 설치된 앱은 이 화면에서 제거할 수 없습니다. Launchpad에서 길게 누르거나 Finder에서 직접 삭제해야 합니다.";
 "apps.status.folder_needed" = "권한 필요: 폴더를 선택해 주세요.";
 "apps.alert.fail.list" = "\\n\\n실패: %@";
-"apps.help.select_first" = "삭제할 앱을 1개 이상 선택해 주세요.";
-"apps.help.all_protected" = "선택한 앱은 모두 macOS 보안 정책으로 자동 삭제할 수 없습니다(관리자 권한 필요).";
-"apps.help.partial_protected" = "선택한 앱 중 일부는 macOS 보안 정책으로 자동 삭제할 수 없습니다(관리자 권한 필요).";
-"apps.help.move_trash" = "선택한 앱을 휴지통으로 이동합니다.";
-"apps.help.removing" = "삭제 중…";
+"apps.help.select_first" = "이동 가능한 앱 번들을 1개 이상 선택해 주세요.";
+"apps.help.all_protected" = "선택한 항목은 시스템 앱, 보호 앱 또는 App Store 앱이라 여기서 제거할 수 없습니다.";
+"apps.help.partial_protected" = "선택한 항목 중 일부는 시스템 앱, 보호 앱 또는 App Store 앱이라 건너뜁니다.";
+"apps.help.move_trash" = "선택한 일반 앱 번들(App Store 앱 제외)을 휴지통으로 이동합니다.";
+"apps.help.removing" = "이동 중…";
 "apps.scope.library_analysis" = "Home Library(~/Library) — 관련 파일 스캔";
 "apps.status.folder_selected" = "폴더 선택됨: %@";
 "apps.status.bookmark_fail" = "폴더 권한 저장 실패: %@";
@@ -184,9 +183,9 @@
 "apps.status.related_success" = "관련 항목 %d개를 휴지통으로 이동했습니다.";
 "apps.status.related_partial_fail" = "%d개는 이동, %d개는 실패했습니다.";
 "apps.status.related_none" = "이동할 항목이 없습니다.";
-"apps.status.uninstall_success" = "앱 %d개를 휴지통으로 이동했습니다.";
-"apps.status.uninstall_partial_fail" = "%d개는 이동, %d개는 실패했습니다.";
-"apps.status.uninstall_all_fail" = "선택한 앱을 이동할 수 없습니다(권한 필요).";
+"apps.status.uninstall_success" = "앱 번들 %d개를 휴지통으로 이동했습니다.";
+"apps.status.uninstall_partial_fail" = "앱 번들 %d개는 이동, %d개는 실패했습니다.";
+"apps.status.uninstall_all_fail" = "선택한 앱 번들을 휴지통으로 이동할 수 없습니다(권한 필요).";
 
 /* Settings View */
 "settings.display" = "Display";
@@ -199,23 +198,21 @@
 "settings.about" = "About";
 "settings.help" = "Help";
 
-/* ✅ [수정] Settings Help 문구 — "Clean" → "Cache Release" 표현으로 완화 */
-"settings.help.clean_title" = "캐시 해제: 동작 방식";
-"settings.help.clean_desc" = "• 임시 버퍼를 할당하여 메모리 압박을 만들고, macOS가 사용하지 않는 캐시를 스스로 회수하도록 유도합니다.\n• 앱을 강제 종료하거나 시스템 파일을 수정하지 않습니다.\n• 효과는 현재 메모리·스왑 상태에 따라 다를 수 있습니다.\n• 모든 수치는 macOS 공개 API 기반 추정값입니다.";
+/* ✅ [수정 v2] Settings Help — "모니터링 전용" 명확화 */
+"settings.help.clean_title" = "메모리 추정치: 표시 방식";
+"settings.help.clean_desc" = "• 메모리 수치는 host_statistics64 등 macOS 공개 API를 바탕으로 계산한 추정치입니다.\n• TriClean에 표시되는 값은 Activity Monitor와 차이가 있을 수 있습니다.\n• 새로고침은 표시값만 갱신하며 시스템 메모리 상태를 변경하지 않습니다.\n• 이 앱은 메모리를 최적화하거나 해제하지 않으며, 모니터링 용도로만 사용됩니다.";
 "settings.help.search_title" = "Apps 검색: Spotlight 인덱싱/제외 설정 영향";
 "settings.help.search_desc" = "• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.\n• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.";
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Memory";
-/* ✅ [수정] "Clean" → "새로고침" (메뉴바 Clean 버튼 제거 대응) */
 "menubar.clean" = "새로고침";
 "menubar.open_triclean" = "Open TriClean";
 
 /* Debug */
 "settings.debug" = "Debug";
-/* ✅ [수정] "Clean Fill Mode" → "Cache Fill Mode" */
-"settings.debug.clean_fill_mode" = "Cache Fill Mode";
-"settings.debug.clean_fill_desc" = "캐시 해제 시 버퍼를 채우는 방식(랜덤/페이지 터치/패턴)을 선택합니다. Release 빌드에서는 Touch로 고정됩니다.";
+"settings.debug.clean_fill_mode" = "메모리 디버그 모드";
+"settings.debug.clean_fill_desc" = "내부 메모리 테스트용 디버그 옵션입니다.";
 
 // MARK: - Trial & Banner
 "trial.banner.status" = "체험판: %d일 남음";
@@ -228,15 +225,15 @@
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";
 "paywall.subtitle" = "모든 기능을 무제한으로 사용하세요";
-/* ✅ [수정] 메모리 기능 설명 — "모니터링" 중심으로 변경 */
+/* ✅ [수정 v2] Paywall 기능 설명 — "모니터링" 중심 */
 "paywall.feat.memory" = "실시간 메모리 모니터링";
-"paywall.feat.memory_desc" = "시스템 메모리 구성과 사용량을 한눈에 파악하세요";
-"paywall.feat.disk" = "고급 디스크 분석";
-"paywall.feat.disk_desc" = "대용량 파일과 폴더를 빠르게 찾으세요";
-"paywall.feat.apps" = "앱 심화 관리";
-"paywall.feat.apps_desc" = "불필요한 파일까지 완벽하게 정리";
-"paywall.feat.auto" = "스마트 시스템 모니터링";
-"paywall.feat.auto_desc" = "백그라운드에서 안전하게 맥 상태를 추적하세요";
+"paywall.feat.memory_desc" = "시스템 메모리 구성과 사용량 추정치를 한눈에 확인하세요";
+"paywall.feat.disk" = "디스크 사용량 분석";
+"paywall.feat.disk_desc" = "대용량 파일과 폴더를 빠르게 찾아보세요";
+"paywall.feat.apps" = "앱 관련 파일 검토";
+"paywall.feat.apps_desc" = "앱 번들과 사용자 라이브러리 관련 파일 위치를 함께 확인";
+"paywall.feat.auto" = "시스템 모니터링 대시보드";
+"paywall.feat.auto_desc" = "저장 공간과 메모리 정보를 한곳에서 확인하세요";
 
 // MARK: - Paywall (Buttons & Status)
 "paywall.btn.buy_format" = "지금 구매 (%@)";
@@ -262,18 +259,18 @@
 "store.error.product_not_found"   = "상품을 찾지 못했습니다. Product ID 또는 StoreKit 설정을 확인하세요.";
 "store.error.load_failed_detail"  = "상품 로드 실패: %@";
 
-/* common.confirm (PaywallView 확인 버튼) — 이미 있으면 중복 추가 불필요 */
 "common.confirm" = "확인";
 
 // MARK: - Onboarding
 "onboarding.welcome.title" = "TriClean에 오신 것을 환영합니다";
-"onboarding.welcome.desc" = "강력한 디스크, 메모리, 앱 관리 도구로 Mac을 빠르고 깨끗하게 유지하세요.";
-"onboarding.storage.title" = "디스크 정리";
-"onboarding.storage.desc" = "디스크를 스캔해 대용량 폴더와 파일을 찾아보세요. 선택 후 휴지통으로 이동해 공간을 빠르게 확보할 수 있습니다.";
+"onboarding.welcome.desc" = "저장 공간 사용량, 메모리 추정치, 앱 관련 파일을 한곳에서 살펴보세요.";
+"onboarding.storage.title" = "디스크 분석";
+"onboarding.storage.desc" = "디스크를 스캔해 대용량 폴더와 파일을 찾아보세요. 선택 후 휴지통으로 이동해 공간을 확보할 수 있습니다.";
 "onboarding.memory.title" = "메모리 모니터링";
-"onboarding.memory.desc" = "실시간으로 메모리 사용량을 확인하고, 비활성 캐시를 해제해 Mac을 쾌적하게 유지하세요.";
-"onboarding.apps.title" = "앱 관리";
-"onboarding.apps.desc" = "앱을 완전히 제거하세요. Preferences, Caches, Containers 등 잔여 파일까지 깔끔하게 정리됩니다.";
+"onboarding.memory.desc" = "macOS 공개 API를 바탕으로 메모리 사용량과 구성 추정치를 확인하세요. 이 앱은 시스템 메모리를 변경하지 않습니다.";
+"onboarding.apps.title" = "앱 관련 파일 검토";
+"onboarding.apps.desc" = "앱 번들과 Home Library 안의 관련 파일 위치를 확인하세요. App Store 앱은 참고용으로만 표시됩니다.";
 "onboarding.btn.next" = "다음";
 "onboarding.btn.back" = "이전";
 "onboarding.btn.start" = "시작하기";
+

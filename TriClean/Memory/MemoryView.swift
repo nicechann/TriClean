@@ -19,8 +19,7 @@ struct MemoryView: View {
         ZStack(alignment: .bottomTrailing) {
             VStack(alignment: .leading, spacing: 16) {
                 headerSection
-                disclaimerSection   // ✅ 면책 문구 (Apple 심사 대응)
-                optimizeSection     // ✅ "Clean" → "Release Cache" 완화
+                disclaimerSection
                 compositionSection
                 significantAppsSection
                 Spacer()
@@ -75,6 +74,15 @@ struct MemoryView: View {
 
             HStack {
                 Spacer()
+                Button {
+                    viewModel.refresh()
+                    viewModel.refreshSignificantApps()
+                } label: {
+                    Label("common.refresh".localized, systemImage: "arrow.clockwise")
+                        .labelStyle(.titleAndIcon)
+                }
+                .buttonStyle(.bordered)
+
                 unitToggle
             }
         }
@@ -122,29 +130,6 @@ struct MemoryView: View {
                 .foregroundColor(isSelected ? .white : .primary)
         }
         .buttonStyle(.plain)
-    }
-
-    // MARK: - ✅ Release Cache 카드 (기존 "Clean Memory" 대체)
-
-    private var optimizeSection: some View {
-        GroupBox {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("memory.optimize_btn".localized)
-                        .font(.headline)
-                    Text("memory.optimize_desc".localized)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button {
-                    runOptimize()
-                } label: {
-                    Text("memory.optimize_btn".localized)
-                }
-                .keyboardShortcut("m", modifiers: [.command])
-            }
-        }
     }
 
     // MARK: - 도넛 + 범례
@@ -293,17 +278,6 @@ struct MemoryView: View {
     }
 
     // MARK: - Actions
-
-    private func runOptimize() {
-        viewModel.performOptimize {
-            // ✅ Before/After 수치 비교 완전 제거 (Apple 심사 대응)
-            self.trayMessage = "memory.optimize_done".localized
-            withAnimation { self.showTray = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                withAnimation { self.showTray = false }
-            }
-        }
-    }
 }
 
 // MARK: - 도넛 차트 뷰

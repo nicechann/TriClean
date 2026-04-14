@@ -4,6 +4,11 @@
 //
 //  Created by changyu Kang on 09/12/2025.
 //
+//  ✅ [Apple 심사 대응 v2] MemoryCleaner 전체 삭제
+//     - 메모리 압박(buffer alloc/touch) 코드 완전 제거
+//     - performOptimize → 단순 refresh() 로 대체
+//     - MemoryCleanFillMode enum 삭제
+//     - 앱의 역할을 "모니터링 전용"으로 명확히 함
 
 import Foundation
 import Combine
@@ -11,15 +16,7 @@ import Darwin
 import SwiftUI
 import AppKit
 
-/// 메모리 압박(캐시/퍼지 유도)을 만들기 위해 "버퍼에 무엇을 쓰는지"를 선택하는 옵션입니다.
-enum MemoryCleanFillMode: Equatable {
-    case randomFill
-    case pageTouch
-    case memsetFill(value: UInt8)
-
-    static let zeroFill:  MemoryCleanFillMode = .memsetFill(value: 0)
-    static let patternA5: MemoryCleanFillMode = .memsetFill(value: 0xA5)
-}
+// ✅ [삭제됨] MemoryCleanFillMode enum — 메모리 압박 관련 코드 전부 제거
 
 /// 메모리 사용량 상위 앱(실행 중)을 표시하기 위한 모델
 struct SignificantMemoryApp: Identifiable {
@@ -38,13 +35,7 @@ final class MemoryViewModel: ObservableObject {
     @Published var stats: MemoryStats = .empty
     @Published var displayUnit: MemoryDisplayUnit = .percent
 
-    @Published var cleanFillMode: MemoryCleanFillMode = {
-        #if DEBUG
-        return .randomFill
-        #else
-        return .pageTouch
-        #endif
-    }()
+    // ✅ [삭제됨] cleanFillMode — 메모리 압박 모드 설정 제거
 
     // MARK: - Significant Memory Usage
 
@@ -156,32 +147,20 @@ final class MemoryViewModel: ObservableObject {
         return Int64(info.pti_resident_size)
     }
 
-    // MARK: - ✅ performOptimize (기존 performClean 대체 — 이름/설명 완화)
-    // 내부 동작은 동일하나, 외부 호출명과 UI 표현을 "Optimize"로 변경합니다.
+    // MARK: - ✅ [수정] performOptimize → 단순 refresh로 대체
+    // 기존: 메모리 버퍼를 할당해 캐시 퍼지를 유도 → Apple 리젝 원인
+    // 수정: 메모리 수치만 새로 읽어옴 (모니터링 전용)
 
     func performOptimize(completion: @escaping () -> Void) {
-        let before = stats
-        #if DEBUG
-        let mode = cleanFillMode
-        #else
-        let mode: MemoryCleanFillMode = .pageTouch
-        #endif
-
+        // ✅ 단순히 메모리 통계를 새로 읽어오고 앱 목록을 갱신합니다.
+        // 시스템 메모리 상태를 변경하지 않습니다.
         DispatchQueue.global(qos: .userInitiated).async {
-            let available = max(before.cachedBytes + before.freeBytes, 0)
-            MemoryCleaner.performLightClean(
-                totalBytes: before.totalBytes,
-                availableBytes: available,
-                fillMode: mode
-            )
-            Thread.sleep(forTimeInterval: 0.5)
             let after = MemoryReader.fetchStats()
 
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.6)) {
                     self.stats = after
                 }
-                // 최적화 이후 앱 목록 새로고침 (중복 방어 타임스탬프 우회)
                 self.lastSignificantAppsRefresh = .distantPast
                 self.refreshSignificantApps()
                 completion()
@@ -252,68 +231,6 @@ enum MemoryReader {
     }
 }
 
-// MARK: - MemoryCleaner
-
-enum MemoryCleaner {
-
-    @inline(never)
-    private static func consume(_ value: UInt32) { _ = value }
-
-    #if DEBUG
-    private struct XSwUsage {
-        var xsu_total: UInt64 = 0; var xsu_avail: UInt64 = 0
-        var xsu_used: UInt64 = 0;  var xsu_pagesize: UInt32 = 0
-        var xsu_encrypted: UInt32 = 0
-    }
-    private static func debugMB(_ bytes: Int64) -> String {
-        String(format: "%.0fMB", Double(bytes) / 1048576.0)
-    }
-    private static func debugSwapUsageString() -> String {
-        var x = XSwUsage(); var size = MemoryLayout<XSwUsage>.size
-        guard sysctlbyname("vm.swapusage", &x, &size, nil, 0) == 0 else { return "swap: n/a" }
-        func mb(_ v: UInt64) -> String { String(format: "%.0fMB", Double(v) / 1048576.0) }
-        return "swap used \(mb(x.xsu_used))/\(mb(x.xsu_total)) (avail \(mb(x.xsu_avail)))"
-    }
-    #endif
-
-    static func performLightClean(totalBytes: Int64, availableBytes: Int64, fillMode: MemoryCleanFillMode) {
-        let MB: Int64 = 1024 * 1024
-        let total     = max(totalBytes, 0)
-        let available = max(availableBytes, 0)
-
-        guard total     > 256 * MB else { return }
-        guard available > 128 * MB else { return }
-
-        let safety     = Int64(128 * MB)
-        let maxAllowed = max(available - safety, 0)
-        guard maxAllowed >= 16 * MB else { return }
-
-        let rawTarget = available / 3
-        let target    = min(min(max(rawTarget, 32 * MB), 256 * MB), maxAllowed)
-
-        #if DEBUG
-        print("[MemoryCleaner] total=\(debugMB(total)), available=\(debugMB(available)), target=\(debugMB(target)), mode=\(fillMode), \(debugSwapUsageString())")
-        #endif
-
-        let count = Int(target / 4)
-        guard count > 0 else { return }
-
-        var buffer = [UInt32](repeating: 0, count: count)
-        buffer.withUnsafeMutableBytes { raw in
-            guard let baseAddr = raw.baseAddress, raw.count > 0 else { return }
-            switch fillMode {
-            case .randomFill:
-                arc4random_buf(baseAddr, raw.count)
-            case .memsetFill(let value):
-                _ = memset(baseAddr, Int32(value), raw.count)
-            case .pageTouch:
-                let pageSize = max(4096, Int(sysconf(Int32(_SC_PAGESIZE))))
-                let bytes    = baseAddr.assumingMemoryBound(to: UInt8.self)
-                var offset   = 0
-                while offset < raw.count { bytes[offset] &+= 1; offset += pageSize }
-            }
-        }
-
-        if !buffer.isEmpty { consume(buffer[buffer.count / 2]) }
-    }
-}
+// ✅ [삭제됨] MemoryCleaner enum 전체 — 메모리 버퍼 할당/해제로 캐시 퍼지를 유도하는 코드
+// Apple Guideline 1.1.6 위반: "부정확한 디바이스 데이터" 및 "오해를 유발하는 기능"
+// 샌드박스 환경에서 메모리를 실제로 "최적화"할 수 없으며, 사용자에게 잘못된 기대를 줄 수 있음

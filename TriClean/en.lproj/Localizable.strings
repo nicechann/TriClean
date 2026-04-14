@@ -3,7 +3,7 @@
   TriClean
 
   Created by nicechann on 1/25/26.
-  
+  ✅ [Apple Review v2] Remove all misleading claims
 */
 
 /* Common */
@@ -31,11 +31,11 @@
 "sidebar.memory" = "Memory";
 "sidebar.apps" = "Apps";
 "sidebar.settings" = "Settings";
-"sidebar.storage.subtitle" = "Clean up large folders";
-"sidebar.memory.subtitle" = "Monitor memory usage";
-"sidebar.apps.subtitle" = "Clean up app leftovers";
-"sidebar.status.memory_usage" = "Current memory usage ratio.";
-"sidebar.status.refresh_help" = "Refresh memory usage";
+"sidebar.storage.subtitle" = "Analyze disk usage";
+"sidebar.memory.subtitle" = "View memory usage";
+"sidebar.apps.subtitle" = "Review app-related files";
+"sidebar.status.memory_usage" = "Current estimated memory usage.";
+"sidebar.status.refresh_help" = "Refresh memory estimates";
 
 /* Memory View */
 "memory.in_use" = "In Use: %@";
@@ -43,19 +43,17 @@
 "memory.used" = "Used: %@";
 "memory.available" = "Available: %@";
 
-/* ✅ [수정] "Clean" 관련 키 → "Optimize/Release Cache" 로 완화 (Apple 심사 대응) */
-/* 기존 키는 하위 호환을 위해 유지하되, 신규 키로 교체 사용 */
-"memory.clean_btn" = "Release Cache";
-"memory.clean_desc" = "Suggests macOS to reclaim unused cached memory. Actual results may vary based on system conditions. Active apps will not be affected.";
+/* ✅ [v2] All "Clean/Optimize" → "Refresh" only */
+"memory.clean_btn" = "Refresh";
+"memory.clean_desc" = "Refresh memory estimates based on public macOS APIs.";
 
-/* ✅ [추가] MemoryView.swift optimizeSection 전용 키 */
-"memory.optimize_btn" = "Release Cache";
-"memory.optimize_desc" = "Suggests macOS to reclaim unused cached memory. Actual results may vary based on system conditions. Active apps will not be affected.";
-"memory.optimize_done" = "Cache release complete. (Results may vary based on system state)";
+"memory.optimize_btn" = "Refresh";
+"memory.optimize_desc" = "Refresh memory estimates based on public macOS APIs.";
+"memory.optimize_done" = "Memory estimates refreshed.";
 
-/* ✅ [추가] 면책 문구 — 수치가 추정값임을 명시 (Apple 심사 핵심 대응) */
-"memory.disclaimer" = "Values shown are estimates based on macOS public APIs (host_statistics64) and may differ from actual memory state.";
-"memory.menubar_disclaimer" = "Values are approximate estimates.";
+/* ✅ Enhanced disclaimer */
+"memory.disclaimer" = "Values shown are estimates based on macOS public APIs (host_statistics64) and may differ from actual memory state. This app does not modify system memory.";
+"memory.menubar_disclaimer" = "Values are approximate estimates for reference only.";
 
 "memory.composition" = "Memory Composition";
 "memory.composition_note" = "※ Based on macOS Mach VM statistics (host_statistics64). Values are estimates and may differ from Activity Monitor.";
@@ -66,8 +64,7 @@
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
 
-/* ✅ [수정] Before/After 수치 비교 완전 제거 → 단순 완료 문구 */
-"memory.tray_message" = "Cache release complete. (Results may vary based on system state)";
+"memory.tray_message" = "Memory estimates refreshed.";
 "memory.tooltip.app_click" = "Activate %@ (%@)";
 
 /* Storage View */
@@ -110,7 +107,6 @@
 "storage.scan.default_msg" = "No scan results. Click 'Select Folder & Scan' above to start analysis.";
 "storage.scope.home_needed" = "Permission required: Please select Home folder.";
 "storage.scope.apps_needed" = "Permission required: Please select Applications folder.";
-/* Used / Total (Arguments: 1=Used, 2=Total) */
 "storage.usage.format" = "%1$@ used of %2$@";
 "storage.msg.analyzing_home_apps" = "Analyzing Home & Applications…";
 "storage.alert.delete.msg_folder" = "'%@' folder will be moved to Trash. You can restore it from Finder.";
@@ -118,12 +114,12 @@
 "storage.alert.delete.msg_multi" = "%d selected items will be moved to Trash. You can restore them from Finder.";
 "storage.msg.canceling" = "Canceling…";
 
-/* Apps View */
-"apps.header.uninstall" = "App Uninstall";
-"apps.header.desc" = "Scans installed apps within selected scopes. Only selected items are moved to Trash. System/Protected apps cannot be removed.";
+/* ✅ [v2] Apps View — "uninstall/remove" → "review related files" focus */
+"apps.header.uninstall" = "App Bundles";
+"apps.header.desc" = "Scans app bundles within the selected scope. Only eligible, user-installed non-App Store items can be moved to Trash. System, protected, and App Store apps are listed for reference only and cannot be removed from this screen.";
 "apps.btn.manual_select" = "Select .app Manually…";
 "apps.search.placeholder" = "Search App Name or Bundle ID";
-"apps.btn.uninstall" = "Uninstall";
+"apps.btn.uninstall" = "Move to Trash";
 "apps.btn.details" = "Details";
 "apps.scope.apps_folder" = "Select Applications Folder";
 "apps.scope.apps_msg" = "Select a folder to scan for apps (e.g., /Applications or ~/Applications).\nTriClean scans only within the selected scope.";
@@ -137,29 +133,29 @@
 "apps.type.system" = "System App";
 "apps.type.user" = "User App";
 "apps.type.protected" = "Protected";
+"apps.type.appstore" = "App Store";
 "apps.details.selected" = "Selected App";
 "apps.details.library_guide" = "Select Home Library(~/Library) above to analyze related files.";
 "apps.details.scanning" = "Searching related files…";
 "apps.details.no_related" = "No related files found.";
 "apps.details.found_count" = "Related files (%d)";
 "apps.details.trash_selected" = "Move Selected to Trash";
-"apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to analyze details.";
-"apps.alert.uninstall.title" = "Uninstall Selected Apps";
-"apps.alert.uninstall.msg" = "Moving %d app bundles to Trash. You can clean related files from the list below.";
-"apps.alert.fail.title" = "Deletion Failed (Permission)";
-"apps.alert.fail.msg" = "%d apps could not be deleted automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
-"apps.alert.related.title" = "Delete Related Files";
+"apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to review app details and related files (caches, preferences, etc.).";
+"apps.alert.uninstall.title" = "Move Selected App Bundles to Trash";
+"apps.alert.uninstall.msg" = "Move %d selected non-App Store app bundles to Trash? App Store apps are excluded. Related files can be reviewed separately below.";
+"apps.alert.fail.title" = "Move Failed (Permission)";
+"apps.alert.fail.msg" = "%d apps could not be moved automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
+"apps.alert.related.title" = "Review Related Files";
 "apps.alert.related.msg" = "Move %d selected files/folders to Trash?";
 "apps.alert.reset.title" = "Reset Permissions";
-"apps.alert.reset.msg" = "This will clear all folder access permissions. You will need to re-select folders to scan/delete.";
+"apps.alert.reset.msg" = "This will clear all folder access permissions. You will need to re-select folders to scan.";
 "apps.status.scoped_error" = "No access permission (Security-Scoped) for Applications folder.";
-"apps.manual.msg" = "Select the app (.app) to analyze its related files.";
+"apps.manual.msg" = "Select the app (.app) to review its related files.";
 "apps.manual.title" = "Select App Manually";
 "apps.status.library_selected" = "Home Library selected.";
 "apps.status.library_guide" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_scoped_error" = "No access permission (Security-Scoped) for Home Library folder.";
-/* Argument: App Count (Int) */
 "apps.status.loaded_count" = "Loaded %d apps.";
 "apps.status.reset_success" = "Reset complete.";
 "apps.status.no_permission" = "No access permission.";
@@ -167,13 +163,15 @@
 "apps.status.app_selected" = "App selected.";
 "apps.status.read_fail" = "Failed to read file.";
 "apps.status.app_added" = "App added.";
+/* ✅ [v2] Enhanced App Store app notice */
+"apps.details.appstore_note" = "App Store apps cannot be removed from this screen. Please delete them directly from Launchpad (long-press) or Finder.";
 "apps.status.folder_needed" = "Permission required: Please select a folder.";
 "apps.alert.fail.list" = "\\n\\nFailed: %@";
-"apps.help.select_first" = "Select at least one app to uninstall.";
-"apps.help.all_protected" = "All selected apps are protected by macOS (Admin required).";
-"apps.help.partial_protected" = "Some selected apps are protected by macOS (Admin required).";
-"apps.help.move_trash" = "Move selected apps to Trash.";
-"apps.help.removing" = "Removing…";
+"apps.help.select_first" = "Select at least one eligible app bundle.";
+"apps.help.all_protected" = "Selected items are protected, system, or App Store apps and cannot be removed here.";
+"apps.help.partial_protected" = "Some selected items are protected, system, or App Store apps and will be skipped.";
+"apps.help.move_trash" = "Move selected non-App Store app bundles to Trash.";
+"apps.help.removing" = "Moving…";
 "apps.scope.library_analysis" = "Home Library (~/Library) — scan related files";
 "apps.status.folder_selected" = "Folder selected: %@";
 "apps.status.bookmark_fail" = "Failed to save folder permission: %@";
@@ -185,9 +183,9 @@
 "apps.status.related_success" = "Moved %d related items to Trash.";
 "apps.status.related_partial_fail" = "Moved %d items, failed %d.";
 "apps.status.related_none" = "Nothing was moved to Trash.";
-"apps.status.uninstall_success" = "Uninstalled %d apps (moved to Trash).";
-"apps.status.uninstall_partial_fail" = "Uninstalled %d apps, failed %d.";
-"apps.status.uninstall_all_fail" = "Failed to uninstall selected apps (permission required).";
+"apps.status.uninstall_success" = "Moved %d app bundles to Trash.";
+"apps.status.uninstall_partial_fail" = "Moved %d app bundles, failed %d.";
+"apps.status.uninstall_all_fail" = "Failed to move selected app bundles to Trash (permission required).";
 
 /* Settings View */
 "settings.display" = "Display";
@@ -200,26 +198,25 @@
 "settings.about" = "About";
 "settings.help" = "Help";
 
-/* ✅ [수정] Settings Help 문구 — "Clean" → "Cache Release" 표현으로 완화 */
-"settings.help.clean_title" = "Cache Release: How It Works";
-"settings.help.clean_desc" = "• Allocates a temporary buffer to create memory pressure, allowing macOS to reclaim inactive caches on its own.\n• This does not forcibly terminate apps or modify system files.\n• Effectiveness depends on current memory and swap state.\n• All values are estimates based on macOS public APIs.";
+/* ✅ [v2] Settings Help — "monitoring only" clarification */
+"settings.help.clean_title" = "Memory Estimates: How They Work";
+"settings.help.clean_desc" = "• Memory values are calculated from public macOS APIs such as host_statistics64.\n• Numbers shown in TriClean are estimates and may differ from Activity Monitor.\n• Refresh updates the displayed values only; it does not modify system memory state.\n• This app is for monitoring purposes only and does not optimize or free memory.";
 "settings.help.search_title" = "Apps Search: Spotlight Indexing";
 "settings.help.search_desc" = "• Search results may be empty if Spotlight indexing is disabled.\n• In Sandbox, only accessible paths are searched.";
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Memory";
-/* ✅ [수정] "Clean" → "Refresh" (메뉴바 버튼 제거 대응) */
 "menubar.clean" = "Refresh";
 "menubar.open_triclean" = "Open TriClean";
 
 /* Debug */
 "settings.debug" = "Debug";
-"settings.debug.clean_fill_mode" = "Cache Fill Mode";
-"settings.debug.clean_fill_desc" = "Select how the buffer is filled during Cache Release (Random/Page Touch/Pattern). In Release builds it is fixed to Touch.";
+"settings.debug.clean_fill_mode" = "Memory Debug Mode";
+"settings.debug.clean_fill_desc" = "Debug-only option for internal testing.";
 
-/* ✅ [추가] Paywall — Memory 기능 설명을 "모니터링" 중심으로 변경 */
+/* ✅ [v2] Paywall — "monitoring" focus */
 "paywall.feat.memory" = "Real-time Memory Monitoring";
-"paywall.feat.memory_desc" = "Monitor system memory composition and usage at a glance";
+"paywall.feat.memory_desc" = "View estimated system memory composition and usage at a glance";
 
 // MARK: - Trial & Banner
 "trial.banner.status" = "Trial: %d days left";
@@ -231,13 +228,13 @@
 
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";
-"paywall.subtitle" = "Unlock all features unlimitedly";
-"paywall.feat.disk" = "Advanced Disk Analysis";
+"paywall.subtitle" = "Unlock all features";
+"paywall.feat.disk" = "Disk Usage Analysis";
 "paywall.feat.disk_desc" = "Find large files and folders quickly";
-"paywall.feat.apps" = "Deep App Management";
-"paywall.feat.apps_desc" = "Completely remove leftover files";
-"paywall.feat.auto" = "Smart Monitoring";
-"paywall.feat.auto_desc" = "Keep your Mac optimized automatically";
+"paywall.feat.apps" = "App File Review";
+"paywall.feat.apps_desc" = "Review app bundles and related user-library files";
+"paywall.feat.auto" = "System Monitoring Dashboard";
+"paywall.feat.auto_desc" = "Keep storage and memory information in one place";
 
 // MARK: - Paywall (Buttons & Status)
 "paywall.btn.buy_format" = "Buy Now (%@)";
@@ -255,26 +252,24 @@
 "paywall.link.privacy" = "Privacy Policy";
 "paywall.link.terms" = "Terms of Use";
 
-/* Paywall 결제 오류 알림 */
 "paywall.error.title"   = "Purchase Error";
 "paywall.error.unknown" = "An unknown error occurred.";
 
-/* StoreManager 상품 로드 오류 */
 "store.error.product_not_found"   = "Product not found. Please check the Product ID or StoreKit configuration.";
 "store.error.load_failed_detail"  = "Failed to load product: %@";
 
-/* common.confirm — 이미 있으면 중복 추가 불필요 */
 "common.confirm" = "Confirm";
 
 // MARK: - Onboarding
 "onboarding.welcome.title" = "Welcome to TriClean";
-"onboarding.welcome.desc" = "Keep your Mac fast and clean with powerful disk, memory, and app management tools.";
-"onboarding.storage.title" = "Disk Cleanup";
-"onboarding.storage.desc" = "Scan your disk to find large folders and files. Select and move them to Trash to free up space quickly.";
+"onboarding.welcome.desc" = "Review storage usage, memory estimates, and app-related files in one place.";
+"onboarding.storage.title" = "Disk Analysis";
+"onboarding.storage.desc" = "Scan your disk to find large folders and files. Select and move them to Trash to free up space.";
 "onboarding.memory.title" = "Memory Monitor";
-"onboarding.memory.desc" = "Monitor real-time memory usage and release inactive caches to keep your Mac running smoothly.";
-"onboarding.apps.title" = "App Management";
-"onboarding.apps.desc" = "Uninstall apps completely — including leftover Preferences, Caches, and Containers files.";
+"onboarding.memory.desc" = "View estimated memory usage and composition using public macOS APIs. This app does not modify system memory.";
+"onboarding.apps.title" = "App File Review";
+"onboarding.apps.desc" = "Review app bundles and related files in your Home Library. App Store apps are shown for reference only.";
 "onboarding.btn.next" = "Next";
 "onboarding.btn.back" = "Back";
 "onboarding.btn.start" = "Get Started";
+
