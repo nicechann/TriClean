@@ -41,48 +41,64 @@ struct DuplicateFinderView: View {
     }
 
     private var headerSection: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("duplicates.title".localized)
-                    .font(.title2.bold())
-                Text("duplicates.subtitle".localized)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            if viewModel.scanFolderURL != nil {
-                HStack(spacing: 4) {
-                    Text("duplicates.min_size".localized)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("duplicates.title".localized)
+                        .font(.title2.bold())
+                    Text("duplicates.subtitle".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Picker("", selection: $viewModel.minFileSizeKB) {
-                        Text("10 KB").tag(10)
-                        Text("100 KB").tag(100)
-                        Text("1 MB").tag(1024)
-                        Text("10 MB").tag(10240)
+                }
+
+                Spacer()
+
+                if viewModel.scanFolderURL != nil {
+                    HStack(spacing: 4) {
+                        Text("duplicates.min_size".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Picker("", selection: $viewModel.minFileSizeKB) {
+                            Text(minimumSizeTitle(10)).tag(10)
+                            Text(minimumSizeTitle(100)).tag(100)
+                            Text(minimumSizeTitle(1024)).tag(1024)
+                            Text(minimumSizeTitle(10240)).tag(10240)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 260)
+                        .controlSize(.small)
                     }
-                    .pickerStyle(.segmented)
-                    .frame(width: 260)
+
+                    Button {
+                        viewModel.selectFolder()
+                    } label: {
+                        Label("duplicates.change_folder".localized, systemImage: "folder")
+                    }
+                    .buttonStyle(.bordered)
                     .controlSize(.small)
-                }
 
-                Button {
-                    viewModel.selectFolder()
-                } label: {
-                    Label("duplicates.change_folder".localized, systemImage: "folder")
+                    Button {
+                        viewModel.scan()
+                    } label: {
+                        Label("common.scan".localized, systemImage: "magnifyingglass")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(viewModel.isScanning)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+            }
 
-                Button {
-                    viewModel.scan()
-                } label: {
-                    Label("common.scan".localized, systemImage: "magnifyingglass")
+            if let folderURL = viewModel.scanFolderURL {
+                HStack(spacing: 8) {
+                    Image(systemName: "folder.badge.gearshape")
+                        .foregroundStyle(.secondary)
+                    Text("duplicates.selected_folder".localized)
+                        .font(.caption.bold())
+                    Text(folderURL.path)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(viewModel.isScanning)
             }
         }
     }
@@ -194,6 +210,17 @@ struct DuplicateFinderView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
+    }
+
+    private func minimumSizeTitle(_ value: Int) -> String {
+        switch value {
+        case 1024:
+            return "1 MB"
+        case 10240:
+            return "10 MB"
+        default:
+            return "\(value) KB"
+        }
     }
 
     private func summaryCard(title: String, value: String, icon: String, color: Color) -> some View {

@@ -368,3 +368,32 @@
 "duplicates.status.none_found" = "중복 파일을 찾지 못했습니다.";
 "duplicates.status.found_groups" = "%d개 중복 그룹 발견 (%@ 확보 가능)";
 "duplicates.status.deleted" = "%d개 중복 파일을 휴지통으로 이동했습니다.";
+
+
+/* Storage UX */
+"storage.status.header" = "현재 스캔 상태";
+"storage.status.folder" = "선택한 폴더";
+"storage.status.folder_none" = "선택한 폴더 없음";
+"storage.status.visible_results" = "표시 중인 결과";
+"storage.status.visible_results_value" = "상위 %d개 / 하위 %d개";
+"storage.status.min_size" = "최소 크기";
+"storage.min_size.display" = "%d MB+";
+"storage.treemap.subtitle" = "용량이 큰 폴더와 파일을 한눈에 확인합니다.";
+"storage.treemap.hint" = "팁: 항목을 클릭하면 Finder에서 바로 확인할 수 있습니다.";
+"storage.treemap.item_help" = "%@ — %@";
+
+/* Junk Section */
+"junk.section.ready_title" = "스캔 준비 완료";
+"junk.section.ready_desc" = "선택한 ~/Library 범위를 스캔해 캐시, 로그, 정리 가능한 찌꺼기를 확인합니다.";
+
+/* Duplicates */
+"duplicates.selected_folder" = "선택한 폴더";
+
+/* Settings Debug */
+"settings.debug.purchase_status" = "구매 상태";
+"settings.debug.purchase_on" = "구매 완료";
+"settings.debug.purchase_off" = "미구매";
+"settings.debug.trial_days" = "체험 기간";
+"settings.debug.days_button" = "%d일";
+"settings.debug.actual_value" = "실제 값";
+"settings.debug.current_days" = "현재 %d일";

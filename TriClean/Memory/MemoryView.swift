@@ -239,10 +239,10 @@ struct MemoryView: View {
             : Color.black.opacity(0.10)
 
         return VStack(alignment: .leading, spacing: 8) {
-            legendRow(color: Color(red: 0.43, green: 0.84, blue: 0.41), name: "App Memory",   bytes: s.appBytes)
-            legendRow(color: Color(red: 0.99, green: 0.71, blue: 0.31), name: "Wired Memory", bytes: s.wiredBytes)
-            legendRow(color: Color(red: 0.69, green: 0.48, blue: 1.0),  name: "Compressed",  bytes: s.compressedBytes)
-            legendRow(color: availableColor,                              name: "Available",   bytes: availableBytes)
+            legendRow(color: Color(red: 0.43, green: 0.84, blue: 0.41), name: "memory.legend.app".localized, bytes: s.appBytes)
+            legendRow(color: Color(red: 0.99, green: 0.71, blue: 0.31), name: "memory.legend.wired".localized, bytes: s.wiredBytes)
+            legendRow(color: Color(red: 0.69, green: 0.48, blue: 1.0),  name: "memory.legend.compressed".localized, bytes: s.compressedBytes)
+            legendRow(color: availableColor, name: "memory.legend.available".localized, bytes: availableBytes)
         }
     }
 

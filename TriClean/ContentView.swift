@@ -237,35 +237,35 @@ struct SettingsView: View {
 
                             // 구매 상태 오버라이드
                             HStack(spacing: 12) {
-                                Text("구매 상태 (isPurchased)")
+                                Text("settings.debug.purchase_status".localized)
                                     .frame(width: 140, alignment: .leading)
                                 Toggle("", isOn: $storeManager.debugPurchaseOverride)
                                     .toggleStyle(.switch)
                                     .labelsHidden()
-                                Text(storeManager.debugPurchaseOverride ? "구매 완료" : "미구매")
+                                Text(storeManager.debugPurchaseOverride ? "settings.debug.purchase_on".localized : "settings.debug.purchase_off".localized)
                                     .font(.caption)
                                     .foregroundStyle(storeManager.debugPurchaseOverride ? Color.green : Color.secondary)
                             }
 
                             HStack(spacing: 12) {
-                                Text("체험 기간 (daysRemaining)")
+                                Text("settings.debug.trial_days".localized)
                                     .frame(width: 140, alignment: .leading)
                                 HStack(spacing: 6) {
                                     ForEach([0, 1, 3, 7], id: \.self) { days in
-                                        Button("\(days)일") {
+                                        Button("settings.debug.days_button".localized(with: days)) {
                                             trialManager.debugSetDaysRemaining(days)
                                         }
                                         .buttonStyle(.bordered)
                                         .controlSize(.small)
                                         .tint(trialManager.daysRemaining == days ? .accentColor : .secondary)
                                     }
-                                    Button("실제 값") {
+                                    Button("settings.debug.actual_value".localized) {
                                         trialManager.debugResetTrialOverride()
                                     }
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
                                 }
-                                Text("현재 \(trialManager.daysRemaining)일")
+                                Text("settings.debug.current_days".localized(with: trialManager.daysRemaining))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }

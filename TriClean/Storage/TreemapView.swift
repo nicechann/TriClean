@@ -41,11 +41,16 @@ struct TreemapView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // 헤더
-            HStack {
+            HStack(alignment: .top) {
                 Image(systemName: "square.grid.3x3.fill")
                     .foregroundStyle(.secondary)
-                Text("Disk Map")
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("storage.treemap.title".localized)
+                        .font(.headline)
+                    Text("storage.treemap.subtitle".localized)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
                 if let item = selectedItem {
                     HStack(spacing: 6) {
@@ -95,6 +100,12 @@ struct TreemapView: View {
             
             // 범례
             treemapLegend
+
+            if selectedItem == nil {
+                Text("storage.treemap.hint".localized)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
     
@@ -150,7 +161,7 @@ struct TreemapView: View {
                     onItemTapped?(folder)
                 }
             }
-            .help("\(item.name) — \(item.sizeString)")
+            .help("storage.treemap.item_help".localized(with: item.name, item.sizeString))
     }
     
     private func labelFontSize(for rect: CGRect) -> CGFloat {

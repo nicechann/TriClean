@@ -71,6 +71,26 @@ struct JunkSectionView: View {
                 .controlSize(.small)
             }
 
+            if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults {
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle")
+                        .foregroundStyle(.green)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("junk.section.ready_title".localized)
+                            .font(.caption.bold())
+                        Text("junk.section.ready_desc".localized)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(nsColor: .controlBackgroundColor))
+                )
+            }
+
             if viewModel.hasResults {
                 HStack(spacing: 16) {
                     Label {

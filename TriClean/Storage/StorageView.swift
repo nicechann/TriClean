@@ -392,6 +392,23 @@ struct StorageView: View {
     
     // 스캔 결과의 '발견순' 스냅샷 (정렬 토글을 바꿔도 되돌릴 수 있도록 유지)
     @State private var discoveredResults: [FolderInfo] = []
+
+    private var rootResultCount: Int {
+        folderResults.filter { $0.depth == 0 }.count
+    }
+
+    private var childResultCount: Int {
+        folderResults.filter { $0.depth > 0 }.count
+    }
+
+    private var selectedFolderDisplayName: String {
+        guard let selectedFolderURL else { return "storage.status.folder_none".localized }
+        return selectedFolderURL.lastPathComponent.isEmpty ? selectedFolderURL.path : selectedFolderURL.lastPathComponent
+    }
+
+    private var minFolderSizeDisplay: String {
+        "storage.min_size.display".localized(with: Int(minFolderSizeMB))
+    }
     
     private var scanButtonBusyText: String {
         isAutoUpdating
@@ -445,7 +462,14 @@ struct StorageView: View {
 
                 Divider()
                 folderScanSection
-                Divider()
+
+                if selectedFolderURL != nil || isScanning || !folderResults.isEmpty {
+                    storageStatusSection
+                    Divider()
+                } else {
+                    Divider()
+                }
+
                 resultsTableSection
                 Spacer(minLength: 10)
             }
@@ -734,6 +758,28 @@ struct StorageView: View {
                 .foregroundStyle(.secondary)
         }
         // ✅ diskHeaderSection(내부 padding 12)과 같은 시작선으로 맞춤
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var storageStatusSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("storage.status.header".localized)
+                .font(.title3.bold())
+
+            HStack(spacing: 10) {
+                infoCard(title: "storage.status.folder".localized, value: selectedFolderDisplayName)
+                infoCard(
+                    title: "storage.status.visible_results".localized,
+                    value: "storage.status.visible_results_value".localized(with: rootResultCount, childResultCount)
+                )
+                infoCard(title: "storage.status.min_size".localized, value: minFolderSizeDisplay)
+            }
+
+            Text(isScanning ? scanButtonBusyText : scanMessage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
         .padding(.horizontal, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
     }

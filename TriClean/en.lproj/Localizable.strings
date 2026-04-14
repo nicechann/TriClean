@@ -367,3 +367,32 @@
 "duplicates.status.none_found" = "No duplicate files were found.";
 "duplicates.status.found_groups" = "%d duplicate groups found (%@ reclaimable)";
 "duplicates.status.deleted" = "%d duplicate files were moved to Trash.";
+
+
+/* Storage UX */
+"storage.status.header" = "Current Scan";
+"storage.status.folder" = "Selected Folder";
+"storage.status.folder_none" = "No folder selected";
+"storage.status.visible_results" = "Visible Results";
+"storage.status.visible_results_value" = "%d top-level / %d child items";
+"storage.status.min_size" = "Minimum Size";
+"storage.min_size.display" = "%d MB+";
+"storage.treemap.subtitle" = "See the largest folders and files at a glance.";
+"storage.treemap.hint" = "Tip: Click an item to reveal it in Finder.";
+"storage.treemap.item_help" = "%@ — %@";
+
+/* Junk Section */
+"junk.section.ready_title" = "Ready to scan";
+"junk.section.ready_desc" = "Scan your selected ~/Library scope to review caches, logs, and disposable leftovers.";
+
+/* Duplicates */
+"duplicates.selected_folder" = "Selected Folder";
+
+/* Settings Debug */
+"settings.debug.purchase_status" = "Purchase Status";
+"settings.debug.purchase_on" = "Purchased";
+"settings.debug.purchase_off" = "Not Purchased";
+"settings.debug.trial_days" = "Trial Days";
+"settings.debug.days_button" = "%d d";
+"settings.debug.actual_value" = "Actual";
+"settings.debug.current_days" = "Current: %d days";
