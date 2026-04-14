@@ -27,6 +27,26 @@ struct DuplicateGroup: Identifiable {
     var fileSizeString: String {
         ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
     }
+
+    var keepCount: Int {
+        files.filter { $0.isKeep }.count
+    }
+
+    var selectedDeleteCount: Int {
+        files.filter { !$0.isKeep }.count
+    }
+
+    var selectedDeleteBytes: Int64 {
+        Int64(selectedDeleteCount) * fileSize
+    }
+
+    var selectedDeleteBytesString: String {
+        ByteCountFormatter.string(fromByteCount: selectedDeleteBytes, countStyle: .file)
+    }
+
+    var keptFile: DuplicateFile? {
+        files.first(where: { $0.isKeep })
+    }
 }
 
 /// 중복 그룹 내 개별 파일
@@ -47,22 +67,11 @@ struct DuplicateFile: Identifiable, Hashable {
 }
 
 /// 스캔 진행 상태
-enum DuplicateScanPhase {
-    case idle
-    case collectingFiles
-    case groupingBySize
-    case hashingPartial
-    case hashingFull
-    case done
-
-    var localizedTitle: String {
-        switch self {
-        case .idle: return "duplicates.phase.idle".localized
-        case .collectingFiles: return "duplicates.phase.collecting".localized
-        case .groupingBySize: return "duplicates.phase.grouping".localized
-        case .hashingPartial: return "duplicates.phase.partial".localized
-        case .hashingFull: return "duplicates.phase.full".localized
-        case .done: return "duplicates.phase.done".localized
-        }
-    }
+enum DuplicateScanPhase: String {
+    case idle = "대기"
+    case collectingFiles = "파일 수집 중..."
+    case groupingBySize = "크기별 그룹화 중..."
+    case hashingPartial = "부분 해시 비교 중..."
+    case hashingFull = "전체 해시 비교 중..."
+    case done = "완료"
 }

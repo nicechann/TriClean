@@ -27,26 +27,40 @@ struct DuplicateFinderView: View {
                 emptySection
             }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
         .padding()
-        .alert("duplicates.alert.title".localized, isPresented: $showDeleteConfirm) {
+        .alert("duplicate.delete_confirm.title".localized, isPresented: $showDeleteConfirm) {
             Button("common.move_to_trash".localized, role: .destructive) {
                 viewModel.deleteDuplicates()
             }
             Button("common.cancel".localized, role: .cancel) {}
         } message: {
-            Text("duplicates.alert.message".localized)
+            Text(
+                "duplicate.delete_confirm.message".localized(
+                    with: viewModel.selectedDeleteCount,
+                    viewModel.selectedReclaimableString
+                )
+            )
+        }
+        .alert(item: $viewModel.lastCleanupResult) { result in
+            Alert(
+                title: Text("duplicate.cleanup_result.title".localized),
+                message: Text(cleanupMessage(for: result)),
+                dismissButton: .default(Text("common.close".localized))
+            )
         }
     }
+
+    // MARK: - 헤더
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("duplicates.title".localized)
+                    Text("duplicate.header.title".localized)
                         .font(.title2.bold())
-                    Text("duplicates.subtitle".localized)
+                    Text("duplicate.header.subtitle".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -55,14 +69,14 @@ struct DuplicateFinderView: View {
 
                 if viewModel.scanFolderURL != nil {
                     HStack(spacing: 4) {
-                        Text("duplicates.min_size".localized)
+                        Text("duplicate.header.min_size".localized)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Picker("", selection: $viewModel.minFileSizeKB) {
-                            Text(minimumSizeTitle(10)).tag(10)
-                            Text(minimumSizeTitle(100)).tag(100)
-                            Text(minimumSizeTitle(1024)).tag(1024)
-                            Text(minimumSizeTitle(10240)).tag(10240)
+                            Text("10 KB").tag(10)
+                            Text("100 KB").tag(100)
+                            Text("1 MB").tag(1024)
+                            Text("10 MB").tag(10240)
                         }
                         .pickerStyle(.segmented)
                         .frame(width: 260)
@@ -72,7 +86,7 @@ struct DuplicateFinderView: View {
                     Button {
                         viewModel.selectFolder()
                     } label: {
-                        Label("duplicates.change_folder".localized, systemImage: "folder")
+                        Label("duplicate.header.change_folder".localized, systemImage: "folder")
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
@@ -87,21 +101,27 @@ struct DuplicateFinderView: View {
                 }
             }
 
-            if let folderURL = viewModel.scanFolderURL {
+            if viewModel.scanFolderURL != nil {
                 HStack(spacing: 8) {
-                    Image(systemName: "folder.badge.gearshape")
+                    Image(systemName: "folder")
                         .foregroundStyle(.secondary)
-                    Text("duplicates.selected_folder".localized)
-                        .font(.caption.bold())
-                    Text(folderURL.path)
+                    Text(viewModel.selectedFolderPath)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(nsColor: .controlBackgroundColor))
+                )
             }
         }
     }
+
+    // MARK: - 폴더 선택
 
     private var folderSelectionSection: some View {
         GroupBox {
@@ -110,15 +130,15 @@ struct DuplicateFinderView: View {
                     .font(.largeTitle)
                     .foregroundStyle(.secondary)
 
-                Text("duplicates.select_folder_title".localized)
+                Text("duplicate.empty.select_title".localized)
                     .font(.headline)
 
-                Text("duplicates.select_folder_desc".localized)
+                Text("duplicate.empty.select_body".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
 
-                Button("duplicates.select_folder".localized) {
+                Button("duplicate.header.select_folder".localized) {
                     viewModel.selectFolder()
                 }
                 .buttonStyle(.borderedProminent)
@@ -128,14 +148,16 @@ struct DuplicateFinderView: View {
         }
     }
 
+    // MARK: - 스캔 중
+
     private var scanningSection: some View {
         VStack(spacing: 16) {
             ProgressView(value: viewModel.progress) {
-                Text(viewModel.phase.localizedTitle)
+                Text(viewModel.phase.rawValue)
                     .font(.subheadline.bold())
             }
             .progressViewStyle(.linear)
-            .frame(maxWidth: 400)
+            .frame(maxWidth: 420)
 
             Text(viewModel.statusMessage)
                 .font(.caption)
@@ -145,27 +167,64 @@ struct DuplicateFinderView: View {
         .padding(.vertical, 40)
     }
 
+    // MARK: - 결과
+
     private var resultsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 16) {
                 summaryCard(
-                    title: "duplicates.summary.groups".localized,
-                    value: "duplicates.count_format".localized(with: viewModel.totalDuplicateGroups),
+                    title: "duplicate.summary.groups".localized,
+                    value: "\(viewModel.totalDuplicateGroups)",
                     icon: "doc.on.doc.fill",
                     color: .orange
                 )
                 summaryCard(
-                    title: "duplicates.summary.reclaimable".localized,
-                    value: viewModel.totalReclaimableString,
+                    title: "duplicate.summary.selected_files".localized,
+                    value: "\(viewModel.selectedDeleteCount)",
+                    icon: "checklist.checked",
+                    color: .blue
+                )
+                summaryCard(
+                    title: "duplicate.summary.selected_space".localized,
+                    value: viewModel.selectedReclaimableString,
                     icon: "externaldrive.badge.checkmark",
                     color: .green
                 )
                 summaryCard(
-                    title: "duplicates.summary.scanned".localized,
-                    value: "duplicates.count_format".localized(with: viewModel.totalFilesScanned),
+                    title: "duplicate.summary.scanned_files".localized,
+                    value: "\(viewModel.totalFilesScanned)",
                     icon: "doc.text.magnifyingglass",
-                    color: .blue
+                    color: .purple
                 )
+            }
+
+            selectionGuideCard
+
+            HStack(spacing: 8) {
+                Button {
+                    viewModel.applyRecommendedSelection()
+                } label: {
+                    Label("duplicate.action.apply_recommended".localized, systemImage: "wand.and.stars")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("duplicate.action.apply_recommended.help".localized)
+
+                Button {
+                    viewModel.clearDeleteSelection()
+                } label: {
+                    Label("duplicate.action.clear_selection".localized, systemImage: "xmark.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(!viewModel.canDeleteSelected)
+                .help("duplicate.action.clear_selection.help".localized)
+
+                Spacer()
+
+                Text(viewModel.statusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             ScrollView {
@@ -177,50 +236,69 @@ struct DuplicateFinderView: View {
             }
 
             HStack {
-                Text(viewModel.statusMessage)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "duplicate.footer.summary".localized(
+                        with: viewModel.groupsWithSelectedDeletes,
+                        viewModel.selectedDeleteCount,
+                        viewModel.selectedReclaimableString
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
                 Spacer()
 
                 Button(role: .destructive) {
                     showDeleteConfirm = true
                 } label: {
-                    Label("duplicates.clean_selected".localized(with: viewModel.totalReclaimableString), systemImage: "trash")
+                    Label(
+                        "duplicate.footer.delete".localized(with: viewModel.selectedDeleteCount, viewModel.selectedReclaimableString),
+                        systemImage: "trash"
+                    )
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
-                .disabled(viewModel.groups.isEmpty)
+                .disabled(!viewModel.canDeleteSelected)
             }
         }
     }
 
+    // MARK: - 빈 상태
+
     private var emptySection: some View {
         VStack(spacing: 12) {
-            Image(systemName: "checkmark.seal")
+            Image(systemName: viewModel.phase == .done ? "checkmark.seal" : "doc.text.magnifyingglass")
                 .font(.largeTitle)
-                .foregroundStyle(.green)
-            Text(viewModel.phase == .done ? "duplicates.empty.done_title".localized : "duplicates.empty.idle_title".localized)
+                .foregroundStyle(viewModel.phase == .done ? .green : .secondary)
+            Text(viewModel.phase == .done ? "duplicate.empty.none_title".localized : "duplicate.empty.waiting_title".localized)
                 .font(.headline)
             Text(viewModel.phase == .done
-                 ? "duplicates.empty.done_desc".localized
-                 : "duplicates.empty.idle_desc".localized)
+                 ? "duplicate.empty.none_body".localized
+                 : "duplicate.empty.waiting_body".localized)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
     }
 
-    private func minimumSizeTitle(_ value: Int) -> String {
-        switch value {
-        case 1024:
-            return "1 MB"
-        case 10240:
-            return "10 MB"
-        default:
-            return "\(value) KB"
+    // MARK: - 서브뷰
+
+    private var selectionGuideCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("duplicate.selection.card_title".localized)
+                .font(.subheadline.bold())
+            Text("duplicate.selection.card_body".localized)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(nsColor: .controlBackgroundColor))
+        )
     }
 
     private func summaryCard(title: String, value: String, icon: String, color: Color) -> some View {
@@ -262,16 +340,16 @@ struct DuplicateFinderView: View {
                             .foregroundStyle(.orange)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("duplicates.group.files".localized(with: group.files.count))
+                            Text("duplicate.group.header".localized(with: group.files.count, group.fileSizeString))
                                 .font(.subheadline.bold())
-                            Text("duplicates.group.detail".localized(with: group.fileSizeString, group.reclaimableString))
+                            Text("duplicate.group.subheader".localized(with: group.selectedDeleteCount, group.selectedDeleteBytesString))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
 
                         Spacer()
 
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.left")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -280,6 +358,26 @@ struct DuplicateFinderView: View {
 
                 if isExpanded {
                     Divider()
+
+                    HStack(spacing: 8) {
+                        Button("duplicate.group.keep_oldest".localized) {
+                            viewModel.keepOldest(in: group.id)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+
+                        Button("duplicate.group.keep_newest".localized) {
+                            viewModel.keepNewest(in: group.id)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+
+                        Spacer()
+
+                        Text("duplicate.group.keep_hint".localized)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
 
                     ForEach(group.files) { file in
                         HStack(spacing: 8) {
@@ -290,7 +388,11 @@ struct DuplicateFinderView: View {
                                     .foregroundStyle(file.isKeep ? .green : .red)
                             }
                             .buttonStyle(.plain)
-                            .help(file.isKeep ? "duplicates.file.help.keep".localized : "duplicates.file.help.delete".localized)
+                            .help(
+                                file.isKeep
+                                    ? "duplicate.file.help.keep".localized
+                                    : "duplicate.file.help.delete".localized
+                            )
 
                             Image(systemName: "doc")
                                 .font(.caption)
@@ -301,9 +403,12 @@ struct DuplicateFinderView: View {
                                     .font(.caption)
                                     .foregroundStyle(file.isKeep ? .primary : .secondary)
                                     .strikethrough(!file.isKeep)
-                                Text(file.parentFolder)
+                                    .lineLimit(1)
+                                Text(file.path)
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
                             }
 
                             Spacer()
@@ -314,7 +419,15 @@ struct DuplicateFinderView: View {
                                     .foregroundStyle(.secondary)
                             }
 
-                            Text(file.isKeep ? "duplicates.file.keep".localized : "duplicates.file.delete".localized)
+                            Button {
+                                viewModel.revealInFinder(file.url)
+                            } label: {
+                                Image(systemName: "folder")
+                            }
+                            .buttonStyle(.plain)
+                            .help("duplicate.file.reveal".localized)
+
+                            Text(file.isKeep ? "duplicate.file.keep".localized : "duplicate.file.delete".localized)
                                 .font(.caption2.bold())
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -332,9 +445,20 @@ struct DuplicateFinderView: View {
             }
         }
     }
+
+    private func cleanupMessage(for result: DuplicateCleanupResult) -> String {
+        if result.failedCount > 0 {
+            return "duplicate.cleanup_result.body_with_failures".localized(
+                with: result.deletedCount,
+                result.deletedBytesString,
+                result.failedCount
+            )
+        }
+        return "duplicate.cleanup_result.body".localized(with: result.deletedCount, result.deletedBytesString)
+    }
 }
 
 #Preview {
     DuplicateFinderView()
-        .frame(width: 800, height: 600)
+        .frame(width: 960, height: 720)
 }

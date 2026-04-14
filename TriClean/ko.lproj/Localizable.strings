@@ -27,10 +27,10 @@
 "common.move_to_trash" = "휴지통으로 이동";
 
 /* Sidebar */
-"sidebar.storage" = "Storage";
-"sidebar.memory" = "Memory";
-"sidebar.apps" = "Apps";
-"sidebar.settings" = "Settings";
+"sidebar.storage" = "저장 공간";
+"sidebar.memory" = "메모리";
+"sidebar.apps" = "앱";
+"sidebar.settings" = "설정";
 "sidebar.storage.subtitle" = "디스크 사용량 분석";
 "sidebar.memory.subtitle" = "메모리 사용량 확인";
 "sidebar.apps.subtitle" = "앱 관련 파일 검토";
@@ -277,9 +277,9 @@
 
 
 /* Sidebar Sections */
-"sidebar.section.system" = "System";
-"sidebar.section.cleanup" = "Cleanup";
-"sidebar.duplicates" = "Duplicates";
+"sidebar.section.system" = "시스템";
+"sidebar.section.cleanup" = "정리";
+"sidebar.duplicates" = "중복 파일";
 
 /* Storage Surface */
 "storage.treemap.title" = "Disk Map";
@@ -434,3 +434,64 @@
 "apps.related.footer" = "선택된 %1$d개 항목 · 예상 정리 크기 %2$@";
 "apps.alert.uninstall.msg" = "선택한 앱 %2$d개 중 휴지통으로 이동 가능한 일반 앱 번들 %1$d개를 이동하시겠습니까? App Store 앱은 제외되며, 이동 후 Finder의 휴지통에서 복원할 수 있습니다.";
 "apps.alert.related.msg" = "선택한 %1$d개 관련 파일/폴더(%2$@)를 휴지통으로 이동하시겠습니까?";
+
+
+// MARK: - Duplicate Finder
+"duplicate.header.title" = "Duplicate Finder";
+"duplicate.header.subtitle" = "동일한 내용의 중복 파일을 찾아 정리 전에 안전하게 검토합니다.";
+"duplicate.header.min_size" = "최소:";
+"duplicate.header.change_folder" = "폴더 변경";
+"duplicate.header.select_folder" = "폴더 선택";
+"duplicate.select_folder.title" = "중복 파일을 찾을 폴더 선택";
+"duplicate.select_folder.message" = "선택한 폴더와 하위 폴더에서 동일한 내용의 파일을 찾습니다.";
+"duplicate.empty.select_title" = "중복 파일을 찾을 폴더를 선택하세요";
+"duplicate.empty.select_body" = "선택한 폴더와 하위 폴더에서 동일한 내용의 파일을 찾습니다. 파일 크기, 부분 해시, 전체 해시를 차례로 비교해 정확도를 높입니다.";
+"duplicate.empty.none_title" = "중복 파일이 없습니다";
+"duplicate.empty.none_body" = "선택한 폴더에서 중복 파일을 찾지 못했습니다.";
+"duplicate.empty.waiting_title" = "스캔 대기 중";
+"duplicate.empty.waiting_body" = "Scan 버튼을 눌러 중복 파일을 찾아보세요.";
+"duplicate.summary.groups" = "중복 그룹";
+"duplicate.summary.selected_files" = "선택 파일";
+"duplicate.summary.selected_space" = "선택 용량";
+"duplicate.summary.scanned_files" = "스캔 파일";
+"duplicate.selection.card_title" = "자동 정리 선택";
+"duplicate.selection.card_body" = "각 그룹에서 원본으로 보이는 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택합니다. 경로, 이름, 위치, 수정일을 기준으로 판단하므로 실행 전 검토해 주세요.";
+"duplicate.action.apply_recommended" = "정리 대상 자동 선택";
+"duplicate.action.apply_recommended.help" = "각 중복 그룹에서 원본으로 보이는 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택합니다.";
+"duplicate.footer.summary" = "%d개 그룹 · %d개 파일 선택 · %@ 확보 가능";
+"duplicate.footer.delete" = "중복 파일 정리 (%d개, %@)";
+"duplicate.group.header" = "동일 파일 %d개 · 각 %@";
+"duplicate.group.subheader" = "%d개 정리 선택 · %@ 확보 가능";
+"duplicate.group.keep_oldest" = "가장 오래된 파일 보존";
+"duplicate.group.keep_newest" = "가장 최신 파일 보존";
+"duplicate.group.keep_hint" = "각 그룹에서는 최소 1개 파일이 남아야 합니다.";
+"duplicate.file.help.keep" = "이 파일을 보존합니다. 클릭하면 정리 대상으로 바뀝니다.";
+"duplicate.file.help.delete" = "정리 대상으로 선택되었습니다. 클릭하면 보존으로 바뀝니다.";
+"duplicate.file.reveal" = "Finder에서 보기";
+"duplicate.file.keep" = "보존";
+"duplicate.file.delete" = "삭제";
+"duplicate.delete_confirm.title" = "중복 파일 정리";
+"duplicate.delete_confirm.message" = "선택한 중복 파일 %d개(%@)를 휴지통으로 이동합니다. 각 그룹에서는 최소 1개 파일이 보존됩니다.";
+"duplicate.cleanup_result.title" = "정리 완료";
+"duplicate.cleanup_result.body" = "중복 파일 %d개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다.";
+"duplicate.cleanup_result.body_with_failures" = "중복 파일 %d개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다. %d개 항목은 이동하지 못했습니다.";
+"duplicate.status.collecting" = "파일 목록 수집 중...";
+"duplicate.status.found_files" = "%d개 파일 발견";
+"duplicate.status.grouping_by_size" = "크기별 그룹화 중...";
+"duplicate.status.same_size_candidates" = "%d개 파일이 같은 크기입니다";
+"duplicate.status.partial_hash_matches" = "%d개 그룹의 부분 해시가 일치합니다";
+"duplicate.status.hashing_full_progress" = "전체 해시 비교 중... %d/%d";
+"duplicate.status.no_duplicates_found" = "중복 파일을 찾지 못했습니다.";
+"duplicate.status.scan_complete" = "%d개 중복 그룹 발견 (%@ 확보 가능)";
+"duplicate.status.selection_summary" = "%d개 그룹 · %d개 파일 선택 · %@ 확보 가능";
+"duplicate.status.nothing_selected" = "정리 대상으로 선택된 중복 파일이 없습니다.";
+"duplicate.status.recommended_applied" = "각 그룹에서 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택했습니다.";
+"duplicate.status.keep_newest_applied" = "선택한 그룹에서 가장 최신 파일을 보존하도록 변경했습니다.";
+"duplicate.status.keep_oldest_applied" = "선택한 그룹에서 가장 오래된 파일을 보존하도록 변경했습니다.";
+"duplicate.status.cleanup_done" = "%d개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다.";
+"duplicate.status.cleanup_done_with_failures" = "%d개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다. %d개 항목은 실패했습니다.";
+"duplicate.status.cleanup_failed" = "선택한 중복 파일을 휴지통으로 이동하지 못했습니다.";
+
+"duplicate.action.clear_selection" = "선택 해제";
+"duplicate.action.clear_selection.help" = "현재 선택된 정리 대상을 모두 해제하고, 모든 파일을 보존 상태로 되돌립니다.";
+"duplicate.status.selection_cleared" = "정리 대상 선택을 모두 해제했습니다.";
