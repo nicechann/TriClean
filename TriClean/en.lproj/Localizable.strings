@@ -396,3 +396,40 @@
 "settings.debug.days_button" = "%d d";
 "settings.debug.actual_value" = "Actual";
 "settings.debug.current_days" = "Current: %d days";
+
+
+/* Apps View — Stage 3 */
+"apps.filter.label" = "Filter";
+"apps.filter.all" = "All";
+"apps.filter.removable" = "Removable";
+"apps.filter.appstore" = "App Store";
+"apps.filter.protected" = "Protected/System";
+"apps.btn.select_visible" = "Select Visible";
+"apps.btn.clear_selection" = "Clear Selection";
+"apps.summary.total" = "All Apps";
+"apps.summary.removable" = "Removable";
+"apps.summary.appstore" = "App Store";
+"apps.summary.selected" = "Selected";
+"apps.safety.title" = "Review safely before cleanup";
+"apps.safety.desc" = "TriClean moves selected app bundles and related files to Trash. It does not permanently delete items immediately, and App Store apps cannot be removed from this screen.";
+"apps.selection.none" = "%d apps visible in the current filter";
+"apps.selection.summary" = "%1$d selected · %2$d removable to Trash";
+"apps.table.app" = "App";
+"apps.table.bundle" = "Bundle ID";
+"apps.table.location" = "Location";
+"apps.table.type" = "Type";
+"apps.table.modified" = "Modified";
+"apps.table.operation" = "Actions";
+"apps.details.modified" = "Modified: %@";
+"apps.related.total_count" = "Total Items";
+"apps.related.total_size" = "Total Size";
+"apps.related.selected" = "Selected";
+"apps.related.selected_size" = "Selected Size";
+"apps.related.path" = "Path";
+"apps.related.type" = "Type";
+"apps.related.size" = "Size";
+"apps.related.folder" = "Folder";
+"apps.related.file" = "File";
+"apps.related.footer" = "%1$d selected · estimated cleanup size %2$@";
+"apps.alert.uninstall.msg" = "Move %1$d removable app bundles to Trash out of %2$d selected apps? App Store apps are excluded, and moved items can be restored from Finder Trash.";
+"apps.alert.related.msg" = "Move %1$d selected related files/folders (%2$@) to Trash?";

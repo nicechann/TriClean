@@ -397,3 +397,40 @@
 "settings.debug.days_button" = "%d일";
 "settings.debug.actual_value" = "실제 값";
 "settings.debug.current_days" = "현재 %d일";
+
+
+/* Apps View — Stage 3 */
+"apps.filter.label" = "필터";
+"apps.filter.all" = "전체";
+"apps.filter.removable" = "이동 가능";
+"apps.filter.appstore" = "App Store";
+"apps.filter.protected" = "보호/시스템";
+"apps.btn.select_visible" = "표시 항목 선택";
+"apps.btn.clear_selection" = "선택 해제";
+"apps.summary.total" = "전체 앱";
+"apps.summary.removable" = "이동 가능";
+"apps.summary.appstore" = "App Store";
+"apps.summary.selected" = "선택됨";
+"apps.safety.title" = "안전하게 검토 후 정리";
+"apps.safety.desc" = "TriClean은 선택한 앱 번들과 관련 파일을 휴지통으로 이동합니다. 영구 삭제는 바로 수행하지 않으며, App Store 앱은 이 화면에서 제거할 수 없습니다.";
+"apps.selection.none" = "현재 필터에서 표시 중인 앱 %d개";
+"apps.selection.summary" = "선택 %1$d개 · 이 중 휴지통 이동 가능 %2$d개";
+"apps.table.app" = "앱";
+"apps.table.bundle" = "Bundle ID";
+"apps.table.location" = "위치";
+"apps.table.type" = "유형";
+"apps.table.modified" = "수정일";
+"apps.table.operation" = "작업";
+"apps.details.modified" = "수정일: %@";
+"apps.related.total_count" = "전체 항목";
+"apps.related.total_size" = "전체 크기";
+"apps.related.selected" = "선택 항목";
+"apps.related.selected_size" = "선택 크기";
+"apps.related.path" = "경로";
+"apps.related.type" = "유형";
+"apps.related.size" = "크기";
+"apps.related.folder" = "폴더";
+"apps.related.file" = "파일";
+"apps.related.footer" = "선택된 %1$d개 항목 · 예상 정리 크기 %2$@";
+"apps.alert.uninstall.msg" = "선택한 앱 %2$d개 중 휴지통으로 이동 가능한 일반 앱 번들 %1$d개를 이동하시겠습니까? App Store 앱은 제외되며, 이동 후 Finder의 휴지통에서 복원할 수 있습니다.";
+"apps.alert.related.msg" = "선택한 %1$d개 관련 파일/폴더(%2$@)를 휴지통으로 이동하시겠습니까?";

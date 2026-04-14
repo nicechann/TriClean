@@ -78,6 +78,24 @@ private final class AppsScopedAccessToken: @unchecked Sendable {
 
 // MARK: - Models
 
+enum AppsListFilter: String, CaseIterable, Identifiable {
+    case all
+    case removable
+    case appStore
+    case protectedApps
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all: return "apps.filter.all".localized
+        case .removable: return "apps.filter.removable".localized
+        case .appStore: return "apps.filter.appstore".localized
+        case .protectedApps: return "apps.filter.protected".localized
+        }
+    }
+}
+
 struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let name: String
     let bundleID: String?
@@ -85,7 +103,8 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let canUninstall: Bool
     let isSystemApp: Bool
     let isAppStoreApp: Bool
-    
+    let modifiedDate: Date?
+
     // 미리 계산된 문자열 저장
     let id: String
     let location: String
@@ -96,13 +115,19 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
         return canUninstall ? "apps.type.user".localized : "apps.type.protected".localized
     }
 
-    nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool, isAppStoreApp: Bool) {
+    var modifiedDateText: String {
+        guard let modifiedDate else { return "-" }
+        return modifiedDate.formatted(date: .abbreviated, time: .omitted)
+    }
+
+    nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool, isAppStoreApp: Bool, modifiedDate: Date?) {
         self.name = name
         self.bundleID = bundleID
         self.url = url
         self.canUninstall = canUninstall
         self.isSystemApp = isSystemApp
         self.isAppStoreApp = isAppStoreApp
+        self.modifiedDate = modifiedDate
         self.id = url.path(percentEncoded: false)
         self.location = url.deletingLastPathComponent().path(percentEncoded: false)
     }
@@ -112,16 +137,22 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     let url: URL
     var selected: Bool
     let isDirectory: Bool
-    
+    let sizeBytes: Int64
+
     let id: String
     let path: String
     let name: String
-    
-    nonisolated init(url: URL, selected: Bool, isDirectory: Bool) {
+
+    var sizeText: String {
+        ByteCountFormatter.string(fromByteCount: sizeBytes, countStyle: .file)
+    }
+
+    nonisolated init(url: URL, selected: Bool, isDirectory: Bool, sizeBytes: Int64 = 0) {
         self.url = url
         self.selected = selected
         self.isDirectory = isDirectory
-        
+        self.sizeBytes = sizeBytes
+
         let rawPath = url.path(percentEncoded: false)
         self.id = rawPath
         self.path = rawPath
@@ -131,7 +162,7 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     static func == (lhs: AppsRelatedItem, rhs: AppsRelatedItem) -> Bool {
         lhs.id == rhs.id
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -141,11 +172,12 @@ struct AppsSelectedAppInfo: Sendable {
     let name: String
     let bundleID: String?
     let appPath: String
+    let modifiedDate: Date?
 }
 
 enum AppsActiveAlert: Identifiable {
     case uninstallApps
-    case uninstallPartialFail(successCount: Int, failedCount: Int) // ✅ 실패 알림
+    case uninstallPartialFail(successCount: Int, failedCount: Int)
     case removeRelatedFiles
     case resetPermissions
 
@@ -173,6 +205,7 @@ final class AppsViewModel: ObservableObject {
     @Published var installedApps: [AppsInstalledApp] = []
     @Published var selectedInstalledAppIDs: Set<String> = []
     @Published var searchText: String = ""
+    @Published var listFilter: AppsListFilter = .all
 
     // 상세/관련 파일
     @Published var selectedApp: AppsSelectedAppInfo?
@@ -184,8 +217,7 @@ final class AppsViewModel: ObservableObject {
     @Published var isRemoving: Bool = false
     @Published var lastStatusMessage: String?
     @Published var lastStatusIsError: Bool = false
-    
-    // 실패한 앱 임시 저장소 (Finder Reveal용)
+
     private var lastFailedApps: [AppsInstalledApp] = []
 
     init() {
@@ -198,12 +230,25 @@ final class AppsViewModel: ObservableObject {
 
     var filteredInstalledApps: [AppsInstalledApp] {
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { return installedApps }
-        let lower = q.lowercased()
-        return installedApps.filter { app in
-            app.name.lowercased().contains(lower)
+        let searched = installedApps.filter { app in
+            guard !q.isEmpty else { return true }
+            let lower = q.lowercased()
+            return app.name.lowercased().contains(lower)
             || (app.bundleID?.lowercased().contains(lower) ?? false)
             || app.id.lowercased().contains(lower)
+        }
+
+        return searched.filter { app in
+            switch listFilter {
+            case .all:
+                return true
+            case .removable:
+                return app.canUninstall
+            case .appStore:
+                return app.isAppStoreApp
+            case .protectedApps:
+                return !app.canUninstall
+            }
         }
     }
 
@@ -213,6 +258,35 @@ final class AppsViewModel: ObservableObject {
 
     var deletableSelectedApps: [AppsInstalledApp] {
         selectedInstalledApps.filter { $0.canUninstall }
+    }
+
+    var totalAppsCount: Int { installedApps.count }
+    var removableAppsCount: Int { installedApps.filter(\.canUninstall).count }
+    var appStoreAppsCount: Int { installedApps.filter(\.isAppStoreApp).count }
+    var protectedAppsCount: Int { installedApps.filter { !$0.canUninstall && !$0.isAppStoreApp }.count }
+    var selectedAppsCount: Int { selectedInstalledApps.count }
+    var selectedRemovableCount: Int { deletableSelectedApps.count }
+
+    var selectedRelatedItems: [AppsRelatedItem] {
+        relatedItems.filter(\.selected)
+    }
+
+    var selectedRelatedCount: Int { selectedRelatedItems.count }
+
+    var selectedRelatedBytes: Int64 {
+        selectedRelatedItems.reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    var totalRelatedBytes: Int64 {
+        relatedItems.reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    var selectedRelatedSizeText: String {
+        ByteCountFormatter.string(fromByteCount: selectedRelatedBytes, countStyle: .file)
+    }
+
+    var totalRelatedSizeText: String {
+        ByteCountFormatter.string(fromByteCount: totalRelatedBytes, countStyle: .file)
     }
 
     var uninstallButtonHelpText: String {
@@ -225,6 +299,13 @@ final class AppsViewModel: ObservableObject {
         if deletable == 0 { return "apps.help.all_protected".localized }
         if deletable < selected { return "apps.help.partial_protected".localized }
         return "apps.help.move_trash".localized
+    }
+
+    var selectionSummaryText: String {
+        if selectedAppsCount == 0 {
+            return "apps.selection.none".localized(with: filteredInstalledApps.count)
+        }
+        return "apps.selection.summary".localized(with: selectedAppsCount, selectedRemovableCount)
     }
 
     // MARK: - User Choice: Scope selection
@@ -287,6 +368,7 @@ final class AppsViewModel: ObservableObject {
         selectedInstalledAppIDs = []
         selectedApp = nil
         relatedItems = []
+        listFilter = .all
 
         lastStatusIsError = false
         lastStatusMessage = "apps.status.reset_success".localized
@@ -317,7 +399,6 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
-        // ✅ 수동 선택은 appURL 자체를 북마크로 저장하므로, appURL에 대해 scope를 여는 게 일관됨
         guard let token = AppsScopedAccessToken(url: appURL) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.no_permission".localized
@@ -332,16 +413,14 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        // 1) 이미 목록에 있으면: 선택만 갱신 + Details 분석 실행
         if let existing = installedApps.first(where: { $0.url.standardizedFileURL == std }) {
             selectedInstalledAppIDs = [existing.id]
-            analyzeInstalledApp(app: existing) // ✅ selectedApp는 여기서 AppsSelectedAppInfo(name/bundleID/appPath)로 세팅됨
+            analyzeInstalledApp(app: existing)
             lastStatusIsError = false
             lastStatusMessage = "apps.status.app_selected".localized(with: existing.name)
             return
         }
 
-        // 2) 없으면: 현재 파일이 가진 모델 생성 함수로 모델 생성
         guard let new = buildInstalledAppOnMain(from: std) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.read_fail".localized
@@ -362,8 +441,9 @@ final class AppsViewModel: ObservableObject {
         let name = (bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String)
             ?? url.deletingPathExtension().lastPathComponent
         let bundleID = bundle?.bundleIdentifier
+        let modifiedDate = (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
 
-        return Self.makeAppModel(url: url, name: name, bundleID: bundleID)
+        return Self.makeAppModel(url: url, name: name, bundleID: bundleID, modifiedDate: modifiedDate)
     }
 
     // MARK: - Load Installed Apps
@@ -387,7 +467,7 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = "apps.list.loading".localized
 
         Task {
-            defer { token.stop() } // ✅ 스캔 끝난 뒤 stop
+            defer { token.stop() }
 
             let scanned = await Task.detached(priority: .userInitiated) {
                 AppsViewModel.scanApps(in: rootStd, maxDepth: 2)
@@ -395,7 +475,6 @@ final class AppsViewModel: ObservableObject {
 
             let sorted = scanned.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
-            // 스캔 중 폴더가 바뀌었으면 결과 폐기
             guard self.applicationsFolderURL?.standardizedFileURL == rootStd else {
                 self.isLoadingInstalledApps = false
                 return
@@ -408,7 +487,7 @@ final class AppsViewModel: ObservableObject {
 
             self.isLoadingInstalledApps = false
             self.lastStatusIsError = false
-            lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
+            self.lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
         }
     }
 
@@ -416,7 +495,7 @@ final class AppsViewModel: ObservableObject {
         let fm = FileManager.default
         guard fm.fileExists(atPath: dir.path) else { return [] }
 
-        let keys: [URLResourceKey] = [.isDirectoryKey]
+        let keys: [URLResourceKey] = [.isDirectoryKey, .contentModificationDateKey]
         guard let enumerator = fm.enumerator(
             at: dir,
             includingPropertiesForKeys: keys,
@@ -457,11 +536,12 @@ final class AppsViewModel: ObservableObject {
             bundleID = plist["CFBundleIdentifier"] as? String
         }
 
+        let modifiedDate = (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
         let finalName = name ?? url.deletingPathExtension().lastPathComponent
-        return makeAppModel(url: url, name: finalName, bundleID: bundleID)
+        return makeAppModel(url: url, name: finalName, bundleID: bundleID, modifiedDate: modifiedDate)
     }
 
-    nonisolated private static func makeAppModel(url: URL, name: String, bundleID: String?) -> AppsInstalledApp {
+    nonisolated private static func makeAppModel(url: URL, name: String, bundleID: String?, modifiedDate: Date?) -> AppsInstalledApp {
         let fm = FileManager.default
         let parent = url.deletingLastPathComponent()
         let canDelete = fm.isDeletableFile(atPath: url.path) && fm.isWritableFile(atPath: parent.path)
@@ -478,23 +558,24 @@ final class AppsViewModel: ObservableObject {
             url: url,
             canUninstall: canUninstall,
             isSystemApp: isSystemApp,
-            isAppStoreApp: isAppStoreApp
+            isAppStoreApp: isAppStoreApp,
+            modifiedDate: modifiedDate
         )
     }
 
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
-        analyzeInstalledApp(url: app.url)
+        analyzeInstalledApp(url: app.url, modifiedDate: app.modifiedDate)
     }
 
-    private func analyzeInstalledApp(url appURL: URL) {
+    private func analyzeInstalledApp(url appURL: URL, modifiedDate: Date? = nil) {
         let bundle = Bundle(url: appURL)
         let name = (bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String)
             ?? appURL.deletingPathExtension().lastPathComponent
         let bundleID = bundle?.bundleIdentifier
 
-        selectedApp = AppsSelectedAppInfo(name: name, bundleID: bundleID, appPath: appURL.path)
+        selectedApp = AppsSelectedAppInfo(name: name, bundleID: bundleID, appPath: appURL.path, modifiedDate: modifiedDate)
         relatedItems = []
 
         guard userLibraryFolderURL != nil else {
@@ -576,7 +657,8 @@ final class AppsViewModel: ObservableObject {
 
                 if fm.fileExists(atPath: targetURL.path) {
                     let isDir = (try? targetURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
-                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: isDir))
+                    let sizeBytes = fileSize(at: targetURL)
+                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: isDir, sizeBytes: sizeBytes))
                 }
             }
         }
@@ -588,7 +670,8 @@ final class AppsViewModel: ObservableObject {
                 let targetURL = dir.appendingPathComponent(appName)
                 var isDir: ObjCBool = false
                 if fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
-                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: true))
+                    let sizeBytes = fileSize(at: targetURL)
+                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: true, sizeBytes: sizeBytes))
                 }
             }
         }
@@ -596,14 +679,7 @@ final class AppsViewModel: ObservableObject {
         return Array(dict.values).sorted { $0.path.localizedCaseInsensitiveCompare($1.path) == .orderedAscending }
     }
 
-    /// 외부 프로세스(`/usr/bin/mdfind`) 대신 Spotlight File Metadata API(MDQuery)로 검색합니다.
-    ///
-    /// - Note:
-    ///   * Spotlight 인덱싱/사용자 Spotlight 제외 설정 등에 따라 결과가 0일 수 있습니다.
-    ///   * 검색 범위는 `searchScope` 하위로 제한합니다(샌드박스에서 접근 가능한 위치에 한함).
     nonisolated private static func runSpotlightQuery(in searchScope: URL, bundleID: String) -> [AppsRelatedItem] {
-        // Query expression syntax: attribute == "value"
-        // 문자열에 따옴표/역슬래시가 들어갈 수 있으므로 escaping
         let escaped = bundleID
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
@@ -613,11 +689,9 @@ final class AppsViewModel: ObservableObject {
         guard let query = MDQueryCreate(kCFAllocatorDefault, queryString as CFString, nil, nil) else {
             return []
         }
-        
-        // 제한 범위 설정: `mdfind -onlyin <path>`와 동일한 목적
+
         MDQuerySetSearchScope(query, [searchScope.path] as CFArray, 0)
 
-        // 동기 실행(백그라운드 Task에서 호출)
         let ok = MDQueryExecute(query, CFOptionFlags(kMDQuerySynchronous.rawValue))
         guard ok else { return [] }
 
@@ -636,10 +710,63 @@ final class AppsViewModel: ObservableObject {
             guard url.path.hasPrefix(searchScope.path) else { continue }
 
             let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
-            found.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir))
+            let sizeBytes = fileSize(at: url)
+            found.append(AppsRelatedItem(url: url, selected: true, isDirectory: isDir, sizeBytes: sizeBytes))
         }
 
         return found
+    }
+
+    nonisolated private static func fileSize(at url: URL) -> Int64 {
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]
+
+        if let values = try? url.resourceValues(forKeys: keys) {
+            if values.isDirectory == true {
+                return directorySize(at: url)
+            }
+            if let total = values.totalFileAllocatedSize { return Int64(total) }
+            if let allocated = values.fileAllocatedSize { return Int64(allocated) }
+            if let fileSize = values.fileSize { return Int64(fileSize) }
+        }
+        return 0
+    }
+
+    nonisolated private static func directorySize(at url: URL) -> Int64 {
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey],
+            options: [.skipsHiddenFiles],
+            errorHandler: { _, _ in true }
+        ) else {
+            return 0
+        }
+
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            if let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]) {
+                if values.isDirectory == true { continue }
+                if let allocated = values.totalFileAllocatedSize {
+                    total += Int64(allocated)
+                } else if let fileAllocated = values.fileAllocatedSize {
+                    total += Int64(fileAllocated)
+                } else if let fileSize = values.fileSize {
+                    total += Int64(fileSize)
+                }
+            }
+        }
+        return total
+    }
+
+    // MARK: - Selection helpers
+
+    func selectVisibleRemovableApps() {
+        let visibleIDs = filteredInstalledApps.filter(\.canUninstall).map(\.id)
+        selectedInstalledAppIDs.formUnion(visibleIDs)
+    }
+
+    func clearSelectedApps() {
+        selectedInstalledAppIDs.removeAll()
     }
 
     // MARK: - Uninstall
@@ -647,8 +774,7 @@ final class AppsViewModel: ObservableObject {
     func revealInFinder(app: AppsInstalledApp) {
         NSWorkspace.shared.activateFileViewerSelecting([app.url])
     }
-    
-    // ✅ 실패한 앱들을 Finder에 보여주는 기능 추가
+
     func revealFailedApps() {
         guard !lastFailedApps.isEmpty else { return }
         let urls = lastFailedApps.map { $0.url }
@@ -667,7 +793,6 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = nil
         lastStatusIsError = false
 
-        // ✅ 토큰은 MainActor에서만 생성/해제 (detached로 넘기지 않음)
         var scopeTokens: [AppsScopedAccessToken] = []
         if let url = applicationsFolderURL, let t = AppsScopedAccessToken(url: url) { scopeTokens.append(t) }
         if let url = manualAppBundleURL, let t = AppsScopedAccessToken(url: url) { scopeTokens.append(t) }
@@ -682,7 +807,6 @@ final class AppsViewModel: ObservableObject {
             self.isRemoving = false
             self.lastFailedApps = failed
 
-            // 목록 업데이트(성공한 것만 제거)
             let successIDs = Set(succeeded.map(\.id))
             if !successIDs.isEmpty {
                 self.installedApps.removeAll { successIDs.contains($0.id) }
@@ -694,7 +818,6 @@ final class AppsViewModel: ObservableObject {
                 }
             }
 
-            // 메시지/Alert
             if succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "apps.status.uninstall_all_fail".localized
@@ -725,7 +848,6 @@ final class AppsViewModel: ObservableObject {
                 try fm.trashItem(at: app.url, resultingItemURL: nil)
                 succeeded.append(app)
             } catch {
-                // fallback: NSWorkspace recycle (main에서 실행)
                 let ok = await moveItemToTrashUsingWorkspace(url: app.url)
                 if ok { succeeded.append(app) }
                 else { failed.append(app) }
@@ -819,8 +941,6 @@ final class AppsViewModel: ObservableObject {
         let head = names.prefix(maxCount).joined(separator: ", ")
         return "\(head) 외 \(names.count - maxCount)개"
     }
-
-
 }
 
 // MARK: - View
@@ -832,101 +952,143 @@ struct AppsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            
-            // ✅ 상단: layoutPriority(1)을 주어 공간 부족 시에도 잘리지 않도록 보호
-            GroupBox {
-                VStack(spacing: 10) {
-                    // Row 1: Applications Folder
-                    HStack(spacing: 12) {
-                        Image(systemName: viewModel.applicationsFolderURL == nil ? "xmark.circle" : "checkmark.circle")
-                            .font(.title2)
-                            .foregroundStyle(viewModel.applicationsFolderURL == nil ? Color.secondary : Color.green)
-                            .frame(width: 24)
+            scopePermissionsCard
+            headerSection
+            summaryCards
+            safetyNoticeCard
+            filterAndActionBar
+            appsTableSection
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("apps.list.title".localized)
-                                .font(.subheadline).bold()
-                            Text(viewModel.applicationsFolderURL?.path ?? "apps.scope.apps_folder".localized) // 권한 필요 메시지로 대체 가능
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                        }
-                        
-                        Spacer()
-                        
-                        Button("apps.scope.apps_folder".localized) {
-                            viewModel.selectApplicationsFolder()
-                        }
-                    }
-
-                    Divider()
-
-                    // Row 2: Library Folder
-                    HStack(spacing: 12) {
-                        Image(systemName: viewModel.userLibraryFolderURL == nil ? "xmark.circle" : "checkmark.circle")
-                            .font(.title2)
-                            .foregroundStyle(viewModel.userLibraryFolderURL == nil ? Color.secondary : Color.green)
-                            .frame(width: 24)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("apps.scope.library_analysis".localized)
-                                .font(.subheadline).bold()
-                            Text(viewModel.userLibraryFolderURL?.path ?? "apps.status.library_needed".localized)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                        }
-                        
-                        Spacer()
-                        
-                        Button("apps.scope.library_folder".localized) {
-                            viewModel.selectUserLibraryFolder()
-                        }
-                    }
-
-                    // Row 3: Actions
-                    HStack(spacing: 8) {
-                        Button {
-                            viewModel.loadInstalledApps()
-                        } label: {
-                            Label("common.scan".localized, systemImage: "arrow.clockwise")
-                        }
-                        .disabled(viewModel.applicationsFolderURL == nil || viewModel.isLoadingInstalledApps || viewModel.isRemoving)
-                        
-                        Spacer()
-                        
-                        Button("apps.scope.reset".localized) { // "권한 초기화..."
-                            activeAlert = .resetPermissions
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, 4)
-                }
-                .padding(4)
-            }
-            .layoutPriority(1) // ✅ 핵심: 상단 영역이 압축되지 않도록 우선순위 높임
-
-            // 헤더
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("apps.header.uninstall".localized)
-                        .font(.title).bold()
-                    Text("apps.header.desc".localized)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Button("apps.btn.manual_select".localized) {
-                    viewModel.selectAppBundleManually()
-                }
+            if let status = viewModel.lastStatusMessage {
+                Text(status)
+                    .font(.footnote)
+                    .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
             }
 
-            // 검색 + Uninstall
+            Divider().padding(.vertical, 4)
+            relatedFilesSection
+            Spacer(minLength: 0)
+        }
+        .padding()
+        .alert(item: $activeAlert) { makeAlert($0) }
+    }
+
+    private var scopePermissionsCard: some View {
+        GroupBox {
+            VStack(spacing: 10) {
+                HStack(spacing: 12) {
+                    Image(systemName: viewModel.applicationsFolderURL == nil ? "xmark.circle" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundStyle(viewModel.applicationsFolderURL == nil ? Color.secondary : Color.green)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("apps.list.title".localized)
+                            .font(.subheadline).bold()
+                        Text(viewModel.applicationsFolderURL?.path ?? "apps.scope.apps_folder".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+
+                    Spacer()
+
+                    Button("apps.scope.apps_folder".localized) {
+                        viewModel.selectApplicationsFolder()
+                    }
+                }
+
+                Divider()
+
+                HStack(spacing: 12) {
+                    Image(systemName: viewModel.userLibraryFolderURL == nil ? "xmark.circle" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundStyle(viewModel.userLibraryFolderURL == nil ? Color.secondary : Color.green)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("apps.scope.library_analysis".localized)
+                            .font(.subheadline).bold()
+                        Text(viewModel.userLibraryFolderURL?.path ?? "apps.status.library_needed".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+
+                    Spacer()
+
+                    Button("apps.scope.library_folder".localized) {
+                        viewModel.selectUserLibraryFolder()
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    Button {
+                        viewModel.loadInstalledApps()
+                    } label: {
+                        Label("common.scan".localized, systemImage: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.applicationsFolderURL == nil || viewModel.isLoadingInstalledApps || viewModel.isRemoving)
+
+                    Spacer()
+
+                    Button("apps.scope.reset".localized) {
+                        activeAlert = .resetPermissions
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.top, 4)
+            }
+            .padding(4)
+        }
+        .layoutPriority(1)
+    }
+
+    private var headerSection: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("apps.header.uninstall".localized)
+                    .font(.title).bold()
+                Text("apps.header.desc".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button("apps.btn.manual_select".localized) {
+                viewModel.selectAppBundleManually()
+            }
+        }
+    }
+
+    private var summaryCards: some View {
+        HStack(spacing: 10) {
+            appsSummaryCard(titleKey: "apps.summary.total", value: "\(viewModel.totalAppsCount)", icon: "square.stack.3d.up")
+            appsSummaryCard(titleKey: "apps.summary.removable", value: "\(viewModel.removableAppsCount)", icon: "trash")
+            appsSummaryCard(titleKey: "apps.summary.appstore", value: "\(viewModel.appStoreAppsCount)", icon: "bag")
+            appsSummaryCard(titleKey: "apps.summary.selected", value: "\(viewModel.selectedAppsCount)", icon: "checkmark.circle")
+        }
+    }
+
+    private var safetyNoticeCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 6) {
+                Label("apps.safety.title".localized, systemImage: "shield.checkered")
+                    .font(.subheadline.bold())
+                Text("apps.safety.desc".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var filterAndActionBar: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
                 HStack {
                     Image(systemName: "magnifyingglass")
@@ -937,131 +1099,168 @@ struct AppsView: View {
                 .background(.quaternary)
                 .cornerRadius(8)
 
+                Picker("apps.filter.label".localized, selection: $viewModel.listFilter) {
+                    ForEach(AppsListFilter.allCases) { filter in
+                        Text(filter.title).tag(filter)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 170)
+
                 Spacer()
+
+                Button("apps.btn.select_visible".localized) {
+                    viewModel.selectVisibleRemovableApps()
+                }
+                .disabled(viewModel.filteredInstalledApps.filter(\.canUninstall).isEmpty || viewModel.isRemoving)
+
+                Button("apps.btn.clear_selection".localized) {
+                    viewModel.clearSelectedApps()
+                }
+                .disabled(viewModel.selectedAppsCount == 0 || viewModel.isRemoving)
 
                 Button("apps.btn.uninstall".localized) {
                     activeAlert = .uninstallApps
                 }
-                .frame(width: 88)
+                .frame(width: 120)
                 .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
                 .help(viewModel.uninstallButtonHelpText)
             }
 
-            // 설치 앱 테이블
-            GroupBox {
-                VStack(alignment: .leading, spacing: 10) {
-                    if viewModel.isLoadingInstalledApps {
-                        HStack { ProgressView(); Text("apps.list.loading".localized); Spacer() }
-                    } else if viewModel.applicationsFolderURL == nil {
-                        Text("apps.list.guide_select".localized)
-                            .foregroundStyle(.secondary)
-                    } else if viewModel.filteredInstalledApps.isEmpty {
-                        Text("apps.list.empty".localized)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Table(viewModel.filteredInstalledApps) {
-                            TableColumn("") { app in
-                                rowBackground(appID: app.id) {
-                                    if app.canUninstall {
-                                        Toggle("", isOn: Binding(
-                                            get: { viewModel.selectedInstalledAppIDs.contains(app.id) },
-                                            set: { isOn in
-                                                if isOn { viewModel.selectedInstalledAppIDs.insert(app.id) }
-                                                else { viewModel.selectedInstalledAppIDs.remove(app.id) }
-                                            })
-                                        )
-                                        .labelsHidden()
-                                    } else {
-                                        Image(systemName: app.isSystemApp ? "lock.shield.fill" : "lock.fill")
-                                            .foregroundStyle(.secondary)
-                                    }
+            Text(viewModel.selectionSummaryText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var appsTableSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                if viewModel.isLoadingInstalledApps {
+                    HStack { ProgressView(); Text("apps.list.loading".localized); Spacer() }
+                } else if viewModel.applicationsFolderURL == nil {
+                    Text("apps.list.guide_select".localized)
+                        .foregroundStyle(.secondary)
+                } else if viewModel.filteredInstalledApps.isEmpty {
+                    Text("apps.list.empty".localized)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Table(viewModel.filteredInstalledApps) {
+                        TableColumn("") { app in
+                            rowBackground(appID: app.id) {
+                                if app.canUninstall {
+                                    Toggle("", isOn: Binding(
+                                        get: { viewModel.selectedInstalledAppIDs.contains(app.id) },
+                                        set: { isOn in
+                                            if isOn { viewModel.selectedInstalledAppIDs.insert(app.id) }
+                                            else { viewModel.selectedInstalledAppIDs.remove(app.id) }
+                                        })
+                                    )
+                                    .labelsHidden()
+                                } else {
+                                    Image(systemName: app.isSystemApp ? "lock.shield.fill" : "lock.fill")
+                                        .foregroundStyle(.secondary)
                                 }
                             }
-                            .width(28)
-
-                            TableColumn("App") { app in
-                                rowBackground(appID: app.id) { Text(app.name) }
-                            }
-
-                            TableColumn("Bundle ID") { app in
-                                rowBackground(appID: app.id) {
-                                    Text(app.bundleID ?? "-").foregroundStyle(.secondary)
-                                }
-                            }
-
-                            TableColumn("Location") { app in
-                                rowBackground(appID: app.id) {
-                                    Text(app.location).lineLimit(1).truncationMode(.middle)
-                                }
-                            }
-
-                            TableColumn("Type") { app in
-                                rowBackground(appID: app.id) {
-                                    Text(app.typeDescription).foregroundStyle(.secondary)
-                                }
-                            }
-                            .width(90)
-
-                            TableColumn("Operation") { app in
-                                rowBackground(appID: app.id) {
-                                    HStack(spacing: 8) {
-                                        Button("apps.btn.details".localized) { viewModel.analyzeInstalledApp(app: app) }
-                                        Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
-                                    }
-                                }
-                            }
-                            .width(150)
                         }
-                        .tableStyle(.inset)
-                        // ✅ maxHeight: .infinity를 주어 공간이 부족하면 줄어들고, 남으면 늘어나게 변경
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .width(28)
+
+                        TableColumn("apps.table.app".localized) { app in
+                            rowBackground(appID: app.id) { Text(app.name) }
+                        }
+
+                        TableColumn("apps.table.bundle".localized) { app in
+                            rowBackground(appID: app.id) {
+                                Text(app.bundleID ?? "-").foregroundStyle(.secondary)
+                            }
+                        }
+
+                        TableColumn("apps.table.location".localized) { app in
+                            rowBackground(appID: app.id) {
+                                Text(app.location).lineLimit(1).truncationMode(.middle)
+                            }
+                        }
+
+                        TableColumn("apps.table.type".localized) { app in
+                            rowBackground(appID: app.id) {
+                                Text(app.typeDescription).foregroundStyle(.secondary)
+                            }
+                        }
+                        .width(100)
+
+                        TableColumn("apps.table.modified".localized) { app in
+                            rowBackground(appID: app.id) {
+                                Text(app.modifiedDateText).foregroundStyle(.secondary)
+                            }
+                        }
+                        .width(110)
+
+                        TableColumn("apps.table.operation".localized) { app in
+                            rowBackground(appID: app.id) {
+                                HStack(spacing: 8) {
+                                    Button("apps.btn.details".localized) { viewModel.analyzeInstalledApp(app: app) }
+                                    Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
+                                }
+                            }
+                        }
+                        .width(160)
                     }
-
-                    Spacer(minLength: 0)
+                    .tableStyle(.inset)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                // ✅ minHeight를 낮춰서(100) 하단 뷰가 올라와도 테이블이 찌그러지며 공존하도록 함
-                .frame(maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .topLeading)
-                .padding(8)
-            } label: {
-                Text("apps.list.title".localized).font(.headline)
+
+                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .topLeading)
+            .padding(8)
+        } label: {
+            Text("apps.list.title".localized).font(.headline)
+        }
+    }
 
-            // 상태 메시지
-            if let status = viewModel.lastStatusMessage {
-                Text(status)
-                    .font(.footnote)
-                    .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
-            }
-
-            Divider().padding(.vertical, 4)
-
-            // Related
+    private var relatedFilesSection: some View {
+        Group {
             if let selected = viewModel.selectedApp {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("apps.details.selected".localized).font(.headline)
 
-                    HStack(alignment: .firstTextBaseline, spacing: 10) {
-                        Text(selected.name)
-                            .font(.subheadline)
-                            .bold()
-                        
-                        if let bid = selected.bundleID {
-                            Text(bid)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline, spacing: 10) {
+                            Text(selected.name)
+                                .font(.subheadline)
+                                .bold()
+
+                            if let bid = selected.bundleID {
+                                Text(bid)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            if let modifiedDate = selected.modifiedDate {
+                                Text("apps.details.modified".localized(with: modifiedDate.formatted(date: .abbreviated, time: .omitted)))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                        
-                        Spacer()
-                        
+
                         Text(selected.appPath)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                            .truncationMode(.head)
+                            .truncationMode(.middle)
                     }
                     .padding(8)
                     .background(Color(nsColor: .windowBackgroundColor))
                     .cornerRadius(8)
+
+                    HStack(spacing: 10) {
+                        relatedSummaryChip(titleKey: "apps.related.total_count", value: "\(viewModel.relatedItems.count)")
+                        relatedSummaryChip(titleKey: "apps.related.total_size", value: viewModel.totalRelatedSizeText)
+                        relatedSummaryChip(titleKey: "apps.related.selected", value: "\(viewModel.selectedRelatedCount)")
+                        relatedSummaryChip(titleKey: "apps.related.selected_size", value: viewModel.selectedRelatedSizeText)
+                    }
 
                     if let current = viewModel.installedApps.first(where: { $0.id == selected.appPath }), current.isAppStoreApp {
                         Label("apps.details.appstore_note".localized, systemImage: "info.circle")
@@ -1081,7 +1280,6 @@ struct AppsView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         Text("apps.details.found_count".localized(with: viewModel.relatedItems.count))
-                        //Text("관련 파일 (\(viewModel.relatedItems.count))")
                             .font(.headline)
 
                         Table(viewModel.relatedItems) {
@@ -1090,25 +1288,35 @@ struct AppsView: View {
                             }
                             .width(24)
 
-                            TableColumn("Path") { item in
+                            TableColumn("apps.related.path".localized) { item in
                                 Text(item.path).lineLimit(1).truncationMode(.middle)
                             }
 
-                            TableColumn("Type") { item in
-                                Text(item.isDirectory ? "Folder" : "File").foregroundStyle(.secondary)
+                            TableColumn("apps.related.type".localized) { item in
+                                Text(item.isDirectory ? "apps.related.folder".localized : "apps.related.file".localized)
+                                    .foregroundStyle(.secondary)
                             }
-                            .width(80)
+                            .width(90)
+
+                            TableColumn("apps.related.size".localized) { item in
+                                Text(item.sizeText).foregroundStyle(.secondary)
+                            }
+                            .width(110)
                         }
                         .tableStyle(.inset)
-                        .frame(minHeight: 160) // 관련 파일 목록은 고정 최소 높이 유지
+                        .frame(minHeight: 180)
 
                         HStack {
+                            Text("apps.related.footer".localized(with: viewModel.selectedRelatedCount, viewModel.selectedRelatedSizeText))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            Spacer()
+
                             Button("apps.details.trash_selected".localized) {
                                 activeAlert = .removeRelatedFiles
                             }
-                            .disabled(viewModel.isRemoving || viewModel.relatedItems.allSatisfy { !$0.selected })
-
-                            Spacer()
+                            .disabled(viewModel.isRemoving || viewModel.selectedRelatedCount == 0)
                         }
                     }
                 }
@@ -1117,20 +1325,17 @@ struct AppsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-
-            Spacer(minLength: 0)
         }
-        .padding()
-        .alert(item: $activeAlert) { makeAlert($0) }
     }
 
     private func makeAlert(_ alert: AppsActiveAlert) -> Alert {
         switch alert {
         case .uninstallApps:
             let count = viewModel.deletableSelectedApps.count
+            let summary = "apps.alert.uninstall.msg".localized(with: count, viewModel.selectedAppsCount)
             return Alert(
                 title: Text("apps.alert.uninstall.title".localized),
-                message: Text("apps.alert.uninstall.msg".localized(with: count)),
+                message: Text(summary),
                 primaryButton: .destructive(Text("common.trash".localized)) {
                     viewModel.uninstallSelectedInstalledApps { nextAlert in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -1155,10 +1360,11 @@ struct AppsView: View {
             )
 
         case .removeRelatedFiles:
-            let count = viewModel.relatedItems.filter { $0.selected }.count
+            let count = viewModel.selectedRelatedCount
+            let sizeText = viewModel.selectedRelatedSizeText
             return Alert(
                 title: Text("apps.alert.related.title".localized),
-                message: Text("apps.alert.related.msg".localized(with: count)),
+                message: Text("apps.alert.related.msg".localized(with: count, sizeText)),
                 primaryButton: .destructive(Text("common.trash".localized)) {
                     viewModel.removeSelectedRelatedItems()
                 },
@@ -1174,7 +1380,7 @@ struct AppsView: View {
             )
         }
     }
-    
+
     private func binding(for item: AppsRelatedItem) -> Binding<Bool> {
         Binding(
             get: { viewModel.relatedItems.first(where: { $0.id == item.id })?.selected ?? false },
@@ -1196,6 +1402,38 @@ struct AppsView: View {
                 else if hoveredAppID == appID { hoveredAppID = nil }
             }
     }
+
+    private func appsSummaryCard(titleKey: String, value: String, icon: String) -> some View {
+        GroupBox {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(Color.accentColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(titleKey.localized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(value)
+                        .font(.headline)
+                }
+                Spacer(minLength: 0)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func relatedSummaryChip(titleKey: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(titleKey.localized)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline.bold())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
 }
 
 // MARK: - Preview
@@ -1203,5 +1441,3 @@ struct AppsView: View {
 #Preview {
     AppsView()
 }
-
-
