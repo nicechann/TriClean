@@ -274,3 +274,97 @@
 "onboarding.btn.back" = "이전";
 "onboarding.btn.start" = "시작하기";
 
+
+
+/* Sidebar Sections */
+"sidebar.section.system" = "System";
+"sidebar.section.cleanup" = "Cleanup";
+"sidebar.duplicates" = "Duplicates";
+
+/* Storage Surface */
+"storage.treemap.title" = "Disk Map";
+"storage.table.item" = "Item";
+"storage.table.size" = "Size";
+
+/* Junk Cleaner */
+"junk.section.title" = "Recommended Cleanup";
+"junk.section.subtitle" = "자주 쌓이는 캐시·로그·개발 찌꺼기를 빠르게 점검합니다.";
+"junk.section.select_library_hint" = "~/Library 폴더를 선택하면 정리 가능한 항목을 자동으로 찾습니다.";
+"junk.section.select_library" = "~/Library 선택";
+"junk.section.scan" = "스캔";
+"junk.section.found" = "발견: %@";
+"junk.section.selected" = "선택: %@";
+"junk.section.clean" = "정리";
+"junk.section.last_scan" = "마지막 스캔: %@";
+"junk.section.alert.title" = "선택한 정크 파일 정리";
+"junk.section.alert.message" = "%@을(를) 휴지통으로 이동합니다.\nFinder에서 복원할 수 있습니다.";
+"junk.scope.title" = "Home Library(~/Library) 선택";
+"junk.scope.message" = "정크 파일 스캔을 위해 Home Library 폴더를 선택하세요.";
+"junk.progress.preparing" = "스캔 준비 중…";
+"junk.progress.scanning_format" = "%@ 스캔 중…";
+"junk.risk.safe" = "안전";
+"junk.risk.moderate" = "보통";
+"junk.risk.caution" = "주의";
+"junk.category.system_caches.title" = "System Caches";
+"junk.category.system_caches.desc" = "앱과 시스템이 생성한 캐시 파일입니다. 삭제 후 다시 생성될 수 있습니다.";
+"junk.category.system_logs.title" = "System Logs";
+"junk.category.system_logs.desc" = "앱과 시스템 로그 파일입니다. 디버깅이 필요 없으면 정리할 수 있습니다.";
+"junk.category.xcode_derived.title" = "Xcode DerivedData";
+"junk.category.xcode_derived.desc" = "Xcode 빌드 캐시입니다. 개발 중이 아니라면 정리해도 됩니다.";
+"junk.category.xcode_archives.title" = "Xcode Archives";
+"junk.category.xcode_archives.desc" = "이전 빌드 아카이브입니다. 보관이 필요 없다면 삭제 가능합니다.";
+"junk.category.safari_cache.title" = "Safari Cache";
+"junk.category.safari_cache.desc" = "Safari 브라우저 캐시입니다. 삭제 시 첫 로딩이 잠시 느려질 수 있습니다.";
+"junk.category.mail_downloads.title" = "Mail Downloads";
+"junk.category.mail_downloads.desc" = "Mail 앱이 내려받은 첨부파일 캐시입니다.";
+"junk.category.saved_app_state.title" = "Saved App State";
+"junk.category.saved_app_state.desc" = "앱이 마지막으로 열려 있던 창 상태입니다. 삭제 시 기본 상태로 시작될 수 있습니다.";
+"junk.category.crash_reports.title" = "Crash Reports";
+"junk.category.crash_reports.desc" = "앱 크래시 리포트입니다. 분석이 필요 없다면 정리할 수 있습니다.";
+"junk.category.webkit_cache.title" = "WebKit Cache";
+"junk.category.webkit_cache.desc" = "WebKit 기반 앱의 캐시 데이터입니다.";
+"junk.category.http_storage.title" = "HTTP Storage";
+"junk.category.http_storage.desc" = "앱의 HTTP 캐시 및 저장소입니다.";
+
+/* Duplicate Finder */
+"duplicates.title" = "Duplicate Finder";
+"duplicates.subtitle" = "동일한 내용의 중복 파일을 찾아 정리합니다.";
+"duplicates.min_size" = "최소:";
+"duplicates.change_folder" = "폴더 변경";
+"duplicates.select_folder_title" = "중복 파일을 찾을 폴더를 선택하세요";
+"duplicates.select_folder_desc" = "선택한 폴더와 하위 폴더에서 동일한 내용의 파일을 찾습니다.\n파일 크기 → 부분 해시 → 전체 해시 3단계로 비교합니다.";
+"duplicates.select_folder" = "폴더 선택";
+"duplicates.alert.title" = "중복 파일 정리";
+"duplicates.alert.message" = "선택한 중복 파일을 휴지통으로 이동합니다.\n각 그룹에서 최소 1개 파일은 보존됩니다.";
+"duplicates.phase.idle" = "대기";
+"duplicates.phase.collecting" = "파일 수집 중…";
+"duplicates.phase.grouping" = "크기별 그룹화 중…";
+"duplicates.phase.partial" = "부분 해시 비교 중…";
+"duplicates.phase.full" = "전체 해시 비교 중…";
+"duplicates.phase.done" = "완료";
+"duplicates.summary.groups" = "중복 그룹";
+"duplicates.summary.reclaimable" = "확보 가능 용량";
+"duplicates.summary.scanned" = "스캔 파일";
+"duplicates.count_format" = "%d개";
+"duplicates.clean_selected" = "중복 파일 정리 (%@)";
+"duplicates.empty.done_title" = "중복 파일이 없습니다";
+"duplicates.empty.idle_title" = "스캔 대기 중";
+"duplicates.empty.done_desc" = "선택한 폴더에서 중복 파일을 찾지 못했습니다.";
+"duplicates.empty.idle_desc" = "'스캔' 버튼을 눌러 중복 파일을 찾아보세요.";
+"duplicates.group.files" = "%d개 동일 파일";
+"duplicates.group.detail" = "각 %@ · %@ 확보 가능";
+"duplicates.file.help.keep" = "보존 중 (클릭하면 삭제 대상으로 변경)";
+"duplicates.file.help.delete" = "삭제 대상 (클릭하면 보존으로 변경)";
+"duplicates.file.keep" = "보존";
+"duplicates.file.delete" = "삭제";
+"duplicates.panel.title" = "중복 파일을 찾을 폴더 선택";
+"duplicates.panel.message" = "선택한 폴더와 하위 폴더에서 중복 파일을 찾습니다.";
+"duplicates.status.collecting" = "파일 목록 수집 중…";
+"duplicates.status.files_found" = "%d개 파일 발견";
+"duplicates.status.grouping" = "크기별 그룹화 중…";
+"duplicates.status.size_candidates" = "%d개 파일이 크기 기준으로 중복 후보입니다.";
+"duplicates.status.partial_matches" = "%d개 그룹이 부분 해시까지 일치합니다.";
+"duplicates.status.full_progress" = "전체 해시 비교 중… %d/%d";
+"duplicates.status.none_found" = "중복 파일을 찾지 못했습니다.";
+"duplicates.status.found_groups" = "%d개 중복 그룹 발견 (%@ 확보 가능)";
+"duplicates.status.deleted" = "%d개 중복 파일을 휴지통으로 이동했습니다.";

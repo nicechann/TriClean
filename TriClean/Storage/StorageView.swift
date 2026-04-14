@@ -227,10 +227,10 @@ private struct DiskUsageSummaryView: View {
             result.append(.init(name: "storage.legend.apps".localized, bytes: appsUsed, color: Color(red: 0.99, green: 0.77, blue: 0.30)))
         }
         if otherUsed > 0 {
-            result.append(.init(name: "Other Used", bytes: otherUsed, color: Color(red: 0.35, green: 0.70, blue: 0.90)))
+            result.append(.init(name: "storage.legend.other".localized, bytes: otherUsed, color: Color(red: 0.35, green: 0.70, blue: 0.90)))
         }
         if freeBytes > 0 {
-            result.append(.init(name: "Free Space", bytes: freeBytes, color: Color.gray.opacity(0.60)))
+            result.append(.init(name: "storage.legend.free".localized, bytes: freeBytes, color: Color.gray.opacity(0.60)))
         }
         return result
     }
@@ -253,14 +253,14 @@ private struct DiskUsageSummaryView: View {
                 isPlaceholder: !isAppsSelected
             ),
             .init(
-                name: "Other Used",
+                name: "storage.legend.other".localized,
                 bytes: otherUsed,
                 color: Color(red: 0.35, green: 0.70, blue: 0.90),
                 note: nil,
                 isPlaceholder: false
             ),
             .init(
-                name: "Free Space",
+                name: "storage.legend.free".localized,
                 bytes: freeBytes,
                 color: Color.gray.opacity(0.60),
                 note: nil,
@@ -359,6 +359,7 @@ struct StorageView: View {
     
     // ✅ Paywall 표시 여부
     @State private var showPaywall = false
+    @StateObject private var junkViewModel = JunkScannerViewModel()
     
     @State private var minFolderSizeMB: Double = 200
     @State private var selectedFolderURL: URL? = nil
@@ -393,7 +394,9 @@ struct StorageView: View {
     @State private var discoveredResults: [FolderInfo] = []
     
     private var scanButtonBusyText: String {
-        isAutoUpdating ? "Updating…" : "Scanning…"
+        isAutoUpdating
+            ? "storage.scan.updating".localized
+            : "storage.scan.scanning".localized
     }
     
     private enum TopFolderSort: String, CaseIterable, Identifiable {
@@ -405,9 +408,9 @@ struct StorageView: View {
         
         var title: String {
             switch self {
-            case .discovered: return "Default"
-            case .name: return "Name"
-            case .size: return "Size"
+            case .discovered: return "storage.scan.sort.default".localized
+            case .name: return "storage.scan.sort.name".localized
+            case .size: return "storage.scan.sort.size".localized
             }
         }
     }
@@ -426,6 +429,20 @@ struct StorageView: View {
         return ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 14) {
                 diskHeaderSection
+
+                if !folderResults.isEmpty {
+                    TreemapView(
+                        items: folderResults,
+                        onItemTapped: { item in openInFinder(item) }
+                    )
+                    .padding(.horizontal, sectionInset)
+
+                    Divider()
+                }
+
+                JunkSectionView(viewModel: junkViewModel)
+                    .padding(.horizontal, sectionInset)
+
                 Divider()
                 folderScanSection
                 Divider()
@@ -459,6 +476,10 @@ struct StorageView: View {
         }
         .onAppear {
             loadDiskInfo()
+
+            if junkViewModel.libraryURL != nil && !junkViewModel.hasResults && !junkViewModel.isScanning {
+                junkViewModel.scan()
+            }
             
             // ✅ 보수적: 권한(선택)이 있는 경우에만 사용량 계산
             if homeScopeURL != nil {
@@ -744,7 +765,7 @@ struct StorageView: View {
             // ✅ TableColumnBuilder 안에 if를 두지 말고, Table 자체를 분기
             if folderResults.isEmpty {
                 Table(folderResults, selection: $tableSelection) {
-                    TableColumn("Item") { item in
+                    TableColumn("storage.table.item".localized) { item in
                         let indent = CGFloat(item.depth) * 18
                         let pathText: String = {
                             if let parent = item.parentURL {
@@ -777,7 +798,7 @@ struct StorageView: View {
                         }
                     }
                     
-                    TableColumn("Size") { item in
+                    TableColumn("storage.table.size".localized) { item in
                         Text(item.sizeString)
                             .font(.body.monospacedDigit())
                             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -786,7 +807,7 @@ struct StorageView: View {
                 }
             } else {
                 Table(folderResults, selection: $tableSelection) {
-                    TableColumn("Item") { item in
+                    TableColumn("storage.table.item".localized) { item in
                         let indent = CGFloat(item.depth) * 18
                         let pathText: String = {
                             if let parent = item.parentURL {
@@ -819,7 +840,7 @@ struct StorageView: View {
                         }
                     }
                     
-                    TableColumn("Size") { item in
+                    TableColumn("storage.table.size".localized) { item in
                         Text(item.sizeString)
                             .font(.body.monospacedDigit())
                             .frame(maxWidth: .infinity, alignment: .trailing)

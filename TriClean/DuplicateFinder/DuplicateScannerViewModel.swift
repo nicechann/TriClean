@@ -79,8 +79,8 @@ final class DuplicateScannerViewModel: ObservableObject {
     
     func selectFolder() {
         let panel = NSOpenPanel()
-        panel.title = "중복 파일을 찾을 폴더 선택"
-        panel.message = "선택한 폴더와 하위 폴더에서 중복 파일을 찾습니다."
+        panel.title = "duplicates.panel.title".localized
+        panel.message = "duplicates.panel.message".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -112,14 +112,14 @@ final class DuplicateScannerViewModel: ObservableObject {
             
             // Phase 1: 파일 수집
             phase = .collectingFiles
-            statusMessage = "파일 목록 수집 중..."
+            statusMessage = "duplicates.status.collecting".localized
             
             let allFiles = await Task.detached(priority: .utility) {
                 Self.collectFiles(in: rootURL, minBytes: minBytes)
             }.value
             
             scannedFileCount = allFiles.count
-            statusMessage = "\(allFiles.count)개 파일 발견"
+            statusMessage = "duplicates.status.files_found".localized(with: allFiles.count)
             
             guard !allFiles.isEmpty else {
                 finishScan()
@@ -128,13 +128,13 @@ final class DuplicateScannerViewModel: ObservableObject {
             
             // Phase 2: 크기별 그룹화
             phase = .groupingBySize
-            statusMessage = "크기별 그룹화 중..."
+            statusMessage = "duplicates.status.grouping".localized
             
             let sizeGroups = Dictionary(grouping: allFiles) { $0.size }
                 .filter { $0.value.count >= 2 }  // 같은 크기가 2개 이상인 것만
             
             let candidates = sizeGroups.values.flatMap { $0 }
-            statusMessage = "\(candidates.count)개 파일이 크기 중복"
+            statusMessage = "duplicates.status.size_candidates".localized(with: candidates.count)
             
             guard !candidates.isEmpty else {
                 finishScan()
@@ -148,7 +148,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             }.value
             
             let partialCandidates = partialGroups.values.filter { $0.count >= 2 }
-            statusMessage = "\(partialCandidates.count)개 그룹 부분 해시 일치"
+            statusMessage = "duplicates.status.partial_matches".localized(with: partialCandidates.count)
             
             guard !partialCandidates.isEmpty else {
                 finishScan()
@@ -178,7 +178,7 @@ final class DuplicateScannerViewModel: ObservableObject {
                     hashed += 1
                     await MainActor.run {
                         progress = Double(hashed) / Double(totalToHash)
-                        statusMessage = "전체 해시 비교 중... \(hashed)/\(totalToHash)"
+                        statusMessage = "duplicates.status.full_progress".localized(with: hashed, totalToHash)
                     }
                 }
                 
@@ -223,8 +223,8 @@ final class DuplicateScannerViewModel: ObservableObject {
         phase = .done
         progress = 1.0
         statusMessage = groups.isEmpty
-            ? "중복 파일을 찾지 못했습니다."
-            : "\(groups.count)개 중복 그룹 발견 (\(totalReclaimableString) 확보 가능)"
+            ? "duplicates.status.none_found".localized
+            : "duplicates.status.found_groups".localized(with: groups.count, totalReclaimableString)
     }
     
     // MARK: - 보존/삭제 토글
@@ -270,7 +270,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         }
         groups.removeAll { $0.files.count <= 1 }
         
-        statusMessage = "\(deletedCount)개 중복 파일을 휴지통으로 이동했습니다."
+        statusMessage = "duplicates.status.deleted".localized(with: deletedCount)
     }
     
     // MARK: - 파일 수집 (백그라운드)

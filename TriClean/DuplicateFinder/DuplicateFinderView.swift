@@ -12,11 +12,11 @@ struct DuplicateFinderView: View {
     @StateObject private var viewModel = DuplicateScannerViewModel()
     @State private var showDeleteConfirm = false
     @State private var expandedGroupIDs: Set<UUID> = []
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             headerSection
-            
+
             if viewModel.scanFolderURL == nil {
                 folderSelectionSection
             } else if viewModel.isScanning {
@@ -26,38 +26,35 @@ struct DuplicateFinderView: View {
             } else {
                 emptySection
             }
-            
+
             Spacer()
         }
         .padding()
-        .alert("중복 파일 정리", isPresented: $showDeleteConfirm) {
-            Button("휴지통으로 이동", role: .destructive) {
+        .alert("duplicates.alert.title".localized, isPresented: $showDeleteConfirm) {
+            Button("common.move_to_trash".localized, role: .destructive) {
                 viewModel.deleteDuplicates()
             }
-            Button("취소", role: .cancel) {}
+            Button("common.cancel".localized, role: .cancel) {}
         } message: {
-            Text("선택한 중복 파일을 휴지통으로 이동합니다.\n각 그룹에서 최소 1개 파일은 보존됩니다.")
+            Text("duplicates.alert.message".localized)
         }
     }
-    
-    // MARK: - 헤더
-    
+
     private var headerSection: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Duplicate Finder")
+                Text("duplicates.title".localized)
                     .font(.title2.bold())
-                Text("동일한 내용의 중복 파일을 찾아 정리합니다.")
+                Text("duplicates.subtitle".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             if viewModel.scanFolderURL != nil {
-                // 최소 파일 크기 설정
                 HStack(spacing: 4) {
-                    Text("최소:")
+                    Text("duplicates.min_size".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Picker("", selection: $viewModel.minFileSizeKB) {
@@ -70,44 +67,42 @@ struct DuplicateFinderView: View {
                     .frame(width: 260)
                     .controlSize(.small)
                 }
-                
+
                 Button {
                     viewModel.selectFolder()
                 } label: {
-                    Label("폴더 변경", systemImage: "folder")
+                    Label("duplicates.change_folder".localized, systemImage: "folder")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                
+
                 Button {
                     viewModel.scan()
                 } label: {
-                    Label("스캔", systemImage: "magnifyingglass")
+                    Label("common.scan".localized, systemImage: "magnifyingglass")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isScanning)
             }
         }
     }
-    
-    // MARK: - 폴더 선택
-    
+
     private var folderSelectionSection: some View {
         GroupBox {
             VStack(spacing: 12) {
                 Image(systemName: "doc.on.doc")
                     .font(.largeTitle)
                     .foregroundStyle(.secondary)
-                
-                Text("중복 파일을 찾을 폴더를 선택하세요")
+
+                Text("duplicates.select_folder_title".localized)
                     .font(.headline)
-                
-                Text("선택한 폴더와 하위 폴더에서 동일한 내용의 파일을 찾습니다.\n파일 크기 → 부분 해시 → 전체 해시 3단계로 정확하게 비교합니다.")
+
+                Text("duplicates.select_folder_desc".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                
-                Button("폴더 선택") {
+
+                Button("duplicates.select_folder".localized) {
                     viewModel.selectFolder()
                 }
                 .buttonStyle(.borderedProminent)
@@ -116,18 +111,16 @@ struct DuplicateFinderView: View {
             .padding(.vertical, 20)
         }
     }
-    
-    // MARK: - 스캔 중
-    
+
     private var scanningSection: some View {
         VStack(spacing: 16) {
             ProgressView(value: viewModel.progress) {
-                Text(viewModel.phase.rawValue)
+                Text(viewModel.phase.localizedTitle)
                     .font(.subheadline.bold())
             }
             .progressViewStyle(.linear)
             .frame(maxWidth: 400)
-            
+
             Text(viewModel.statusMessage)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -135,34 +128,30 @@ struct DuplicateFinderView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
     }
-    
-    // MARK: - 결과
-    
+
     private var resultsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 요약
             HStack(spacing: 16) {
                 summaryCard(
-                    title: "중복 그룹",
-                    value: "\(viewModel.totalDuplicateGroups)개",
+                    title: "duplicates.summary.groups".localized,
+                    value: "duplicates.count_format".localized(with: viewModel.totalDuplicateGroups),
                     icon: "doc.on.doc.fill",
                     color: .orange
                 )
                 summaryCard(
-                    title: "확보 가능 용량",
+                    title: "duplicates.summary.reclaimable".localized,
                     value: viewModel.totalReclaimableString,
                     icon: "externaldrive.badge.checkmark",
                     color: .green
                 )
                 summaryCard(
-                    title: "스캔 파일",
-                    value: "\(viewModel.totalFilesScanned)개",
+                    title: "duplicates.summary.scanned".localized,
+                    value: "duplicates.count_format".localized(with: viewModel.totalFilesScanned),
                     icon: "doc.text.magnifyingglass",
                     color: .blue
                 )
             }
-            
-            // 그룹 목록
+
             ScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach(viewModel.groups) { group in
@@ -170,19 +159,18 @@ struct DuplicateFinderView: View {
                     }
                 }
             }
-            
-            // 하단 액션
+
             HStack {
                 Text(viewModel.statusMessage)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 Button(role: .destructive) {
                     showDeleteConfirm = true
                 } label: {
-                    Label("중복 파일 정리 (\(viewModel.totalReclaimableString))", systemImage: "trash")
+                    Label("duplicates.clean_selected".localized(with: viewModel.totalReclaimableString), systemImage: "trash")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
@@ -190,28 +178,24 @@ struct DuplicateFinderView: View {
             }
         }
     }
-    
-    // MARK: - 빈 상태
-    
+
     private var emptySection: some View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.seal")
                 .font(.largeTitle)
                 .foregroundStyle(.green)
-            Text(viewModel.phase == .done ? "중복 파일이 없습니다" : "스캔 대기 중")
+            Text(viewModel.phase == .done ? "duplicates.empty.done_title".localized : "duplicates.empty.idle_title".localized)
                 .font(.headline)
             Text(viewModel.phase == .done
-                 ? "선택한 폴더에서 중복 파일을 찾지 못했습니다."
-                 : "'스캔' 버튼을 눌러 중복 파일을 찾아보세요.")
+                 ? "duplicates.empty.done_desc".localized
+                 : "duplicates.empty.idle_desc".localized)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
     }
-    
-    // MARK: - 서브뷰
-    
+
     private func summaryCard(title: String, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
@@ -231,13 +215,12 @@ struct DuplicateFinderView: View {
                 .fill(Color(nsColor: .controlBackgroundColor))
         )
     }
-    
+
     private func duplicateGroupRow(_ group: DuplicateGroup) -> some View {
         let isExpanded = expandedGroupIDs.contains(group.id)
-        
+
         return GroupBox {
             VStack(alignment: .leading, spacing: 8) {
-                // 그룹 헤더
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         if isExpanded {
@@ -250,31 +233,29 @@ struct DuplicateFinderView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "doc.on.doc")
                             .foregroundStyle(.orange)
-                        
+
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("\(group.files.count)개 동일 파일")
+                            Text("duplicates.group.files".localized(with: group.files.count))
                                 .font(.subheadline.bold())
-                            Text("각 \(group.fileSizeString) · \(group.reclaimableString) 확보 가능")
+                            Text("duplicates.group.detail".localized(with: group.fileSizeString, group.reclaimableString))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        
+
                         Spacer()
-                        
+
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 .buttonStyle(.plain)
-                
-                // 확장 시 파일 목록
+
                 if isExpanded {
                     Divider()
-                    
+
                     ForEach(group.files) { file in
                         HStack(spacing: 8) {
-                            // 보존/삭제 토글
                             Button {
                                 viewModel.toggleKeep(groupID: group.id, fileID: file.id)
                             } label: {
@@ -282,12 +263,12 @@ struct DuplicateFinderView: View {
                                     .foregroundStyle(file.isKeep ? .green : .red)
                             }
                             .buttonStyle(.plain)
-                            .help(file.isKeep ? "보존 (클릭하면 삭제 대상으로 변경)" : "삭제 대상 (클릭하면 보존으로 변경)")
-                            
+                            .help(file.isKeep ? "duplicates.file.help.keep".localized : "duplicates.file.help.delete".localized)
+
                             Image(systemName: "doc")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            
+
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(file.name)
                                     .font(.caption)
@@ -297,16 +278,16 @@ struct DuplicateFinderView: View {
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                             }
-                            
+
                             Spacer()
-                            
+
                             if let date = file.modificationDate {
                                 Text(date.formatted(date: .abbreviated, time: .omitted))
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
-                            
-                            Text(file.isKeep ? "보존" : "삭제")
+
+                            Text(file.isKeep ? "duplicates.file.keep".localized : "duplicates.file.delete".localized)
                                 .font(.caption2.bold())
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)

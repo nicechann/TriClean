@@ -82,8 +82,8 @@ final class JunkScannerViewModel: ObservableObject {
     
     func selectLibraryFolder() {
         let panel = NSOpenPanel()
-        panel.title = "Select ~/Library Folder"
-        panel.message = "정크 파일 스캔을 위해 Home Library 폴더를 선택하세요."
+        panel.title = "junk.scope.title".localized
+        panel.message = "junk.scope.message".localized
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -104,7 +104,7 @@ final class JunkScannerViewModel: ObservableObject {
         
         isScanning = true
         results = []
-        scanProgress = "스캔 준비 중..."
+        scanProgress = "junk.progress.preparing".localized
         
         let categories = JunkCategory.defaultCategories
         let libraryStd = library.standardizedFileURL
@@ -122,7 +122,7 @@ final class JunkScannerViewModel: ObservableObject {
                 if Task.isCancelled { break }
                 
                 await MainActor.run {
-                    scanProgress = "\(category.name) 스캔 중..."
+                    scanProgress = "junk.progress.scanning_format".localized(with: category.name)
                 }
                 
                 var categoryItems: [JunkItem] = []

@@ -47,7 +47,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
-                Section("System") {
+                Section("sidebar.section.system".localized) {
                     NavigationLink(value: SidebarItem.storage) {
                         Label("sidebar.storage".localized, systemImage: "internaldrive")
                     }
@@ -64,9 +64,9 @@ struct ContentView: View {
                     }
                 }
                 
-                Section("Cleanup") {
+                Section("sidebar.section.cleanup".localized) {
                     NavigationLink(value: SidebarItem.duplicates) {
-                        Label("Duplicates", systemImage: "doc.on.doc")
+                        Label("sidebar.duplicates".localized, systemImage: "doc.on.doc")
                     }
                 }
                 

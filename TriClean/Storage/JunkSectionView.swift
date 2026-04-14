@@ -11,19 +11,22 @@ import SwiftUI
 struct JunkSectionView: View {
     @ObservedObject var viewModel: JunkScannerViewModel
     @State private var showCleanConfirm = false
-    @State private var isExpanded = true
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // 섹션 헤더
             HStack(spacing: 8) {
                 Image(systemName: "trash.circle")
                     .foregroundStyle(.orange)
-                Text("Junk Files")
-                    .font(.title3.bold())
-                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("junk.section.title".localized)
+                        .font(.title3.bold())
+                    Text("junk.section.subtitle".localized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 Spacer()
-                
+
                 if viewModel.isScanning {
                     ProgressView()
                         .controlSize(.small)
@@ -34,20 +37,19 @@ struct JunkSectionView: View {
                     Button {
                         viewModel.scan()
                     } label: {
-                        Label("스캔", systemImage: "magnifyingglass")
+                        Label("junk.section.scan".localized, systemImage: "magnifyingglass")
                             .labelStyle(.titleAndIcon)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
                 }
             }
-            
-            // ~/Library 경로 상태
+
             HStack(spacing: 10) {
                 Image(systemName: viewModel.libraryURL == nil ? "xmark.circle" : "checkmark.circle")
                     .foregroundStyle(viewModel.libraryURL == nil ? Color.secondary : Color.green)
                     .frame(width: 16)
-                
+
                 if let url = viewModel.libraryURL {
                     Text(url.path)
                         .font(.caption)
@@ -55,46 +57,44 @@ struct JunkSectionView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                 } else {
-                    Text("~/Library 폴더를 선택하면 정크 파일을 자동으로 찾습니다.")
+                    Text("junk.section.select_library_hint".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
-                Button(viewModel.libraryURL == nil ? "~/Library 선택" : "변경…") {
+
+                Button(viewModel.libraryURL == nil ? "junk.section.select_library".localized : "common.change".localized) {
                     viewModel.selectLibraryFolder()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             }
-            
-            // 스캔 결과
+
             if viewModel.hasResults {
-                // 총 용량 요약
                 HStack(spacing: 16) {
                     Label {
-                        Text("발견: \(viewModel.totalJunkString)")
+                        Text("junk.section.found".localized(with: viewModel.totalJunkString))
                             .font(.caption.bold())
                     } icon: {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
                     }
-                    
+
                     Label {
-                        Text("선택: \(viewModel.selectedJunkString)")
+                        Text("junk.section.selected".localized(with: viewModel.selectedJunkString))
                             .font(.caption.bold())
                     } icon: {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.blue)
                     }
-                    
+
                     Spacer()
-                    
+
                     Button(role: .destructive) {
                         showCleanConfirm = true
                     } label: {
-                        Label("정리", systemImage: "trash")
+                        Label("junk.section.clean".localized, systemImage: "trash")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.red)
@@ -102,8 +102,7 @@ struct JunkSectionView: View {
                     .disabled(viewModel.selectedJunkBytes == 0)
                 }
                 .padding(.top, 4)
-                
-                // 카테고리 목록 (카드 형태)
+
                 LazyVGrid(columns: [
                     GridItem(.flexible(), spacing: 8),
                     GridItem(.flexible(), spacing: 8)
@@ -112,9 +111,9 @@ struct JunkSectionView: View {
                         junkCategoryCard(result)
                     }
                 }
-                
+
                 if let date = viewModel.lastScanDate {
-                    Text("마지막 스캔: \(date.formatted(date: .abbreviated, time: .shortened))")
+                    Text("junk.section.last_scan".localized(with: date.formatted(date: .abbreviated, time: .shortened)))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -130,25 +129,23 @@ struct JunkSectionView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
         )
-        .alert("선택한 정크 파일 정리", isPresented: $showCleanConfirm) {
-            Button("휴지통으로 이동", role: .destructive) {
+        .alert("junk.section.alert.title".localized, isPresented: $showCleanConfirm) {
+            Button("common.move_to_trash".localized, role: .destructive) {
                 viewModel.cleanSelected()
             }
-            Button("취소", role: .cancel) {}
+            Button("common.cancel".localized, role: .cancel) {}
         } message: {
-            Text("\(viewModel.selectedJunkString)을 휴지통으로 이동합니다.\nFinder에서 복원할 수 있습니다.")
+            Text("junk.section.alert.message".localized(with: viewModel.selectedJunkString))
         }
     }
-    
-    // MARK: - 카테고리 카드
-    
+
     private func junkCategoryCard(_ result: JunkScanResult) -> some View {
         HStack(spacing: 10) {
             Image(systemName: result.category.icon)
                 .font(.title3)
                 .foregroundStyle(result.category.riskLevel.color)
                 .frame(width: 24)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(result.category.name)
                     .font(.caption.bold())
@@ -157,10 +154,9 @@ struct JunkSectionView: View {
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
-            // 위험도 뱃지
+
             Text(result.category.riskLevel.label)
                 .font(.system(size: 9, weight: .bold))
                 .padding(.horizontal, 5)
@@ -175,5 +171,6 @@ struct JunkSectionView: View {
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color(nsColor: .controlBackgroundColor))
         )
+        .help(result.category.description)
     }
 }
