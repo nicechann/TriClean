@@ -116,7 +116,7 @@
 
 /* ✅ [수정 v2] Apps View — "앱 제거" 표현을 "관련 파일 검토/정리"로 전환 */
 "apps.header.uninstall" = "설치된 앱";
-"apps.header.desc" = "선택한 폴더 범위 안의 설치된 앱을 표시합니다. 사용자가 직접 설치한 일반 앱만 휴지통으로 이동할 수 있으며, 시스템 앱·보호 앱·App Store 앱은 참고용으로만 표시됩니다. App Store 앱은 이 화면에서 제거하거나 관련 파일을 스캔하지 않습니다.";
+"apps.header.desc" = "선택한 폴더 범위 안의 앱 번들을 표시합니다. 사용자가 직접 설치한 일반 앱 번들만 휴지통으로 이동할 수 있으며, 시스템 앱·보호 앱·App Store 앱은 참고용으로만 표시됩니다. App Store에서 설치된 앱은 이 화면에서 제거할 수 없습니다.";
 "apps.btn.manual_select" = "앱 파일 직접 선택…";
 "apps.search.placeholder" = "앱 이름 또는 Bundle ID 검색";
 "apps.btn.uninstall" = "휴지통으로 이동";
@@ -126,7 +126,7 @@
 "apps.scope.library_folder" = "Home Library(~/Library) 선택";
 "apps.scope.library_msg" = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 Home Library 범위 안에서만 TriClean이 관련 파일을 탐지합니다.";
 "apps.scope.reset" = "권한 초기화…";
-"apps.list.title" = "Installed Apps";
+"apps.list.title" = "설치된 앱";
 "apps.list.loading" = "설치된 앱 목록을 불러오는 중…";
 "apps.list.guide_select" = "먼저 상단에서 Applications 폴더를 선택한 뒤 Scan을 눌러 주세요.";
 "apps.list.empty" = "표시할 앱이 없습니다. (검색 조건/선택 폴더를 확인해 주세요)";
@@ -134,7 +134,7 @@
 "apps.type.user" = "사용자 앱";
 "apps.type.protected" = "보호됨";
 "apps.type.appstore" = "App Store";
-"apps.details.selected" = "Selected App";
+"apps.details.selected" = "선택한 앱";
 "apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 Home Library(~/Library)를 선택해 주세요.";
 "apps.details.scanning" = "관련 파일 검색 중…";
 "apps.details.no_related" = "관련 파일이 없거나 찾지 못했습니다.";
@@ -164,7 +164,7 @@
 "apps.status.read_fail" = "파일을 읽는 데 실패했습니다.";
 "apps.status.app_added" = "앱이 추가되었습니다.";
 /* ✅ [수정 v2] App Store 앱 제거 불가 안내 강화 */
-"apps.details.appstore_note" = "App Store 앱은 참고용으로만 표시됩니다.";
+"apps.details.appstore_note" = "App Store에서 설치된 앱은 이 화면에서 제거할 수 없습니다. Launchpad에서 길게 누르거나 Finder에서 직접 삭제해야 합니다.";
 "apps.status.folder_needed" = "권한 필요: 폴더를 선택해 주세요.";
 "apps.alert.fail.list" = "\\n\\n실패: %@";
 "apps.help.select_first" = "이동 가능한 앱 번들을 1개 이상 선택해 주세요.";
@@ -303,7 +303,7 @@
 "junk.progress.preparing" = "스캔 준비 중…";
 "junk.progress.scanning_format" = "%@ 스캔 중…";
 "junk.risk.safe" = "권장";
-"junk.risk.moderate" = "보통";
+"junk.risk.moderate" = "검토";
 "junk.risk.caution" = "주의";
 "junk.category.system_caches.title" = "App Caches";
 "junk.category.system_caches.desc" = "앱이 생성한 캐시 파일입니다. 삭제해도 앱 재시작 시 다시 생성됩니다.";
@@ -420,7 +420,7 @@
 "apps.summary.appstore" = "App Store";
 "apps.summary.selected" = "선택됨";
 "apps.safety.title" = "안전하게 검토 후 정리";
-"apps.safety.desc" = "TriClean은 선택한 일반 앱과 관련 파일을 휴지통으로 이동합니다. 영구 삭제는 바로 수행하지 않으며, App Store 앱은 이 화면에서 제거하거나 관련 파일을 스캔하지 않습니다.";
+"apps.safety.desc" = "TriClean은 선택한 앱 번들과 관련 파일을 휴지통으로 이동합니다. 영구 삭제는 바로 수행하지 않으며, App Store 앱은 이 화면에서 제거할 수 없습니다.";
 "apps.selection.none" = "현재 필터에서 표시 중인 앱 %d개";
 "apps.selection.summary" = "선택 %1$d개 · 이 중 휴지통 이동 가능 %2$d개";
 "apps.table.app" = "앱";
@@ -511,7 +511,3 @@
 "duplicate.phase.partial_hash" = "부분 해시 비교 중...";
 "duplicate.phase.full_hash" = "전체 해시 비교 중...";
 "duplicate.phase.done" = "완료";
-
-/* App Review hardening */
-"apps.details.appstore_reference_only" = "이 화면에서는 App Store 앱의 관련 파일을 스캔하거나 휴지통으로 이동하지 않습니다. 삭제가 필요하면 Launchpad 또는 Finder에서 직접 진행해 주세요.";
-"apps.status.appstore_reference_only" = "App Store 앱은 참고용으로만 표시되며, 이 화면에서는 관련 파일을 스캔하거나 휴지통으로 이동하지 않습니다.";

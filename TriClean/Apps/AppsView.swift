@@ -289,15 +289,6 @@ final class AppsViewModel: ObservableObject {
         ByteCountFormatter.string(fromByteCount: totalRelatedBytes, countStyle: .file)
     }
 
-    var selectedInstalledAppModel: AppsInstalledApp? {
-        guard let selectedApp else { return nil }
-        return installedApps.first { $0.id == selectedApp.appPath }
-    }
-
-    var isSelectedAppStoreApp: Bool {
-        selectedInstalledAppModel?.isAppStoreApp == true
-    }
-
     var uninstallButtonHelpText: String {
         if isRemoving { return "apps.help.removing".localized }
 
@@ -575,19 +566,17 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
-        selectedApp = AppsSelectedAppInfo(
-            name: app.name,
-            bundleID: app.bundleID,
-            appPath: app.id,
-            modifiedDate: app.modifiedDate
-        )
-        relatedItems = []
+        analyzeInstalledApp(url: app.url, modifiedDate: app.modifiedDate)
+    }
 
-        if app.isAppStoreApp {
-            lastStatusIsError = false
-            lastStatusMessage = "apps.status.appstore_reference_only".localized
-            return
-        }
+    private func analyzeInstalledApp(url appURL: URL, modifiedDate: Date? = nil) {
+        let bundle = Bundle(url: appURL)
+        let name = (bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String)
+            ?? appURL.deletingPathExtension().lastPathComponent
+        let bundleID = bundle?.bundleIdentifier
+
+        selectedApp = AppsSelectedAppInfo(name: name, bundleID: bundleID, appPath: appURL.path, modifiedDate: modifiedDate)
+        relatedItems = []
 
         guard userLibraryFolderURL != nil else {
             lastStatusIsError = false
@@ -595,7 +584,7 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        scanRelatedFiles(for: app.name, bundleID: app.bundleID)
+        scanRelatedFiles(for: name, bundleID: bundleID)
     }
 
     private func scanRelatedFiles(for appName: String, bundleID: String?) {
@@ -960,15 +949,63 @@ struct AppsView: View {
     @StateObject private var viewModel = AppsViewModel()
     @State private var activeAlert: AppsActiveAlert?
     @State private var hoveredAppID: String? = nil
+    @State private var showCompactDetailsSheet = false
+
+    private let inspectorBreakpoint: CGFloat = 1400
+    private let inspectorMinWidth: CGFloat = 340
+    private let inspectorMaxWidth: CGFloat = 420
 
     var body: some View {
+        GeometryReader { proxy in
+            let useInspector = proxy.size.width >= inspectorBreakpoint
+
+            Group {
+                if useInspector {
+                    regularLayout(size: proxy.size)
+                } else {
+                    compactLayout(size: proxy.size)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .padding()
+        .alert(item: $activeAlert) { makeAlert($0) }
+        .sheet(isPresented: $showCompactDetailsSheet) {
+            compactDetailsSheet
+        }
+    }
+
+    private func regularLayout(size: CGSize) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            scopePermissionsCard
-            headerSection
-            summaryCards
-            safetyNoticeCard
-            filterAndActionBar
-            appsTableSection
+            topSections(compact: false)
+
+            HSplitView {
+                VStack(alignment: .leading, spacing: 10) {
+                    appsTableSection(compact: false, useInspector: true)
+
+                    if let status = viewModel.lastStatusMessage {
+                        Text(status)
+                            .font(.footnote)
+                            .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                inspectorPanel
+                    .frame(minWidth: inspectorMinWidth,
+                           idealWidth: min(max(size.width * 0.30, inspectorMinWidth), inspectorMaxWidth),
+                           maxWidth: inspectorMaxWidth,
+                           maxHeight: .infinity,
+                           alignment: .top)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+    }
+
+    private func compactLayout(size: CGSize) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            topSections(compact: true)
+            appsTableSection(compact: true, useInspector: false)
 
             if let status = viewModel.lastStatusMessage {
                 Text(status)
@@ -976,12 +1013,36 @@ struct AppsView: View {
                     .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
             }
 
-            Divider().padding(.vertical, 4)
-            relatedFilesSection
             Spacer(minLength: 0)
         }
-        .padding()
-        .alert(item: $activeAlert) { makeAlert($0) }
+    }
+
+    private func topSections(compact: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            scopePermissionsCard
+            headerSection(compact: compact)
+            summaryCards(compact: compact)
+            safetyNoticeCard
+            filterAndActionBar(compact: compact)
+        }
+    }
+
+    private var compactDetailsSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                relatedFilesSection
+                Spacer(minLength: 0)
+            }
+            .padding()
+            .frame(minWidth: 620, minHeight: 560)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("common.close".localized) {
+                        showCompactDetailsSheet = false
+                    }
+                }
+            }
+        }
     }
 
     private var scopePermissionsCard: some View {
@@ -1058,30 +1119,62 @@ struct AppsView: View {
         .layoutPriority(1)
     }
 
-    private var headerSection: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("apps.header.uninstall".localized)
-                    .font(.title).bold()
-                Text("apps.header.desc".localized)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+    private func headerSection(compact: Bool) -> some View {
+        Group {
+            if compact {
+                VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("apps.header.uninstall".localized)
+                            .font(.title).bold()
+                        Text("apps.header.desc".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
 
-            Spacer()
+                    HStack {
+                        Spacer()
+                        Button("apps.btn.manual_select".localized) {
+                            viewModel.selectAppBundleManually()
+                        }
+                    }
+                }
+            } else {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("apps.header.uninstall".localized)
+                            .font(.title).bold()
+                        Text("apps.header.desc".localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
 
-            Button("apps.btn.manual_select".localized) {
-                viewModel.selectAppBundleManually()
+                    Spacer()
+
+                    Button("apps.btn.manual_select".localized) {
+                        viewModel.selectAppBundleManually()
+                    }
+                }
             }
         }
     }
 
-    private var summaryCards: some View {
-        HStack(spacing: 10) {
-            appsSummaryCard(titleKey: "apps.summary.total", value: "\(viewModel.totalAppsCount)", icon: "square.stack.3d.up")
-            appsSummaryCard(titleKey: "apps.summary.removable", value: "\(viewModel.removableAppsCount)", icon: "trash")
-            appsSummaryCard(titleKey: "apps.summary.appstore", value: "\(viewModel.appStoreAppsCount)", icon: "bag")
-            appsSummaryCard(titleKey: "apps.summary.selected", value: "\(viewModel.selectedAppsCount)", icon: "checkmark.circle")
+    private func summaryCards(compact: Bool) -> some View {
+        Group {
+            if compact {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    appsSummaryCard(titleKey: "apps.summary.total", value: "\(viewModel.totalAppsCount)", icon: "square.stack.3d.up")
+                    appsSummaryCard(titleKey: "apps.summary.removable", value: "\(viewModel.removableAppsCount)", icon: "trash")
+                    appsSummaryCard(titleKey: "apps.summary.appstore", value: "\(viewModel.appStoreAppsCount)", icon: "bag")
+                    appsSummaryCard(titleKey: "apps.summary.selected", value: "\(viewModel.selectedAppsCount)", icon: "checkmark.circle")
+                }
+            } else {
+                HStack(spacing: 10) {
+                    appsSummaryCard(titleKey: "apps.summary.total", value: "\(viewModel.totalAppsCount)", icon: "square.stack.3d.up")
+                    appsSummaryCard(titleKey: "apps.summary.removable", value: "\(viewModel.removableAppsCount)", icon: "trash")
+                    appsSummaryCard(titleKey: "apps.summary.appstore", value: "\(viewModel.appStoreAppsCount)", icon: "bag")
+                    appsSummaryCard(titleKey: "apps.summary.selected", value: "\(viewModel.selectedAppsCount)", icon: "checkmark.circle")
+                }
+            }
         }
     }
 
@@ -1098,44 +1191,86 @@ struct AppsView: View {
         }
     }
 
-    private var filterAndActionBar: some View {
+    private func filterAndActionBar(compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 12) {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                    TextField("apps.search.placeholder".localized, text: $viewModel.searchText)
-                        .textFieldStyle(.plain)
-                }
-                .padding(6)
-                .background(.quaternary)
-                .cornerRadius(8)
-
-                Picker("apps.filter.label".localized, selection: $viewModel.listFilter) {
-                    ForEach(AppsListFilter.allCases) { filter in
-                        Text(filter.title).tag(filter)
+            if compact {
+                HStack(spacing: 12) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        TextField("apps.search.placeholder".localized, text: $viewModel.searchText)
+                            .textFieldStyle(.plain)
                     }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 170)
+                    .padding(6)
+                    .background(.quaternary)
+                    .cornerRadius(8)
 
-                Spacer()
-
-                Button("apps.btn.select_visible".localized) {
-                    viewModel.selectVisibleRemovableApps()
+                    Picker("apps.filter.label".localized, selection: $viewModel.listFilter) {
+                        ForEach(AppsListFilter.allCases) { filter in
+                            Text(filter.title).tag(filter)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 160)
                 }
-                .disabled(viewModel.filteredInstalledApps.filter(\.canUninstall).isEmpty || viewModel.isRemoving)
 
-                Button("apps.btn.clear_selection".localized) {
-                    viewModel.clearSelectedApps()
-                }
-                .disabled(viewModel.selectedAppsCount == 0 || viewModel.isRemoving)
+                HStack(spacing: 10) {
+                    Button("apps.btn.select_visible".localized) {
+                        viewModel.selectVisibleRemovableApps()
+                    }
+                    .disabled(viewModel.filteredInstalledApps.filter(\.canUninstall).isEmpty || viewModel.isRemoving)
 
-                Button("apps.btn.uninstall".localized) {
-                    activeAlert = .uninstallApps
+                    Button("apps.btn.clear_selection".localized) {
+                        viewModel.clearSelectedApps()
+                    }
+                    .disabled(viewModel.selectedAppsCount == 0 || viewModel.isRemoving)
+
+                    Spacer()
+
+                    Button("apps.btn.uninstall".localized) {
+                        activeAlert = .uninstallApps
+                    }
+                    .frame(width: 120)
+                    .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
+                    .help(viewModel.uninstallButtonHelpText)
                 }
-                .frame(width: 120)
-                .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
-                .help(viewModel.uninstallButtonHelpText)
+            } else {
+                HStack(spacing: 12) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        TextField("apps.search.placeholder".localized, text: $viewModel.searchText)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(6)
+                    .background(.quaternary)
+                    .cornerRadius(8)
+
+                    Picker("apps.filter.label".localized, selection: $viewModel.listFilter) {
+                        ForEach(AppsListFilter.allCases) { filter in
+                            Text(filter.title).tag(filter)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 170)
+
+                    Spacer()
+
+                    Button("apps.btn.select_visible".localized) {
+                        viewModel.selectVisibleRemovableApps()
+                    }
+                    .disabled(viewModel.filteredInstalledApps.filter(\.canUninstall).isEmpty || viewModel.isRemoving)
+
+                    Button("apps.btn.clear_selection".localized) {
+                        viewModel.clearSelectedApps()
+                    }
+                    .disabled(viewModel.selectedAppsCount == 0 || viewModel.isRemoving)
+
+                    Button("apps.btn.uninstall".localized) {
+                        activeAlert = .uninstallApps
+                    }
+                    .frame(width: 120)
+                    .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
+                    .help(viewModel.uninstallButtonHelpText)
+                }
             }
 
             Text(viewModel.selectionSummaryText)
@@ -1144,7 +1279,7 @@ struct AppsView: View {
         }
     }
 
-    private var appsTableSection: some View {
+    private func appsTableSection(compact: Bool, useInspector: Bool) -> some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
                 if viewModel.isLoadingInstalledApps {
@@ -1156,76 +1291,155 @@ struct AppsView: View {
                     Text("apps.list.empty".localized)
                         .foregroundStyle(.secondary)
                 } else {
-                    Table(viewModel.filteredInstalledApps) {
-                        TableColumn("") { app in
-                            rowBackground(appID: app.id) {
-                                if app.canUninstall {
-                                    Toggle("", isOn: Binding(
-                                        get: { viewModel.selectedInstalledAppIDs.contains(app.id) },
-                                        set: { isOn in
-                                            if isOn { viewModel.selectedInstalledAppIDs.insert(app.id) }
-                                            else { viewModel.selectedInstalledAppIDs.remove(app.id) }
-                                        })
-                                    )
-                                    .labelsHidden()
-                                } else {
-                                    Image(systemName: app.isSystemApp ? "lock.shield.fill" : "lock.fill")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
-                        .width(28)
-
-                        TableColumn("apps.table.app".localized) { app in
-                            rowBackground(appID: app.id) { Text(app.name) }
-                        }
-
-                        TableColumn("apps.table.bundle".localized) { app in
-                            rowBackground(appID: app.id) {
-                                Text(app.bundleID ?? "-").foregroundStyle(.secondary)
-                            }
-                        }
-
-                        TableColumn("apps.table.location".localized) { app in
-                            rowBackground(appID: app.id) {
-                                Text(app.location).lineLimit(1).truncationMode(.middle)
-                            }
-                        }
-
-                        TableColumn("apps.table.type".localized) { app in
-                            rowBackground(appID: app.id) {
-                                Text(app.typeDescription).foregroundStyle(.secondary)
-                            }
-                        }
-                        .width(100)
-
-                        TableColumn("apps.table.modified".localized) { app in
-                            rowBackground(appID: app.id) {
-                                Text(app.modifiedDateText).foregroundStyle(.secondary)
-                            }
-                        }
-                        .width(110)
-
-                        TableColumn("apps.table.operation".localized) { app in
-                            rowBackground(appID: app.id) {
-                                HStack(spacing: 8) {
-                                    Button("apps.btn.details".localized) { viewModel.analyzeInstalledApp(app: app) }
-                                    Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
-                                }
-                            }
-                        }
-                        .width(160)
-                    }
-                    .tableStyle(.inset)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    appsTable(compact: compact, useInspector: useInspector)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 Spacer(minLength: 0)
             }
-            .frame(maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 220, maxHeight: .infinity, alignment: .topLeading)
             .padding(8)
         } label: {
             Text("apps.list.title".localized).font(.headline)
+        }
+    }
+
+    private func appsTable(compact: Bool, useInspector: Bool) -> some View {
+        Group {
+            if compact {
+                compactAppsTable(useInspector: useInspector)
+            } else {
+                regularAppsTable(useInspector: useInspector)
+            }
+        }
+    }
+
+    private func compactAppsTable(useInspector: Bool) -> some View {
+        Table(viewModel.filteredInstalledApps) {
+            TableColumn("") { app in
+                rowBackground(appID: app.id) {
+                    if app.canUninstall {
+                        Toggle("", isOn: Binding(
+                            get: { viewModel.selectedInstalledAppIDs.contains(app.id) },
+                            set: { isOn in
+                                if isOn { viewModel.selectedInstalledAppIDs.insert(app.id) }
+                                else { viewModel.selectedInstalledAppIDs.remove(app.id) }
+                            })
+                        )
+                        .labelsHidden()
+                    } else {
+                        Image(systemName: app.isSystemApp ? "lock.shield.fill" : "lock.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .width(28)
+
+            TableColumn("apps.table.app".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.name)
+                }
+            }
+
+            TableColumn("apps.table.type".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.typeDescription).foregroundStyle(.secondary)
+                }
+            }
+            .width(90)
+
+            TableColumn("apps.table.modified".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.modifiedDateText).foregroundStyle(.secondary)
+                }
+            }
+            .width(110)
+
+            TableColumn("apps.table.operation".localized) { app in
+                rowBackground(appID: app.id) {
+                    HStack(spacing: 8) {
+                        Button("apps.btn.details".localized) { openDetails(for: app, useInspector: useInspector) }
+                        Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
+                    }
+                }
+            }
+            .width(160)
+        }
+        .tableStyle(.inset)
+    }
+
+    private func regularAppsTable(useInspector: Bool) -> some View {
+        Table(viewModel.filteredInstalledApps) {
+            TableColumn("") { app in
+                rowBackground(appID: app.id) {
+                    if app.canUninstall {
+                        Toggle("", isOn: Binding(
+                            get: { viewModel.selectedInstalledAppIDs.contains(app.id) },
+                            set: { isOn in
+                                if isOn { viewModel.selectedInstalledAppIDs.insert(app.id) }
+                                else { viewModel.selectedInstalledAppIDs.remove(app.id) }
+                            })
+                        )
+                        .labelsHidden()
+                    } else {
+                        Image(systemName: app.isSystemApp ? "lock.shield.fill" : "lock.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .width(28)
+
+            TableColumn("apps.table.app".localized) { app in
+                rowBackground(appID: app.id) { Text(app.name) }
+            }
+
+            TableColumn("apps.table.bundle".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.bundleID ?? "-").foregroundStyle(.secondary)
+                }
+            }
+
+            TableColumn("apps.table.location".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.location).lineLimit(1).truncationMode(.middle)
+                }
+            }
+
+            TableColumn("apps.table.type".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.typeDescription).foregroundStyle(.secondary)
+                }
+            }
+            .width(100)
+
+            TableColumn("apps.table.modified".localized) { app in
+                rowBackground(appID: app.id) {
+                    Text(app.modifiedDateText).foregroundStyle(.secondary)
+                }
+            }
+            .width(110)
+
+            TableColumn("apps.table.operation".localized) { app in
+                rowBackground(appID: app.id) {
+                    HStack(spacing: 8) {
+                        Button("apps.btn.details".localized) { openDetails(for: app, useInspector: useInspector) }
+                        Button("common.finder_app".localized) { viewModel.revealInFinder(app: app) }
+                    }
+                }
+            }
+            .width(160)
+        }
+        .tableStyle(.inset)
+    }
+
+    private var inspectorPanel: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                relatedFilesSection
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(8)
         }
     }
 
@@ -1245,6 +1459,8 @@ struct AppsView: View {
                                 Text(bid)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
                             }
 
                             Spacer()
@@ -1273,18 +1489,13 @@ struct AppsView: View {
                         relatedSummaryChip(titleKey: "apps.related.selected_size", value: viewModel.selectedRelatedSizeText)
                     }
 
-                    if viewModel.isSelectedAppStoreApp {
-                        GroupBox {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Label("apps.details.appstore_note".localized, systemImage: "info.circle")
-                                    .font(.subheadline.bold())
-                                Text("apps.details.appstore_reference_only".localized)
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    } else if viewModel.userLibraryFolderURL == nil {
+                    if let current = viewModel.installedApps.first(where: { $0.id == selected.appPath }), current.isAppStoreApp {
+                        Label("apps.details.appstore_note".localized, systemImage: "info.circle")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if viewModel.userLibraryFolderURL == nil {
                         Text("apps.details.library_guide".localized)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -1320,7 +1531,7 @@ struct AppsView: View {
                             .width(110)
                         }
                         .tableStyle(.inset)
-                        .frame(minHeight: 180)
+                        .frame(minHeight: 260, maxHeight: .infinity)
 
                         HStack {
                             Text("apps.related.footer".localized(with: viewModel.selectedRelatedCount, viewModel.selectedRelatedSizeText))
@@ -1337,10 +1548,20 @@ struct AppsView: View {
                     }
                 }
             } else {
-                Text("apps.details.guide".localized)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("apps.details.selected".localized).font(.headline)
+                    Text("apps.details.guide".localized)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
+        }
+    }
+
+    private func openDetails(for app: AppsInstalledApp, useInspector: Bool) {
+        viewModel.analyzeInstalledApp(app: app)
+        if !useInspector {
+            showCompactDetailsSheet = true
         }
     }
 

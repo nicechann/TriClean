@@ -116,7 +116,7 @@
 
 /* ✅ [v2] Apps View — "uninstall/remove" → "review related files" focus */
 "apps.header.uninstall" = "Installed Apps";
-"apps.header.desc" = "Shows installed apps within the selected folder scope. Only eligible user-installed apps can be moved to Trash. System, protected, and App Store apps are listed for reference only. App Store apps are not removed or scanned for related files from this screen.";
+"apps.header.desc" = "Scans app bundles within the selected scope. Only eligible, user-installed non-App Store items can be moved to Trash. System, protected, and App Store apps are listed for reference only and cannot be removed from this screen.";
 "apps.btn.manual_select" = "Select .app Manually…";
 "apps.search.placeholder" = "Search App Name or Bundle ID";
 "apps.btn.uninstall" = "Move to Trash";
@@ -164,7 +164,7 @@
 "apps.status.read_fail" = "Failed to read file.";
 "apps.status.app_added" = "App added.";
 /* ✅ [v2] Enhanced App Store app notice */
-"apps.details.appstore_note" = "App Store apps are shown for reference only.";
+"apps.details.appstore_note" = "App Store apps cannot be removed from this screen. Please delete them directly from Launchpad (long-press) or Finder.";
 "apps.status.folder_needed" = "Permission required: Please select a folder.";
 "apps.alert.fail.list" = "\\n\\nFailed: %@";
 "apps.help.select_first" = "Select at least one eligible app bundle.";
@@ -302,7 +302,7 @@
 "junk.progress.preparing" = "Preparing scan…";
 "junk.progress.scanning_format" = "Scanning %@…";
 "junk.risk.safe" = "Recommended";
-"junk.risk.moderate" = "Moderate";
+"junk.risk.moderate" = "Review";
 "junk.risk.caution" = "Caution";
 "junk.category.system_caches.title" = "App Caches";
 "junk.category.system_caches.desc" = "Cache files created by apps. They may be recreated automatically when apps relaunch.";
@@ -419,7 +419,7 @@
 "apps.summary.appstore" = "App Store";
 "apps.summary.selected" = "Selected";
 "apps.safety.title" = "Review safely before cleanup";
-"apps.safety.desc" = "TriClean moves selected eligible apps and related files to Trash. It does not permanently delete items immediately, and App Store apps are not removed or scanned for related files from this screen.";
+"apps.safety.desc" = "TriClean moves selected app bundles and related files to Trash. It does not permanently delete items immediately, and App Store apps cannot be removed from this screen.";
 "apps.selection.none" = "%d apps visible in the current filter";
 "apps.selection.summary" = "%1$d selected · %2$d removable to Trash";
 "apps.table.app" = "App";
@@ -510,7 +510,3 @@
 "duplicate.phase.partial_hash" = "Comparing partial hashes...";
 "duplicate.phase.full_hash" = "Comparing full hashes...";
 "duplicate.phase.done" = "Done";
-
-/* App Review hardening */
-"apps.details.appstore_reference_only" = "TriClean does not scan related files for App Store apps or move them to Trash from this screen. If removal is needed, please delete them directly from Launchpad or Finder.";
-"apps.status.appstore_reference_only" = "App Store apps are shown for reference only and are not scanned for related files or moved to Trash from this screen.";

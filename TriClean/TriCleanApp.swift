@@ -68,7 +68,7 @@ struct TriCleanApp: App {
     // ✅ [추가] scenePhase 감지를 위해 환경 변수 선언 (에러 해결)
     @Environment(\.scenePhase) private var scenePhase
     
-    private let minWindowContentSize = NSSize(width: 1024, height: 820)
+    private let minWindowContentSize = NSSize(width: 1180, height: 840)
     
     init() {
         NSWindow.allowsAutomaticWindowTabbing = false

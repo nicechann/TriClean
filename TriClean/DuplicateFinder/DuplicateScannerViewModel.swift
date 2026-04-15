@@ -15,7 +15,6 @@ import Combine
 import SwiftUI
 import AppKit
 import CryptoKit
-import Darwin
 
 struct DuplicateCleanupResult: Identifiable {
     let id = UUID()
@@ -223,14 +222,14 @@ final class DuplicateScannerViewModel: ObservableObject {
 
                 // 실제 중복 그룹 생성
                 for (hash, files) in fullHashMap where files.count >= 2 {
-                    let distinctFiles = Self.deduplicatedByFileIdentity(files)
-                    guard distinctFiles.count >= 2 else { continue }
+                    let uniqueFiles = Self.removeAliasedFiles(from: files)
+                    guard uniqueFiles.count >= 2 else { continue }
 
-                    let dupFiles = Self.makeDuplicateFiles(from: distinctFiles, rootURL: rootURL)
+                    let dupFiles = Self.makeDuplicateFiles(from: uniqueFiles, rootURL: rootURL)
 
                     finalGroups.append(DuplicateGroup(
                         hash: hash,
-                        fileSize: distinctFiles[0].size,
+                        fileSize: uniqueFiles[0].size,
                         files: dupFiles
                     ))
                 }
@@ -399,16 +398,10 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     // MARK: - 파일 수집 (백그라운드)
 
-    private struct FileIdentity: Hashable {
-        let deviceID: UInt64
-        let inode: UInt64
-    }
-
     private struct FileCandidate {
         let url: URL
         let size: Int64
         let modDate: Date?
-        let identity: FileIdentity?
     }
 
     nonisolated private static func collectFiles(in root: URL, minBytes: Int64) -> [FileCandidate] {
@@ -438,8 +431,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             files.append(FileCandidate(
                 url: url,
                 size: size,
-                modDate: values.contentModificationDate,
-                identity: fileIdentity(for: url)
+                modDate: values.contentModificationDate
             ))
         }
 
@@ -464,6 +456,35 @@ final class DuplicateScannerViewModel: ObservableObject {
         return hashMap
     }
 
+    private nonisolated static func removeAliasedFiles(from files: [FileCandidate]) -> [FileCandidate] {
+        var seenIdentityKeys = Set<String>()
+        var uniqueFiles: [FileCandidate] = []
+        uniqueFiles.reserveCapacity(files.count)
+
+        for file in files {
+            if let identityKey = fileIdentityKey(of: file.url) {
+                if seenIdentityKeys.insert(identityKey).inserted {
+                    uniqueFiles.append(file)
+                }
+            } else {
+                uniqueFiles.append(file)
+            }
+        }
+
+        return uniqueFiles
+    }
+
+    private nonisolated static func fileIdentityKey(of url: URL) -> String? {
+        var info = stat()
+        let result: Int32 = url.withUnsafeFileSystemRepresentation { path in
+            guard let path else { return -1 }
+            return lstat(path, &info)
+        }
+
+        guard result == 0 else { return nil }
+        return "\(UInt64(info.st_dev)):\(UInt64(info.st_ino))"
+    }
+
     private nonisolated static func makeDuplicateFiles(from files: [FileCandidate], rootURL: URL) -> [DuplicateFile] {
         var duplicateFiles = files.map { file in
             DuplicateFile(
@@ -478,41 +499,6 @@ final class DuplicateScannerViewModel: ObservableObject {
             duplicateFiles[index].isKeep = (index == keepIndex)
         }
         return duplicateFiles
-    }
-
-    private nonisolated static func deduplicatedByFileIdentity(_ files: [FileCandidate]) -> [FileCandidate] {
-        var uniqueFiles: [FileCandidate] = []
-        uniqueFiles.reserveCapacity(files.count)
-
-        var seenIdentities = Set<FileIdentity>()
-        var seenPaths = Set<String>()
-
-        for file in files {
-            if let identity = file.identity {
-                if seenIdentities.insert(identity).inserted {
-                    uniqueFiles.append(file)
-                }
-            } else {
-                let standardizedPath = file.url.standardizedFileURL.path
-                if seenPaths.insert(standardizedPath).inserted {
-                    uniqueFiles.append(file)
-                }
-            }
-        }
-
-        return uniqueFiles
-    }
-
-    private nonisolated static func fileIdentity(for url: URL) -> FileIdentity? {
-        var statInfo = stat()
-        let path = url.path
-
-        let result = path.withCString { pointer in
-            lstat(pointer, &statInfo)
-        }
-
-        guard result == 0 else { return nil }
-        return FileIdentity(deviceID: UInt64(statInfo.st_dev), inode: UInt64(statInfo.st_ino))
     }
 
     private nonisolated static func recommendedKeepIndex(for files: [DuplicateFile], rootURL: URL) -> Int {
