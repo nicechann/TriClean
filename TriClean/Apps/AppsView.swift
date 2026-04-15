@@ -218,6 +218,8 @@ final class AppsViewModel: ObservableObject {
     @Published var lastStatusMessage: String?
     @Published var lastStatusIsError: Bool = false
 
+    private var loadInstalledAppsTask: Task<Void, Never>?
+    private var relatedScanTask: Task<Void, Never>?
     private var lastFailedApps: [AppsInstalledApp] = []
 
     init() {
@@ -356,6 +358,11 @@ final class AppsViewModel: ObservableObject {
     }
 
     func resetPermissions() {
+        loadInstalledAppsTask?.cancel()
+        relatedScanTask?.cancel()
+        loadInstalledAppsTask = nil
+        relatedScanTask = nil
+
         AppsSecurityScopedBookmarks.clear(key: .applicationsFolder)
         AppsSecurityScopedBookmarks.clear(key: .userLibraryFolder)
         AppsSecurityScopedBookmarks.clear(key: .manualAppBundle)
@@ -369,6 +376,8 @@ final class AppsViewModel: ObservableObject {
         selectedApp = nil
         relatedItems = []
         listFilter = .all
+        isLoadingInstalledApps = false
+        isScanning = false
 
         lastStatusIsError = false
         lastStatusMessage = "apps.status.reset_success".localized
@@ -455,6 +464,13 @@ final class AppsViewModel: ObservableObject {
             return
         }
         guard let token = AppsScopedAccessToken(url: root) else {
+            AppsSecurityScopedBookmarks.clear(key: .applicationsFolder)
+            applicationsFolderURL = nil
+            installedApps = []
+            selectedInstalledAppIDs.removeAll()
+            selectedApp = nil
+            relatedItems = []
+            isLoadingInstalledApps = false
             lastStatusIsError = true
             lastStatusMessage = "apps.status.scoped_error".localized
             return
@@ -462,32 +478,34 @@ final class AppsViewModel: ObservableObject {
 
         let rootStd = root.standardizedFileURL
 
+        loadInstalledAppsTask?.cancel()
         isLoadingInstalledApps = true
         lastStatusIsError = false
         lastStatusMessage = "apps.list.loading".localized
 
-        Task {
-            defer { token.stop() }
+        loadInstalledAppsTask = Task { [self] in
+            defer {
+                token.stop()
+                isLoadingInstalledApps = false
+                loadInstalledAppsTask = nil
+            }
 
             let scanned = await Task.detached(priority: .userInitiated) {
                 AppsViewModel.scanApps(in: rootStd, maxDepth: 2)
             }.value
 
+            guard !Task.isCancelled else { return }
+
             let sorted = scanned.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
-            guard self.applicationsFolderURL?.standardizedFileURL == rootStd else {
-                self.isLoadingInstalledApps = false
-                return
-            }
+            guard applicationsFolderURL?.standardizedFileURL == rootStd else { return }
 
-            self.installedApps = sorted
-            self.selectedInstalledAppIDs.removeAll()
-            self.selectedApp = nil
-            self.relatedItems = []
-
-            self.isLoadingInstalledApps = false
-            self.lastStatusIsError = false
-            self.lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
+            installedApps = sorted
+            selectedInstalledAppIDs.removeAll()
+            selectedApp = nil
+            relatedItems = []
+            lastStatusIsError = false
+            lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
         }
     }
 
@@ -566,17 +584,19 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
-        analyzeInstalledApp(url: app.url, modifiedDate: app.modifiedDate)
-    }
-
-    private func analyzeInstalledApp(url appURL: URL, modifiedDate: Date? = nil) {
-        let bundle = Bundle(url: appURL)
-        let name = (bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String)
-            ?? appURL.deletingPathExtension().lastPathComponent
-        let bundleID = bundle?.bundleIdentifier
-
-        selectedApp = AppsSelectedAppInfo(name: name, bundleID: bundleID, appPath: appURL.path, modifiedDate: modifiedDate)
+        selectedApp = AppsSelectedAppInfo(
+            name: app.name,
+            bundleID: app.bundleID,
+            appPath: app.id,
+            modifiedDate: app.modifiedDate
+        )
         relatedItems = []
+
+        if app.isAppStoreApp {
+            lastStatusIsError = false
+            lastStatusMessage = "apps.status.appstore_reference_only".localized
+            return
+        }
 
         guard userLibraryFolderURL != nil else {
             lastStatusIsError = false
@@ -584,7 +604,7 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        scanRelatedFiles(for: name, bundleID: bundleID)
+        scanRelatedFiles(for: app.name, bundleID: app.bundleID)
     }
 
     private func scanRelatedFiles(for appName: String, bundleID: String?) {
@@ -594,33 +614,41 @@ final class AppsViewModel: ObservableObject {
             return
         }
         guard let token = AppsScopedAccessToken(url: library) else {
+            AppsSecurityScopedBookmarks.clear(key: .userLibraryFolder)
+            userLibraryFolderURL = nil
+            relatedItems = []
+            isScanning = false
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_scoped_error".localized
             return
         }
 
         let libraryStd = library.standardizedFileURL
+        let currentAppPath = selectedApp?.appPath
 
+        relatedScanTask?.cancel()
         isScanning = true
         lastStatusIsError = false
         lastStatusMessage = "apps.status.scanning".localized
 
-        Task {
-            defer { token.stop() }
+        relatedScanTask = Task { [self] in
+            defer {
+                token.stop()
+                isScanning = false
+                relatedScanTask = nil
+            }
 
             let found = await Task.detached(priority: .userInitiated) {
                 AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
             }.value
 
-            guard self.userLibraryFolderURL?.standardizedFileURL == libraryStd else {
-                self.isScanning = false
-                return
-            }
+            guard !Task.isCancelled else { return }
+            guard userLibraryFolderURL?.standardizedFileURL == libraryStd else { return }
+            guard selectedApp?.appPath == currentAppPath else { return }
 
-            self.relatedItems = found
-            self.isScanning = false
-
-            self.lastStatusMessage = found.isEmpty
+            relatedItems = found
+            lastStatusIsError = false
+            lastStatusMessage = found.isEmpty
                 ? "apps.status.scan_empty".localized
                 : "apps.status.scan_found".localized(with: found.count)
         }
