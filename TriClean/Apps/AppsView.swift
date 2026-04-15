@@ -289,6 +289,15 @@ final class AppsViewModel: ObservableObject {
         ByteCountFormatter.string(fromByteCount: totalRelatedBytes, countStyle: .file)
     }
 
+    var selectedInstalledAppModel: AppsInstalledApp? {
+        guard let selectedApp else { return nil }
+        return installedApps.first { $0.id == selectedApp.appPath }
+    }
+
+    var isSelectedAppStoreApp: Bool {
+        selectedInstalledAppModel?.isAppStoreApp == true
+    }
+
     var uninstallButtonHelpText: String {
         if isRemoving { return "apps.help.removing".localized }
 
@@ -566,17 +575,19 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
-        analyzeInstalledApp(url: app.url, modifiedDate: app.modifiedDate)
-    }
-
-    private func analyzeInstalledApp(url appURL: URL, modifiedDate: Date? = nil) {
-        let bundle = Bundle(url: appURL)
-        let name = (bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String)
-            ?? appURL.deletingPathExtension().lastPathComponent
-        let bundleID = bundle?.bundleIdentifier
-
-        selectedApp = AppsSelectedAppInfo(name: name, bundleID: bundleID, appPath: appURL.path, modifiedDate: modifiedDate)
+        selectedApp = AppsSelectedAppInfo(
+            name: app.name,
+            bundleID: app.bundleID,
+            appPath: app.id,
+            modifiedDate: app.modifiedDate
+        )
         relatedItems = []
+
+        if app.isAppStoreApp {
+            lastStatusIsError = false
+            lastStatusMessage = "apps.status.appstore_reference_only".localized
+            return
+        }
 
         guard userLibraryFolderURL != nil else {
             lastStatusIsError = false
@@ -584,7 +595,7 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        scanRelatedFiles(for: name, bundleID: bundleID)
+        scanRelatedFiles(for: app.name, bundleID: app.bundleID)
     }
 
     private func scanRelatedFiles(for appName: String, bundleID: String?) {
@@ -1262,13 +1273,18 @@ struct AppsView: View {
                         relatedSummaryChip(titleKey: "apps.related.selected_size", value: viewModel.selectedRelatedSizeText)
                     }
 
-                    if let current = viewModel.installedApps.first(where: { $0.id == selected.appPath }), current.isAppStoreApp {
-                        Label("apps.details.appstore_note".localized, systemImage: "info.circle")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    if viewModel.userLibraryFolderURL == nil {
+                    if viewModel.isSelectedAppStoreApp {
+                        GroupBox {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Label("apps.details.appstore_note".localized, systemImage: "info.circle")
+                                    .font(.subheadline.bold())
+                                Text("apps.details.appstore_reference_only".localized)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    } else if viewModel.userLibraryFolderURL == nil {
                         Text("apps.details.library_guide".localized)
                             .font(.footnote)
                             .foregroundStyle(.secondary)

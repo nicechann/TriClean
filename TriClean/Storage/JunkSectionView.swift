@@ -226,7 +226,7 @@ struct JunkSectionView: View {
                         )
                         .foregroundStyle(result.category.riskLevel.color)
 
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

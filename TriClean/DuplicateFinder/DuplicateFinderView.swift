@@ -349,7 +349,7 @@ struct DuplicateFinderView: View {
 
                         Spacer()
 
-                        Image(systemName: isExpanded ? "chevron.down" : "chevron.left")
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
