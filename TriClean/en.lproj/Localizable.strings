@@ -63,6 +63,7 @@
 "memory.legend.wired" = "Wired Memory";
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
+"memory.donut.in_use" = "In Use";
 
 "memory.tray_message" = "Memory estimates refreshed.";
 "memory.tooltip.app_click" = "Activate %@ (%@)";
@@ -186,6 +187,7 @@
 "apps.status.uninstall_success" = "Moved %d app bundles to Trash.";
 "apps.status.uninstall_partial_fail" = "Moved %d app bundles, failed %d.";
 "apps.status.uninstall_all_fail" = "Failed to move selected app bundles to Trash (permission required).";
+"apps.status.appstore_reference_only" = "App Store apps are shown for reference only.";
 
 /* Settings View */
 "settings.display" = "Display";

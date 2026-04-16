@@ -322,7 +322,7 @@ struct MemoryDonutView: View {
         colorScheme == .dark ? Color.white.opacity(0.38) : Color.black.opacity(0.10)
     }
 
-    private var centerLabelText: String { "In Use" }
+    private var centerLabelText: String { "memory.donut.in_use".localized }
 
     private var centerValueText: String {
         switch viewModel.displayUnit {

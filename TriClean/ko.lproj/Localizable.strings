@@ -63,6 +63,7 @@
 "memory.legend.wired" = "Wired Memory";
 "memory.legend.compressed" = "Compressed";
 "memory.legend.available" = "Available";
+"memory.donut.in_use" = "사용 중";
 
 "memory.tray_message" = "메모리 추정치를 새로고침했습니다.";
 "memory.tooltip.app_click" = "%@ (%@) 활성화";
@@ -186,6 +187,7 @@
 "apps.status.uninstall_success" = "앱 번들 %d개를 휴지통으로 이동했습니다.";
 "apps.status.uninstall_partial_fail" = "앱 번들 %d개는 이동, %d개는 실패했습니다.";
 "apps.status.uninstall_all_fail" = "선택한 앱 번들을 휴지통으로 이동할 수 없습니다(권한 필요).";
+"apps.status.appstore_reference_only" = "App Store 앱은 참고용으로만 표시됩니다.";
 
 /* Settings View */
 "settings.display" = "Display";
