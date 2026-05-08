@@ -309,29 +309,46 @@ final class JunkScannerViewModel: ObservableObject {
     func cleanSelected() {
         let targets = results.flatMap { $0.items.filter(\.isSelected) }
         guard !targets.isEmpty else { return }
-        
         guard let library = libraryURL else { return }
-        let started = library.startAccessingSecurityScopedResource()
-        defer { if started { library.stopAccessingSecurityScopedResource() } }
         
-        var cleaned: Int64 = 0
-        let fm = FileManager.default
-        
-        for item in targets {
-            do {
-                try fm.trashItem(at: item.url, resultingItemURL: nil)
-                cleaned += item.sizeBytes
-            } catch {
-                // Fallback: NSWorkspace
-                NSWorkspace.shared.recycle([item.url]) { _, _ in }
+        // ✅ [수정] 비동기 fallback(NSWorkspace.recycle)의 결과까지 정확히 반영해
+        //   "실패한 항목이 UI에서 사라지는" 버그를 막습니다.
+        Task {
+            let started = library.startAccessingSecurityScopedResource()
+            defer { if started { library.stopAccessingSecurityScopedResource() } }
+            
+            let fm = FileManager.default
+            var succeededIDs = Set<UUID>()
+            var failedCount = 0
+            
+            for item in targets {
+                do {
+                    try fm.trashItem(at: item.url, resultingItemURL: nil)
+                    succeededIDs.insert(item.id)
+                } catch {
+                    // Fallback: NSWorkspace.recycle (비동기 콜백 → CheckedContinuation으로 동기화)
+                    let ok: Bool = await withCheckedContinuation { continuation in
+                        NSWorkspace.shared.recycle([item.url]) { _, error in
+                            continuation.resume(returning: error == nil)
+                        }
+                    }
+                    if ok {
+                        succeededIDs.insert(item.id)
+                    } else {
+                        failedCount += 1
+                    }
+                }
             }
+            
+            // ✅ 성공한 항목만 UI에서 제거 (실패한 항목은 유지하여 사용자가 재시도 가능)
+            for i in 0..<results.count {
+                results[i].items.removeAll { succeededIDs.contains($0.id) }
+            }
+            results.removeAll { $0.items.isEmpty }
+            
+            // 실패가 있어도 결과 목록에 남아있어 사용자가 자연스럽게 인지/재시도 가능.
+            // (별도 상태 메시지 없이 UI 상태로만 표시)
+            _ = failedCount
         }
-        
-        // 삭제된 항목 제거
-        let deletedIDs = Set(targets.map(\.id))
-        for i in 0..<results.count {
-            results[i].items.removeAll { deletedIDs.contains($0.id) }
-        }
-        results.removeAll { $0.items.isEmpty }
     }
 }

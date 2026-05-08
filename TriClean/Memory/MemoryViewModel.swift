@@ -43,8 +43,29 @@ final class MemoryViewModel: ObservableObject {
     @Published var isLoadingSignificantApps: Bool = false
     @Published var significantAppsUpdatedAt: Date? = nil
 
-    // ✅ 중복 호출 방어용 타임스탬프
+    // ✅ 중복 호출 방어용 타임스탬프 (메인 스레드에서만 접근)
     private var lastSignificantAppsRefresh: Date = .distantPast
+
+    // ✅ [추가] 메뉴바 텍스트 자동 갱신용 Timer (5초 주기)
+    //   - 사용자가 윈도우를 열지 않아도 메뉴바 숫자가 실시간으로 갱신됨
+    //   - @StateObject로 보유되므로 앱 수명 동안 유지됨
+    private var refreshTimer: Timer?
+
+    init() {
+        startAutoRefresh()
+    }
+
+    deinit {
+        refreshTimer?.invalidate()
+    }
+
+    private func startAutoRefresh() {
+        refreshTimer?.invalidate()
+        // RunLoop.main에 스케줄되어 Timer 콜백이 항상 메인 스레드에서 실행됨
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            self?.refresh()
+        }
+    }
 
     // MARK: - 공개 계산 값
 
@@ -88,6 +109,9 @@ final class MemoryViewModel: ObservableObject {
     }
 
     func refreshSignificantApps(limit: Int = 10) {
+        // ✅ 메인 스레드에서만 호출되도록 가드 (lastSignificantAppsRefresh race 방지)
+        dispatchPrecondition(condition: .onQueue(.main))
+
         // ✅ 5초 이내 중복 호출 방어
         guard Date().timeIntervalSince(lastSignificantAppsRefresh) > 5 else { return }
         lastSignificantAppsRefresh = Date()
@@ -183,8 +207,10 @@ final class MemoryViewModel: ObservableObject {
 enum MemoryReader {
 
     static func fetchStats() -> MemoryStats {
+        // ✅ [수정] mach_host_self()는 task 전역 send right이므로
+        //   mach_port_deallocate를 호출하면 안 됨 (반복 호출 시 포트 카운트 오류 누적).
+        //   Apple 샘플 코드도 deallocate 하지 않음.
         let host = mach_host_self()
-        defer { mach_port_deallocate(mach_task_self_, host) }
 
         var pageSize: vm_size_t = 0
         if host_page_size(host, &pageSize) != KERN_SUCCESS {

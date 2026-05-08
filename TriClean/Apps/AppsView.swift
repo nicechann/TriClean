@@ -10,6 +10,10 @@ import Combine
 import AppKit
 import UniformTypeIdentifiers
 import CoreServices
+import os.log
+
+// ✅ os.Logger 사용 — print() 대비 Console.app/log show에서 조회 가능, privacy 마커 지원
+private let appsLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Apps")
 
 // MARK: - AppsView 전용 Security-Scoped Bookmark 유틸
 
@@ -658,13 +662,32 @@ final class AppsViewModel: ObservableObject {
         var dict: [String: AppsRelatedItem] = [:]
         let fm = FileManager.default
 
+        // ✅ [수정] 데이터 손실 위험이 높은 경로는 기본 선택 해제
+        //   - Preferences: 사용자 설정 파일 (앱 재설치 시 복원 안 됨)
+        //   - Containers / Group Containers: 앱별 도큐먼트 보관 영역
+        //   - Application Support: 라이센스, 데이터베이스 등 사용자 데이터
+        //   사용자가 의식적으로 체크해야 삭제되도록 함.
+        let highRiskSubs: Set<String> = [
+            "Preferences",
+            "Containers",
+            "Group Containers",
+            "Application Support"
+        ]
+
         func upsert(_ item: AppsRelatedItem) {
             dict[item.id] = item
         }
 
         if let bundleID, !bundleID.isEmpty {
+            // ✅ Spotlight 결과: 경로/유형이 사전에 분류되지 않으므로 안전하게 기본 선택 해제
             for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
-                upsert(item)
+                let safe = AppsRelatedItem(
+                    url: item.url,
+                    selected: false,
+                    isDirectory: item.isDirectory,
+                    sizeBytes: item.sizeBytes
+                )
+                upsert(safe)
             }
 
             let strictPaths: [(sub: String, suffix: String?)] = [
@@ -686,7 +709,13 @@ final class AppsViewModel: ObservableObject {
                 if fm.fileExists(atPath: targetURL.path) {
                     let isDir = (try? targetURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
                     let sizeBytes = fileSize(at: targetURL)
-                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: isDir, sizeBytes: sizeBytes))
+                    let isHighRisk = highRiskSubs.contains(sub)
+                    upsert(AppsRelatedItem(
+                        url: targetURL,
+                        selected: !isHighRisk,
+                        isDirectory: isDir,
+                        sizeBytes: sizeBytes
+                    ))
                 }
             }
         }
@@ -699,7 +728,13 @@ final class AppsViewModel: ObservableObject {
                 var isDir: ObjCBool = false
                 if fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
                     let sizeBytes = fileSize(at: targetURL)
-                    upsert(AppsRelatedItem(url: targetURL, selected: true, isDirectory: true, sizeBytes: sizeBytes))
+                    let isHighRisk = highRiskSubs.contains(sub)
+                    upsert(AppsRelatedItem(
+                        url: targetURL,
+                        selected: !isHighRisk,
+                        isDirectory: true,
+                        sizeBytes: sizeBytes
+                    ))
                 }
             }
         }
@@ -890,7 +925,7 @@ final class AppsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 NSWorkspace.shared.recycle([url]) { _, error in
                     if let error = error {
-                        print("NSWorkspace 삭제 실패: \(error)")
+                        appsLogger.error("NSWorkspace 삭제 실패: \(error.localizedDescription, privacy: .public)")
                         continuation.resume(returning: false)
                     } else {
                         continuation.resume(returning: true)

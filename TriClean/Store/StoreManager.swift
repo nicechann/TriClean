@@ -8,6 +8,9 @@
 import Foundation
 import StoreKit
 import Combine
+import os.log
+
+private let storeLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Store")
 
 @MainActor
 final class StoreManager: ObservableObject {
@@ -85,7 +88,7 @@ final class StoreManager: ObservableObject {
             self.products = []
             // ✅ [수정] 하드코딩 한국어 → localized 키로 교체
             self.productsErrorMessage = "store.error.load_failed_detail".localized(with: error.localizedDescription)
-            print("상품 로드 실패: \(error)")
+            storeLogger.error("상품 로드 실패: \(error.localizedDescription, privacy: .public)")
         }
     }
 

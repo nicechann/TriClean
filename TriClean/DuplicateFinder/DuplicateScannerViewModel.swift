@@ -363,21 +363,27 @@ final class DuplicateScannerViewModel: ObservableObject {
         var failedCount = 0
         var deletedBytes: Int64 = 0
 
+        // ✅ [수정] fileExists 의존 대신 명시적으로 성공한 파일 ID를 추적해
+        //   네트워크 볼륨 등에서 비정상 동기화로 인해 실패한 파일이 UI에서
+        //   사라지는 문제를 차단.
+        var succeededFileIDs = Set<UUID>()
+
         for group in groups {
             for file in group.files where !file.isKeep {
                 do {
                     try fm.trashItem(at: file.url, resultingItemURL: nil)
                     deletedCount += 1
                     deletedBytes += group.fileSize
+                    succeededFileIDs.insert(file.id)
                 } catch {
                     failedCount += 1
                 }
             }
         }
 
-        // 삭제된 파일 제거 후 결과 갱신
+        // 성공한 항목만 UI에서 제거
         for i in groups.indices {
-            groups[i].files.removeAll { !$0.isKeep && !FileManager.default.fileExists(atPath: $0.url.path) }
+            groups[i].files.removeAll { succeededFileIDs.contains($0.id) }
         }
         groups.removeAll { $0.files.count <= 1 }
 

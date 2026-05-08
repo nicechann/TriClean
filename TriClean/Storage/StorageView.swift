@@ -8,6 +8,9 @@
 import SwiftUI
 import AppKit
 import StoreKit // ✅ 결제 기능을 위해 추가
+import os.log
+
+private let storageLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Storage")
 
 // MARK: - Disk Usage (사용자 선택 기반) : Security-scoped bookmarks
 
@@ -24,7 +27,7 @@ private struct StorageDiskScopeBookmarks {
                                             relativeTo: nil)
             UserDefaults.standard.set(data, forKey: key.rawValue)
         } catch {
-            print("Bookmark save failed:", key.rawValue, error)
+            storageLogger.error("Bookmark save failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -37,7 +40,7 @@ private struct StorageDiskScopeBookmarks {
                            relativeTo: nil,
                            bookmarkDataIsStale: &isStale)
         } catch {
-            print("Bookmark load failed:", key.rawValue, error)
+            storageLogger.error("Bookmark load failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
@@ -61,7 +64,7 @@ private struct StorageDiskScopeBookmarks {
             let blob = try PropertyListEncoder().encode(datas)
             UserDefaults.standard.set(blob, forKey: key.rawValue)
         } catch {
-            print("Bookmarks save(many) failed:", key.rawValue, error)
+            storageLogger.error("Bookmarks save(many) failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -84,7 +87,7 @@ private struct StorageDiskScopeBookmarks {
             
             return Array(Set(urls)).sorted { $0.path < $1.path }
         } catch {
-            print("Bookmarks load(many) failed:", key.rawValue, error)
+            storageLogger.error("Bookmarks load(many) failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
             return []
         }
     }
@@ -1481,22 +1484,9 @@ struct StorageView: View {
         }
     }
     
-    /// 선택한 폴더를 기준으로,
-    
-    /// - 루트 직계 하위 "폴더"(폴더 크기) + 루트 직계 "파일"
-    /// - 그리고 각 폴더 내부(재귀)에서 조건(minSizeMB) 이상인 파일을
-    ///   **해당 폴더 아래(depth=1)** 로 붙여서 반환합니다.
-    ///
-    /// ⚠️ macOS 14+ 의 Table(children:) 를 쓰지 않고도,
-    /// Table에서 들여쓰기(depth)로 "하위 파일처럼" 보이게 하기 위한 구조입니다.
-    ///
-    /// - Note: v12에서는 스트리밍 방식으로 교체되어, 이 함수는 사용하지 않습니다.
-    ///         (기존 구조 설명/참고용으로만 남겨둡니다)
-    private static func scanStructuredItems(of root: URL, minSizeMB: Double, ignoredFolderURLs: Set<URL>) -> [FolderInfo] {
-        // v12부터는 scanStructuredItemsBatches(스트리밍) 경로를 사용합니다.
-        // 기존 코드 경로를 유지하고 싶다면 v11 버전을 참고하세요.
-        return []
-    }
+    // ✅ [삭제됨] scanStructuredItems(of:minSizeMB:ignoredFolderURLs:) -> [FolderInfo]
+    //   v12부터 scanStructuredItemsBatches(스트리밍)로 교체되어 사용되지 않는 함수.
+    //   빈 배열만 반환하던 stub 코드 제거.
     
     
     // MARK: - Ignore & Delete
@@ -1604,7 +1594,7 @@ struct StorageView: View {
             try FileManager.default.trashItem(at: target, resultingItemURL: nil)
             return true
         } catch {
-            print("Trash failed:", error)
+            storageLogger.error("Trash failed: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }

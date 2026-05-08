@@ -16,28 +16,8 @@ enum SidebarItem: Hashable {
     case settings
 }
 
-// 사이드바 상단에 표시할 상태 뱃지용 ViewModel
-final class SidebarStatusViewModel: ObservableObject {
-    @Published var memoryUsagePercent: Int = 0
-    @Published var isRefreshing: Bool = false
-
-    init() { refreshMemory() }
-
-    func refreshMemory() {
-        guard !isRefreshing else { return }
-        isRefreshing = true
-        DispatchQueue.global(qos: .userInitiated).async {
-            let stats = MemoryReader.fetchStats()
-            let used  = max(stats.appBytes + stats.wiredBytes + stats.compressedBytes, 0)
-            let total = max(stats.totalBytes, 1)
-            let percent = Int((Double(used) / Double(total)) * 100.0)
-            DispatchQueue.main.async {
-                self.memoryUsagePercent = max(0, min(100, percent))
-                self.isRefreshing = false
-            }
-        }
-    }
-}
+// ✅ [삭제됨] SidebarStatusViewModel — 정의만 있고 인스턴스화되지 않던 미사용 코드.
+//   사이드바 상태는 MemoryViewModel.formattedCurrentUsage가 직접 표시함.
 
 struct ContentView: View {
 
