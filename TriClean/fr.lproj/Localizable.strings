@@ -1,0 +1,501 @@
+/*
+  Localizable.strings (French)
+  TriClean
+*/
+
+/* Common */
+"common.cancel" = "Annuler";
+"common.confirm" = "Confirmer";
+"common.close" = "Fermer";
+"common.delete" = "Supprimer";
+"common.refresh" = "Actualiser";
+"common.trash" = "Placer dans la corbeille";
+"common.finder" = "Afficher dans le Finder";
+"common.finder_app" = "Finder";
+"common.macos" = "macOS";
+"common.permission_needed" = "Autorisation requise";
+"common.quit" = "Quitter TriClean";
+"common.select" = "Sélectionner…";
+"common.change" = "Modifier…";
+"common.clear" = "Effacer";
+"common.scan" = "Analyser";
+"common.updated" = "Mis à jour : %@";
+"common.version" = "Version";
+"common.build" = "Build";
+"common.move_to_trash" = "Placer dans la corbeille";
+
+/* Sidebar */
+"sidebar.storage" = "Stockage";
+"sidebar.memory" = "Mémoire";
+"sidebar.apps" = "Apps";
+"sidebar.settings" = "Réglages";
+"sidebar.storage.subtitle" = "Analyser l'utilisation du disque";
+"sidebar.memory.subtitle" = "Afficher l'utilisation de la mémoire";
+"sidebar.apps.subtitle" = "Examiner les fichiers liés aux apps";
+"sidebar.status.memory_usage" = "Utilisation estimée actuelle de la mémoire.";
+"sidebar.status.refresh_help" = "Actualiser les estimations de mémoire";
+
+/* Memory View */
+"memory.in_use" = "Utilisée : %@";
+"memory.total" = "Total : %@";
+"memory.used" = "Utilisée : %@";
+"memory.available" = "Disponible : %@";
+
+"memory.clean_btn" = "Actualiser";
+"memory.clean_desc" = "Actualise les estimations de mémoire à partir des API publiques de macOS.";
+"memory.optimize_btn" = "Actualiser";
+"memory.optimize_desc" = "Actualise les estimations de mémoire à partir des API publiques de macOS.";
+"memory.optimize_done" = "Estimations de mémoire actualisées.";
+
+"memory.disclaimer" = "Les valeurs affichées sont des estimations basées sur les API publiques de macOS (host_statistics64) et peuvent différer de l'état réel de la mémoire. Cette app ne modifie pas la mémoire système.";
+"memory.menubar_disclaimer" = "Les valeurs sont des estimations approximatives, à titre indicatif.";
+
+"memory.composition" = "Composition de la mémoire";
+"memory.composition_note" = "※ Basé sur les statistiques Mach VM de macOS (host_statistics64). Les valeurs sont des estimations et peuvent différer du Moniteur d'activité.";
+"memory.significant_usage" = "Utilisation importante de la mémoire";
+"memory.significant_empty" = "Aucune app en cours d'exécution à afficher.";
+"memory.legend.app" = "Mémoire des apps";
+"memory.legend.wired" = "Mémoire connectée";
+"memory.legend.compressed" = "Compressée";
+"memory.legend.available" = "Disponible";
+"memory.donut.in_use" = "Utilisée";
+
+"memory.tray_message" = "Estimations de mémoire actualisées.";
+"memory.tooltip.app_click" = "Activer %@ (%@)";
+
+/* Storage View */
+"storage.header" = "Utilisation du disque";
+"storage.loading" = "Chargement des informations du disque…";
+"storage.legend.home" = "Dossier personnel";
+"storage.legend.apps" = "Applications";
+"storage.legend.other" = "Autre utilisation";
+"storage.legend.free" = "Espace libre";
+"storage.permission.home" = "Autorisation requise : sélectionner le dossier personnel";
+"storage.permission.apps" = "Autorisation requise : sélectionner le dossier Applications";
+"storage.scope_note" = "※ L'utilisation du dossier personnel/des applications est calculée uniquement dans les zones sélectionnées. Sinon, elle est affichée dans « Autre utilisation ».";
+"storage.scan.header" = "Analyse du disque";
+"storage.scan.btn" = "Choisir un dossier et analyser";
+"storage.scan.updating" = "Mise à jour…";
+"storage.scan.scanning" = "Analyse en cours…";
+"storage.scan.tip" = "Astuce : il est recommandé d'analyser le dossier personnel (~) ou les sous-dossiers de /Users.";
+"storage.scan.min_size" = "Taille min. du dossier";
+"storage.scan.sort" = "Tri des dossiers principaux";
+"storage.scan.sort.default" = "Par défaut";
+"storage.scan.sort.name" = "Nom";
+"storage.scan.sort.size" = "Taille";
+"storage.scan.sort.note" = "Affichés dans l'ordre de découverte pendant l'analyse. Le tri est appliqué à la fin.";
+"storage.results.header" = "Résultats";
+"storage.alert.delete.title" = "Voulez-vous vraiment supprimer ?";
+"storage.alert.delete.message" = "« %@ » %@ sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
+"storage.item.folder" = "Dossier";
+"storage.item.file" = "Fichier";
+"storage.msg.empty" = "Aucun résultat d'analyse. Cliquez sur « Choisir un dossier et analyser » pour commencer.";
+"storage.msg.manual" = "Analyse du dossier « %@ »…";
+"storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
+"storage.msg.canceled" = "Analyse annulée.";
+"storage.msg.no_items" = "Aucun élément correspondant aux critères dans « %@ ».";
+"storage.msg.completed" = "Analyse de « %@ » terminée. (%d dossiers / %d fichiers)";
+"storage.scope.select_home_msg" = "L'utilisation du dossier personnel est calculée uniquement dans la zone sélectionnée.";
+"storage.scope.select_home_title" = "Sélectionner le dossier personnel";
+"storage.scope.select_apps_title" = "Sélectionner le dossier Applications";
+"storage.scope.select_apps_msg" = "Sélectionnez les dossiers servant au calcul de l'utilisation des applications. (Sélection multiple, par ex. /Applications, ~/Applications)";
+"storage.scope.guide" = "※ L'utilisation du dossier personnel/des applications est calculée uniquement dans les zones sélectionnées. Sinon, elle apparaît dans « Autre utilisation ».";
+"storage.scan.default_msg" = "Aucun résultat d'analyse. Cliquez sur « Choisir un dossier et analyser » ci-dessus pour commencer.";
+"storage.scope.home_needed" = "Autorisation requise : veuillez sélectionner le dossier personnel.";
+"storage.scope.apps_needed" = "Autorisation requise : veuillez sélectionner le dossier Applications.";
+"storage.usage.format" = "%1$@ utilisés sur %2$@";
+"storage.msg.analyzing_home_apps" = "Analyse du dossier personnel et des applications…";
+"storage.alert.delete.msg_folder" = "Le dossier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
+"storage.alert.delete.msg_file" = "Le fichier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
+"storage.alert.delete.msg_multi" = "Les %d éléments sélectionnés seront placés dans la corbeille. Vous pouvez les restaurer depuis le Finder.";
+"storage.msg.canceling" = "Annulation…";
+
+/* Apps View */
+"apps.header.uninstall" = "Apps installées";
+"apps.header.desc" = "Analyse les bundles d'apps dans la zone sélectionnée. Seules les apps utilisateurs hors App Store éligibles peuvent être placées dans la corbeille. Les apps système, protégées et de l'App Store sont listées à titre indicatif uniquement et ne peuvent pas être supprimées depuis cet écran.";
+"apps.btn.manual_select" = "Sélectionner un .app manuellement…";
+"apps.search.placeholder" = "Nom de l'app ou identifiant de bundle";
+"apps.btn.uninstall" = "Placer dans la corbeille";
+"apps.btn.details" = "Détails";
+"apps.scope.apps_folder" = "Sélectionner le dossier Applications";
+"apps.scope.apps_msg" = "Sélectionnez un dossier à analyser (ex. /Applications ou ~/Applications).\nTriClean analyse uniquement la zone sélectionnée.";
+"apps.scope.library_folder" = "Sélectionner Bibliothèque personnelle (~/Library)";
+"apps.scope.library_msg" = "Définissez la portée des fichiers liés (Préférences/Caches).\nTriClean détecte les résidus uniquement dans la bibliothèque sélectionnée.";
+"apps.scope.reset" = "Réinitialiser les autorisations…";
+"apps.list.title" = "Apps installées";
+"apps.list.loading" = "Chargement des apps installées…";
+"apps.list.guide_select" = "Veuillez sélectionner le dossier Applications puis cliquer sur Analyser.";
+"apps.list.empty" = "Aucune app à afficher. (Vérifiez la recherche ou la portée)";
+"apps.type.system" = "App système";
+"apps.type.user" = "App utilisateur";
+"apps.type.protected" = "Protégée";
+"apps.type.appstore" = "App Store";
+"apps.details.selected" = "App sélectionnée";
+"apps.details.library_guide" = "Sélectionnez ci-dessus « Bibliothèque personnelle (~/Library) » pour analyser les fichiers liés.";
+"apps.details.scanning" = "Recherche des fichiers liés…";
+"apps.details.no_related" = "Aucun fichier lié trouvé.";
+"apps.details.found_count" = "Fichiers liés (%d)";
+"apps.details.trash_selected" = "Placer la sélection dans la corbeille";
+"apps.details.guide" = "Sélectionnez une app dans le tableau ou utilisez « Sélectionner un .app manuellement » pour examiner les détails et les fichiers liés (caches, préférences, etc.).";
+"apps.alert.uninstall.title" = "Placer les bundles d'apps sélectionnés dans la corbeille";
+"apps.alert.uninstall.msg" = "Placer dans la corbeille %1$d bundles d'apps supprimables sur %2$d apps sélectionnées ? Les apps de l'App Store sont exclues, et les éléments déplacés peuvent être restaurés depuis la corbeille du Finder.";
+"apps.alert.fail.title" = "Échec du déplacement (autorisation)";
+"apps.alert.fail.msg" = "%d apps n'ont pas pu être déplacées automatiquement en raison des règles de sécurité macOS (administrateur requis).%@\nVeuillez utiliser « Afficher dans le Finder » et supprimer manuellement.";
+"apps.alert.related.title" = "Examiner les fichiers liés";
+"apps.alert.related.msg" = "Placer %1$d fichiers/dossiers liés sélectionnés (%2$@) dans la corbeille ?";
+"apps.alert.reset.title" = "Réinitialiser les autorisations";
+"apps.alert.reset.msg" = "Cela effacera toutes les autorisations d'accès aux dossiers. Vous devrez sélectionner à nouveau les dossiers à analyser.";
+"apps.status.scoped_error" = "Aucune autorisation d'accès (Security-Scoped) au dossier Applications.";
+"apps.manual.msg" = "Sélectionnez l'app (.app) pour examiner ses fichiers liés.";
+"apps.manual.title" = "Sélectionner l'app manuellement";
+"apps.status.library_selected" = "Bibliothèque personnelle sélectionnée.";
+"apps.status.library_guide" = "Autorisation requise : veuillez sélectionner Bibliothèque personnelle (~/Library).";
+"apps.status.library_needed" = "Autorisation requise : veuillez sélectionner Bibliothèque personnelle (~/Library).";
+"apps.status.library_scoped_error" = "Aucune autorisation d'accès (Security-Scoped) au dossier Bibliothèque personnelle.";
+"apps.status.loaded_count" = "%d apps chargées.";
+"apps.status.reset_success" = "Réinitialisation terminée.";
+"apps.status.no_permission" = "Aucune autorisation d'accès.";
+"apps.status.not_app_bundle" = "Le fichier sélectionné n'est pas un bundle d'app.";
+"apps.status.app_selected" = "App sélectionnée.";
+"apps.status.read_fail" = "Échec de la lecture du fichier.";
+"apps.status.app_added" = "App ajoutée.";
+"apps.details.appstore_note" = "Les apps de l'App Store ne peuvent pas être supprimées depuis cet écran. Veuillez les supprimer directement depuis le Launchpad (appui prolongé) ou le Finder.";
+"apps.status.folder_needed" = "Autorisation requise : veuillez sélectionner un dossier.";
+"apps.alert.fail.list" = "\\n\\nÉchec : %@";
+"apps.help.select_first" = "Sélectionnez au moins un bundle d'app éligible.";
+"apps.help.all_protected" = "Les éléments sélectionnés sont des apps protégées, système ou App Store et ne peuvent pas être supprimés ici.";
+"apps.help.partial_protected" = "Certains éléments sélectionnés sont des apps protégées, système ou App Store et seront ignorés.";
+"apps.help.move_trash" = "Placer les bundles d'apps hors App Store sélectionnés dans la corbeille.";
+"apps.help.removing" = "Déplacement…";
+"apps.scope.library_analysis" = "Bibliothèque personnelle (~/Library) — analyser les fichiers liés";
+"apps.status.folder_selected" = "Dossier sélectionné : %@";
+"apps.status.bookmark_fail" = "Échec de l'enregistrement de l'autorisation du dossier : %@";
+"apps.status.app_bookmark_fail" = "Échec de l'enregistrement de l'autorisation de l'app : %@";
+"apps.status.nothing_to_trash" = "Aucune app supprimable sélectionnée.";
+"apps.status.scanning" = "Analyse des fichiers liés…";
+"apps.status.scan_empty" = "Aucun fichier lié trouvé.";
+"apps.status.scan_found" = "%d éléments liés trouvés.";
+"apps.status.related_success" = "%d éléments liés placés dans la corbeille.";
+"apps.status.related_partial_fail" = "%d éléments déplacés, %d ont échoué.";
+"apps.status.related_none" = "Aucun élément n'a été placé dans la corbeille.";
+"apps.status.uninstall_success" = "%d bundles d'apps placés dans la corbeille.";
+"apps.status.uninstall_partial_fail" = "%d bundles d'apps déplacés, %d ont échoué.";
+"apps.status.uninstall_all_fail" = "Impossible de placer les bundles d'apps sélectionnés dans la corbeille (autorisation requise).";
+"apps.status.appstore_reference_only" = "Les apps de l'App Store sont affichées à titre indicatif uniquement.";
+
+/* Settings View */
+"settings.display" = "Affichage";
+"settings.menubar_unit" = "Unité de la barre des menus";
+"settings.menubar_unit_desc" = "Sélectionnez l'unité de mémoire affichée dans la barre des menus et la barre latérale.";
+"settings.app_activation" = "Activation des apps";
+"settings.app_activation_desc" = "Sélectionnez le comportement au clic sur une icône d'app dans « Utilisation importante de la mémoire » (fenêtre unique vs toutes les fenêtres).";
+"settings.app_activation.single" = "Unique";
+"settings.app_activation.all" = "Toutes";
+"settings.about" = "À propos";
+"settings.help" = "Aide";
+
+"settings.help.clean_title" = "Comment fonctionnent les estimations";
+"settings.help.clean_desc" = "• Les valeurs de mémoire sont calculées à partir d'API publiques macOS comme host_statistics64.\n• Les chiffres affichés dans TriClean sont des estimations et peuvent différer du Moniteur d'activité.\n• « Actualiser » met à jour uniquement les valeurs affichées ; aucun état mémoire système n'est modifié.\n• Cette app sert uniquement à la surveillance et n'optimise ni ne libère la mémoire.";
+"settings.help.search_title" = "Recherche d'apps : indexation Spotlight";
+"settings.help.search_desc" = "• Les résultats peuvent être vides si l'indexation Spotlight est désactivée.\n• Dans le Sandbox, seuls les chemins accessibles sont recherchés.";
+
+/* Menu Bar */
+"menubar.memory.title" = "TriClean – Mémoire";
+"menubar.clean" = "Actualiser";
+"menubar.open_triclean" = "Ouvrir TriClean";
+
+/* Debug */
+"settings.debug" = "Débogage";
+"settings.debug.clean_fill_mode" = "Mode débogage mémoire";
+"settings.debug.clean_fill_desc" = "Option de débogage uniquement pour les tests internes.";
+
+/* Paywall */
+"paywall.feat.memory" = "Surveillance de la mémoire en temps réel";
+"paywall.feat.memory_desc" = "Visualisez d'un coup d'œil la composition et l'utilisation estimées de la mémoire système";
+
+/* Trial & Banner */
+"trial.banner.status" = "Essai : %d jours restants";
+"trial.bottom.title" = "Essai gratuit";
+"trial.bottom.days_left" = "%d jours restants";
+"trial.bottom.buy_now" = "Acheter maintenant";
+"trial.expired.msg" = "Votre essai gratuit a expiré.";
+"trial.expired.btn" = "Acheter la version complète";
+"paywall.expired.banner" = "Votre essai gratuit de 7 jours est terminé. Achetez l'app pour continuer à utiliser toutes les fonctionnalités, ou quittez-la.";
+
+/* Paywall (Features) */
+"paywall.title" = "TriClean Premium";
+"paywall.subtitle" = "Débloquez toutes les fonctionnalités";
+"paywall.feat.disk" = "Analyse de l'utilisation du disque";
+"paywall.feat.disk_desc" = "Trouvez rapidement les fichiers et dossiers volumineux";
+"paywall.feat.apps" = "Examen des fichiers d'apps";
+"paywall.feat.apps_desc" = "Examinez les bundles d'apps et leurs fichiers liés dans la bibliothèque personnelle";
+"paywall.feat.auto" = "Tableau de bord de surveillance système";
+"paywall.feat.auto_desc" = "Conservez les informations de stockage et de mémoire au même endroit";
+
+/* Paywall (Buttons & Status) */
+"paywall.btn.buy_format" = "Acheter (%@)";
+"paywall.btn.restore" = "Restaurer les achats";
+"paywall.btn.later" = "Plus tard";
+"store.status.checking" = "Vérification du statut d'achat…";
+"store.status.loading_products" = "Chargement des produits…";
+"store.error.load_failed" = "Échec du chargement des produits.";
+"store.btn.retry" = "Réessayer";
+
+/* Menubar */
+"menu.buy_pro" = "Acheter TriClean Pro...";
+
+/* Paywall (Links) */
+"paywall.link.privacy" = "Confidentialité";
+"paywall.link.terms" = "Conditions d'utilisation";
+
+"paywall.error.title"   = "Erreur d'achat";
+"paywall.error.unknown" = "Une erreur inconnue s'est produite.";
+
+"store.error.product_not_found"   = "Produit introuvable. Vérifiez l'identifiant de produit ou la configuration StoreKit.";
+"store.error.load_failed_detail"  = "Échec du chargement du produit : %@";
+
+/* Onboarding */
+"onboarding.welcome.title" = "Bienvenue dans TriClean";
+"onboarding.welcome.desc" = "Examinez l'utilisation du stockage, les estimations de mémoire et les fichiers liés aux apps en un seul endroit.";
+"onboarding.storage.title" = "Analyse du disque";
+"onboarding.storage.desc" = "Analysez votre disque pour trouver les dossiers et fichiers volumineux. Sélectionnez-les et placez-les dans la corbeille pour libérer de l'espace.";
+"onboarding.memory.title" = "Moniteur de mémoire";
+"onboarding.memory.desc" = "Visualisez la composition et l'utilisation estimées de la mémoire à l'aide d'API publiques macOS. Cette app ne modifie pas la mémoire système.";
+"onboarding.apps.title" = "Examen des fichiers d'apps";
+"onboarding.apps.desc" = "Examinez les bundles d'apps et les fichiers liés dans votre bibliothèque personnelle. Les apps de l'App Store sont affichées à titre indicatif.";
+"onboarding.btn.next" = "Suivant";
+"onboarding.btn.back" = "Retour";
+"onboarding.btn.start" = "Commencer";
+
+/* Sidebar Sections */
+"sidebar.section.system" = "Système";
+"sidebar.section.cleanup" = "Nettoyage";
+"sidebar.duplicates" = "Doublons";
+
+/* Storage Surface */
+"storage.treemap.title" = "Carte du disque";
+"storage.table.item" = "Élément";
+"storage.table.size" = "Taille";
+
+/* Junk Cleaner */
+"junk.section.title" = "Nettoyage recommandé";
+"junk.section.subtitle" = "Examinez rapidement les caches, les journaux et les résidus de développement.";
+"junk.section.select_library_hint" = "Sélectionnez ~/Library pour trouver automatiquement les éléments à nettoyer.";
+"junk.section.select_library" = "Sélectionner ~/Library";
+"junk.section.scan" = "Analyser";
+"junk.section.found" = "Trouvé : %@";
+"junk.section.selected" = "Sélectionné : %@";
+"junk.section.clean" = "Nettoyer";
+"junk.section.last_scan" = "Dernière analyse : %@";
+"junk.section.alert.title" = "Nettoyer les fichiers inutiles sélectionnés";
+"junk.section.alert.message" = "Placer %@ dans la corbeille.\nVous pouvez les restaurer depuis le Finder.";
+"junk.scope.title" = "Sélectionner Bibliothèque personnelle (~/Library)";
+"junk.scope.message" = "Sélectionnez le dossier Bibliothèque personnelle à analyser pour les fichiers inutiles.";
+"junk.progress.preparing" = "Préparation de l'analyse…";
+"junk.progress.scanning_format" = "Analyse de %@…";
+"junk.risk.safe" = "Recommandé";
+"junk.risk.moderate" = "À vérifier";
+"junk.risk.caution" = "Attention";
+"junk.category.system_caches.title" = "Caches d'apps";
+"junk.category.system_caches.desc" = "Fichiers de cache créés par les apps. Ils peuvent être recréés automatiquement au redémarrage.";
+"junk.category.system_logs.title" = "Journaux d'apps";
+"junk.category.system_logs.desc" = "Fichiers journaux d'apps généralement nécessaires uniquement au débogage.";
+"junk.category.xcode_derived.title" = "Xcode DerivedData";
+"junk.category.xcode_derived.desc" = "Cache de compilation Xcode. Suppression sans danger lorsqu'il n'est pas nécessaire.";
+"junk.category.xcode_archives.title" = "Archives Xcode";
+"junk.category.xcode_archives.desc" = "Archives d'apps issues de compilations précédentes. Supprimez-les si elles ne sont plus utiles.";
+"junk.category.safari_cache.title" = "Cache Safari";
+"junk.category.safari_cache.desc" = "Cache du navigateur Safari. Le premier chargement des pages peut être légèrement plus lent après suppression.";
+"junk.category.mail_downloads.title" = "Téléchargements Mail";
+"junk.category.mail_downloads.desc" = "Cache des pièces jointes téléchargées utilisé par Mail.";
+"junk.category.saved_app_state.title" = "État d'app enregistré";
+"junk.category.saved_app_state.desc" = "Données de restauration des fenêtres et onglets. Les apps peuvent rouvrir dans leur état par défaut après suppression.";
+"junk.category.crash_reports.title" = "Rapports de plantage";
+"junk.category.crash_reports.desc" = "Rapports de plantage générés par les apps et macOS. Sans danger à nettoyer si vous n'en avez pas besoin.";
+"junk.category.webkit_cache.title" = "Cache WebKit";
+"junk.category.webkit_cache.desc" = "Données de cache utilisées par les apps basées sur WebKit.";
+"junk.category.http_storage.title" = "Stockage HTTP";
+"junk.category.http_storage.desc" = "Cache et stockage HTTP utilisés par les apps.";
+
+/* Duplicate Finder (legacy keys) */
+"duplicates.title" = "Recherche de doublons";
+"duplicates.subtitle" = "Trouvez et nettoyez les fichiers au contenu identique.";
+"duplicates.min_size" = "Min. :";
+"duplicates.change_folder" = "Changer de dossier";
+"duplicates.select_folder_title" = "Sélectionner un dossier à analyser pour les doublons";
+"duplicates.select_folder_desc" = "TriClean compare les fichiers du dossier sélectionné et de ses sous-dossiers.\nIl utilise une vérification en 3 étapes : taille du fichier → hachage partiel → hachage complet.";
+"duplicates.select_folder" = "Sélectionner un dossier";
+"duplicates.alert.title" = "Nettoyer les fichiers en double";
+"duplicates.alert.message" = "Placer les fichiers en double sélectionnés dans la corbeille.\nAu moins un fichier sera conservé dans chaque groupe.";
+"duplicates.phase.idle" = "Inactif";
+"duplicates.phase.collecting" = "Collecte des fichiers…";
+"duplicates.phase.grouping" = "Regroupement par taille…";
+"duplicates.phase.partial" = "Comparaison des hachages partiels…";
+"duplicates.phase.full" = "Comparaison des hachages complets…";
+"duplicates.phase.done" = "Terminé";
+"duplicates.summary.groups" = "Groupes de doublons";
+"duplicates.summary.reclaimable" = "Espace récupérable";
+"duplicates.summary.scanned" = "Fichiers analysés";
+"duplicates.count_format" = "%d";
+"duplicates.clean_selected" = "Nettoyer les doublons (%@)";
+"duplicates.empty.done_title" = "Aucun doublon trouvé";
+"duplicates.empty.idle_title" = "Prêt à analyser";
+"duplicates.empty.done_desc" = "Aucun fichier en double n'a été trouvé dans le dossier sélectionné.";
+"duplicates.empty.idle_desc" = "Cliquez sur « Analyser » pour rechercher des fichiers en double.";
+"duplicates.group.files" = "%d fichiers identiques";
+"duplicates.group.detail" = "%@ chacun · %@ récupérables";
+"duplicates.file.help.keep" = "Conserver ce fichier. Cliquez pour le marquer pour suppression.";
+"duplicates.file.help.delete" = "Marqué pour suppression. Cliquez pour conserver ce fichier.";
+"duplicates.file.keep" = "Conserver";
+"duplicates.file.delete" = "Supprimer";
+"duplicates.panel.title" = "Sélectionner un dossier pour la recherche de doublons";
+"duplicates.panel.message" = "TriClean analyse le dossier sélectionné et ses sous-dossiers à la recherche de fichiers en double.";
+"duplicates.status.collecting" = "Collecte de la liste des fichiers…";
+"duplicates.status.files_found" = "%d fichiers trouvés";
+"duplicates.status.grouping" = "Regroupement par taille…";
+"duplicates.status.size_candidates" = "%d fichiers sont des candidats par taille.";
+"duplicates.status.partial_matches" = "%d groupes correspondent au hachage partiel.";
+"duplicates.status.full_progress" = "Comparaison des hachages complets… %d/%d";
+"duplicates.status.none_found" = "Aucun fichier en double trouvé.";
+"duplicates.status.found_groups" = "%d groupes de doublons trouvés (%@ récupérables)";
+"duplicates.status.deleted" = "%d fichiers en double placés dans la corbeille.";
+
+
+/* Storage UX */
+"storage.status.header" = "Analyse en cours";
+"storage.status.folder" = "Dossier sélectionné";
+"storage.status.folder_none" = "Aucun dossier sélectionné";
+"storage.status.visible_results" = "Résultats visibles";
+"storage.status.visible_results_value" = "%d éléments principaux / %d enfants";
+"storage.status.min_size" = "Taille minimale";
+"storage.min_size.display" = "%d Mo et plus";
+"storage.treemap.subtitle" = "Voyez les plus gros dossiers et fichiers d'un coup d'œil.";
+"storage.treemap.hint" = "Astuce : cliquez sur un élément pour l'afficher dans le Finder.";
+"storage.treemap.item_help" = "%@ — %@";
+
+/* Junk Section */
+"junk.section.ready_title" = "Prêt à analyser";
+"junk.section.ready_desc" = "Analysez la zone ~/Library sélectionnée pour examiner les caches, journaux et résidus jetables.";
+"junk.section.wrong_path_warning" = "Ce chemin n'est pas ~/Library. Les fichiers inutiles peuvent ne pas être trouvés.";
+"junk.section.wrong_path_title" = "Mauvais dossier sélectionné";
+"junk.section.wrong_path_desc" = "Les fichiers inutiles se trouvent dans ~/Library. Touchez « Modifier » pour sélectionner votre dossier ~/Library.";
+
+/* Junk item selection */
+"junk.item.select_all" = "Tout sélectionner";
+"junk.item.deselect_all" = "Tout désélectionner";
+"junk.item.more" = "et %d éléments de plus…";
+
+/* Duplicates */
+"duplicates.selected_folder" = "Dossier sélectionné";
+
+/* Settings Debug */
+"settings.debug.purchase_status" = "Statut d'achat";
+"settings.debug.purchase_on" = "Acheté";
+"settings.debug.purchase_off" = "Non acheté";
+"settings.debug.trial_days" = "Jours d'essai";
+"settings.debug.days_button" = "%d j";
+"settings.debug.actual_value" = "Réel";
+"settings.debug.current_days" = "Actuel : %d jours";
+
+
+/* Apps View — Stage 3 */
+"apps.filter.label" = "Filtre";
+"apps.filter.all" = "Toutes";
+"apps.filter.removable" = "Supprimables";
+"apps.filter.appstore" = "App Store";
+"apps.filter.protected" = "Protégées/Système";
+"apps.btn.select_visible" = "Sélectionner visibles";
+"apps.btn.clear_selection" = "Effacer la sélection";
+"apps.summary.total" = "Toutes les apps";
+"apps.summary.removable" = "Supprimables";
+"apps.summary.appstore" = "App Store";
+"apps.summary.selected" = "Sélectionnées";
+"apps.safety.title" = "Examiner avant le nettoyage";
+"apps.safety.desc" = "TriClean place les bundles d'apps et fichiers liés sélectionnés dans la corbeille. Aucune suppression définitive immédiate, et les apps de l'App Store ne peuvent pas être supprimées depuis cet écran.";
+"apps.selection.none" = "%d apps visibles dans le filtre actuel";
+"apps.selection.summary" = "%1$d sélectionnées · %2$d supprimables";
+"apps.table.app" = "App";
+"apps.table.bundle" = "Identifiant de bundle";
+"apps.table.location" = "Emplacement";
+"apps.table.type" = "Type";
+"apps.table.modified" = "Modifié";
+"apps.table.operation" = "Actions";
+"apps.details.modified" = "Modifié : %@";
+"apps.related.total_count" = "Total des éléments";
+"apps.related.total_size" = "Taille totale";
+"apps.related.selected" = "Sélectionnés";
+"apps.related.selected_size" = "Taille sélectionnée";
+"apps.related.path" = "Chemin";
+"apps.related.type" = "Type";
+"apps.related.size" = "Taille";
+"apps.related.folder" = "Dossier";
+"apps.related.file" = "Fichier";
+"apps.related.footer" = "%1$d sélectionnés · taille de nettoyage estimée %2$@";
+
+/* Duplicate Finder */
+"duplicate.header.title" = "Recherche de doublons";
+"duplicate.header.subtitle" = "Trouvez les fichiers au contenu identique et examinez-les en toute sécurité avant le nettoyage.";
+"duplicate.header.min_size" = "Min. :";
+"duplicate.header.change_folder" = "Changer de dossier";
+"duplicate.header.select_folder" = "Sélectionner un dossier";
+"duplicate.select_folder.title" = "Sélectionner un dossier pour la recherche de doublons";
+"duplicate.select_folder.message" = "TriClean recherche dans le dossier sélectionné et ses sous-dossiers les fichiers au contenu identique.";
+"duplicate.empty.select_title" = "Sélectionner un dossier pour rechercher des doublons";
+"duplicate.empty.select_body" = "TriClean analyse le dossier sélectionné et ses sous-dossiers pour trouver des fichiers identiques. Il compare la taille, le hachage partiel et le hachage complet pour des résultats fiables.";
+"duplicate.empty.none_title" = "Aucun doublon trouvé";
+"duplicate.empty.none_body" = "TriClean n'a trouvé aucun fichier en double dans le dossier sélectionné.";
+"duplicate.empty.waiting_title" = "Prêt à analyser";
+"duplicate.empty.waiting_body" = "Cliquez sur Analyser pour rechercher des fichiers en double.";
+"duplicate.summary.groups" = "Groupes de doublons";
+"duplicate.summary.selected_files" = "Fichiers sélectionnés";
+"duplicate.summary.selected_space" = "Espace sélectionné";
+"duplicate.summary.scanned_files" = "Fichiers analysés";
+"duplicate.selection.card_title" = "Sélection automatique recommandée";
+"duplicate.selection.card_body" = "TriClean conserve un fichier probablement original dans chaque groupe et sélectionne automatiquement les autres pour le nettoyage. Il utilise le chemin, le nom de fichier, l'emplacement du dossier et la date de modification comme indices ; vérifiez les éléments avant de les placer dans la corbeille.";
+"duplicate.action.apply_recommended" = "Sélection automatique";
+"duplicate.action.apply_recommended.help" = "Conserve un fichier probablement original dans chaque groupe de doublons et sélectionne automatiquement les autres pour le nettoyage.";
+"duplicate.footer.summary" = "%d groupes · %d fichiers sélectionnés · %@ récupérables";
+"duplicate.footer.delete" = "Nettoyer les doublons (%d, %@)";
+"duplicate.group.header" = "%d fichiers correspondants · %@ chacun";
+"duplicate.group.subheader" = "%d sélectionnés pour nettoyage · %@ récupérables";
+"duplicate.group.keep_oldest" = "Conserver le plus ancien";
+"duplicate.group.keep_newest" = "Conserver le plus récent";
+"duplicate.group.keep_hint" = "Au moins un fichier doit rester dans chaque groupe.";
+"duplicate.file.help.keep" = "Conserver ce fichier. Cliquez pour le marquer pour nettoyage.";
+"duplicate.file.help.delete" = "Marqué pour nettoyage. Cliquez pour conserver ce fichier.";
+"duplicate.file.reveal" = "Afficher dans le Finder";
+"duplicate.file.keep" = "Conserver";
+"duplicate.file.delete" = "Supprimer";
+"duplicate.delete_confirm.title" = "Nettoyer les fichiers en double";
+"duplicate.delete_confirm.message" = "%d fichiers en double sélectionnés (%@) seront placés dans la corbeille. Au moins un fichier est conservé dans chaque groupe.";
+"duplicate.cleanup_result.title" = "Nettoyage terminé";
+"duplicate.cleanup_result.body" = "%d fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@.";
+"duplicate.cleanup_result.body_with_failures" = "%d fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@. %d éléments n'ont pas pu être déplacés.";
+"duplicate.status.collecting" = "Collecte des fichiers…";
+"duplicate.status.found_files" = "%d fichiers trouvés";
+"duplicate.status.grouping_by_size" = "Regroupement des fichiers par taille…";
+"duplicate.status.same_size_candidates" = "%d fichiers ont la même taille";
+"duplicate.status.partial_hash_matches" = "%d groupes correspondent au hachage partiel";
+"duplicate.status.hashing_full_progress" = "Comparaison des hachages complets… %d/%d";
+"duplicate.status.no_duplicates_found" = "Aucun fichier en double trouvé.";
+"duplicate.status.scan_complete" = "%d groupes de doublons trouvés (%@ récupérables)";
+"duplicate.status.selection_summary" = "%d groupes · %d fichiers sélectionnés · %@ récupérables";
+"duplicate.status.nothing_selected" = "Aucun doublon sélectionné pour le nettoyage.";
+"duplicate.status.recommended_applied" = "Un fichier a été conservé dans chaque groupe et le reste a été automatiquement sélectionné pour le nettoyage.";
+"duplicate.status.keep_newest_applied" = "Le fichier le plus récent du groupe sélectionné a été conservé.";
+"duplicate.status.keep_oldest_applied" = "Le fichier le plus ancien du groupe sélectionné a été conservé.";
+"duplicate.status.cleanup_done" = "%d fichiers en double placés dans la corbeille (%@ récupérés).";
+"duplicate.status.cleanup_done_with_failures" = "%d fichiers en double placés dans la corbeille (%@ récupérés). %d échecs.";
+"duplicate.status.cleanup_failed" = "TriClean n'a pas pu placer les fichiers en double sélectionnés dans la corbeille.";
+
+"duplicate.action.clear_selection" = "Effacer la sélection";
+"duplicate.action.clear_selection.help" = "Efface tous les éléments de nettoyage sélectionnés et remet chaque fichier en mode conservation.";
+"duplicate.status.selection_cleared" = "Toutes les sélections de nettoyage ont été effacées.";
+
+/* Duplicate scan phase */
+"duplicate.phase.idle" = "Inactif";
+"duplicate.phase.collecting" = "Collecte des fichiers...";
+"duplicate.phase.grouping" = "Regroupement par taille...";
+"duplicate.phase.partial_hash" = "Comparaison des hachages partiels...";
+"duplicate.phase.full_hash" = "Comparaison des hachages complets...";
+"duplicate.phase.done" = "Terminé";
