@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StoreKit
+import AppKit
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
@@ -22,6 +23,31 @@ struct PaywallView: View {
 
     var body: some View {
         VStack(spacing: 24) {
+            // ✅ [추가] 만료 상태에서만 표시되는 상황 안내 배너
+            //   사용자가 "왜 갇혔는지" 모르고 당황하는 UX 문제 해결
+            if !allowDismiss {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text("paywall.expired.banner".localized)
+                        .font(.caption)
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.orange.opacity(0.12))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.orange.opacity(0.35), lineWidth: 1)
+                )
+            }
+
             // 1. 상단 아이콘 및 타이틀
             VStack(spacing: 12) {
                 Image(systemName: "star.fill")
@@ -134,6 +160,19 @@ struct PaywallView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
+                } else {
+                    // ✅ [추가] 만료 시: 명시적 "종료" 버튼 — 사용자가 갇혔다고 느끼지 않도록
+                    Button {
+                        NSApp.terminate(nil)
+                    } label: {
+                        Text("common.quit".localized)
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .keyboardShortcut("q", modifiers: [.command])
                 }
 
                 // 하단 링크
@@ -147,7 +186,8 @@ struct PaywallView: View {
             }
         }
         .padding(30)
-        .frame(width: 450, height: 650)
+        // ✅ 만료 시 안내 배너 + 종료 버튼이 추가되므로 약간의 여유 높이 확보
+        .frame(width: 450, height: allowDismiss ? 650 : 720)
         .background(Color(nsColor: .windowBackgroundColor))
         .cornerRadius(12)
         .shadow(radius: 20)

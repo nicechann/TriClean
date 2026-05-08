@@ -17,6 +17,7 @@
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
 "common.permission_needed" = "권한 필요";
+"common.quit" = "TriClean 종료";
 "common.select" = "선택…";
 "common.change" = "변경…";
 "common.clear" = "해제";
@@ -223,6 +224,7 @@
 "trial.bottom.buy_now" = "지금 구매하기";
 "trial.expired.msg" = "무료 체험 기간이 만료되었습니다.";
 "trial.expired.btn" = "정식 버전 구매하기";
+"paywall.expired.banner" = "7일 무료 체험이 종료되었습니다. 모든 기능을 계속 사용하려면 구매하시거나, 앱을 종료해주세요.";
 
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";

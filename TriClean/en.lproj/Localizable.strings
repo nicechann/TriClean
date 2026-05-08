@@ -17,6 +17,7 @@
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
 "common.permission_needed" = "Permission Required";
+"common.quit" = "Quit TriClean";
 "common.select" = "Select…";
 "common.change" = "Change…";
 "common.clear" = "Clear";
@@ -227,6 +228,7 @@
 "trial.bottom.buy_now" = "Buy Now";
 "trial.expired.msg" = "Your free trial has expired.";
 "trial.expired.btn" = "Buy Full Version";
+"paywall.expired.banner" = "Your 7-day free trial has ended. Purchase to continue using all features, or quit the app.";
 
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Premium";
