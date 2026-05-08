@@ -52,6 +52,7 @@ final class MemoryViewModel: ObservableObject {
     private var refreshTimer: Timer?
 
     init() {
+        refresh()
         startAutoRefresh()
     }
 

@@ -13,12 +13,18 @@
 
 import Foundation
 import Combine
+import os
 
 // 날짜 데이터를 구조체로 관리
 struct TrialData: Codable {
     let firstLaunchDate: Date
     var lastLaunchDate: Date
 }
+
+private let trialLogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "com.nicechann.TriClean",
+    category: "Trial"
+)
 
 @MainActor
 final class TrialManager: ObservableObject {
@@ -72,17 +78,17 @@ final class TrialManager: ObservableObject {
         // 2. 🚨 시간 조작 감지 (Time Travel Protection)
         // (a) firstLaunchDate가 미래 → 키체인 변조로 체험 기간 무기한 연장 시도
         if trialData.firstLaunchDate > now.addingTimeInterval(clockSkewTolerance) {
-            print("Time manipulation detected! firstLaunchDate is in the future.")
+            trialLogger.warning("Time manipulation detected: firstLaunchDate is in the future. now=\(Int(now.timeIntervalSince1970), privacy: .private), firstLaunch=\(Int(trialData.firstLaunchDate.timeIntervalSince1970), privacy: .private)")
             return 0
         }
         // (b) firstLaunchDate > lastLaunchDate → 논리적으로 불가능한 상태
         if trialData.firstLaunchDate > trialData.lastLaunchDate.addingTimeInterval(clockSkewTolerance) {
-            print("Time manipulation detected! firstLaunchDate is after lastLaunchDate.")
+            trialLogger.warning("Time manipulation detected: firstLaunchDate is after lastLaunchDate. firstLaunch=\(Int(trialData.firstLaunchDate.timeIntervalSince1970), privacy: .private), lastLaunch=\(Int(trialData.lastLaunchDate.timeIntervalSince1970), privacy: .private)")
             return 0
         }
         // (c) 마지막 실행 시간보다 현재 시간이 6시간 이상 과거 → 시계 역행 조작
         if now < trialData.lastLaunchDate.addingTimeInterval(-clockSkewTolerance) {
-            print("Time manipulation detected! System clock moved backwards.")
+            trialLogger.warning("Time manipulation detected: system clock moved backwards. now=\(Int(now.timeIntervalSince1970), privacy: .private), lastLaunch=\(Int(trialData.lastLaunchDate.timeIntervalSince1970), privacy: .private)")
             return 0
         }
 
