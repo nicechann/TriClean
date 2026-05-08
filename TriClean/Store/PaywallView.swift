@@ -187,7 +187,8 @@ struct PaywallView: View {
         }
         .padding(30)
         // ✅ 다국어 장문에서도 콘텐츠가 잘리지 않도록 고정 높이 대신 최소 높이만 지정
-        .frame(width: 450, minHeight: allowDismiss ? 650 : 720)
+        .frame(width: 450)
+        .frame(minHeight: allowDismiss ? 650 : 720)
         .fixedSize(horizontal: false, vertical: true)
         .background(Color(nsColor: .windowBackgroundColor))
         .cornerRadius(12)
