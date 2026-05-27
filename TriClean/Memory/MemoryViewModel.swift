@@ -10,6 +10,10 @@
 //     - MemoryCleanFillMode enum 삭제
 //     - 앱의 역할을 "모니터링 전용"으로 명확히 함
 //
+//  ✅ [수정 v4] Swift 6 동시성 경고 보완
+//     - 백그라운드 Task에서는 Sendable 스냅샷만 수집하고 NSImage는 MainActor에서 생성.
+//     - MemoryStats를 detached Task에서 안전하게 전달하도록 MemoryTypes에서 Sendable 채택.
+//
 //  ✅ [수정 v3] @MainActor 격리 적용
 //     - 다른 ViewModel들과 일관되게 @MainActor로 격리.
 //     - dispatchPrecondition 런타임 가드는 컴파일 타임 보장으로 대체되어 제거.
@@ -34,6 +38,14 @@ struct SignificantMemoryApp: Identifiable {
     let residentBytes: Int64
 
     var id: String { bundleIdentifier ?? "pid_\(pid)" }
+}
+
+private struct SignificantMemoryAppSnapshot: Sendable {
+    let pid: pid_t
+    let name: String
+    let bundleIdentifier: String?
+    let bundleURL: URL?
+    let residentBytes: Int64
 }
 
 @MainActor
@@ -110,14 +122,12 @@ final class MemoryViewModel: ObservableObject {
     // MARK: - API
 
     func refresh() {
-        // 통계 수집은 짧지만 system call이므로 background에서 수행.
-        Task.detached(priority: .userInitiated) { [weak self] in
-            let latest = MemoryReader.fetchStats()
-            await MainActor.run {
-                guard let self else { return }
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    self.stats = latest
-                }
+        // 통계 수집은 짧지만 system call이므로 background에서 수행하고,
+        // UI 반영만 MainActor에서 처리합니다.
+        Task { @MainActor in
+            let latest = await Self.fetchStatsInBackground(priority: .userInitiated)
+            withAnimation(.easeInOut(duration: 0.25)) {
+                self.stats = latest
             }
         }
     }
@@ -131,14 +141,15 @@ final class MemoryViewModel: ObservableObject {
 
         isLoadingSignificantApps = true
 
-        Task.detached(priority: .utility) { [weak self] in
-            let apps = Self.fetchSignificantApps(limit: limit)
-            await MainActor.run {
-                guard let self else { return }
-                self.significantApps = apps
-                self.significantAppsUpdatedAt = Date()
-                self.isLoadingSignificantApps = false
-            }
+        Task { @MainActor [weak self, limit] in
+            let snapshots = await Task.detached(priority: .utility) {
+                Self.fetchSignificantAppSnapshots(limit: limit)
+            }.value
+
+            guard let self else { return }
+            self.significantApps = Self.makeSignificantApps(from: snapshots)
+            self.significantAppsUpdatedAt = Date()
+            self.isLoadingSignificantApps = false
         }
     }
 
@@ -151,23 +162,22 @@ final class MemoryViewModel: ObservableObject {
         _ = running.activate(options: options)
     }
 
-    nonisolated private static func fetchSignificantApps(limit: Int) -> [SignificantMemoryApp] {
+    nonisolated private static func fetchSignificantAppSnapshots(limit: Int) -> [SignificantMemoryAppSnapshot] {
         let running = NSWorkspace.shared.runningApplications
             .filter { $0.activationPolicy == .regular }
 
-        var items: [SignificantMemoryApp] = []
+        var items: [SignificantMemoryAppSnapshot] = []
         items.reserveCapacity(running.count)
 
         for app in running {
             let pid = app.processIdentifier
             guard pid > 0 else { continue }
             guard let bytes = residentMemoryBytes(pid: pid) else { continue }
-            items.append(SignificantMemoryApp(
+            items.append(SignificantMemoryAppSnapshot(
                 pid: pid,
                 name: app.localizedName ?? "App",
                 bundleIdentifier: app.bundleIdentifier,
                 bundleURL: app.bundleURL,
-                icon: app.icon,
                 residentBytes: bytes
             ))
         }
@@ -175,6 +185,28 @@ final class MemoryViewModel: ObservableObject {
         items.sort { $0.residentBytes > $1.residentBytes }
         if items.count > limit { items.removeSubrange(limit..<items.count) }
         return items
+    }
+
+    private static func makeSignificantApps(from snapshots: [SignificantMemoryAppSnapshot]) -> [SignificantMemoryApp] {
+        snapshots.map { snapshot in
+            let runningIcon = NSRunningApplication(processIdentifier: snapshot.pid)?.icon
+            let bundleIcon = snapshot.bundleURL.map { NSWorkspace.shared.icon(forFile: $0.path) }
+
+            return SignificantMemoryApp(
+                pid: snapshot.pid,
+                name: snapshot.name,
+                bundleIdentifier: snapshot.bundleIdentifier,
+                bundleURL: snapshot.bundleURL,
+                icon: runningIcon ?? bundleIcon,
+                residentBytes: snapshot.residentBytes
+            )
+        }
+    }
+
+    nonisolated private static func fetchStatsInBackground(priority: TaskPriority) async -> MemoryStats {
+        await Task.detached(priority: priority) {
+            MemoryReader.fetchStats()
+        }.value
     }
 
     nonisolated private static func residentMemoryBytes(pid: pid_t) -> Int64? {
@@ -192,21 +224,15 @@ final class MemoryViewModel: ObservableObject {
     func performOptimize(completion: @escaping () -> Void) {
         // ✅ 단순히 메모리 통계를 새로 읽어오고 앱 목록을 갱신합니다.
         // 시스템 메모리 상태를 변경하지 않습니다.
-        Task.detached(priority: .userInitiated) { [weak self] in
-            let after = MemoryReader.fetchStats()
+        Task { @MainActor in
+            let after = await Self.fetchStatsInBackground(priority: .userInitiated)
 
-            await MainActor.run {
-                guard let self else {
-                    completion()
-                    return
-                }
-                withAnimation(.easeInOut(duration: 0.6)) {
-                    self.stats = after
-                }
-                self.lastSignificantAppsRefresh = .distantPast
-                self.refreshSignificantApps()
-                completion()
+            withAnimation(.easeInOut(duration: 0.6)) {
+                self.stats = after
             }
+            self.lastSignificantAppsRefresh = .distantPast
+            self.refreshSignificantApps()
+            completion()
         }
     }
 
@@ -222,9 +248,9 @@ final class MemoryViewModel: ObservableObject {
 
 // MARK: - MemoryReader
 
-enum MemoryReader {
+nonisolated enum MemoryReader {
 
-    static func fetchStats() -> MemoryStats {
+    nonisolated static func fetchStats() -> MemoryStats {
         // ✅ [수정] mach_host_self()는 task 전역 send right이므로
         //   mach_port_deallocate를 호출하면 안 됨 (반복 호출 시 포트 카운트 오류 누적).
         //   Apple 샘플 코드도 deallocate 하지 않음.

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 /// 메모리 표시 단위: % / MB
-enum MemoryDisplayUnit: String, CaseIterable, Identifiable {
+nonisolated enum MemoryDisplayUnit: String, CaseIterable, Identifiable, Sendable {
     case percent
     case megabytes
 
@@ -24,7 +24,7 @@ enum MemoryDisplayUnit: String, CaseIterable, Identifiable {
 }
 
 /// macOS Mach VM 통계(host_statistics64)를 기반으로 구성한 메모리 구성 값
-struct MemoryStats {
+nonisolated struct MemoryStats: Sendable {
     var appBytes: Int64        // 활성/사용 중 메모리
     var wiredBytes: Int64      // Wired
     var compressedBytes: Int64 // Compressed

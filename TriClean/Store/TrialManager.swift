@@ -4,7 +4,9 @@
 //
 //  Created by Assistant on 2/7/26.
 //
-//  ✅ [수정 v3]
+//  ✅ [수정 v4]
+//   - 기존 trialData의 lastLaunchDate 갱신 저장이 실패해도 fallback sentinel을 기록.
+//     다음 실행에서 키체인 데이터가 유실된 경우 trial이 재부여되는 경로를 차단.
 //   - 키체인 저장 실패 시 매 실행마다 firstLaunchDate가 now로 리셋되어
 //     체험 기간이 무한히 갱신되던 문제를 차단.
 //   - 저장 실패 시 UserDefaults에 sentinel을 기록해, "이미 trial을 시작했으나
@@ -44,6 +46,7 @@ final class TrialManager: ObservableObject {
     // ✅ 키체인 저장에 실패해 trial 시작 시각을 영구화하지 못한 경우의 fallback 표식.
     //    한 번이라도 이 키가 true가 되면, 이후 키체인 데이터가 없더라도 trial은 0일로 간주합니다.
     private let trialStartedFallbackKey = "TriClean.trialStarted.fallback"
+    private let trialStartedFallbackDateKey = "TriClean.trialStarted.fallback.startedAt"
 
     // ✅ 시간 조작 허용 오차 — 시차/DST 변경으로 인한 정상 사용자 오인 방지
     private let clockSkewTolerance: TimeInterval = 6 * 3600  // 6시간
@@ -64,6 +67,14 @@ final class TrialManager: ObservableObject {
     /// 외부에서 갱신을 요청할 때 사용 (예: scenePhase가 .active로 전환).
     func refresh() {
         daysRemaining = calculateDaysRemaining()
+    }
+
+    private func markTrialFallbackStarted(at date: Date, status: OSStatus) {
+        UserDefaults.standard.set(true, forKey: trialStartedFallbackKey)
+        UserDefaults.standard.set(date.timeIntervalSince1970, forKey: trialStartedFallbackDateKey)
+        trialLogger.warning(
+            "Trial keychain save failed status=\(status, privacy: .public) — fallback sentinel recorded."
+        )
     }
 
     // ✅ 내부 계산 로직 (값 변경 없이 계산 결과만 반환)
@@ -94,10 +105,7 @@ final class TrialManager: ObservableObject {
             if status != errSecSuccess {
                 // 키체인 저장에 실패했으므로, fallback sentinel을 기록해 둠.
                 // 이렇게 하면 다음 실행 시 또다시 7일을 받지 못함.
-                UserDefaults.standard.set(true, forKey: trialStartedFallbackKey)
-                UserDefaults.standard.set(now.timeIntervalSince1970,
-                                          forKey: "\(trialStartedFallbackKey).startedAt")
-                trialLogger.warning("Trial keychain save failed (status=\(status, privacy: .public)) — using UserDefaults fallback.")
+                markTrialFallbackStarted(at: newData.firstLaunchDate, status: status)
             }
 
             return Int(trialDays)
@@ -123,8 +131,12 @@ final class TrialManager: ObservableObject {
         // 3. 마지막 실행 시간 갱신 (현재 시간이 더 미래일 때만)
         if now > trialData.lastLaunchDate {
             trialData.lastLaunchDate = now
-            _ = save(trialData)
-            // 여기서 저장 실패해도 다음 실행 때 다시 시도되므로 fallback sentinel은 건드리지 않음.
+            let status = save(trialData)
+            if status != errSecSuccess {
+                // 기존 키체인 데이터 갱신이 실패하면 다음 실행에서 키체인 값이 유실될 수 있으므로
+                // 최초 실행일 기준 fallback sentinel을 남겨 trial 재부여 경로를 차단합니다.
+                markTrialFallbackStarted(at: trialData.firstLaunchDate, status: status)
+            }
         }
 
         // 4. 남은 기간 계산
@@ -134,7 +146,7 @@ final class TrialManager: ObservableObject {
             guard UserDefaults.standard.bool(forKey: trialStartedFallbackKey) else {
                 return trialData.firstLaunchDate
             }
-            let fallbackStart = UserDefaults.standard.double(forKey: "\(trialStartedFallbackKey).startedAt")
+            let fallbackStart = UserDefaults.standard.double(forKey: trialStartedFallbackDateKey)
             guard fallbackStart > 0 else { return trialData.firstLaunchDate }
             let fallbackDate = Date(timeIntervalSince1970: fallbackStart)
             return min(trialData.firstLaunchDate, fallbackDate)

@@ -9,6 +9,10 @@
 //  - 사용자가 NSOpenPanel으로 선택한 폴더만 접근 가능
 //  - Security-Scoped Bookmark으로 권한 유지
 //
+//  ✅ [수정 v4]
+//   - deleteDuplicates: 백그라운드 작업을 Task.detached로 명확히 분리하고 UI 반영만 MainActor에서 수행.
+//   - NSWorkspace.recycle fallback은 MainActor helper로 이동해 AppKit 접근을 안전하게 처리.
+//
 //  ✅ [수정 v3]
 //   - deleteDuplicates: 메인 스레드 동기 trashItem → Task로 분리해 UI 멈춤 방지.
 //   - trashItem 실패 시 NSWorkspace.recycle fallback 추가 (JunkScannerViewModel과 동일 패턴).
@@ -397,14 +401,16 @@ final class DuplicateScannerViewModel: ObservableObject {
         isDeleting = true
         statusMessage = "duplicate.status.cleanup_failed".localized   // placeholder; 종료 시 갱신
 
-        Task { [targets, folder] in
-            // ✅ Security-Scoped 접근은 Task 안에서 시작/종료 (UI 블로킹 없음)
-            let started = folder.startAccessingSecurityScopedResource()
-            defer { if started { folder.stopAccessingSecurityScopedResource() } }
+        Task { @MainActor [weak self, targets, folder] in
+            let outcome = await Task.detached(priority: .userInitiated) {
+                // ✅ Security-Scoped 접근은 백그라운드 Task 안에서 시작/종료 (UI 블로킹 없음)
+                let started = folder.startAccessingSecurityScopedResource()
+                defer { if started { folder.stopAccessingSecurityScopedResource() } }
 
-            let outcome = await Self.performDeletion(targets: targets)
+                return await Self.performDeletion(targets: targets)
+            }.value
 
-            // 결과 반영 (메인 액터 자동 격리)
+            guard let self else { return }
             self.applyDeleteOutcome(outcome)
             self.isDeleting = false
         }
@@ -447,13 +453,8 @@ final class DuplicateScannerViewModel: ObservableObject {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 didSucceed = true
             } catch {
-                // Fallback: NSWorkspace.recycle (비동기 콜백 → CheckedContinuation으로 동기화)
-                let ok: Bool = await withCheckedContinuation { continuation in
-                    NSWorkspace.shared.recycle([target.url]) { _, error in
-                        continuation.resume(returning: error == nil)
-                    }
-                }
-                didSucceed = ok
+                // Fallback: NSWorkspace.recycle (AppKit 접근은 MainActor에서 수행)
+                didSucceed = await recycleWithWorkspace(target.url)
             }
 
             if didSucceed {
@@ -471,6 +472,15 @@ final class DuplicateScannerViewModel: ObservableObject {
             failedCount: failedCount,
             deletedBytes: deletedBytes
         )
+    }
+
+    @MainActor
+    private static func recycleWithWorkspace(_ url: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            NSWorkspace.shared.recycle([url]) { _, error in
+                continuation.resume(returning: error == nil)
+            }
+        }
     }
 
     // MARK: - 파일 수집 (백그라운드)
