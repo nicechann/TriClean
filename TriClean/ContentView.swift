@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 enum SidebarItem: Hashable {
+    case smartScan
     case storage
     case memory
     case apps
@@ -22,12 +23,15 @@ enum SidebarItem: Hashable {
 struct ContentView: View {
 
     @EnvironmentObject var memoryViewModel: MemoryViewModel
-    @State private var selection: SidebarItem? = .storage
+    @State private var selection: SidebarItem? = .smartScan
 
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
                 Section("sidebar.section.system".localized) {
+                    NavigationLink(value: SidebarItem.smartScan) {
+                        Label("sidebar.smartscan".localized, systemImage: "sparkles")
+                    }
                     NavigationLink(value: SidebarItem.storage) {
                         Label("sidebar.storage".localized, systemImage: "internaldrive")
                     }
@@ -60,7 +64,8 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320)
 
         } detail: {
-            switch selection ?? .storage {
+            switch selection ?? .smartScan {
+            case .smartScan:    SmartScanView { target in selection = target }
             case .storage:      StorageView()
             case .memory:       MemoryView()
             case .apps:         AppsView()
@@ -69,7 +74,7 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            if selection == nil { selection = .storage }
+            if selection == nil { selection = .smartScan }
             memoryViewModel.refresh()
         }
     }

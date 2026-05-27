@@ -9,6 +9,12 @@
 //     - performOptimize → 단순 refresh() 로 대체
 //     - MemoryCleanFillMode enum 삭제
 //     - 앱의 역할을 "모니터링 전용"으로 명확히 함
+//
+//  ✅ [수정 v3] @MainActor 격리 적용
+//     - 다른 ViewModel들과 일관되게 @MainActor로 격리.
+//     - dispatchPrecondition 런타임 가드는 컴파일 타임 보장으로 대체되어 제거.
+//     - Timer 콜백은 Task { @MainActor in ... } 로 안전하게 호출.
+//     - performOptimize 시그니처는 호환성을 위해 동일하게 유지.
 
 import Foundation
 import Combine
@@ -30,6 +36,7 @@ struct SignificantMemoryApp: Identifiable {
     var id: String { bundleIdentifier ?? "pid_\(pid)" }
 }
 
+@MainActor
 final class MemoryViewModel: ObservableObject {
 
     @Published var stats: MemoryStats = .empty
@@ -43,10 +50,10 @@ final class MemoryViewModel: ObservableObject {
     @Published var isLoadingSignificantApps: Bool = false
     @Published var significantAppsUpdatedAt: Date? = nil
 
-    // ✅ 중복 호출 방어용 타임스탬프 (메인 스레드에서만 접근)
+    // ✅ @MainActor 격리이므로 race 없이 안전하게 접근 가능
     private var lastSignificantAppsRefresh: Date = .distantPast
 
-    // ✅ [추가] 메뉴바 텍스트 자동 갱신용 Timer (5초 주기)
+    // ✅ 메뉴바 텍스트 자동 갱신용 Timer (5초 주기)
     //   - 사용자가 윈도우를 열지 않아도 메뉴바 숫자가 실시간으로 갱신됨
     //   - @StateObject로 보유되므로 앱 수명 동안 유지됨
     private var refreshTimer: Timer?
@@ -57,14 +64,18 @@ final class MemoryViewModel: ObservableObject {
     }
 
     deinit {
+        // ✅ Timer는 메인 런루프에 스케줄되어 있으므로 nonisolated deinit에서도 안전하게 invalidate 가능.
         refreshTimer?.invalidate()
     }
 
     private func startAutoRefresh() {
         refreshTimer?.invalidate()
-        // RunLoop.main에 스케줄되어 Timer 콜백이 항상 메인 스레드에서 실행됨
+        // RunLoop.main에 스케줄되어 Timer 콜백이 항상 메인 스레드에서 실행됨.
+        // 콜백 클로저는 nonisolated 컨텍스트이므로 Task { @MainActor in ... } 로 격리 호핑.
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
-            self?.refresh()
+            Task { @MainActor [weak self] in
+                self?.refresh()
+            }
         }
     }
 
@@ -99,9 +110,11 @@ final class MemoryViewModel: ObservableObject {
     // MARK: - API
 
     func refresh() {
-        DispatchQueue.global(qos: .userInitiated).async {
+        // 통계 수집은 짧지만 system call이므로 background에서 수행.
+        Task.detached(priority: .userInitiated) { [weak self] in
             let latest = MemoryReader.fetchStats()
-            DispatchQueue.main.async {
+            await MainActor.run {
+                guard let self else { return }
                 withAnimation(.easeInOut(duration: 0.25)) {
                     self.stats = latest
                 }
@@ -110,8 +123,7 @@ final class MemoryViewModel: ObservableObject {
     }
 
     func refreshSignificantApps(limit: Int = 10) {
-        // ✅ 메인 스레드에서만 호출되도록 가드 (lastSignificantAppsRefresh race 방지)
-        dispatchPrecondition(condition: .onQueue(.main))
+        // ✅ @MainActor 격리로 race 없음 — 별도 가드 불필요
 
         // ✅ 5초 이내 중복 호출 방어
         guard Date().timeIntervalSince(lastSignificantAppsRefresh) > 5 else { return }
@@ -119,9 +131,10 @@ final class MemoryViewModel: ObservableObject {
 
         isLoadingSignificantApps = true
 
-        DispatchQueue.global(qos: .utility).async {
+        Task.detached(priority: .utility) { [weak self] in
             let apps = Self.fetchSignificantApps(limit: limit)
-            DispatchQueue.main.async {
+            await MainActor.run {
+                guard let self else { return }
                 self.significantApps = apps
                 self.significantAppsUpdatedAt = Date()
                 self.isLoadingSignificantApps = false
@@ -138,7 +151,7 @@ final class MemoryViewModel: ObservableObject {
         _ = running.activate(options: options)
     }
 
-    private static func fetchSignificantApps(limit: Int) -> [SignificantMemoryApp] {
+    nonisolated private static func fetchSignificantApps(limit: Int) -> [SignificantMemoryApp] {
         let running = NSWorkspace.shared.runningApplications
             .filter { $0.activationPolicy == .regular }
 
@@ -164,7 +177,7 @@ final class MemoryViewModel: ObservableObject {
         return items
     }
 
-    private static func residentMemoryBytes(pid: pid_t) -> Int64? {
+    nonisolated private static func residentMemoryBytes(pid: pid_t) -> Int64? {
         var info = proc_taskinfo()
         let expectedSize = Int32(MemoryLayout<proc_taskinfo>.size)
         let result = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, expectedSize)
@@ -179,10 +192,14 @@ final class MemoryViewModel: ObservableObject {
     func performOptimize(completion: @escaping () -> Void) {
         // ✅ 단순히 메모리 통계를 새로 읽어오고 앱 목록을 갱신합니다.
         // 시스템 메모리 상태를 변경하지 않습니다.
-        DispatchQueue.global(qos: .userInitiated).async {
+        Task.detached(priority: .userInitiated) { [weak self] in
             let after = MemoryReader.fetchStats()
 
-            DispatchQueue.main.async {
+            await MainActor.run {
+                guard let self else {
+                    completion()
+                    return
+                }
                 withAnimation(.easeInOut(duration: 0.6)) {
                     self.stats = after
                 }

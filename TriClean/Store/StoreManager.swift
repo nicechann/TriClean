@@ -4,6 +4,14 @@
 //
 //  Created by Assistant on 2/7/26.
 //
+//  ✅ [수정 v3]
+//   - listenForTransactions의 Task.detached 제거 → 일반 Task로 변경.
+//     (@MainActor 클래스이므로 Task {}는 메인 액터에 자동 격리되며,
+//      StoreKit 2 권장 패턴과도 일치.)
+//   - deinit 제거 — 싱글톤이라 호출되지 않으며 @MainActor 격리 불일치를 유발하던 코드.
+//     앱 종료 시 Task는 자동 취소됨.
+//   - debugPurchaseOverride의 didSet에서 외부 동기화 명확화.
+//
 
 import Foundation
 import StoreKit
@@ -47,7 +55,10 @@ final class StoreManager: ObservableObject {
         }
     }
 
-    deinit { updatesTask?.cancel() }
+    // ✅ [수정] deinit 제거.
+    //   - StoreManager는 .shared 싱글톤이라 deinit이 실제로 호출되지 않음.
+    //   - @MainActor 클래스의 deinit은 nonisolated → updatesTask 접근 시 Swift 6 경고.
+    //   - 앱 종료 시 Task는 시스템에 의해 자동 정리됨.
 
     func purchase() async throws {
         guard let product = products.first else { return }
@@ -96,18 +107,24 @@ final class StoreManager: ObservableObject {
         await loadProducts()
     }
 
+    // ✅ [수정] Task.detached → 일반 Task.
+    //   - @MainActor 클래스 내부의 Task {}는 메인 액터에 격리되어 self 호출이 안전.
+    //   - StoreKit 2의 Transaction.updates는 AsyncSequence이므로 어떤 컨텍스트든 정상 동작.
+    //   - 별도 스레드가 필요하지 않은데 detached로 빼면 격리/await 부담만 늘어남.
     private func listenForTransactions() -> Task<Void, Never> {
-        let productID = self.productID
-        return Task.detached(priority: .background) { [weak self] in
-            guard let self else { return }
+        Task { [weak self] in
             for await result in Transaction.updates {
+                guard let self else { return }
                 do {
                     let transaction = try self.verified(result)
                     await transaction.finish()
-                    if transaction.productID == productID {
+                    if transaction.productID == self.productID {
                         await self.updatePurchasedStatus()
                     }
-                } catch { continue }
+                } catch {
+                    storeLogger.warning("Transaction verification failed: \(error.localizedDescription, privacy: .public)")
+                    continue
+                }
             }
         }
     }

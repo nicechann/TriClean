@@ -9,6 +9,11 @@
 //  - 사용자가 NSOpenPanel으로 선택한 폴더만 접근 가능
 //  - Security-Scoped Bookmark으로 권한 유지
 //
+//  ✅ [수정 v3]
+//   - deleteDuplicates: 메인 스레드 동기 trashItem → Task로 분리해 UI 멈춤 방지.
+//   - trashItem 실패 시 NSWorkspace.recycle fallback 추가 (JunkScannerViewModel과 동일 패턴).
+//   - DuplicateGroup.fileSize → DuplicateGroup.perFileSize 의도 명확화 주석.
+//
 
 import Foundation
 import Combine
@@ -34,6 +39,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     @Published var groups: [DuplicateGroup] = []
     @Published var isScanning: Bool = false
+    @Published var isDeleting: Bool = false
     @Published var phase: DuplicateScanPhase = .idle
     @Published var progress: Double = 0       // 0.0 ~ 1.0
     @Published var statusMessage: String = ""
@@ -222,7 +228,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
                 // 실제 중복 그룹 생성
                 for (hash, files) in fullHashMap where files.count >= 2 {
-                    let uniqueFiles = Self.removeAliasedFiles(from: files)
+                    let uniqueFiles = Self.removeHardlinkedFiles(from: files)
                     guard uniqueFiles.count >= 2 else { continue }
 
                     let dupFiles = Self.makeDuplicateFiles(from: uniqueFiles, rootURL: rootURL)
@@ -348,63 +354,128 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     // MARK: - 삭제
 
+    /// 삭제 작업의 단위 (백그라운드 Task에서 사용)
+    private struct DeleteTarget: Sendable {
+        let fileID: UUID
+        let url: URL
+        let perFileSize: Int64
+    }
+
+    /// 삭제 결과의 단위
+    private struct DeleteOutcome: Sendable {
+        let succeeded: Set<UUID>
+        let deletedCount: Int
+        let failedCount: Int
+        let deletedBytes: Int64
+    }
+
+    /// ✅ [수정] Task로 분리 + NSWorkspace.recycle fallback 추가.
+    ///   - 기존: 메인 스레드에서 동기 trashItem 호출 → 다수 파일 시 UI 멈춤.
+    ///   - 변경: 백그라운드 Task에서 처리하고 UI에는 결과만 반영.
+    ///   - Security-Scoped 접근은 Task 라이프타임 동안만 유지.
     func deleteDuplicates() {
         guard let folder = scanFolderURL else { return }
         guard canDeleteSelected else {
             statusMessage = "duplicate.status.nothing_selected".localized
             return
         }
+        guard !isDeleting else { return }
 
-        let started = folder.startAccessingSecurityScopedResource()
-        defer { if started { folder.stopAccessingSecurityScopedResource() } }
-
-        let fm = FileManager.default
-        var deletedCount = 0
-        var failedCount = 0
-        var deletedBytes: Int64 = 0
-
-        // ✅ [수정] fileExists 의존 대신 명시적으로 성공한 파일 ID를 추적해
-        //   네트워크 볼륨 등에서 비정상 동기화로 인해 실패한 파일이 UI에서
-        //   사라지는 문제를 차단.
-        var succeededFileIDs = Set<UUID>()
-
+        // 1) 삭제 대상을 미리 스냅샷 (Sendable한 값 타입으로)
+        var targets: [DeleteTarget] = []
         for group in groups {
             for file in group.files where !file.isKeep {
-                do {
-                    try fm.trashItem(at: file.url, resultingItemURL: nil)
-                    deletedCount += 1
-                    deletedBytes += group.fileSize
-                    succeededFileIDs.insert(file.id)
-                } catch {
-                    failedCount += 1
-                }
+                targets.append(DeleteTarget(
+                    fileID: file.id,
+                    url: file.url,
+                    perFileSize: group.fileSize
+                ))
             }
         }
+        guard !targets.isEmpty else { return }
 
+        isDeleting = true
+        statusMessage = "duplicate.status.cleanup_failed".localized   // placeholder; 종료 시 갱신
+
+        Task { [targets, folder] in
+            // ✅ Security-Scoped 접근은 Task 안에서 시작/종료 (UI 블로킹 없음)
+            let started = folder.startAccessingSecurityScopedResource()
+            defer { if started { folder.stopAccessingSecurityScopedResource() } }
+
+            let outcome = await Self.performDeletion(targets: targets)
+
+            // 결과 반영 (메인 액터 자동 격리)
+            self.applyDeleteOutcome(outcome)
+            self.isDeleting = false
+        }
+    }
+
+    private func applyDeleteOutcome(_ outcome: DeleteOutcome) {
         // 성공한 항목만 UI에서 제거
         for i in groups.indices {
-            groups[i].files.removeAll { succeededFileIDs.contains($0.id) }
+            groups[i].files.removeAll { outcome.succeeded.contains($0.id) }
         }
         groups.removeAll { $0.files.count <= 1 }
 
         lastCleanupResult = DuplicateCleanupResult(
-            deletedCount: deletedCount,
-            deletedBytes: deletedBytes,
-            failedCount: failedCount
+            deletedCount: outcome.deletedCount,
+            deletedBytes: outcome.deletedBytes,
+            failedCount: outcome.failedCount
         )
 
-        if deletedCount > 0 {
-            statusMessage = failedCount > 0
-                ? "duplicate.status.cleanup_done_with_failures".localized(with: deletedCount, ByteCountFormatter.string(fromByteCount: deletedBytes, countStyle: .file), failedCount)
-                : "duplicate.status.cleanup_done".localized(with: deletedCount, ByteCountFormatter.string(fromByteCount: deletedBytes, countStyle: .file))
+        if outcome.deletedCount > 0 {
+            statusMessage = outcome.failedCount > 0
+                ? "duplicate.status.cleanup_done_with_failures".localized(with: outcome.deletedCount, ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file), outcome.failedCount)
+                : "duplicate.status.cleanup_done".localized(with: outcome.deletedCount, ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file))
         } else {
             statusMessage = "duplicate.status.cleanup_failed".localized
         }
     }
 
+    /// 백그라운드에서 trashItem + (실패 시) NSWorkspace.recycle fallback.
+    private nonisolated static func performDeletion(targets: [DeleteTarget]) async -> DeleteOutcome {
+        let fm = FileManager.default
+        var succeeded = Set<UUID>()
+        var deletedCount = 0
+        var deletedBytes: Int64 = 0
+        var failedCount = 0
+
+        for target in targets {
+            var didSucceed = false
+
+            do {
+                try fm.trashItem(at: target.url, resultingItemURL: nil)
+                didSucceed = true
+            } catch {
+                // Fallback: NSWorkspace.recycle (비동기 콜백 → CheckedContinuation으로 동기화)
+                let ok: Bool = await withCheckedContinuation { continuation in
+                    NSWorkspace.shared.recycle([target.url]) { _, error in
+                        continuation.resume(returning: error == nil)
+                    }
+                }
+                didSucceed = ok
+            }
+
+            if didSucceed {
+                succeeded.insert(target.fileID)
+                deletedCount += 1
+                deletedBytes += target.perFileSize
+            } else {
+                failedCount += 1
+            }
+        }
+
+        return DeleteOutcome(
+            succeeded: succeeded,
+            deletedCount: deletedCount,
+            failedCount: failedCount,
+            deletedBytes: deletedBytes
+        )
+    }
+
     // MARK: - 파일 수집 (백그라운드)
 
-    private struct FileCandidate {
+    private struct FileCandidate: Sendable {
         let url: URL
         let size: Int64
         let modDate: Date?
@@ -462,7 +533,10 @@ final class DuplicateScannerViewModel: ObservableObject {
         return hashMap
     }
 
-    private nonisolated static func removeAliasedFiles(from files: [FileCandidate]) -> [FileCandidate] {
+    /// ✅ [개명] removeAliasedFiles → removeHardlinkedFiles
+    ///   lstat은 심볼릭 링크 자체를 가리키므로 hardlink는 (dev, inode)로 합쳐지지만
+    ///   심볼릭 링크는 합쳐지지 않습니다. 함수명을 의도에 맞게 변경.
+    private nonisolated static func removeHardlinkedFiles(from files: [FileCandidate]) -> [FileCandidate] {
         var seenIdentityKeys = Set<String>()
         var uniqueFiles: [FileCandidate] = []
         uniqueFiles.reserveCapacity(files.count)
@@ -535,7 +609,15 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     private nonisolated static func recommendationScore(for file: DuplicateFile, rootURL: URL) -> Int {
         let loweredName = file.url.lastPathComponent.lowercased()
-        let duplicateMarkers = ["copy", "duplicate", "backup", "사본", "복사본", "백업"]
+        // ✅ 다국어 "사본/복사" 마커 확장 (앱 지원 언어: en/ko/ja/de/es/fr)
+        let duplicateMarkers = [
+            "copy", "duplicate", "backup",
+            "사본", "복사본", "백업",
+            "コピー", "複製", "バックアップ",
+            "kopie", "duplikat", "sicherung",
+            "copia", "duplicado", "respaldo",
+            "copie", "sauvegarde"
+        ]
 
         var score = 0
 
@@ -563,7 +645,9 @@ final class DuplicateScannerViewModel: ObservableObject {
             score += min(ageInDays, 30)
         }
 
-        score -= min(file.url.path.count, 120)
+        // ✅ 경로 길이 페널티 약화 (-120 → -30 cap) — 깊은 경로의 깨끗한 보관 파일이
+        //    다른 모든 신호를 압도하지 않도록.
+        score -= min(file.url.path.count / 4, 30)
         return score
     }
 

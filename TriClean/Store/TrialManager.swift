@@ -4,16 +4,23 @@
 //
 //  Created by Assistant on 2/7/26.
 //
-//  ✅ [수정 v2]
-//   - daysRemaining 초기값 7 → 0 (만료 안전 기본값). 첫 프레임에서 만료된 사용자가
-//     ContentView를 잠깐 보던 race condition 제거.
-//   - refresh()를 동기 호출로 변경하고 @MainActor를 적용해 SwiftUI 격리와 일치.
-//   - 시간 조작 검출 임계값을 ±1h → ±6h로 완화 (시차/일광절약 등 정상 사용자 보호).
+//  ✅ [수정 v3]
+//   - 키체인 저장 실패 시 매 실행마다 firstLaunchDate가 now로 리셋되어
+//     체험 기간이 무한히 갱신되던 문제를 차단.
+//   - 저장 실패 시 UserDefaults에 sentinel을 기록해, "이미 trial을 시작했으나
+//     키체인에 영구화하지 못한 사용자"를 식별하고 더 이상의 trial을 부여하지 않음.
+//     (정상 키체인 사용자는 UserDefaults sentinel을 무시합니다)
+//
+//  v2 변경 사항(유지):
+//   - daysRemaining 초기값 7 → 0
+//   - refresh()를 동기 호출로 변경하고 @MainActor 적용
+//   - 시간 조작 검출 임계값 ±6h (시차/DST 보호)
 //
 
 import Foundation
 import Combine
 import os
+import Security
 
 // 날짜 데이터를 구조체로 관리
 struct TrialData: Codable {
@@ -33,6 +40,10 @@ final class TrialManager: ObservableObject {
     private let trialDays: Double = 7
     private let keychainService = "com.triclean.service"
     private let keychainAccount = "trialData"
+
+    // ✅ 키체인 저장에 실패해 trial 시작 시각을 영구화하지 못한 경우의 fallback 표식.
+    //    한 번이라도 이 키가 true가 되면, 이후 키체인 데이터가 없더라도 trial은 0일로 간주합니다.
+    private let trialStartedFallbackKey = "TriClean.trialStarted.fallback"
 
     // ✅ 시간 조작 허용 오차 — 시차/DST 변경으로 인한 정상 사용자 오인 방지
     private let clockSkewTolerance: TimeInterval = 6 * 3600  // 6시간
@@ -69,9 +80,26 @@ final class TrialManager: ObservableObject {
         guard let data = KeychainHelper.shared.read(service: keychainService, account: keychainAccount),
               var trialData = try? JSONDecoder().decode(TrialData.self, from: data) else {
 
-            // 데이터 없음 -> 최초 실행으로 간주
+            // ✅ 키체인에 trial 데이터가 없는 경우:
+            //   (a) 진짜 최초 실행 → 신규 trial 부여.
+            //   (b) 과거에 키체인 저장이 실패했던 사용자 → fallback sentinel 확인 후 0일 반환.
+            if UserDefaults.standard.bool(forKey: trialStartedFallbackKey) {
+                trialLogger.warning("Trial keychain missing but fallback sentinel set — treating as expired.")
+                return 0
+            }
+
             let newData = TrialData(firstLaunchDate: now, lastLaunchDate: now)
-            save(newData)
+            let status = save(newData)
+
+            if status != errSecSuccess {
+                // 키체인 저장에 실패했으므로, fallback sentinel을 기록해 둠.
+                // 이렇게 하면 다음 실행 시 또다시 7일을 받지 못함.
+                UserDefaults.standard.set(true, forKey: trialStartedFallbackKey)
+                UserDefaults.standard.set(now.timeIntervalSince1970,
+                                          forKey: "\(trialStartedFallbackKey).startedAt")
+                trialLogger.warning("Trial keychain save failed (status=\(status, privacy: .public)) — using UserDefaults fallback.")
+            }
+
             return Int(trialDays)
         }
 
@@ -95,11 +123,24 @@ final class TrialManager: ObservableObject {
         // 3. 마지막 실행 시간 갱신 (현재 시간이 더 미래일 때만)
         if now > trialData.lastLaunchDate {
             trialData.lastLaunchDate = now
-            save(trialData)
+            _ = save(trialData)
+            // 여기서 저장 실패해도 다음 실행 때 다시 시도되므로 fallback sentinel은 건드리지 않음.
         }
 
         // 4. 남은 기간 계산
-        let elapsed = now.timeIntervalSince(trialData.firstLaunchDate)
+        //    fallback sentinel에 기록된 startedAt이 있다면(예외적 케이스),
+        //    키체인 데이터와 비교해 더 이른 시각을 채택해 우회를 막습니다.
+        let effectiveFirstLaunch: Date = {
+            guard UserDefaults.standard.bool(forKey: trialStartedFallbackKey) else {
+                return trialData.firstLaunchDate
+            }
+            let fallbackStart = UserDefaults.standard.double(forKey: "\(trialStartedFallbackKey).startedAt")
+            guard fallbackStart > 0 else { return trialData.firstLaunchDate }
+            let fallbackDate = Date(timeIntervalSince1970: fallbackStart)
+            return min(trialData.firstLaunchDate, fallbackDate)
+        }()
+
+        let elapsed = now.timeIntervalSince(effectiveFirstLaunch)
         let daysPassed = elapsed / (24 * 60 * 60)
         let remaining = Int(ceil(trialDays - daysPassed))
 
@@ -122,9 +163,12 @@ final class TrialManager: ObservableObject {
     }
     #endif
 
-    private func save(_ data: TrialData) {
-        if let encoded = try? JSONEncoder().encode(data) {
-            KeychainHelper.shared.save(encoded, service: keychainService, account: keychainAccount)
+    @discardableResult
+    private func save(_ data: TrialData) -> OSStatus {
+        guard let encoded = try? JSONEncoder().encode(data) else {
+            trialLogger.error("Trial data encoding failed.")
+            return errSecParam
         }
+        return KeychainHelper.shared.save(encoded, service: keychainService, account: keychainAccount)
     }
 }
