@@ -284,6 +284,9 @@
 "sidebar.section.system" = "시스템";
 "sidebar.section.cleanup" = "정리";
 "sidebar.duplicates" = "중복 파일";
+"largefiles.subtitle" = "선택한 폴더에서 용량이 큰 파일과 폴더를 찾아 정리합니다.";
+"largefiles.title" = "큰 파일";
+"sidebar.large_files" = "큰 파일";
 
 /* Storage Surface */
 "storage.treemap.title" = "Disk Map";

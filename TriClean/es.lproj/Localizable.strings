@@ -271,6 +271,9 @@
 "sidebar.section.system" = "Sistema";
 "sidebar.section.cleanup" = "Limpieza";
 "sidebar.duplicates" = "Duplicados";
+"largefiles.subtitle" = "Encuentra archivos y carpetas grandes en una ubicación seleccionada y revísalos antes de limpiar.";
+"largefiles.title" = "Archivos grandes";
+"sidebar.large_files" = "Archivos grandes";
 
 /* Storage Surface */
 "storage.treemap.title" = "Mapa del disco";

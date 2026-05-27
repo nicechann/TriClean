@@ -12,6 +12,7 @@ enum SidebarItem: Hashable {
     case smartScan
     case storage
     case memory
+    case largeFiles
     case apps
     case duplicates
     case settings
@@ -49,6 +50,9 @@ struct ContentView: View {
                 }
                 
                 Section("sidebar.section.cleanup".localized) {
+                    NavigationLink(value: SidebarItem.largeFiles) {
+                        Label("sidebar.large_files".localized, systemImage: "doc.text.magnifyingglass")
+                    }
                     NavigationLink(value: SidebarItem.duplicates) {
                         Label("sidebar.duplicates".localized, systemImage: "doc.on.doc")
                     }
@@ -68,6 +72,7 @@ struct ContentView: View {
             case .smartScan:    SmartScanView { target in selection = target }
             case .storage:      StorageView()
             case .memory:       MemoryView()
+            case .largeFiles:   LargeFilesView()
             case .apps:         AppsView()
             case .duplicates:   DuplicateFinderView()
             case .settings:     SettingsView()

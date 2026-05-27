@@ -271,6 +271,9 @@
 "sidebar.section.system" = "システム";
 "sidebar.section.cleanup" = "クリーンアップ";
 "sidebar.duplicates" = "重複ファイル";
+"largefiles.subtitle" = "選択したフォルダ内の大きなファイルやフォルダを見つけて、安全に整理できます。";
+"largefiles.title" = "大容量ファイル";
+"sidebar.large_files" = "大容量ファイル";
 
 /* Storage Surface */
 "storage.treemap.title" = "ディスクマップ";

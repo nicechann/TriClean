@@ -271,6 +271,9 @@
 "sidebar.section.system" = "Système";
 "sidebar.section.cleanup" = "Nettoyage";
 "sidebar.duplicates" = "Doublons";
+"largefiles.subtitle" = "Trouvez les gros fichiers et dossiers dans un emplacement choisi et vérifiez-les avant le nettoyage.";
+"largefiles.title" = "Fichiers volumineux";
+"sidebar.large_files" = "Fichiers volumineux";
 
 /* Storage Surface */
 "storage.treemap.title" = "Carte du disque";

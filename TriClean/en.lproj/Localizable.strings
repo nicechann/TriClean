@@ -283,6 +283,9 @@
 "sidebar.section.system" = "System";
 "sidebar.section.cleanup" = "Cleanup";
 "sidebar.duplicates" = "Duplicates";
+"largefiles.subtitle" = "Find large files and folders in a selected location and review them safely before cleanup.";
+"largefiles.title" = "Large Files";
+"sidebar.large_files" = "Large Files";
 
 /* Storage Surface */
 "storage.treemap.title" = "Disk Map";

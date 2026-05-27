@@ -450,30 +450,9 @@ struct StorageView: View {
             VStack(alignment: .leading, spacing: 14) {
                 diskHeaderSection
 
-                if !folderResults.isEmpty {
-                    TreemapView(
-                        items: folderResults,
-                        onItemTapped: { item in openInFinder(item) }
-                    )
-                    .padding(.horizontal, sectionInset)
-
-                    Divider()
-                }
-
                 JunkSectionView(viewModel: junkViewModel)
                     .padding(.horizontal, sectionInset)
 
-                Divider()
-                folderScanSection
-
-                if selectedFolderURL != nil || isScanning || !folderResults.isEmpty {
-                    storageStatusSection
-                    Divider()
-                } else {
-                    Divider()
-                }
-
-                resultsTableSection
                 Spacer(minLength: 10)
             }
             .padding(.horizontal, outerPadding)
