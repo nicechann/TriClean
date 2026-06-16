@@ -1009,7 +1009,8 @@ final class AppsViewModel: ObservableObject {
 // MARK: - View
 
 struct AppsView: View {
-    @StateObject private var viewModel = AppsViewModel()
+    // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
+    @EnvironmentObject private var viewModel: AppsViewModel
     @State private var activeAlert: AppsActiveAlert?
     @State private var hoveredAppID: String? = nil
     @State private var showCompactDetailsSheet = false
@@ -1740,4 +1741,5 @@ struct AppsView: View {
 
 #Preview {
     AppsView()
+        .environmentObject(AppsViewModel())
 }

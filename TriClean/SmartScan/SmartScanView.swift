@@ -58,9 +58,10 @@ struct SmartScanView: View {
     @EnvironmentObject private var memoryViewModel: MemoryViewModel
 
     @StateObject private var viewModel = SmartScanViewModel()
-    @StateObject private var junkViewModel = JunkScannerViewModel()
-    @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
-    @StateObject private var appsViewModel = AppsViewModel()
+    // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용 (각 상세 탭과 상태 공유)
+    @EnvironmentObject private var junkViewModel: JunkScannerViewModel
+    @EnvironmentObject private var duplicateViewModel: DuplicateScannerViewModel
+    @EnvironmentObject private var appsViewModel: AppsViewModel
 
     let onNavigate: (SidebarItem) -> Void
 

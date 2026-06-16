@@ -282,4 +282,7 @@ struct SettingsView: View {
         .environmentObject(MemoryViewModel())
         .environmentObject(StoreManager.shared)
         .environmentObject(TrialManager.shared)
+        .environmentObject(JunkScannerViewModel())
+        .environmentObject(DuplicateScannerViewModel())
+        .environmentObject(AppsViewModel())
 }

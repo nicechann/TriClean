@@ -9,7 +9,8 @@
 import SwiftUI
 
 struct DuplicateFinderView: View {
-    @StateObject private var viewModel = DuplicateScannerViewModel()
+    // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
+    @EnvironmentObject private var viewModel: DuplicateScannerViewModel
     @State private var showDeleteConfirm = false
     @State private var expandedGroupIDs: Set<UUID> = []
 
@@ -460,5 +461,6 @@ struct DuplicateFinderView: View {
 
 #Preview {
     DuplicateFinderView()
+        .environmentObject(DuplicateScannerViewModel())
         .frame(width: 960, height: 720)
 }

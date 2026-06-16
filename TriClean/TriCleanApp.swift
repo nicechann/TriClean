@@ -60,6 +60,13 @@ struct TriCleanApp: App {
     @StateObject private var memoryViewModel = MemoryViewModel()
     @StateObject private var storeManager = StoreManager.shared
     @StateObject private var trialManager = TrialManager.shared
+
+    // ✅ [공유 스캐너 모델] SmartScan과 각 상세 탭(Storage/Duplicates/Apps)이
+    //   같은 인스턴스를 공유하도록 앱 레벨에서 한 번만 생성해 EnvironmentObject로 주입.
+    //   (기존: 각 화면이 @StateObject로 따로 생성 → 스캔 결과가 탭 간 공유되지 않던 문제 해결)
+    @StateObject private var junkViewModel = JunkScannerViewModel()
+    @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
+    @StateObject private var appsViewModel = AppsViewModel()
     @State private var showPaywallSheet: Bool = false
     @AppStorage("didShowOnboarding") private var didShowOnboarding = false
     @State private var showOnboarding = false
@@ -123,6 +130,10 @@ struct TriCleanApp: App {
             .environmentObject(memoryViewModel)
             .environmentObject(storeManager)
             .environmentObject(trialManager)
+            // ✅ 공유 스캐너 모델 주입
+            .environmentObject(junkViewModel)
+            .environmentObject(duplicateViewModel)
+            .environmentObject(appsViewModel)
             // ✅ 체험 중에는 Paywall을 시트로 띄움
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView(allowDismiss: true)
