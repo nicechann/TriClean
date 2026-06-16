@@ -553,3 +553,31 @@
 "smartscan.safety.title" = "La suppression se fait uniquement dans chaque écran détaillé.";
 "smartscan.safety.body" = "Smart Scan fournit des résumés et une navigation. Le nettoyage réel n’est effectué qu’après vérification des éléments et déplacement dans la corbeille.";
 
+
+/* Photo Manager */
+"sidebar.photos" = "Photos";
+"photos.title" = "Gestionnaire de photos";
+"photos.subtitle" = "Recherche les images similaires, floues et les captures d'écran dans un dossier choisi.";
+"photos.select_folder.title" = "Sélectionner un dossier à analyser";
+"photos.select_folder.message" = "TriClean analyse le dossier sélectionné et ses sous-dossiers à la recherche de fichiers image.";
+"photos.scope.select_hint" = "Sélectionnez un dossier à analyser.";
+"photos.action.scan" = "Analyser";
+"photos.action.scanning" = "Analyse…";
+"photos.status.collecting" = "Collecte des fichiers image…";
+"photos.status.reading" = "Lecture des informations…";
+"photos.status.found" = "%d images trouvées.";
+"photos.status.empty" = "Aucune image trouvée dans ce dossier.";
+"photos.status.ready" = "Prêt à analyser.";
+"photos.phase.idle" = "Inactif";
+"photos.phase.collecting" = "Collecte des fichiers…";
+"photos.phase.reading" = "Lecture des informations…";
+"photos.phase.done" = "Terminé";
+"photos.summary.count" = "%d images";
+"photos.summary.size" = "Total %@";
+"photos.empty.title" = "Aucune image pour l'instant";
+"photos.empty.desc" = "Choisissez un dossier et lancez une analyse pour lister ses images.";
+"photos.note.detection_coming" = "La détection des images similaires/floues/captures arrivera dans une mise à jour ultérieure. Cette vue liste actuellement toutes les images du dossier.";
+"photos.category.all" = "Toutes";
+"photos.category.similar" = "Similaires";
+"photos.category.blurry" = "Floues";
+"photos.category.screenshot" = "Captures d'écran";

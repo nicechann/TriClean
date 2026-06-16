@@ -67,6 +67,7 @@ struct TriCleanApp: App {
     @StateObject private var junkViewModel = JunkScannerViewModel()
     @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
     @StateObject private var appsViewModel = AppsViewModel()
+    @StateObject private var photoViewModel = PhotoScannerViewModel()
     @State private var showPaywallSheet: Bool = false
     @AppStorage("didShowOnboarding") private var didShowOnboarding = false
     @State private var showOnboarding = false
@@ -134,6 +135,7 @@ struct TriCleanApp: App {
             .environmentObject(junkViewModel)
             .environmentObject(duplicateViewModel)
             .environmentObject(appsViewModel)
+            .environmentObject(photoViewModel)
             // ✅ 체험 중에는 Paywall을 시트로 띄움
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView(allowDismiss: true)

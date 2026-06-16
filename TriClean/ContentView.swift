@@ -15,6 +15,7 @@ enum SidebarItem: Hashable {
     case largeFiles
     case apps
     case duplicates
+    case photos
     case settings
 }
 
@@ -56,6 +57,9 @@ struct ContentView: View {
                     NavigationLink(value: SidebarItem.duplicates) {
                         Label("sidebar.duplicates".localized, systemImage: "doc.on.doc")
                     }
+                    NavigationLink(value: SidebarItem.photos) {
+                        Label("sidebar.photos".localized, systemImage: "photo.on.rectangle.angled")
+                    }
                 }
                 
                 Section {
@@ -75,6 +79,7 @@ struct ContentView: View {
             case .largeFiles:   LargeFilesView()
             case .apps:         AppsView()
             case .duplicates:   DuplicateFinderView()
+            case .photos:       PhotosView()
             case .settings:     SettingsView()
             }
         }
@@ -285,4 +290,5 @@ struct SettingsView: View {
         .environmentObject(JunkScannerViewModel())
         .environmentObject(DuplicateScannerViewModel())
         .environmentObject(AppsViewModel())
+        .environmentObject(PhotoScannerViewModel())
 }

@@ -569,3 +569,31 @@
 "smartscan.safety.title" = "삭제는 각 상세 화면에서만 진행됩니다.";
 "smartscan.safety.body" = "Smart Scan은 상태 요약과 이동을 제공합니다. 실제 삭제는 항목을 직접 확인한 뒤 휴지통으로 이동하는 방식으로 처리됩니다.";
 
+
+/* Photo Manager */
+"sidebar.photos" = "사진";
+"photos.title" = "사진 관리자";
+"photos.subtitle" = "선택한 폴더에서 유사·흐릿·스크린샷 이미지를 찾습니다.";
+"photos.select_folder.title" = "사진을 검색할 폴더 선택";
+"photos.select_folder.message" = "TriClean이 선택한 폴더와 하위 폴더의 이미지 파일을 스캔합니다.";
+"photos.scope.select_hint" = "이미지를 검색할 폴더를 선택하세요.";
+"photos.action.scan" = "스캔";
+"photos.action.scanning" = "스캔 중…";
+"photos.status.collecting" = "이미지 파일 수집 중…";
+"photos.status.reading" = "이미지 정보 읽는 중…";
+"photos.status.found" = "이미지 %d개를 찾았습니다.";
+"photos.status.empty" = "이 폴더에서 이미지를 찾지 못했습니다.";
+"photos.status.ready" = "스캔 준비됨.";
+"photos.phase.idle" = "대기";
+"photos.phase.collecting" = "파일 수집 중…";
+"photos.phase.reading" = "정보 읽는 중…";
+"photos.phase.done" = "완료";
+"photos.summary.count" = "이미지 %d개";
+"photos.summary.size" = "총 %@";
+"photos.empty.title" = "아직 이미지가 없습니다";
+"photos.empty.desc" = "폴더를 선택하고 스캔하면 이미지가 표시됩니다.";
+"photos.note.detection_coming" = "유사·흐릿·스크린샷 분류는 다음 업데이트에서 추가됩니다. 현재 화면은 폴더의 모든 이미지를 나열합니다.";
+"photos.category.all" = "전체";
+"photos.category.similar" = "유사";
+"photos.category.blurry" = "흐릿함";
+"photos.category.screenshot" = "스크린샷";

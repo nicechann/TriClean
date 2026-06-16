@@ -553,3 +553,31 @@
 "smartscan.safety.title" = "Gelöscht wird nur in den jeweiligen Detailansichten.";
 "smartscan.safety.body" = "Smart Scan bietet Zusammenfassungen und Navigation. Die eigentliche Bereinigung erfolgt erst, nachdem du Elemente geprüft und in den Papierkorb verschoben hast.";
 
+
+/* Photo Manager */
+"sidebar.photos" = "Fotos";
+"photos.title" = "Fotomanager";
+"photos.subtitle" = "Findet ähnliche, unscharfe und Screenshot-Bilder in einem ausgewählten Ordner.";
+"photos.select_folder.title" = "Ordner zum Durchsuchen nach Fotos auswählen";
+"photos.select_folder.message" = "TriClean durchsucht den ausgewählten Ordner und seine Unterordner nach Bilddateien.";
+"photos.scope.select_hint" = "Wählen Sie einen Ordner zum Durchsuchen nach Bildern aus.";
+"photos.action.scan" = "Scannen";
+"photos.action.scanning" = "Scannen…";
+"photos.status.collecting" = "Bilddateien werden gesammelt…";
+"photos.status.reading" = "Bildinformationen werden gelesen…";
+"photos.status.found" = "%d Bilder gefunden.";
+"photos.status.empty" = "In diesem Ordner wurden keine Bilder gefunden.";
+"photos.status.ready" = "Bereit zum Scannen.";
+"photos.phase.idle" = "Inaktiv";
+"photos.phase.collecting" = "Dateien werden gesammelt…";
+"photos.phase.reading" = "Informationen werden gelesen…";
+"photos.phase.done" = "Fertig";
+"photos.summary.count" = "%d Bilder";
+"photos.summary.size" = "Gesamt %@";
+"photos.empty.title" = "Noch keine Bilder";
+"photos.empty.desc" = "Wählen Sie einen Ordner und starten Sie einen Scan, um die Bilder anzuzeigen.";
+"photos.note.detection_coming" = "Die Erkennung ähnlicher/unscharfer/Screenshot-Bilder folgt in einem späteren Update. Diese Ansicht listet derzeit alle Bilder im Ordner auf.";
+"photos.category.all" = "Alle";
+"photos.category.similar" = "Ähnlich";
+"photos.category.blurry" = "Unscharf";
+"photos.category.screenshot" = "Screenshots";

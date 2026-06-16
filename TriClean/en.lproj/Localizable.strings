@@ -568,3 +568,31 @@
 "smartscan.safety.title" = "Deletion only happens in each detail screen.";
 "smartscan.safety.body" = "Smart Scan provides summaries and navigation. Actual cleanup is performed only after you review items and move them to Trash.";
 
+
+/* Photo Manager */
+"sidebar.photos" = "Photos";
+"photos.title" = "Photo Manager";
+"photos.subtitle" = "Find similar, blurry, and screenshot images in a folder you choose.";
+"photos.select_folder.title" = "Select a Folder to Scan for Photos";
+"photos.select_folder.message" = "TriClean scans the selected folder and its subfolders for image files.";
+"photos.scope.select_hint" = "Select a folder to scan for images.";
+"photos.action.scan" = "Scan";
+"photos.action.scanning" = "Scanning…";
+"photos.status.collecting" = "Collecting image files…";
+"photos.status.reading" = "Reading image info…";
+"photos.status.found" = "Found %d images.";
+"photos.status.empty" = "No images found in this folder.";
+"photos.status.ready" = "Ready to scan.";
+"photos.phase.idle" = "Idle";
+"photos.phase.collecting" = "Collecting files…";
+"photos.phase.reading" = "Reading info…";
+"photos.phase.done" = "Done";
+"photos.summary.count" = "%d images";
+"photos.summary.size" = "Total %@";
+"photos.empty.title" = "No images yet";
+"photos.empty.desc" = "Choose a folder and run a scan to list its images.";
+"photos.note.detection_coming" = "Similar / blurry / screenshot detection is coming in a later update. This view currently lists all images in the folder.";
+"photos.category.all" = "All";
+"photos.category.similar" = "Similar";
+"photos.category.blurry" = "Blurry";
+"photos.category.screenshot" = "Screenshots";

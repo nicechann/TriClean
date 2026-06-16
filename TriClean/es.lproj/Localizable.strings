@@ -553,3 +553,31 @@
 "smartscan.safety.title" = "La eliminación solo ocurre en cada pantalla de detalle.";
 "smartscan.safety.body" = "Smart Scan ofrece resúmenes y navegación. La limpieza real solo se realiza después de revisar elementos y moverlos a la Papelera.";
 
+
+/* Photo Manager */
+"sidebar.photos" = "Fotos";
+"photos.title" = "Gestor de fotos";
+"photos.subtitle" = "Encuentra imágenes similares, borrosas y capturas de pantalla en una carpeta que elijas.";
+"photos.select_folder.title" = "Seleccionar una carpeta para buscar fotos";
+"photos.select_folder.message" = "TriClean analiza la carpeta seleccionada y sus subcarpetas en busca de archivos de imagen.";
+"photos.scope.select_hint" = "Selecciona una carpeta para buscar imágenes.";
+"photos.action.scan" = "Analizar";
+"photos.action.scanning" = "Analizando…";
+"photos.status.collecting" = "Recopilando archivos de imagen…";
+"photos.status.reading" = "Leyendo información de imágenes…";
+"photos.status.found" = "Se encontraron %d imágenes.";
+"photos.status.empty" = "No se encontraron imágenes en esta carpeta.";
+"photos.status.ready" = "Listo para analizar.";
+"photos.phase.idle" = "Inactivo";
+"photos.phase.collecting" = "Recopilando archivos…";
+"photos.phase.reading" = "Leyendo información…";
+"photos.phase.done" = "Listo";
+"photos.summary.count" = "%d imágenes";
+"photos.summary.size" = "Total %@";
+"photos.empty.title" = "Aún no hay imágenes";
+"photos.empty.desc" = "Elige una carpeta y ejecuta un análisis para ver sus imágenes.";
+"photos.note.detection_coming" = "La detección de imágenes similares/borrosas/capturas llegará en una actualización posterior. Esta vista muestra actualmente todas las imágenes de la carpeta.";
+"photos.category.all" = "Todas";
+"photos.category.similar" = "Similares";
+"photos.category.blurry" = "Borrosas";
+"photos.category.screenshot" = "Capturas";

@@ -553,3 +553,31 @@
 "smartscan.safety.title" = "削除は各詳細画面でのみ実行されます。";
 "smartscan.safety.body" = "Smart Scanは概要と移動先を提供します。実際のクリーンアップは、項目を確認してからゴミ箱へ移動する方式で実行されます。";
 
+
+/* Photo Manager */
+"sidebar.photos" = "写真";
+"photos.title" = "写真マネージャ";
+"photos.subtitle" = "選択したフォルダ内の類似・ぼやけ・スクリーンショット画像を検索します。";
+"photos.select_folder.title" = "写真を検索するフォルダを選択";
+"photos.select_folder.message" = "TriClean は選択したフォルダとそのサブフォルダ内の画像ファイルをスキャンします。";
+"photos.scope.select_hint" = "画像を検索するフォルダを選択してください。";
+"photos.action.scan" = "スキャン";
+"photos.action.scanning" = "スキャン中…";
+"photos.status.collecting" = "画像ファイルを収集中…";
+"photos.status.reading" = "画像情報を読み込み中…";
+"photos.status.found" = "%d 枚の画像が見つかりました。";
+"photos.status.empty" = "このフォルダに画像が見つかりませんでした。";
+"photos.status.ready" = "スキャンの準備ができました。";
+"photos.phase.idle" = "待機";
+"photos.phase.collecting" = "ファイルを収集中…";
+"photos.phase.reading" = "情報を読み込み中…";
+"photos.phase.done" = "完了";
+"photos.summary.count" = "%d 枚の画像";
+"photos.summary.size" = "合計 %@";
+"photos.empty.title" = "まだ画像がありません";
+"photos.empty.desc" = "フォルダを選択してスキャンすると画像が一覧表示されます。";
+"photos.note.detection_coming" = "類似・ぼやけ・スクリーンショットの分類は今後のアップデートで追加されます。現在は フォルダ内のすべての画像を表示します。";
+"photos.category.all" = "すべて";
+"photos.category.similar" = "類似";
+"photos.category.blurry" = "ぼやけ";
+"photos.category.screenshot" = "スクリーンショット";
