@@ -603,3 +603,13 @@
 "photos.similar.analyzing" = "Analyse des photos similaires…";
 "photos.similar.empty" = "Aucune photo similaire trouvée.";
 "photos.similar.group.count" = "%d similaires";
+
+/* Photo Manager - step5 (select/delete) */
+"photos.select.count" = "%d sélectionnés";
+"photos.select.clear" = "Désélectionner";
+"photos.action.trash" = "Mettre à la corbeille";
+"photos.action.reveal" = "Afficher dans le Finder";
+"photos.delete.confirm.title" = "Mettre les photos sélectionnées à la corbeille ?";
+"photos.delete.confirm.msg" = "%d éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
+"photos.delete.confirm.button" = "Mettre à la corbeille";
+"photos.similar.select_extras" = "Tout sauf un";

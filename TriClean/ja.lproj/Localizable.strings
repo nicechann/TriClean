@@ -603,3 +603,13 @@
 "photos.similar.analyzing" = "類似した写真を分析中…";
 "photos.similar.empty" = "類似した写真は見つかりませんでした。";
 "photos.similar.group.count" = "%d 枚が類似";
+
+/* Photo Manager - step5 (select/delete) */
+"photos.select.count" = "%d 件選択";
+"photos.select.clear" = "選択解除";
+"photos.action.trash" = "ゴミ箱に移動";
+"photos.action.reveal" = "Finderで表示";
+"photos.delete.confirm.title" = "選択した写真をゴミ箱に移動しますか？";
+"photos.delete.confirm.msg" = "%d 件の項目がゴミ箱に移動されます。ゴミ箱から復元できます。";
+"photos.delete.confirm.button" = "ゴミ箱に移動";
+"photos.similar.select_extras" = "1枚を残して選択";

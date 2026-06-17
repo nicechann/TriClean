@@ -176,6 +176,7 @@ final class PhotoScannerViewModel: ObservableObject {
         isAnalyzingSimilar = false
         isSimilarAnalyzed = false
         similarProgress = 0
+        selectedIDs = []
         phase = .collecting
         statusMessage = "photos.status.collecting".localized
 
@@ -397,6 +398,86 @@ final class PhotoScannerViewModel: ObservableObject {
         if cancelled {
             similarProgress = 0
             isSimilarAnalyzed = false
+        }
+    }
+
+    // MARK: - 선택 / 삭제 (5단계)
+
+    @Published var selectedIDs: Set<String> = []
+
+    var selectedCount: Int { selectedIDs.count }
+
+    var selectedBytes: Int64 {
+        items.lazy.filter { self.selectedIDs.contains($0.id) }.reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    var selectedSizeString: String {
+        ByteCountFormatter.string(fromByteCount: selectedBytes, countStyle: .file)
+    }
+
+    func isSelected(_ id: String) -> Bool { selectedIDs.contains(id) }
+
+    /// 선택 토글. 유사 그룹은 최소 1장을 남기도록 마지막 한 장 선택을 막습니다.
+    func toggleSelection(_ id: String) {
+        if selectedIDs.contains(id) {
+            selectedIDs.remove(id)
+            return
+        }
+        // 선택하려는 경우: 유사 그룹이면 keep-1 가드
+        if let group = similarGroups.first(where: { g in g.items.contains { $0.id == id } }) {
+            let unselected = group.items.filter { !selectedIDs.contains($0.id) }.count
+            if unselected <= 1 { return }   // 이 항목이 그룹의 마지막 미선택분 → 선택 거부
+        }
+        selectedIDs.insert(id)
+    }
+
+    /// 유사 그룹에서 첫 장(가장 큰 용량)만 남기고 나머지를 선택.
+    func selectExtras(in group: PhotoGroup) {
+        for item in group.items.dropFirst() {
+            selectedIDs.insert(item.id)
+        }
+    }
+
+    func clearSelection() {
+        selectedIDs.removeAll()
+    }
+
+    /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거.
+    func deleteSelected() {
+        let toDelete = items.filter { selectedIDs.contains($0.id) }
+        guard !toDelete.isEmpty else { return }
+
+        Task.detached(priority: .utility) { [weak self] in
+            guard let self else { return }
+            var trashed = Set<String>()
+            for item in toDelete {
+                if Self.moveToTrash(item.url) { trashed.insert(item.id) }
+            }
+            let result = trashed
+            await MainActor.run {
+                self.removeItems(result)
+            }
+        }
+    }
+
+    private func removeItems(_ ids: Set<String>) {
+        guard !ids.isEmpty else { return }
+        items.removeAll { ids.contains($0.id) }
+        // 유사 그룹 갱신: 1장 이하로 줄면 그룹 해제
+        similarGroups = similarGroups.compactMap { g in
+            let remaining = g.items.filter { !ids.contains($0.id) }
+            guard remaining.count >= 2 else { return nil }
+            return PhotoGroup(id: g.id, items: remaining)
+        }
+        selectedIDs.subtract(ids)
+    }
+
+    nonisolated private static func moveToTrash(_ url: URL) -> Bool {
+        do {
+            try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            return true
+        } catch {
+            return false
         }
     }
 

@@ -618,3 +618,13 @@
 "photos.similar.analyzing" = "Analyzing for similar photos…";
 "photos.similar.empty" = "No similar photos found.";
 "photos.similar.group.count" = "%d similar";
+
+/* Photo Manager - step5 (select/delete) */
+"photos.select.count" = "%d selected";
+"photos.select.clear" = "Deselect";
+"photos.action.trash" = "Move to Trash";
+"photos.action.reveal" = "Show in Finder";
+"photos.delete.confirm.title" = "Move selected photos to Trash?";
+"photos.delete.confirm.msg" = "%d items will be moved to the Trash. You can restore them from the Trash.";
+"photos.delete.confirm.button" = "Move to Trash";
+"photos.similar.select_extras" = "Select all but one";

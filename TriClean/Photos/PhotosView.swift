@@ -66,6 +66,8 @@ struct PhotosView: View {
 
     private let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
 
+    @State private var showDeleteConfirm = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -84,6 +86,47 @@ struct PhotosView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
+        .safeAreaInset(edge: .bottom) {
+            if viewModel.selectedCount > 0 {
+                selectionBar
+            }
+        }
+        .alert("photos.delete.confirm.title".localized, isPresented: $showDeleteConfirm) {
+            Button("common.cancel".localized, role: .cancel) { }
+            Button("photos.delete.confirm.button".localized, role: .destructive) {
+                viewModel.deleteSelected()
+            }
+        } message: {
+            Text("photos.delete.confirm.msg".localized(with: viewModel.selectedCount))
+        }
+    }
+
+    // MARK: - Selection bar
+
+    private var selectionBar: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.accentColor)
+            Text("photos.select.count".localized(with: viewModel.selectedCount))
+                .font(.callout.weight(.medium))
+            Text("· \(viewModel.selectedSizeString)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("photos.select.clear".localized) {
+                viewModel.clearSelection()
+            }
+            .buttonStyle(.bordered)
+            Button(role: .destructive) {
+                showDeleteConfirm = true
+            } label: {
+                Label("photos.action.trash".localized, systemImage: "trash")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.bar)
     }
 
     // MARK: - Header
@@ -276,9 +319,6 @@ struct PhotosView: View {
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(viewModel.filteredItems) { item in
                         PhotoThumbnailCell(item: item)
-                            .onTapGesture(count: 2) {
-                                NSWorkspace.shared.activateFileViewerSelecting([item.url])
-                            }
                     }
                 }
                 .padding(.vertical, 4)
@@ -399,13 +439,16 @@ struct PhotosView: View {
                             Text("· \(group.totalSizeString)")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                            Spacer()
+                            Button("photos.similar.select_extras".localized) {
+                                viewModel.selectExtras(in: group)
+                            }
+                            .buttonStyle(.borderless)
+                            .controlSize(.small)
                         }
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(group.items) { item in
                                 PhotoThumbnailCell(item: item)
-                                    .onTapGesture(count: 2) {
-                                        NSWorkspace.shared.activateFileViewerSelecting([item.url])
-                                    }
                             }
                         }
                     }
@@ -501,8 +544,11 @@ struct PhotosView: View {
 
 private struct PhotoThumbnailCell: View {
     let item: PhotoItem
+    @EnvironmentObject private var viewModel: PhotoScannerViewModel
     @State private var image: NSImage?
     @State private var didFinishLoading = false
+
+    private var isSelected: Bool { viewModel.isSelected(item.id) }
 
     var body: some View {
         VStack(spacing: 4) {
@@ -527,7 +573,8 @@ private struct PhotoThumbnailCell: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(nsColor: .separatorColor), lineWidth: 0.5)
+                    .stroke(isSelected ? Color.accentColor : Color(nsColor: .separatorColor),
+                            lineWidth: isSelected ? 2.5 : 0.5)
             )
             .overlay(alignment: .topLeading) {
                 if item.isScreenshot {
@@ -540,6 +587,16 @@ private struct PhotoThumbnailCell: View {
                         .help("photos.category.screenshot".localized)
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.body)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.9),
+                                     isSelected ? Color.accentColor : Color.black.opacity(0.3))
+                    .padding(5)
+                    .contentShape(Rectangle())
+                    .onTapGesture { viewModel.toggleSelection(item.id) }
+            }
 
             Text(item.sizeString)
                 .font(.caption2.monospacedDigit())
@@ -547,6 +604,15 @@ private struct PhotoThumbnailCell: View {
                 .lineLimit(1)
         }
         .help(item.name)
+        .contentShape(Rectangle())
+        .onTapGesture { viewModel.toggleSelection(item.id) }
+        .contextMenu {
+            Button {
+                NSWorkspace.shared.activateFileViewerSelecting([item.url])
+            } label: {
+                Label("photos.action.reveal".localized, systemImage: "folder")
+            }
+        }
         .task(id: item.id) {
             didFinishLoading = false
             image = await PhotoThumbnailCache.shared.image(for: item.url)
