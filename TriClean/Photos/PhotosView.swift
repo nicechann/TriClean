@@ -64,7 +64,7 @@ struct PhotosView: View {
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
     @EnvironmentObject private var viewModel: PhotoScannerViewModel
 
-    private let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
+    private let columns = [GridItem(.adaptive(minimum: 120, maximum: 120), spacing: 12)]
 
     @State private var showDeleteConfirm = false
 
@@ -341,7 +341,7 @@ struct PhotosView: View {
                 .frame(maxWidth: .infinity)
                 .padding(32)
             } else {
-                LazyVGrid(columns: columns, spacing: 12) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
                     ForEach(viewModel.filteredItems) { item in
                         PhotoThumbnailCell(item: item)
                     }
@@ -475,7 +475,7 @@ struct PhotosView: View {
                             .controlSize(.small)
                             .disabled(viewModel.isDeleting)
                         }
-                        LazyVGrid(columns: columns, spacing: 12) {
+                        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
                             ForEach(group.items) { item in
                                 PhotoThumbnailCell(item: item)
                             }
@@ -572,6 +572,8 @@ struct PhotosView: View {
 // MARK: - Thumbnail cell
 
 private struct PhotoThumbnailCell: View {
+    private let thumbnailSize: CGFloat = 120
+
     let item: PhotoItem
     @EnvironmentObject private var viewModel: PhotoScannerViewModel
     @State private var image: NSImage?
@@ -581,57 +583,15 @@ private struct PhotoThumbnailCell: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(nsColor: .controlBackgroundColor))
-                if let image {
-                    Image(nsImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else if didFinishLoading {
-                    // ✅ 로드 실패 → 무한 스피너 대신 명확한 실패 표시
-                    Image(systemName: "photo.badge.exclamationmark")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ProgressView()
-                        .controlSize(.small)
-                }
-            }
-            .frame(height: 110)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.accentColor : Color(nsColor: .separatorColor),
-                            lineWidth: isSelected ? 2.5 : 0.5)
-            )
-            .overlay(alignment: .topLeading) {
-                if item.isScreenshot {
-                    Image(systemName: "camera.viewfinder")
-                        .font(.caption2)
-                        .foregroundStyle(.white)
-                        .padding(4)
-                        .background(Circle().fill(Color.accentColor))
-                        .padding(4)
-                        .help("photos.category.screenshot".localized)
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.body)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.9),
-                                     isSelected ? Color.accentColor : Color.black.opacity(0.3))
-                    .padding(5)
-                    .contentShape(Rectangle())
-                    .onTapGesture { viewModel.toggleSelection(item.id) }
-            }
+            thumbnailView
 
             Text(item.sizeString)
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .frame(width: thumbnailSize)
         }
+        .frame(width: thumbnailSize)
         .help(item.name)
         .contentShape(Rectangle())
         .onTapGesture { viewModel.toggleSelection(item.id) }
@@ -648,6 +608,57 @@ private struct PhotoThumbnailCell: View {
             if Task.isCancelled { return }
             image = loaded
             didFinishLoading = true
+        }
+    }
+
+    private var thumbnailView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(nsColor: .controlBackgroundColor))
+
+            if let image {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: thumbnailSize, height: thumbnailSize)
+                    .clipped()
+            } else if didFinishLoading {
+                // ✅ 로드 실패 → 무한 스피너 대신 명확한 실패 표시
+                Image(systemName: "photo.badge.exclamationmark")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            } else {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+        .frame(width: thumbnailSize, height: thumbnailSize)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isSelected ? Color.accentColor : Color(nsColor: .separatorColor),
+                        lineWidth: isSelected ? 2.5 : 0.5)
+        )
+        .overlay(alignment: .topLeading) {
+            if item.isScreenshot {
+                Image(systemName: "camera.viewfinder")
+                    .font(.caption2)
+                    .foregroundStyle(.white)
+                    .padding(4)
+                    .background(Circle().fill(Color.accentColor))
+                    .padding(4)
+                    .help("photos.category.screenshot".localized)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .font(.body)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.9),
+                                 isSelected ? Color.accentColor : Color.black.opacity(0.3))
+                .padding(5)
+                .contentShape(Rectangle())
+                .onTapGesture { viewModel.toggleSelection(item.id) }
         }
     }
 }
