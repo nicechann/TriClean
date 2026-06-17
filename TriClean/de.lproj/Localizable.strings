@@ -576,8 +576,16 @@
 "photos.summary.size" = "Gesamt %@";
 "photos.empty.title" = "Noch keine Bilder";
 "photos.empty.desc" = "Wählen Sie einen Ordner und starten Sie einen Scan, um die Bilder anzuzeigen.";
-"photos.note.detection_coming" = "Die Erkennung ähnlicher/unscharfer/Screenshot-Bilder folgt in einem späteren Update. Diese Ansicht listet derzeit alle Bilder im Ordner auf.";
+"photos.note.detection_coming" = "Erkennung ähnlicher und unscharfer Bilder folgt in einem späteren Update. Screenshots werden jetzt erkannt.";
 "photos.category.all" = "Alle";
 "photos.category.similar" = "Ähnlich";
 "photos.category.blurry" = "Unscharf";
 "photos.category.screenshot" = "Screenshots";
+
+/* Photo Manager - step2 */
+"photos.category.soon" = "Bald";
+"photos.filter.empty" = "Keine Einträge in dieser Kategorie.";
+
+/* Photo Manager - step2 fix */
+"photos.status.cancelled" = "Scan abgebrochen.";
+"photos.action.stop" = "Stopp";

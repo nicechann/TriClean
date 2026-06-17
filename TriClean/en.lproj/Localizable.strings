@@ -591,8 +591,16 @@
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "No images yet";
 "photos.empty.desc" = "Choose a folder and run a scan to list its images.";
-"photos.note.detection_coming" = "Similar / blurry / screenshot detection is coming in a later update. This view currently lists all images in the folder.";
+"photos.note.detection_coming" = "Similar and blurry detection is coming in a later update. Screenshots are detected now.";
 "photos.category.all" = "All";
 "photos.category.similar" = "Similar";
 "photos.category.blurry" = "Blurry";
 "photos.category.screenshot" = "Screenshots";
+
+/* Photo Manager - step2 */
+"photos.category.soon" = "Soon";
+"photos.filter.empty" = "No items in this category.";
+
+/* Photo Manager - step2 fix */
+"photos.status.cancelled" = "Scan canceled.";
+"photos.action.stop" = "Stop";

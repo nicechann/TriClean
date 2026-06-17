@@ -576,8 +576,16 @@
 "photos.summary.size" = "合計 %@";
 "photos.empty.title" = "まだ画像がありません";
 "photos.empty.desc" = "フォルダを選択してスキャンすると画像が一覧表示されます。";
-"photos.note.detection_coming" = "類似・ぼやけ・スクリーンショットの分類は今後のアップデートで追加されます。現在は フォルダ内のすべての画像を表示します。";
+"photos.note.detection_coming" = "類似・ぼやけの分類は今後のアップデートで追加されます。スクリーンショットは現在検出されます。";
 "photos.category.all" = "すべて";
 "photos.category.similar" = "類似";
 "photos.category.blurry" = "ぼやけ";
 "photos.category.screenshot" = "スクリーンショット";
+
+/* Photo Manager - step2 */
+"photos.category.soon" = "近日";
+"photos.filter.empty" = "このカテゴリに該当する項目はありません。";
+
+/* Photo Manager - step2 fix */
+"photos.status.cancelled" = "スキャンを中止しました。";
+"photos.action.stop" = "中止";

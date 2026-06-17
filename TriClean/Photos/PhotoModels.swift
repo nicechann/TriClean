@@ -51,6 +51,9 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
     /// 이후 단계(삭제 UI)에서 사용. 1단계에서는 항상 false로 시작합니다.
     var isSelected: Bool = false
 
+    /// 스크린샷 여부 (2단계: kMDItemIsScreenCapture / 파일명 패턴 기반).
+    let isScreenshot: Bool
+
     var name: String { url.lastPathComponent }
     var path: String { url.path }
 
@@ -69,6 +72,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
         modificationDate: Date?,
         pixelWidth: Int,
         pixelHeight: Int,
+        isScreenshot: Bool = false,
         isSelected: Bool = false
     ) {
         self.id = url.path
@@ -77,6 +81,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
         self.modificationDate = modificationDate
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
+        self.isScreenshot = isScreenshot
         self.isSelected = isSelected
     }
 

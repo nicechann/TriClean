@@ -592,8 +592,16 @@
 "photos.summary.size" = "총 %@";
 "photos.empty.title" = "아직 이미지가 없습니다";
 "photos.empty.desc" = "폴더를 선택하고 스캔하면 이미지가 표시됩니다.";
-"photos.note.detection_coming" = "유사·흐릿·스크린샷 분류는 다음 업데이트에서 추가됩니다. 현재 화면은 폴더의 모든 이미지를 나열합니다.";
+"photos.note.detection_coming" = "유사·흐릿 분류는 다음 업데이트에서 추가됩니다. 스크린샷은 지금 탐지됩니다.";
 "photos.category.all" = "전체";
 "photos.category.similar" = "유사";
 "photos.category.blurry" = "흐릿함";
 "photos.category.screenshot" = "스크린샷";
+
+/* Photo Manager - step2 */
+"photos.category.soon" = "곧";
+"photos.filter.empty" = "이 분류에 해당하는 항목이 없습니다.";
+
+/* Photo Manager - step2 fix */
+"photos.status.cancelled" = "스캔을 중지했습니다.";
+"photos.action.stop" = "중지";

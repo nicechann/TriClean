@@ -195,6 +195,13 @@ struct PhotosView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
+                Button(role: .cancel) {
+                    viewModel.cancelScan()
+                } label: {
+                    Label("photos.action.stop".localized, systemImage: "stop.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -232,7 +239,10 @@ struct PhotosView: View {
                 }
             }
 
-            // 1단계 안내(분류는 추후 단계)
+            // 카테고리 필터 바 (2단계: 전체 / 스크린샷 활성, 유사/흐릿은 곧)
+            categoryFilterBar
+
+            // 안내(남은 분류는 추후 단계)
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "info.circle")
                     .foregroundStyle(.secondary)
@@ -245,19 +255,86 @@ struct PhotosView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08)))
 
-            // 썸네일 그리드
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(viewModel.items) { item in
-                        PhotoThumbnailCell(item: item)
-                            .onTapGesture(count: 2) {
-                                NSWorkspace.shared.activateFileViewerSelecting([item.url])
-                            }
-                    }
+            // 썸네일 그리드 (선택된 카테고리로 필터링)
+            if viewModel.filteredItems.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "tray")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.secondary)
+                    Text("photos.filter.empty".localized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity)
+                .padding(32)
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(viewModel.filteredItems) { item in
+                            PhotoThumbnailCell(item: item)
+                                .onTapGesture(count: 2) {
+                                    NSWorkspace.shared.activateFileViewerSelecting([item.url])
+                                }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
             }
         }
+    }
+
+    // MARK: - Category filter
+
+    private var categoryFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(PhotoCategory.allCases) { category in
+                    categoryPill(category)
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+
+    private func categoryPill(_ category: PhotoCategory) -> some View {
+        let isReady = viewModel.readyCategories.contains(category)
+        let isSelected = isReady && viewModel.selectedCategory == category
+
+        return Button {
+            if isReady { viewModel.selectedCategory = category }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: category.icon)
+                    .font(.caption)
+                Text(category.title)
+                    .font(.caption.weight(.medium))
+                if isReady {
+                    Text("\(viewModel.count(for: category))")
+                        .font(.caption2.monospacedDigit())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color.secondary.opacity(0.18)))
+                } else {
+                    Text("photos.category.soon".localized)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule().fill(isSelected ? Color.accentColor.opacity(0.18) : Color(nsColor: .controlBackgroundColor))
+            )
+            .overlay(
+                Capsule().stroke(isSelected ? Color.accentColor : Color(nsColor: .separatorColor),
+                                 lineWidth: isSelected ? 1.5 : 0.5)
+            )
+            .foregroundStyle(isSelected ? Color.accentColor : (isReady ? Color.primary : Color.secondary))
+        }
+        .buttonStyle(.plain)
+        .disabled(!isReady)
+        .opacity(isReady ? 1 : 0.55)
+        .help(isReady ? category.title : "photos.category.soon".localized)
     }
 
     // MARK: - Empty
@@ -289,6 +366,7 @@ struct PhotosView: View {
 private struct PhotoThumbnailCell: View {
     let item: PhotoItem
     @State private var image: NSImage?
+    @State private var didFinishLoading = false
 
     var body: some View {
         VStack(spacing: 4) {
@@ -299,6 +377,11 @@ private struct PhotoThumbnailCell: View {
                     Image(nsImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if didFinishLoading {
+                    // ✅ 로드 실패 → 무한 스피너 대신 명확한 실패 표시
+                    Image(systemName: "photo.badge.exclamationmark")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
                 } else {
                     ProgressView()
                         .controlSize(.small)
@@ -310,15 +393,28 @@ private struct PhotoThumbnailCell: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(nsColor: .separatorColor), lineWidth: 0.5)
             )
+            .overlay(alignment: .topLeading) {
+                if item.isScreenshot {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.caption2)
+                        .foregroundStyle(.white)
+                        .padding(4)
+                        .background(Circle().fill(Color.accentColor))
+                        .padding(4)
+                        .help("photos.category.screenshot".localized)
+                }
+            }
 
             Text(item.sizeString)
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
-        .help("\(item.name) · \(item.dimensionText)")
+        .help(item.name)
         .task(id: item.id) {
+            didFinishLoading = false
             image = await PhotoThumbnailCache.shared.image(for: item.url)
+            didFinishLoading = true
         }
     }
 }
