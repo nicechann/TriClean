@@ -576,7 +576,7 @@
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "Aún no hay imágenes";
 "photos.empty.desc" = "Elige una carpeta y ejecuta un análisis para ver sus imágenes.";
-"photos.note.detection_coming" = "La agrupación de imágenes similares llegará en una actualización posterior. Las capturas se detectan automáticamente; analiza las borrosas en la pestaña Borrosas.";
+"photos.note.detection_coming" = "Las capturas se detectan automáticamente. Analiza las fotos borrosas y similares desde sus pestañas.";
 "photos.category.all" = "Todas";
 "photos.category.similar" = "Similares";
 "photos.category.blurry" = "Borrosas";
@@ -595,3 +595,11 @@
 "photos.blur.prompt.title" = "Buscar fotos borrosas";
 "photos.blur.prompt.desc" = "Analiza las imágenes para encontrar las borrosas. Puede tardar en carpetas grandes.";
 "photos.blur.prompt.button" = "Iniciar análisis";
+
+/* Photo Manager - step4 (similar) */
+"photos.similar.prompt.title" = "Buscar fotos similares";
+"photos.similar.prompt.desc" = "Agrupa fotos casi duplicadas y visualmente similares. Puede tardar en carpetas grandes.";
+"photos.similar.prompt.button" = "Iniciar análisis";
+"photos.similar.analyzing" = "Analizando fotos similares…";
+"photos.similar.empty" = "No se encontraron fotos similares.";
+"photos.similar.group.count" = "%d similares";

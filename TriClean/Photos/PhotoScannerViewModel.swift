@@ -39,12 +39,22 @@ final class PhotoScannerViewModel: ObservableObject {
     @Published var isBlurAnalyzed: Bool = false
     @Published var blurProgress: Double = 0
 
+    // 4단계: 유사 사진 분석(주문형)
+    @Published var similarGroups: [PhotoGroup] = []
+    @Published var isAnalyzingSimilar: Bool = false
+    @Published var isSimilarAnalyzed: Bool = false
+    @Published var similarProgress: Double = 0
+
     private var scanTask: Task<Void, Never>? = nil
     private var blurTask: Task<Void, Never>? = nil
+    private var similarTask: Task<Void, Never>? = nil
 
     /// 라플라시안 분산 임계값. 이 값보다 낮으면 흐릿한 것으로 판단(낮을수록 더 흐릿).
     /// 콘텐츠 의존적이라 실사용 후 조정이 필요할 수 있습니다.
     static let blurThreshold: Double = 60.0
+
+    /// dHash 해밍 거리 임계값. 이 값 이하면 '유사'로 묶음(낮을수록 더 엄격).
+    static let similarHammingThreshold: Int = 10
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
 
     // MARK: - Computed
@@ -66,17 +76,18 @@ final class PhotoScannerViewModel: ObservableObject {
     // MARK: - Category (2단계)
 
     /// 현재 탐지가 구현된(선택 가능한) 카테고리. 단계가 진행되며 확장됩니다.
-    let readyCategories: [PhotoCategory] = [.all, .screenshot, .blurry]
+    let readyCategories: [PhotoCategory] = [.all, .screenshot, .blurry, .similar]
 
     var screenshotCount: Int { items.lazy.filter { $0.isScreenshot }.count }
     var blurCount: Int { items.lazy.filter { $0.isBlurry }.count }
+    var similarPhotoCount: Int { similarGroups.reduce(0) { $0 + $1.count } }
 
     func count(for category: PhotoCategory) -> Int {
         switch category {
         case .all:        return totalCount
         case .screenshot: return screenshotCount
         case .blurry:     return blurCount
-        case .similar:    return 0   // 이후 단계
+        case .similar:    return isSimilarAnalyzed ? similarPhotoCount : 0
         }
     }
 
@@ -86,7 +97,7 @@ final class PhotoScannerViewModel: ObservableObject {
         case .all:        return items
         case .screenshot: return items.filter { $0.isScreenshot }
         case .blurry:     return items.filter { $0.isBlurry }
-        case .similar:    return []  // 이후 단계
+        case .similar:    return []  // 유사는 similarGroups(그룹 뷰)로 표시
         }
     }
 
@@ -151,6 +162,7 @@ final class PhotoScannerViewModel: ObservableObject {
 
         scanTask?.cancel()
         blurTask?.cancel()
+        similarTask?.cancel()
 
         isScanning = true
         items = []
@@ -160,6 +172,10 @@ final class PhotoScannerViewModel: ObservableObject {
         isAnalyzingBlur = false
         isBlurAnalyzed = false
         blurProgress = 0
+        similarGroups = []
+        isAnalyzingSimilar = false
+        isSimilarAnalyzed = false
+        similarProgress = 0
         phase = .collecting
         statusMessage = "photos.status.collecting".localized
 
@@ -177,18 +193,20 @@ final class PhotoScannerViewModel: ObservableObject {
         }
         collectTask = collect
 
-        scanTask = Task { [weak self] in
+        scanTask = Task.detached(priority: .utility) { [weak self] in
+            guard let self else { return }
             let collected = await collect.value
             // 폴더 접근은 여기서 닫지 않음 — 다음 스캔/폴더 변경 시 교체됨
-            guard let self else { return }
-
-            if collect.isCancelled {
-                self.items = []
-                self.finishScan(cancelled: true)
-            } else {
-                // 큰 파일(용량 우선)이 먼저 보이도록 정렬
-                self.items = collected.sorted { $0.sizeBytes > $1.sizeBytes }
-                self.finishScan(cancelled: false)
+            let cancelled = collect.isCancelled
+            await MainActor.run {
+                if cancelled {
+                    self.items = []
+                    self.finishScan(cancelled: true)
+                } else {
+                    // 큰 파일(용량 우선)이 먼저 보이도록 정렬
+                    self.items = collected.sorted { $0.sizeBytes > $1.sizeBytes }
+                    self.finishScan(cancelled: false)
+                }
             }
         }
     }
@@ -242,10 +260,11 @@ final class PhotoScannerViewModel: ObservableObject {
             start = end
         }
 
-        blurTask = Task { [weak self] in
+        blurTask = Task.detached(priority: .utility) { [weak self] in
+            guard let self else { return }
             let blurry = await withTaskGroup(of: [String].self) { group -> Set<String> in
                 for slice in slices {
-                    group.addTask(priority: .utility) {
+                    group.addTask {
                         var local: [String] = []
                         for item in slice {
                             if Task.isCancelled { break }
@@ -261,18 +280,20 @@ final class PhotoScannerViewModel: ObservableObject {
                 for await ids in group {
                     result.formUnion(ids)
                     done += 1
-                    self?.blurProgress = Double(done) / Double(max(slices.count, 1))
+                    let p = Double(done) / Double(max(slices.count, 1))
+                    await MainActor.run { self.blurProgress = p }
                 }
                 return result
             }
 
-            guard let self else { return }
-            if !Task.isCancelled {
-                self.applyBlurFlags(blurry)
-                self.isBlurAnalyzed = true
+            await MainActor.run {
+                if !Task.isCancelled {
+                    self.applyBlurFlags(blurry)
+                    self.isBlurAnalyzed = true
+                }
+                self.isAnalyzingBlur = false
+                self.blurProgress = 1
             }
-            self.isAnalyzingBlur = false
-            self.blurProgress = 1
         }
     }
 
@@ -284,6 +305,98 @@ final class PhotoScannerViewModel: ObservableObject {
     private func applyBlurFlags(_ ids: Set<String>) {
         for i in items.indices {
             items[i].isBlurry = ids.contains(items[i].id)
+        }
+    }
+
+    // MARK: - 유사 사진 분석 (4단계, 주문형, dHash + 해밍 거리)
+
+    func analyzeSimilar() {
+        guard !items.isEmpty, !isAnalyzingSimilar else { return }
+        similarTask?.cancel()
+
+        isAnalyzingSimilar = true
+        isSimilarAnalyzed = false
+        similarProgress = 0
+        similarGroups = []
+
+        let snapshot = items
+        let threshold = Self.similarHammingThreshold
+        let workers = max(2, ProcessInfo.processInfo.activeProcessorCount)
+
+        var slices: [[PhotoItem]] = []
+        let per = (snapshot.count + workers - 1) / workers
+        var start = 0
+        while start < snapshot.count {
+            let end = min(start + per, snapshot.count)
+            slices.append(Array(snapshot[start..<end]))
+            start = end
+        }
+
+        similarTask = Task.detached(priority: .utility) { [weak self] in
+            guard let self else { return }
+            // 1) 병렬 dHash 계산 (UInt64는 Sendable이라 경계 통과 안전)
+            var hashes: [(String, UInt64)] = []
+            await withTaskGroup(of: [(String, UInt64)].self) { group in
+                for slice in slices {
+                    group.addTask {
+                        var local: [(String, UInt64)] = []
+                        for item in slice {
+                            if Task.isCancelled { break }
+                            if let h = Self.differenceHash(url: item.url) {
+                                local.append((item.id, h))
+                            }
+                        }
+                        return local
+                    }
+                }
+                var done = 0
+                for await part in group {
+                    hashes.append(contentsOf: part)
+                    done += 1
+                    let p = (Double(done) / Double(max(slices.count, 1))) * 0.85
+                    await MainActor.run { self.similarProgress = p }
+                }
+            }
+
+            if Task.isCancelled {
+                await MainActor.run { self.finishSimilar(cancelled: true) }
+                return
+            }
+
+            // 2) 클러스터링 (이미 .utility detached 컨텍스트라 그대로 계산)
+            let groupIDs = Self.clusterByHash(hashes, threshold: threshold)
+
+            if Task.isCancelled {
+                await MainActor.run { self.finishSimilar(cancelled: true) }
+                return
+            }
+
+            // 3) id → PhotoItem → PhotoGroup (UI 반영은 main에서)
+            await MainActor.run {
+                self.similarProgress = 1
+                let byID = Dictionary(snapshot.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+                self.similarGroups = groupIDs.compactMap { ids in
+                    let groupItems = ids.compactMap { byID[$0] }.sorted { $0.sizeBytes > $1.sizeBytes }
+                    guard groupItems.count >= 2 else { return nil }
+                    return PhotoGroup(id: ids.first ?? UUID().uuidString, items: groupItems)
+                }
+                .sorted { $0.count > $1.count }
+                self.isSimilarAnalyzed = true
+                self.isAnalyzingSimilar = false
+            }
+        }
+    }
+
+    func cancelSimilarAnalysis() {
+        similarTask?.cancel()
+        isAnalyzingSimilar = false
+    }
+
+    private func finishSimilar(cancelled: Bool) {
+        isAnalyzingSimilar = false
+        if cancelled {
+            similarProgress = 0
+            isSimilarAnalyzed = false
         }
     }
 
@@ -434,6 +547,69 @@ final class PhotoScannerViewModel: ObservableObject {
         guard count > 0 else { return nil }
         let mean = sum / Double(count)
         return sumSq / Double(count) - mean * mean
+    }
+
+    // MARK: - 유사 사진 해시 (dHash) + 클러스터링
+
+    /// 9×8 그레이스케일로 줄여 가로 인접 픽셀 비교로 64비트 difference hash 생성.
+    nonisolated private static func differenceHash(url: URL) -> UInt64? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: 32
+        ]
+        guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+
+        let w = 9, h = 8
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        var buffer = [UInt8](repeating: 0, count: w * h)
+        let ok: Bool = buffer.withUnsafeMutableBytes { raw -> Bool in
+            guard let ctx = CGContext(
+                data: raw.baseAddress,
+                width: w,
+                height: h,
+                bitsPerComponent: 8,
+                bytesPerRow: w,
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.none.rawValue
+            ) else { return false }
+            ctx.interpolationQuality = .low
+            ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
+            return true
+        }
+        guard ok else { return nil }
+
+        var hash: UInt64 = 0
+        var bit: UInt64 = 0
+        for y in 0..<h {
+            let row = y * w
+            for x in 0..<(w - 1) {
+                if buffer[row + x] > buffer[row + x + 1] {
+                    hash |= (UInt64(1) << bit)
+                }
+                bit += 1
+            }
+        }
+        return hash   // 8행 × 8비교 = 64비트
+    }
+
+    /// 해밍 거리 임계값으로 그리디 클러스터링. 2장 이상인 그룹만 반환.
+    nonisolated private static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
+        var groups: [(rep: UInt64, ids: [String])] = []
+        for (id, hash) in hashes {
+            if Task.isCancelled { break }
+            var placed = false
+            for gi in groups.indices {
+                if (groups[gi].rep ^ hash).nonzeroBitCount <= threshold {
+                    groups[gi].ids.append(id)
+                    placed = true
+                    break
+                }
+            }
+            if !placed { groups.append((rep: hash, ids: [id])) }
+        }
+        return groups.filter { $0.ids.count >= 2 }.map { $0.ids }
     }
 
 

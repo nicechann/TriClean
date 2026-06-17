@@ -257,7 +257,9 @@ struct PhotosView: View {
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08)))
 
             // 썸네일 그리드 (선택된 카테고리로 필터링)
-            if viewModel.selectedCategory == .blurry && !viewModel.isBlurAnalyzed {
+            if viewModel.selectedCategory == .similar {
+                similarSection
+            } else if viewModel.selectedCategory == .blurry && !viewModel.isBlurAnalyzed {
                 blurAnalysisSection
             } else if viewModel.filteredItems.isEmpty {
                 VStack(spacing: 8) {
@@ -330,6 +332,88 @@ struct PhotosView: View {
         }
     }
 
+    // MARK: - Similar analysis (4단계, 주문형)
+
+    @ViewBuilder
+    private var similarSection: some View {
+        if viewModel.isAnalyzingSimilar {
+            VStack(spacing: 14) {
+                ProgressView(value: viewModel.similarProgress)
+                    .frame(maxWidth: 280)
+                Text("photos.similar.analyzing".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(role: .cancel) {
+                    viewModel.cancelSimilarAnalysis()
+                } label: {
+                    Label("photos.action.stop".localized, systemImage: "stop.circle")
+                }
+                .buttonStyle(.bordered)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(40)
+        } else if !viewModel.isSimilarAnalyzed {
+            VStack(spacing: 12) {
+                Image(systemName: "square.on.square")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.secondary)
+                Text("photos.similar.prompt.title".localized)
+                    .font(.headline)
+                Text("photos.similar.prompt.desc".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    viewModel.analyzeSimilar()
+                } label: {
+                    Label("photos.similar.prompt.button".localized, systemImage: "wand.and.stars")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(40)
+            .background(RoundedRectangle(cornerRadius: 16).fill(Color(nsColor: .controlBackgroundColor)))
+        } else if viewModel.similarGroups.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "checkmark.circle")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.secondary)
+                Text("photos.similar.empty".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(32)
+        } else {
+            VStack(alignment: .leading, spacing: 22) {
+                ForEach(viewModel.similarGroups) { group in
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.on.square")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("photos.similar.group.count".localized(with: group.count))
+                                .font(.subheadline.weight(.semibold))
+                            Text("· \(group.totalSizeString)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(group.items) { item in
+                                PhotoThumbnailCell(item: item)
+                                    .onTapGesture(count: 2) {
+                                        NSWorkspace.shared.activateFileViewerSelecting([item.url])
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - Category filter
 
     private var categoryFilterBar: some View {
@@ -355,7 +439,8 @@ struct PhotosView: View {
                     .font(.caption)
                 Text(category.title)
                     .font(.caption.weight(.medium))
-                if category == .blurry && !viewModel.isBlurAnalyzed {
+                if (category == .blurry && !viewModel.isBlurAnalyzed)
+                    || (category == .similar && !viewModel.isSimilarAnalyzed) {
                     Image(systemName: "wand.and.stars")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)

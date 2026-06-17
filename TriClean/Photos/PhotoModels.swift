@@ -93,6 +93,18 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
 }
 
 /// 스캔 진행 단계.
+/// 유사 사진 묶음 (4단계: dHash + 해밍 거리 클러스터링 결과).
+struct PhotoGroup: Identifiable, Hashable, Sendable {
+    let id: String
+    let items: [PhotoItem]
+
+    var count: Int { items.count }
+    var totalBytes: Int64 { items.reduce(0) { $0 + $1.sizeBytes } }
+    var totalSizeString: String {
+        ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
+    }
+}
+
 enum PhotoScanPhase: String, Sendable {
     case idle
     case collecting

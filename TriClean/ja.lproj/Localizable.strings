@@ -576,7 +576,7 @@
 "photos.summary.size" = "合計 %@";
 "photos.empty.title" = "まだ画像がありません";
 "photos.empty.desc" = "フォルダを選択してスキャンすると画像が一覧表示されます。";
-"photos.note.detection_coming" = "類似画像のグループ化は今後のアップデートで追加されます。スクリーンショットは自動検出され、ぼやけた写真は「ぼやけ」タブで分析します。";
+"photos.note.detection_coming" = "スクリーンショットは自動的に検出されます。ぼやけた写真と類似した写真は各タブで分析してください。";
 "photos.category.all" = "すべて";
 "photos.category.similar" = "類似";
 "photos.category.blurry" = "ぼやけ";
@@ -595,3 +595,11 @@
 "photos.blur.prompt.title" = "ぼやけた写真を検索";
 "photos.blur.prompt.desc" = "画像を分析してぼやけた写真を見つけます。写真が多い場合は時間がかかることがあります。";
 "photos.blur.prompt.button" = "分析を開始";
+
+/* Photo Manager - step4 (similar) */
+"photos.similar.prompt.title" = "類似した写真を検索";
+"photos.similar.prompt.desc" = "ほぼ重複・視覚的に類似した写真をグループ化します。写真が多い場合は時間がかかることがあります。";
+"photos.similar.prompt.button" = "分析を開始";
+"photos.similar.analyzing" = "類似した写真を分析中…";
+"photos.similar.empty" = "類似した写真は見つかりませんでした。";
+"photos.similar.group.count" = "%d 枚が類似";

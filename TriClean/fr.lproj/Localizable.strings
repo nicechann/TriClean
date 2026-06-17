@@ -576,7 +576,7 @@
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "Aucune image pour l'instant";
 "photos.empty.desc" = "Choisissez un dossier et lancez une analyse pour lister ses images.";
-"photos.note.detection_coming" = "Le regroupement d'images similaires arrivera plus tard. Les captures sont détectées automatiquement ; analysez les photos floues dans l'onglet Floues.";
+"photos.note.detection_coming" = "Les captures sont détectées automatiquement. Analysez les photos floues et similaires depuis leurs onglets.";
 "photos.category.all" = "Toutes";
 "photos.category.similar" = "Similaires";
 "photos.category.blurry" = "Floues";
@@ -595,3 +595,11 @@
 "photos.blur.prompt.title" = "Trouver les photos floues";
 "photos.blur.prompt.desc" = "Analyse les images pour trouver les floues. Cela peut prendre du temps pour les grands dossiers.";
 "photos.blur.prompt.button" = "Lancer l'analyse";
+
+/* Photo Manager - step4 (similar) */
+"photos.similar.prompt.title" = "Trouver les photos similaires";
+"photos.similar.prompt.desc" = "Regroupe les photos quasi dupliquées et visuellement similaires. Cela peut prendre du temps pour les grands dossiers.";
+"photos.similar.prompt.button" = "Lancer l'analyse";
+"photos.similar.analyzing" = "Analyse des photos similaires…";
+"photos.similar.empty" = "Aucune photo similaire trouvée.";
+"photos.similar.group.count" = "%d similaires";

@@ -576,7 +576,7 @@
 "photos.summary.size" = "Gesamt %@";
 "photos.empty.title" = "Noch keine Bilder";
 "photos.empty.desc" = "Wählen Sie einen Ordner und starten Sie einen Scan, um die Bilder anzuzeigen.";
-"photos.note.detection_coming" = "Die Gruppierung ähnlicher Bilder folgt in einem späteren Update. Screenshots werden automatisch erkannt; unscharfe Fotos im Tab „Unscharf“ analysieren.";
+"photos.note.detection_coming" = "Screenshots werden automatisch erkannt. Unscharfe und ähnliche Fotos in den jeweiligen Tabs analysieren.";
 "photos.category.all" = "Alle";
 "photos.category.similar" = "Ähnlich";
 "photos.category.blurry" = "Unscharf";
@@ -595,3 +595,11 @@
 "photos.blur.prompt.title" = "Unscharfe Fotos finden";
 "photos.blur.prompt.desc" = "Analysiert die Bilder, um unscharfe zu finden. Bei großen Ordnern kann dies dauern.";
 "photos.blur.prompt.button" = "Analyse starten";
+
+/* Photo Manager - step4 (similar) */
+"photos.similar.prompt.title" = "Ähnliche Fotos finden";
+"photos.similar.prompt.desc" = "Gruppiert nahezu doppelte und optisch ähnliche Fotos. Bei großen Ordnern kann dies dauern.";
+"photos.similar.prompt.button" = "Analyse starten";
+"photos.similar.analyzing" = "Suche nach ähnlichen Fotos…";
+"photos.similar.empty" = "Keine ähnlichen Fotos gefunden.";
+"photos.similar.group.count" = "%d ähnlich";
