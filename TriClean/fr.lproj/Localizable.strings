@@ -613,6 +613,10 @@
 "photos.delete.confirm.msg" = "%d éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
 "photos.delete.confirm.button" = "Mettre à la corbeille";
 "photos.similar.select_extras" = "Tout sauf un";
+"photos.delete.status.moving" = "Déplacement de %d éléments vers la corbeille…";
+"photos.delete.status.success" = "%d éléments ont été mis à la corbeille.";
+"photos.delete.status.partial" = "%1$d éléments ont été mis à la corbeille. %2$d éléments n’ont pas pu être déplacés.";
+"photos.delete.status.failed" = "%d éléments n’ont pas pu être mis à la corbeille.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "Déplacement de %d éléments sélectionnés vers la corbeille…";

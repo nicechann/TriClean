@@ -613,6 +613,10 @@
 "photos.delete.confirm.msg" = "%d Objekte werden in den Papierkorb verschoben. Sie können sie aus dem Papierkorb wiederherstellen.";
 "photos.delete.confirm.button" = "In den Papierkorb";
 "photos.similar.select_extras" = "Alle außer einem";
+"photos.delete.status.moving" = "%d Objekte werden in den Papierkorb verschoben…";
+"photos.delete.status.success" = "%d Objekte wurden in den Papierkorb verschoben.";
+"photos.delete.status.partial" = "%1$d Objekte wurden in den Papierkorb verschoben. %2$d Objekte konnten nicht verschoben werden.";
+"photos.delete.status.failed" = "%d Objekte konnten nicht in den Papierkorb verschoben werden.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "%d ausgewählte Elemente werden in den Papierkorb verschoben…";

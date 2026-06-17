@@ -105,24 +105,33 @@ struct PhotosView: View {
 
     private var selectionBar: some View {
         HStack(spacing: 12) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(Color.accentColor)
-            Text("photos.select.count".localized(with: viewModel.selectedCount))
-                .font(.callout.weight(.medium))
-            Text("· \(viewModel.selectedSizeString)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if viewModel.isDeleting {
+                ProgressView()
+                    .controlSize(.small)
+                Text(viewModel.deleteStatusMessage ?? "photos.delete.status.moving".localized(with: viewModel.selectedCount))
+                    .font(.callout.weight(.medium))
+            } else {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.accentColor)
+                Text("photos.select.count".localized(with: viewModel.selectedCount))
+                    .font(.callout.weight(.medium))
+                Text("· \(viewModel.selectedSizeString)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Spacer()
             Button("photos.select.clear".localized) {
                 viewModel.clearSelection()
             }
             .buttonStyle(.bordered)
+            .disabled(viewModel.isDeleting)
             Button(role: .destructive) {
                 showDeleteConfirm = true
             } label: {
                 Label("photos.action.trash".localized, systemImage: "trash")
             }
             .buttonStyle(.borderedProminent)
+            .disabled(viewModel.isDeleting)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -171,6 +180,7 @@ struct PhotosView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .keyboardShortcut("s", modifiers: [.command])
+                    .disabled(viewModel.isDeleting)
                 }
             }
         }
@@ -217,6 +227,7 @@ struct PhotosView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .disabled(viewModel.isDeleting)
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
@@ -299,6 +310,20 @@ struct PhotosView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08)))
 
+            if let deleteStatusMessage = viewModel.deleteStatusMessage, !viewModel.isDeleting {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "trash.circle")
+                        .foregroundStyle(.secondary)
+                    Text(deleteStatusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08)))
+            }
+
             // 썸네일 그리드 (선택된 카테고리로 필터링)
             if viewModel.selectedCategory == .similar {
                 similarSection
@@ -343,6 +368,7 @@ struct PhotosView: View {
                     Label("photos.action.stop".localized, systemImage: "stop.circle")
                 }
                 .buttonStyle(.bordered)
+                .disabled(viewModel.isDeleting)
             }
             .frame(maxWidth: .infinity)
             .padding(40)
@@ -365,6 +391,7 @@ struct PhotosView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .disabled(viewModel.isDeleting)
             }
             .frame(maxWidth: .infinity)
             .padding(40)
@@ -411,6 +438,7 @@ struct PhotosView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .disabled(viewModel.isDeleting)
             }
             .frame(maxWidth: .infinity)
             .padding(40)
@@ -445,6 +473,7 @@ struct PhotosView: View {
                             }
                             .buttonStyle(.borderless)
                             .controlSize(.small)
+                            .disabled(viewModel.isDeleting)
                         }
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(group.items) { item in
@@ -615,7 +644,9 @@ private struct PhotoThumbnailCell: View {
         }
         .task(id: item.id) {
             didFinishLoading = false
-            image = await PhotoThumbnailCache.shared.image(for: item.url)
+            let loaded = await PhotoThumbnailCache.shared.image(for: item.url)
+            if Task.isCancelled { return }
+            image = loaded
             didFinishLoading = true
         }
     }

@@ -625,6 +625,10 @@
 "photos.delete.confirm.msg" = "%d items will be moved to the Trash. You can restore them from the Trash.";
 "photos.delete.confirm.button" = "Move to Trash";
 "photos.similar.select_extras" = "Select all but one";
+"photos.delete.status.moving" = "Moving %d items to the Trash…";
+"photos.delete.status.success" = "Moved %d items to the Trash.";
+"photos.delete.status.partial" = "Moved %1$d items to the Trash. %2$d items could not be moved.";
+"photos.delete.status.failed" = "Could not move %d items to the Trash.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "Moving %d selected items to Trash…";

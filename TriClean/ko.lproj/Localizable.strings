@@ -626,6 +626,10 @@
 "photos.delete.confirm.msg" = "%d개 항목이 휴지통으로 이동됩니다. 휴지통에서 복구할 수 있습니다.";
 "photos.delete.confirm.button" = "휴지통으로 이동";
 "photos.similar.select_extras" = "1장 남기고 선택";
+"photos.delete.status.moving" = "%d개 항목을 휴지통으로 이동 중…";
+"photos.delete.status.success" = "%d개 항목을 휴지통으로 이동했습니다.";
+"photos.delete.status.partial" = "%1$d개 항목을 휴지통으로 이동했습니다. %2$d개 항목은 이동하지 못했습니다.";
+"photos.delete.status.failed" = "%d개 항목을 휴지통으로 이동하지 못했습니다.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "선택한 %d개 항목을 휴지통으로 이동 중입니다…";

@@ -45,6 +45,10 @@ final class PhotoScannerViewModel: ObservableObject {
     @Published var isSimilarAnalyzed: Bool = false
     @Published var similarProgress: Double = 0
 
+    // 5단계: 선택 항목 휴지통 이동 상태
+    @Published var isDeleting: Bool = false
+    @Published var deleteStatusMessage: String? = nil
+
     private var scanTask: Task<Void, Never>? = nil
     private var blurTask: Task<Void, Never>? = nil
     private var similarTask: Task<Void, Never>? = nil
@@ -142,6 +146,8 @@ final class PhotoScannerViewModel: ObservableObject {
     // MARK: - 폴더 선택
 
     func selectFolder() {
+        guard !isDeleting else { return }
+
         let panel = NSOpenPanel()
         panel.title = "photos.select_folder.title".localized
         panel.message = "photos.select_folder.message".localized
@@ -152,10 +158,22 @@ final class PhotoScannerViewModel: ObservableObject {
             .appendingPathComponent("Pictures", isDirectory: true)
 
         if panel.runModal() == .OK, let url = panel.url {
+            scanTask?.cancel()
+            collectTask?.cancel()
+            blurTask?.cancel()
+            similarTask?.cancel()
+            releaseFolderAccess()
+
             saveBookmark(url: url)
             scanFolderURL = url
             items = []
+            selectedIDs = []
+            selectedCategory = .all
+            resetAnalysisState()
+            deleteStatusMessage = nil
             phase = .idle
+            progress = 0
+            lastScanDate = nil
             statusMessage = "photos.status.ready".localized
         }
     }
@@ -164,7 +182,7 @@ final class PhotoScannerViewModel: ObservableObject {
 
     func scan() {
         guard let folderURL = scanFolderURL else { return }
-        guard !isScanning else { return }
+        guard !isScanning, !isDeleting else { return }
 
         scanTask?.cancel()
         blurTask?.cancel()
@@ -175,14 +193,9 @@ final class PhotoScannerViewModel: ObservableObject {
         progress = 0
         lastScanDate = nil
         selectedCategory = .all
-        isAnalyzingBlur = false
-        isBlurAnalyzed = false
-        blurProgress = 0
-        similarGroups = []
-        isAnalyzingSimilar = false
-        isSimilarAnalyzed = false
-        similarProgress = 0
+        resetAnalysisState()
         selectedIDs = []
+        deleteStatusMessage = nil
         phase = .collecting
         statusMessage = "photos.status.collecting".localized
 
@@ -194,8 +207,10 @@ final class PhotoScannerViewModel: ObservableObject {
 
         // ✅ 실제 취소 가능한 detached 작업(핸들을 보관해 직접 cancel)
         let collect = Task.detached(priority: .utility) { () -> [PhotoItem] in
+            if Task.isCancelled { return [] }
             // 스크린샷은 Spotlight 일괄 질의 1회로 해결(파일별 호출 제거)
             let shots = Self.screenshotPaths(in: root)
+            if Task.isCancelled { return [] }
             return Self.collectImages(in: root, screenshotPaths: shots)
         }
         collectTask = collect
@@ -226,7 +241,7 @@ final class PhotoScannerViewModel: ObservableObject {
     private var didStartAccessingFolderScope = false
 
     private func beginFolderAccess(_ url: URL) {
-        if accessedFolderURL == url { return }
+        if accessedFolderURL == url, didStartAccessingFolderScope { return }
         releaseFolderAccess()
         didStartAccessingFolderScope = url.startAccessingSecurityScopedResource()
         accessedFolderURL = url
@@ -241,6 +256,7 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     func cancelScan() {
+        statusMessage = "photos.status.cancelled".localized
         collectTask?.cancel()   // ✅ detached 수집 작업을 직접 취소(부모만 취소하면 전파 안 됨)
         scanTask?.cancel()
     }
@@ -248,9 +264,10 @@ final class PhotoScannerViewModel: ObservableObject {
     // MARK: - 흐릿한 사진 분석 (3단계, 주문형)
 
     func analyzeBlur() {
-        guard !items.isEmpty, !isAnalyzingBlur else { return }
+        guard !items.isEmpty, !isAnalyzingBlur, !isDeleting else { return }
         blurTask?.cancel()
 
+        deleteStatusMessage = nil
         isAnalyzingBlur = true
         isBlurAnalyzed = false
         blurProgress = 0
@@ -295,11 +312,17 @@ final class PhotoScannerViewModel: ObservableObject {
                 return result
             }
 
+            let cancelled = Task.isCancelled
             await MainActor.run {
-                if !Task.isCancelled {
-                    self.applyBlurFlags(blurry)
-                    self.isBlurAnalyzed = true
+                if cancelled {
+                    self.isAnalyzingBlur = false
+                    self.isBlurAnalyzed = false
+                    self.blurProgress = 0
+                    return
                 }
+
+                self.applyBlurFlags(blurry)
+                self.isBlurAnalyzed = true
                 self.isAnalyzingBlur = false
                 self.blurProgress = 1
             }
@@ -309,6 +332,8 @@ final class PhotoScannerViewModel: ObservableObject {
     func cancelBlurAnalysis() {
         blurTask?.cancel()
         isAnalyzingBlur = false
+        isBlurAnalyzed = false
+        blurProgress = 0
     }
 
     private func applyBlurFlags(_ ids: Set<String>) {
@@ -320,9 +345,10 @@ final class PhotoScannerViewModel: ObservableObject {
     // MARK: - 유사 사진 분석 (4단계, 주문형, dHash + 해밍 거리)
 
     func analyzeSimilar() {
-        guard !items.isEmpty, !isAnalyzingSimilar else { return }
+        guard !items.isEmpty, !isAnalyzingSimilar, !isDeleting else { return }
         similarTask?.cancel()
 
+        deleteStatusMessage = nil
         isAnalyzingSimilar = true
         isSimilarAnalyzed = false
         similarProgress = 0
@@ -380,14 +406,20 @@ final class PhotoScannerViewModel: ObservableObject {
                 return
             }
 
-            // 3) id → PhotoItem → PhotoGroup (UI 반영은 main에서)
+            // 3) id → 현재 PhotoItem → PhotoGroup (삭제/새 스캔으로 사라진 항목은 제외)
+            let cancelled = Task.isCancelled
             await MainActor.run {
+                if cancelled {
+                    self.finishSimilar(cancelled: true)
+                    return
+                }
+
                 self.similarProgress = 1
-                let byID = Dictionary(snapshot.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+                let byID = Dictionary(self.items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
                 self.similarGroups = groupIDs.compactMap { ids in
                     let groupItems = ids.compactMap { byID[$0] }.sorted { $0.sizeBytes > $1.sizeBytes }
                     guard groupItems.count >= 2 else { return nil }
-                    return PhotoGroup(id: ids.first ?? UUID().uuidString, items: groupItems)
+                    return PhotoGroup(id: groupItems.first?.id ?? ids.first ?? UUID().uuidString, items: groupItems)
                 }
                 .sorted { $0.count > $1.count }
                 self.isSimilarAnalyzed = true
@@ -398,7 +430,7 @@ final class PhotoScannerViewModel: ObservableObject {
 
     func cancelSimilarAnalysis() {
         similarTask?.cancel()
-        isAnalyzingSimilar = false
+        finishSimilar(cancelled: true)
     }
 
     private func finishSimilar(cancelled: Bool) {
@@ -406,6 +438,30 @@ final class PhotoScannerViewModel: ObservableObject {
         if cancelled {
             similarProgress = 0
             isSimilarAnalyzed = false
+        }
+    }
+
+    private func resetAnalysisState() {
+        isAnalyzingBlur = false
+        isBlurAnalyzed = false
+        blurProgress = 0
+        similarGroups = []
+        isAnalyzingSimilar = false
+        isSimilarAnalyzed = false
+        similarProgress = 0
+    }
+
+    private func cancelRunningAnalysesForDeletion() {
+        blurTask?.cancel()
+        similarTask?.cancel()
+        if isAnalyzingBlur {
+            isAnalyzingBlur = false
+            isBlurAnalyzed = false
+            blurProgress = 0
+        }
+        if isAnalyzingSimilar {
+            similarGroups = []
+            finishSimilar(cancelled: true)
         }
     }
 
@@ -427,6 +483,9 @@ final class PhotoScannerViewModel: ObservableObject {
 
     /// 선택 토글. 유사 그룹은 최소 1장을 남기도록 마지막 한 장 선택을 막습니다.
     func toggleSelection(_ id: String) {
+        guard !isDeleting else { return }
+        deleteStatusMessage = nil
+
         if selectedIDs.contains(id) {
             selectedIDs.remove(id)
             return
@@ -441,29 +500,53 @@ final class PhotoScannerViewModel: ObservableObject {
 
     /// 유사 그룹에서 첫 장(가장 큰 용량)만 남기고 나머지를 선택.
     func selectExtras(in group: PhotoGroup) {
+        guard !isDeleting, let keeper = group.items.first else { return }
+        deleteStatusMessage = nil
+
+        // 사용자가 keeper를 미리 선택해둔 경우에도 그룹 전체가 선택되지 않도록 반드시 남깁니다.
+        selectedIDs.remove(keeper.id)
         for item in group.items.dropFirst() {
             selectedIDs.insert(item.id)
         }
     }
 
     func clearSelection() {
+        guard !isDeleting else { return }
         selectedIDs.removeAll()
+        deleteStatusMessage = nil
     }
 
     /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거.
     func deleteSelected() {
+        guard !isDeleting else { return }
         let toDelete = items.filter { selectedIDs.contains($0.id) }
         guard !toDelete.isEmpty else { return }
+
+        cancelRunningAnalysesForDeletion()
+        isDeleting = true
+        deleteStatusMessage = "photos.delete.status.moving".localized(with: toDelete.count)
 
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
             var trashed = Set<String>()
             for item in toDelete {
+                if Task.isCancelled { break }
                 if Self.moveToTrash(item.url) { trashed.insert(item.id) }
             }
             let result = trashed
+            let failedCount = toDelete.count - result.count
+
             await MainActor.run {
                 self.removeItems(result)
+                self.isDeleting = false
+
+                if result.isEmpty && failedCount > 0 {
+                    self.deleteStatusMessage = "photos.delete.status.failed".localized(with: failedCount)
+                } else if failedCount > 0 {
+                    self.deleteStatusMessage = "photos.delete.status.partial".localized(with: result.count, failedCount)
+                } else {
+                    self.deleteStatusMessage = "photos.delete.status.success".localized(with: result.count)
+                }
             }
         }
     }
@@ -495,9 +578,11 @@ final class PhotoScannerViewModel: ObservableObject {
         progress = 1.0
         if cancelled {
             lastScanDate = nil
+            releaseFolderAccess()
             statusMessage = "photos.status.cancelled".localized
         } else {
             lastScanDate = Date()
+            if items.isEmpty { releaseFolderAccess() }
             statusMessage = items.isEmpty
                 ? "photos.status.empty".localized
                 : "photos.status.found".localized(with: items.count)

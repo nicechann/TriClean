@@ -613,6 +613,10 @@
 "photos.delete.confirm.msg" = "%d elementos se moverán a la papelera. Puedes restaurarlos desde la papelera.";
 "photos.delete.confirm.button" = "Mover a la papelera";
 "photos.similar.select_extras" = "Todos menos uno";
+"photos.delete.status.moving" = "Moviendo %d elementos a la papelera…";
+"photos.delete.status.success" = "%d elementos se movieron a la papelera.";
+"photos.delete.status.partial" = "%1$d elementos se movieron a la papelera. %2$d elementos no se pudieron mover.";
+"photos.delete.status.failed" = "No se pudieron mover %d elementos a la papelera.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "Moviendo %d elementos seleccionados a la Papelera…";

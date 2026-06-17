@@ -10,8 +10,6 @@ import AppKit
 import StoreKit
 import os.log
 
-private let largeFilesLogger = Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles")
-
 private struct LargeFilesSecurityScopedAccessToken {
     private let url: URL
     private let started: Bool
@@ -890,7 +888,7 @@ struct LargeFilesView: View {
                 try fm.trashItem(at: target, resultingItemURL: nil)
                 succeededURLs.insert(target)
             } catch {
-                largeFilesLogger.error("Trash failed: \(error.localizedDescription, privacy: .public)")
+                Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles").error("Trash failed: \(error.localizedDescription, privacy: .public)")
             }
 
             token.stop()
