@@ -54,6 +54,9 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
     /// 스크린샷 여부 (2단계: kMDItemIsScreenCapture / 파일명 패턴 기반).
     let isScreenshot: Bool
 
+    /// 흐릿함 여부 (3단계: 라플라시안 분산 분석으로 채워짐). 분석 전에는 false.
+    var isBlurry: Bool = false
+
     var name: String { url.lastPathComponent }
     var path: String { url.path }
 

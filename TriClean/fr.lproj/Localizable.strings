@@ -576,7 +576,7 @@
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "Aucune image pour l'instant";
 "photos.empty.desc" = "Choisissez un dossier et lancez une analyse pour lister ses images.";
-"photos.note.detection_coming" = "La détection des images similaires et floues arrivera dans une mise à jour ultérieure. Les captures d'écran sont déjà détectées.";
+"photos.note.detection_coming" = "Le regroupement d'images similaires arrivera plus tard. Les captures sont détectées automatiquement ; analysez les photos floues dans l'onglet Floues.";
 "photos.category.all" = "Toutes";
 "photos.category.similar" = "Similaires";
 "photos.category.blurry" = "Floues";
@@ -589,3 +589,9 @@
 /* Photo Manager - step2 fix */
 "photos.status.cancelled" = "Analyse annulée.";
 "photos.action.stop" = "Arrêter";
+
+/* Photo Manager - step3 (blur) */
+"photos.blur.analyzing" = "Analyse des photos floues…";
+"photos.blur.prompt.title" = "Trouver les photos floues";
+"photos.blur.prompt.desc" = "Analyse les images pour trouver les floues. Cela peut prendre du temps pour les grands dossiers.";
+"photos.blur.prompt.button" = "Lancer l'analyse";

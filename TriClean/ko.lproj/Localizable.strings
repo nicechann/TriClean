@@ -592,7 +592,7 @@
 "photos.summary.size" = "총 %@";
 "photos.empty.title" = "아직 이미지가 없습니다";
 "photos.empty.desc" = "폴더를 선택하고 스캔하면 이미지가 표시됩니다.";
-"photos.note.detection_coming" = "유사·흐릿 분류는 다음 업데이트에서 추가됩니다. 스크린샷은 지금 탐지됩니다.";
+"photos.note.detection_coming" = "유사 이미지 분류는 다음 업데이트에서 추가됩니다. 스크린샷은 자동으로 탐지되며, 흐릿한 사진은 '흐릿함' 탭에서 분석합니다.";
 "photos.category.all" = "전체";
 "photos.category.similar" = "유사";
 "photos.category.blurry" = "흐릿함";
@@ -605,3 +605,9 @@
 /* Photo Manager - step2 fix */
 "photos.status.cancelled" = "스캔을 중지했습니다.";
 "photos.action.stop" = "중지";
+
+/* Photo Manager - step3 (blur) */
+"photos.blur.analyzing" = "흐릿한 사진 분석 중…";
+"photos.blur.prompt.title" = "흐릿한 사진 찾기";
+"photos.blur.prompt.desc" = "이미지를 분석해 흐릿한 사진을 찾습니다. 사진이 많으면 시간이 걸릴 수 있습니다.";
+"photos.blur.prompt.button" = "분석 시작";

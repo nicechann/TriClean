@@ -67,22 +67,23 @@ struct PhotosView: View {
     private let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            headerSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                headerSection
 
-            if viewModel.scanFolderURL == nil {
-                folderSelectionSection
-            } else if viewModel.isScanning {
-                scanningSection
-            } else if viewModel.hasResults {
-                resultsSection
-            } else {
-                emptySection
+                if viewModel.scanFolderURL == nil {
+                    folderSelectionSection
+                } else if viewModel.isScanning {
+                    scanningSection
+                } else if viewModel.hasResults {
+                    resultsSection
+                } else {
+                    emptySection
+                }
             }
-
-            Spacer(minLength: 0)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .padding()
     }
 
     // MARK: - Header
@@ -256,7 +257,9 @@ struct PhotosView: View {
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08)))
 
             // 썸네일 그리드 (선택된 카테고리로 필터링)
-            if viewModel.filteredItems.isEmpty {
+            if viewModel.selectedCategory == .blurry && !viewModel.isBlurAnalyzed {
+                blurAnalysisSection
+            } else if viewModel.filteredItems.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "tray")
                         .font(.system(size: 28))
@@ -268,18 +271,62 @@ struct PhotosView: View {
                 .frame(maxWidth: .infinity)
                 .padding(32)
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(viewModel.filteredItems) { item in
-                            PhotoThumbnailCell(item: item)
-                                .onTapGesture(count: 2) {
-                                    NSWorkspace.shared.activateFileViewerSelecting([item.url])
-                                }
-                        }
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(viewModel.filteredItems) { item in
+                        PhotoThumbnailCell(item: item)
+                            .onTapGesture(count: 2) {
+                                NSWorkspace.shared.activateFileViewerSelecting([item.url])
+                            }
                     }
-                    .padding(.vertical, 4)
                 }
+                .padding(.vertical, 4)
             }
+        }
+    }
+
+    // MARK: - Blur analysis (3단계, 주문형)
+
+    @ViewBuilder
+    private var blurAnalysisSection: some View {
+        if viewModel.isAnalyzingBlur {
+            VStack(spacing: 14) {
+                ProgressView(value: viewModel.blurProgress)
+                    .frame(maxWidth: 280)
+                Text("photos.blur.analyzing".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(role: .cancel) {
+                    viewModel.cancelBlurAnalysis()
+                } label: {
+                    Label("photos.action.stop".localized, systemImage: "stop.circle")
+                }
+                .buttonStyle(.bordered)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(40)
+        } else {
+            VStack(spacing: 12) {
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.secondary)
+                Text("photos.blur.prompt.title".localized)
+                    .font(.headline)
+                Text("photos.blur.prompt.desc".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    viewModel.analyzeBlur()
+                } label: {
+                    Label("photos.blur.prompt.button".localized, systemImage: "wand.and.stars")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(40)
+            .background(RoundedRectangle(cornerRadius: 16).fill(Color(nsColor: .controlBackgroundColor)))
         }
     }
 
@@ -308,7 +355,11 @@ struct PhotosView: View {
                     .font(.caption)
                 Text(category.title)
                     .font(.caption.weight(.medium))
-                if isReady {
+                if category == .blurry && !viewModel.isBlurAnalyzed {
+                    Image(systemName: "wand.and.stars")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                } else if isReady {
                     Text("\(viewModel.count(for: category))")
                         .font(.caption2.monospacedDigit())
                         .padding(.horizontal, 6)

@@ -15,7 +15,9 @@ import Foundation
 import Combine
 import AppKit
 import UniformTypeIdentifiers
-import CoreServices   // Spotlight 메타데이터(kMDItemIsScreenCapture)
+import CoreServices
+import ImageIO
+import CoreGraphics   // Spotlight 메타데이터(kMDItemIsScreenCapture)
 
 @MainActor
 final class PhotoScannerViewModel: ObservableObject {
@@ -30,10 +32,19 @@ final class PhotoScannerViewModel: ObservableObject {
     @Published var scanFolderURL: URL? = nil
     @Published var lastScanDate: Date? = nil
 
-    // 이후 단계의 카테고리 필터를 위한 자리. 1단계에서는 .all만 의미가 있습니다.
     @Published var selectedCategory: PhotoCategory = .all
 
+    // 3단계: 흐릿한 사진 분석(주문형)
+    @Published var isAnalyzingBlur: Bool = false
+    @Published var isBlurAnalyzed: Bool = false
+    @Published var blurProgress: Double = 0
+
     private var scanTask: Task<Void, Never>? = nil
+    private var blurTask: Task<Void, Never>? = nil
+
+    /// 라플라시안 분산 임계값. 이 값보다 낮으면 흐릿한 것으로 판단(낮을수록 더 흐릿).
+    /// 콘텐츠 의존적이라 실사용 후 조정이 필요할 수 있습니다.
+    static let blurThreshold: Double = 60.0
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
 
     // MARK: - Computed
@@ -55,15 +66,17 @@ final class PhotoScannerViewModel: ObservableObject {
     // MARK: - Category (2단계)
 
     /// 현재 탐지가 구현된(선택 가능한) 카테고리. 단계가 진행되며 확장됩니다.
-    let readyCategories: [PhotoCategory] = [.all, .screenshot]
+    let readyCategories: [PhotoCategory] = [.all, .screenshot, .blurry]
 
     var screenshotCount: Int { items.lazy.filter { $0.isScreenshot }.count }
+    var blurCount: Int { items.lazy.filter { $0.isBlurry }.count }
 
     func count(for category: PhotoCategory) -> Int {
         switch category {
         case .all:        return totalCount
         case .screenshot: return screenshotCount
-        case .similar, .blurry: return 0   // 이후 단계
+        case .blurry:     return blurCount
+        case .similar:    return 0   // 이후 단계
         }
     }
 
@@ -72,7 +85,8 @@ final class PhotoScannerViewModel: ObservableObject {
         switch selectedCategory {
         case .all:        return items
         case .screenshot: return items.filter { $0.isScreenshot }
-        case .similar, .blurry: return []  // 이후 단계
+        case .blurry:     return items.filter { $0.isBlurry }
+        case .similar:    return []  // 이후 단계
         }
     }
 
@@ -136,12 +150,16 @@ final class PhotoScannerViewModel: ObservableObject {
         guard !isScanning else { return }
 
         scanTask?.cancel()
+        blurTask?.cancel()
 
         isScanning = true
         items = []
         progress = 0
         lastScanDate = nil
         selectedCategory = .all
+        isAnalyzingBlur = false
+        isBlurAnalyzed = false
+        blurProgress = 0
         phase = .collecting
         statusMessage = "photos.status.collecting".localized
 
@@ -198,6 +216,75 @@ final class PhotoScannerViewModel: ObservableObject {
     func cancelScan() {
         collectTask?.cancel()   // ✅ detached 수집 작업을 직접 취소(부모만 취소하면 전파 안 됨)
         scanTask?.cancel()
+    }
+
+    // MARK: - 흐릿한 사진 분석 (3단계, 주문형)
+
+    func analyzeBlur() {
+        guard !items.isEmpty, !isAnalyzingBlur else { return }
+        blurTask?.cancel()
+
+        isAnalyzingBlur = true
+        isBlurAnalyzed = false
+        blurProgress = 0
+
+        let snapshot = items                 // 값 복사(Sendable)
+        let threshold = Self.blurThreshold
+        let workers = max(2, ProcessInfo.processInfo.activeProcessorCount)
+
+        // 균등 분할(워커 수만큼)
+        var slices: [[PhotoItem]] = []
+        let per = (snapshot.count + workers - 1) / workers
+        var start = 0
+        while start < snapshot.count {
+            let end = min(start + per, snapshot.count)
+            slices.append(Array(snapshot[start..<end]))
+            start = end
+        }
+
+        blurTask = Task { [weak self] in
+            let blurry = await withTaskGroup(of: [String].self) { group -> Set<String> in
+                for slice in slices {
+                    group.addTask(priority: .utility) {
+                        var local: [String] = []
+                        for item in slice {
+                            if Task.isCancelled { break }
+                            if let v = Self.blurVariance(url: item.url), v < threshold {
+                                local.append(item.id)
+                            }
+                        }
+                        return local
+                    }
+                }
+                var result = Set<String>()
+                var done = 0
+                for await ids in group {
+                    result.formUnion(ids)
+                    done += 1
+                    self?.blurProgress = Double(done) / Double(max(slices.count, 1))
+                }
+                return result
+            }
+
+            guard let self else { return }
+            if !Task.isCancelled {
+                self.applyBlurFlags(blurry)
+                self.isBlurAnalyzed = true
+            }
+            self.isAnalyzingBlur = false
+            self.blurProgress = 1
+        }
+    }
+
+    func cancelBlurAnalysis() {
+        blurTask?.cancel()
+        isAnalyzingBlur = false
+    }
+
+    private func applyBlurFlags(_ ids: Set<String>) {
+        for i in items.indices {
+            items[i].isBlurry = ids.contains(items[i].id)
+        }
     }
 
     private func finishScan(cancelled: Bool) {
@@ -292,6 +379,63 @@ final class PhotoScannerViewModel: ObservableObject {
         let name = url.deletingPathExtension().lastPathComponent.lowercased()
         return ["screenshot", "screen shot", "스크린샷"].contains { name.hasPrefix($0) || name.contains($0) }
     }
+
+    // MARK: - 흐릿함 점수 (라플라시안 분산)
+
+    /// 작은 그레이스케일 썸네일에 라플라시안(4-이웃) 필터를 적용해 분산을 계산.
+    /// 분산이 낮을수록 경계(엣지)가 적어 흐릿함을 의미합니다. 실패 시 nil.
+    nonisolated private static func blurVariance(url: URL, maxPixel: CGFloat = 120) -> Double? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel
+        ]
+        guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+
+        let width = cg.width
+        let height = cg.height
+        guard width > 2, height > 2 else { return nil }
+
+        // 8비트 그레이스케일 비트맵으로 렌더
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        var buffer = [UInt8](repeating: 0, count: width * height)
+        let ok: Bool = buffer.withUnsafeMutableBytes { raw -> Bool in
+            guard let ctx = CGContext(
+                data: raw.baseAddress,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width,
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.none.rawValue
+            ) else { return false }
+            ctx.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard ok else { return nil }
+
+        // 라플라시안 분산: lap = 4*center - 상하좌우
+        var sum = 0.0
+        var sumSq = 0.0
+        var count = 0
+        for y in 1..<(height - 1) {
+            let row = y * width
+            for x in 1..<(width - 1) {
+                let i = row + x
+                let lap = 4.0 * Double(buffer[i])
+                    - Double(buffer[i - 1]) - Double(buffer[i + 1])
+                    - Double(buffer[i - width]) - Double(buffer[i + width])
+                sum += lap
+                sumSq += lap * lap
+                count += 1
+            }
+        }
+        guard count > 0 else { return nil }
+        let mean = sum / Double(count)
+        return sumSq / Double(count) - mean * mean
+    }
+
 
     /// UTType 우선 판별, 실패 시 확장자 폴백.
     nonisolated private static func isImageFile(url: URL, typeIdentifier: String?) -> Bool {
