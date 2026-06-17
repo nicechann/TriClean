@@ -109,6 +109,12 @@ final class PhotoScannerViewModel: ObservableObject {
         loadBookmark()
     }
 
+    deinit {
+        if didStartAccessingFolderScope {
+            accessedFolderURL?.stopAccessingSecurityScopedResource()
+        }
+    }
+
     private func loadBookmark() {
         guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
         var stale = false
@@ -217,19 +223,21 @@ final class PhotoScannerViewModel: ObservableObject {
     /// 현재 결과가 가리키는 폴더의 보안 스코프 접근을 유지(썸네일 로딩 위해).
     /// 다른 폴더로 바뀌면 이전 접근을 닫고 새 접근을 시작합니다.
     private var accessedFolderURL: URL? = nil
+    private var didStartAccessingFolderScope = false
 
     private func beginFolderAccess(_ url: URL) {
         if accessedFolderURL == url { return }
         releaseFolderAccess()
-        _ = url.startAccessingSecurityScopedResource()
+        didStartAccessingFolderScope = url.startAccessingSecurityScopedResource()
         accessedFolderURL = url
     }
 
     private func releaseFolderAccess() {
-        if let prev = accessedFolderURL {
-            prev.stopAccessingSecurityScopedResource()
-            accessedFolderURL = nil
+        if didStartAccessingFolderScope {
+            accessedFolderURL?.stopAccessingSecurityScopedResource()
         }
+        accessedFolderURL = nil
+        didStartAccessingFolderScope = false
     }
 
     func cancelScan() {
@@ -504,6 +512,7 @@ final class PhotoScannerViewModel: ObservableObject {
             .isRegularFileKey,
             .totalFileAllocatedSizeKey,
             .fileAllocatedSizeKey,
+            .fileSizeKey,
             .contentModificationDateKey,
             .typeIdentifierKey,
             .isDirectoryKey,
@@ -526,7 +535,7 @@ final class PhotoScannerViewModel: ObservableObject {
             guard values.isRegularFile == true else { continue }
             guard isImageFile(url: url, typeIdentifier: values.typeIdentifier) else { continue }
 
-            let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
+            let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
             // ✅ 픽셀 크기 산출(파일별 디코딩)은 스캔에서 제거 — 썸네일 로드 시에만 필요
             let screenshot = screenshotPaths.contains(url.path) || matchesScreenshotName(url)
 

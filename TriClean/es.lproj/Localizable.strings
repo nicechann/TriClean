@@ -613,3 +613,13 @@
 "photos.delete.confirm.msg" = "%d elementos se moverán a la papelera. Puedes restaurarlos desde la papelera.";
 "photos.delete.confirm.button" = "Mover a la papelera";
 "photos.similar.select_extras" = "Todos menos uno";
+
+// MARK: - Trash Operation Status
+"storage.msg.trash_moving" = "Moviendo %d elementos seleccionados a la Papelera…";
+"storage.msg.trash_done" = "%d elementos movidos a la Papelera.";
+"storage.msg.trash_partial" = "%d elementos movidos a la Papelera. %d elementos fallaron.";
+"storage.msg.trash_failed" = "No se pudieron mover los elementos seleccionados a la Papelera.";
+"junk.progress.cleaning" = "Moviendo %d elementos seleccionados a la Papelera…";
+"junk.progress.clean_done" = "%d elementos movidos a la Papelera.";
+"junk.progress.clean_partial" = "%d elementos movidos a la Papelera. %d elementos fallaron.";
+"junk.progress.clean_failed" = "No se pudieron mover los elementos basura seleccionados a la Papelera.";

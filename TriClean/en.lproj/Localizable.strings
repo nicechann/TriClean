@@ -144,11 +144,9 @@
 "apps.details.trash_selected" = "Move Selected to Trash";
 "apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to review app details and related files (caches, preferences, etc.).";
 "apps.alert.uninstall.title" = "Move Selected App Bundles to Trash";
-"apps.alert.uninstall.msg" = "Move %d selected non-App Store app bundles to Trash? App Store apps are excluded. Related files can be reviewed separately below.";
 "apps.alert.fail.title" = "Move Failed (Permission)";
 "apps.alert.fail.msg" = "%d apps could not be moved automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
 "apps.alert.related.title" = "Review Related Files";
-"apps.alert.related.msg" = "Move %d selected files/folders to Trash?";
 "apps.alert.reset.title" = "Reset Permissions";
 "apps.alert.reset.msg" = "This will clear all folder access permissions. You will need to re-select folders to scan.";
 "apps.status.scoped_error" = "No access permission (Security-Scoped) for Applications folder.";
@@ -262,7 +260,6 @@
 "store.error.product_not_found"   = "Product not found. Please check the Product ID or StoreKit configuration.";
 "store.error.load_failed_detail"  = "Failed to load product: %@";
 
-"common.confirm" = "Confirm";
 
 // MARK: - Onboarding
 "onboarding.welcome.title" = "Welcome to TriClean";
@@ -628,3 +625,13 @@
 "photos.delete.confirm.msg" = "%d items will be moved to the Trash. You can restore them from the Trash.";
 "photos.delete.confirm.button" = "Move to Trash";
 "photos.similar.select_extras" = "Select all but one";
+
+// MARK: - Trash Operation Status
+"storage.msg.trash_moving" = "Moving %d selected items to Trash…";
+"storage.msg.trash_done" = "%d items moved to Trash.";
+"storage.msg.trash_partial" = "%d items moved to Trash. %d items failed.";
+"storage.msg.trash_failed" = "Could not move the selected items to Trash.";
+"junk.progress.cleaning" = "Moving %d selected items to Trash…";
+"junk.progress.clean_done" = "%d items moved to Trash.";
+"junk.progress.clean_partial" = "%d items moved to Trash. %d items failed.";
+"junk.progress.clean_failed" = "Could not move the selected junk items to Trash.";

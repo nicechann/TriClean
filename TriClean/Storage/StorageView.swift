@@ -674,7 +674,7 @@ struct StorageView: View {
 
     private static func folderSizeBytes(at url: URL) -> Int64 {
         let fileManager = FileManager.default
-        let keys: [URLResourceKey] = [.isRegularFileKey, .fileAllocatedSizeKey, .totalFileAllocatedSizeKey]
+        let keys: [URLResourceKey] = [.isRegularFileKey, .fileAllocatedSizeKey, .totalFileAllocatedSizeKey, .fileSizeKey]
 
         guard let enumerator = fileManager.enumerator(
             at: url,
@@ -694,9 +694,7 @@ struct StorageView: View {
             guard let values = try? fileURL.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
 
-            if let size = values.totalFileAllocatedSize ?? values.fileAllocatedSize {
-                total += Int64(size)
-            }
+            total += Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
         }
 
         return total

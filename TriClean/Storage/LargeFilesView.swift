@@ -16,12 +16,12 @@ private struct LargeFilesSecurityScopedAccessToken {
     private let url: URL
     private let started: Bool
 
-    init(_ url: URL) {
+    nonisolated init(_ url: URL) {
         self.url = url
         self.started = url.startAccessingSecurityScopedResource()
     }
 
-    func stop() {
+    nonisolated func stop() {
         guard started else { return }
         url.stopAccessingSecurityScopedResource()
     }
@@ -37,6 +37,7 @@ struct LargeFilesView: View {
     @State private var selectedFolderURL: URL? = nil
     @State private var isScanning: Bool = false
     @State private var isAutoUpdating: Bool = false
+    @State private var isDeleting: Bool = false
     @State private var scanTask: Task<Void, Never>? = nil
     @State private var scanMessage: String = "storage.scan.default_msg".localized
     @State private var folderResults: [FolderInfo] = []
@@ -232,7 +233,7 @@ struct LargeFilesView: View {
                 .controlSize(.small)
                 .buttonStyle(.bordered)
                 .keyboardShortcut("s", modifiers: [.command])
-                .disabled(isScanning)
+                .disabled(isScanning || isDeleting)
 
                 if isScanning {
                     Button {
@@ -340,7 +341,7 @@ struct LargeFilesView: View {
                 }
                 .controlSize(.small)
                 .buttonStyle(.bordered)
-                .disabled(isScanning || tableSelection.isEmpty)
+                .disabled(isScanning || isDeleting || tableSelection.isEmpty)
             }
 
             if folderResults.isEmpty {
@@ -394,6 +395,7 @@ struct LargeFilesView: View {
                                 .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
+                        .disabled(isScanning || isDeleting)
                         .help("common.trash".localized)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
@@ -635,6 +637,10 @@ struct LargeFilesView: View {
         return output
     }
 
+    nonisolated private static func fileSize(from values: URLResourceValues) -> Int {
+        values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
+    }
+
     private static func scanStructuredItemsBatches(
         of root: URL,
         minSizeMB: Double,
@@ -650,7 +656,8 @@ struct LargeFilesView: View {
                     .isDirectoryKey,
                     .isRegularFileKey,
                     .fileAllocatedSizeKey,
-                    .totalFileAllocatedSizeKey
+                    .totalFileAllocatedSizeKey,
+                    .fileSizeKey
                 ]
 
                 guard let directItems = try? fm.contentsOfDirectory(
@@ -680,7 +687,7 @@ struct LargeFilesView: View {
                     }
 
                     if values.isRegularFile == true {
-                        let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
+                        let size = Int64(Self.fileSize(from: values))
                         let sizeMB = Double(size) / 1024.0 / 1024.0
                         if sizeMB >= minSizeMB {
                             rootFiles.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 0, parentURL: nil))
@@ -705,6 +712,7 @@ struct LargeFilesView: View {
                     .isRegularFileKey,
                     .fileAllocatedSizeKey,
                     .totalFileAllocatedSizeKey,
+                    .fileSizeKey,
                     .isPackageKey
                 ]
 
@@ -754,7 +762,7 @@ struct LargeFilesView: View {
 
                         guard values.isRegularFile == true else { continue }
 
-                        let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0)
+                        let size = Int64(Self.fileSize(from: values))
                         total += size
 
                         guard size >= minBytes else { continue }
@@ -822,66 +830,84 @@ struct LargeFilesView: View {
     private func confirmDelete() {
         let targets = deleteTargets
         guard !targets.isEmpty else { return }
+        guard !isDeleting else { return }
 
-        var succeededURLs = Set<URL>()
+        let rootURL = selectedFolderURL?.standardizedFileURL
+        isDeleting = true
+        scanMessage = "storage.msg.trash_moving".localized(with: targets.count)
 
-        for item in targets {
-            if moveToTrash(item.url) {
-                succeededURLs.insert(item.url.standardizedFileURL)
+        Task {
+            let succeededURLs = await Task.detached(priority: .utility) {
+                Self.moveToTrash(targets, selectedRootURL: rootURL)
+            }.value
+
+            let failedCount = max(0, targets.count - succeededURLs.count)
+
+            guard !succeededURLs.isEmpty else {
+                isDeleting = false
+                deleteTargets = []
+                scanMessage = "storage.msg.trash_failed".localized
+                return
             }
-        }
 
-        guard !succeededURLs.isEmpty else {
+            ignoredFolderURLs.formUnion(succeededURLs)
+
+            folderResults.removeAll { info in
+                let u = info.url.standardizedFileURL
+                if succeededURLs.contains(u) { return true }
+                if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
+                return false
+            }
+
+            discoveredResults.removeAll { info in
+                let u = info.url.standardizedFileURL
+                if succeededURLs.contains(u) { return true }
+                if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
+                return false
+            }
+
+            let succeededIDs = Set(targets.filter { succeededURLs.contains($0.url.standardizedFileURL) }.map(\.id))
+            tableSelection.subtract(succeededIDs)
+
+            isDeleting = false
             deleteTargets = []
-            return
+            scanMessage = failedCount > 0
+                ? "storage.msg.trash_partial".localized(with: succeededURLs.count, failedCount)
+                : "storage.msg.trash_done".localized(with: succeededURLs.count)
         }
-
-        ignoredFolderURLs.formUnion(succeededURLs)
-
-        folderResults.removeAll { info in
-            let u = info.url.standardizedFileURL
-            if succeededURLs.contains(u) { return true }
-            if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
-            return false
-        }
-
-        discoveredResults.removeAll { info in
-            let u = info.url.standardizedFileURL
-            if succeededURLs.contains(u) { return true }
-            if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
-            return false
-        }
-
-        let succeededIDs = Set(targets.filter { succeededURLs.contains($0.url.standardizedFileURL) }.map(\.id))
-        tableSelection.subtract(succeededIDs)
-
-        deleteTargets = []
     }
 
-    private func moveToTrash(_ url: URL) -> Bool {
-        let target = url.standardizedFileURL
+    nonisolated private static func moveToTrash(_ items: [FolderInfo], selectedRootURL: URL?) -> Set<URL> {
+        var succeededURLs = Set<URL>()
+        let fm = FileManager.default
 
-        let scopeURL: URL = {
-            guard let root = selectedFolderURL?.standardizedFileURL else { return target }
+        for item in items {
+            let target = item.url.standardizedFileURL
+            let scopeURL = Self.scopeURL(for: target, selectedRootURL: selectedRootURL)
+            let token = LargeFilesSecurityScopedAccessToken(scopeURL)
 
-            let rootPath = root.path.hasSuffix("/") ? root.path : (root.path + "/")
-            let targetPath = target.path
-
-            if targetPath == root.path || targetPath.hasPrefix(rootPath) {
-                return root
+            do {
+                try fm.trashItem(at: target, resultingItemURL: nil)
+                succeededURLs.insert(target)
+            } catch {
+                largeFilesLogger.error("Trash failed: \(error.localizedDescription, privacy: .public)")
             }
-            return target
-        }()
 
-        let token = LargeFilesSecurityScopedAccessToken(scopeURL)
-        defer { token.stop() }
-
-        do {
-            try FileManager.default.trashItem(at: target, resultingItemURL: nil)
-            return true
-        } catch {
-            largeFilesLogger.error("Trash failed: \(error.localizedDescription, privacy: .public)")
-            return false
+            token.stop()
         }
+
+        return succeededURLs
+    }
+
+    nonisolated private static func scopeURL(for target: URL, selectedRootURL: URL?) -> URL {
+        guard let root = selectedRootURL?.standardizedFileURL else { return target }
+
+        let rootPath = root.path.hasSuffix("/") ? root.path : (root.path + "/")
+        let targetPath = target.path
+
+        if targetPath == root.path || targetPath.hasPrefix(rootPath) {
+            return root
+        }
+        return target
     }
 }

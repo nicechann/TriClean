@@ -613,3 +613,13 @@
 "photos.delete.confirm.msg" = "%d 件の項目がゴミ箱に移動されます。ゴミ箱から復元できます。";
 "photos.delete.confirm.button" = "ゴミ箱に移動";
 "photos.similar.select_extras" = "1枚を残して選択";
+
+// MARK: - Trash Operation Status
+"storage.msg.trash_moving" = "選択した %d 個の項目をゴミ箱に移動中…";
+"storage.msg.trash_done" = "%d 個の項目をゴミ箱に移動しました。";
+"storage.msg.trash_partial" = "%d 個の項目をゴミ箱に移動しました。%d 個の項目は失敗しました。";
+"storage.msg.trash_failed" = "選択した項目をゴミ箱に移動できませんでした。";
+"junk.progress.cleaning" = "選択した %d 個の項目をゴミ箱に移動中…";
+"junk.progress.clean_done" = "%d 個の項目をゴミ箱に移動しました。";
+"junk.progress.clean_partial" = "%d 個の項目をゴミ箱に移動しました。%d 個の項目は失敗しました。";
+"junk.progress.clean_failed" = "選択したジャンク項目をゴミ箱に移動できませんでした。";

@@ -29,7 +29,7 @@ struct JunkSectionView: View {
 
                 Spacer()
 
-                if viewModel.isScanning {
+                if viewModel.isScanning || viewModel.isCleaning {
                     ProgressView()
                         .controlSize(.small)
                     Text(viewModel.scanProgress)
@@ -44,7 +44,7 @@ struct JunkSectionView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
-                    .disabled(!viewModel.isValidLibraryPath)
+                    .disabled(!viewModel.isValidLibraryPath || viewModel.isCleaning)
                 }
             }
 
@@ -141,7 +141,7 @@ struct JunkSectionView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.red)
                     .controlSize(.small)
-                    .disabled(viewModel.selectedJunkBytes == 0)
+                    .disabled(viewModel.selectedJunkBytes == 0 || viewModel.isScanning || viewModel.isCleaning)
                 }
                 .padding(.top, 4)
 

@@ -613,3 +613,13 @@
 "photos.delete.confirm.msg" = "%d éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
 "photos.delete.confirm.button" = "Mettre à la corbeille";
 "photos.similar.select_extras" = "Tout sauf un";
+
+// MARK: - Trash Operation Status
+"storage.msg.trash_moving" = "Déplacement de %d éléments sélectionnés vers la corbeille…";
+"storage.msg.trash_done" = "%d éléments placés dans la corbeille.";
+"storage.msg.trash_partial" = "%d éléments placés dans la corbeille. %d éléments ont échoué.";
+"storage.msg.trash_failed" = "Impossible de placer les éléments sélectionnés dans la corbeille.";
+"junk.progress.cleaning" = "Déplacement de %d éléments sélectionnés vers la corbeille…";
+"junk.progress.clean_done" = "%d éléments placés dans la corbeille.";
+"junk.progress.clean_partial" = "%d éléments placés dans la corbeille. %d éléments ont échoué.";
+"junk.progress.clean_failed" = "Impossible de placer les éléments indésirables sélectionnés dans la corbeille.";

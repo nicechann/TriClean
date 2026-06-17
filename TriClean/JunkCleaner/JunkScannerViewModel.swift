@@ -25,6 +25,7 @@ final class JunkScannerViewModel: ObservableObject {
     @Published var scanProgress: String = ""
     @Published var libraryURL: URL? = nil
     @Published var lastScanDate: Date? = nil
+    @Published var isCleaning: Bool = false
     
     // MARK: - Computed
     
@@ -176,10 +177,13 @@ final class JunkScannerViewModel: ObservableObject {
                     }
                     
                     // 폴더 전체 크기 계산
+                    let categoryID = category.id
+                    let defaultSelected = category.riskLevel.defaultSelected
                     let items = await Task.detached(priority: .utility) {
                         Self.scanJunkItems(
                             at: targetURL,
-                            categoryID: category.id
+                            categoryID: categoryID,
+                            defaultSelected: defaultSelected
                         )
                     }.value
                     
@@ -211,7 +215,8 @@ final class JunkScannerViewModel: ObservableObject {
     
     nonisolated private static func scanJunkItems(
         at url: URL,
-        categoryID: String
+        categoryID: String,
+        defaultSelected: Bool
     ) -> [JunkItem] {
         let fm = FileManager.default
         
@@ -222,13 +227,13 @@ final class JunkScannerViewModel: ObservableObject {
         if !isDir.boolValue {
             let size = (try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
             guard size > 0 else { return [] }
-            return [JunkItem(url: url, sizeBytes: size, categoryID: categoryID)]
+            return [JunkItem(url: url, sizeBytes: size, categoryID: categoryID, isSelected: defaultSelected)]
         }
         
         // 폴더인 경우 — 하위 아이템별로 크기 계산
         guard let contents = try? fm.contentsOfDirectory(
             at: url,
-            includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey],
+            includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         ) else { return [] }
         
@@ -242,7 +247,8 @@ final class JunkScannerViewModel: ObservableObject {
             items.append(JunkItem(
                 url: itemURL,
                 sizeBytes: itemSize,
-                categoryID: categoryID
+                categoryID: categoryID,
+                isSelected: defaultSelected
             ))
         }
         
@@ -262,24 +268,28 @@ final class JunkScannerViewModel: ObservableObject {
         var total: Int64 = 0
         guard let enumerator = fm.enumerator(
             at: url,
-            includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .isRegularFileKey],
+            includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey],
             options: [.skipsHiddenFiles],
             errorHandler: { _, _ in true }
         ) else { return 0 }
         
         for case let fileURL as URL in enumerator {
             guard let values = try? fileURL.resourceValues(
-                forKeys: [.totalFileAllocatedSizeKey, .isRegularFileKey]
+                forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey]
             ) else { continue }
             
             if values.isRegularFile == true {
-                total += Int64(values.totalFileAllocatedSize ?? 0)
+                total += Int64(Self.fileSize(from: values))
             }
         }
         
         return total
     }
     
+    nonisolated private static func fileSize(from values: URLResourceValues) -> Int {
+        values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
+    }
+
     // MARK: - 선택 토글
     
     func toggleItem(in categoryID: String, itemID: UUID) {
@@ -306,49 +316,82 @@ final class JunkScannerViewModel: ObservableObject {
     
     // MARK: - 삭제
     
+    private struct CleanTarget: Sendable {
+        let id: UUID
+        let url: URL
+    }
+
+    private struct CleanOutcome: Sendable {
+        let succeededIDs: Set<UUID>
+        let failedCount: Int
+    }
+
     func cleanSelected() {
-        let targets = results.flatMap { $0.items.filter(\.isSelected) }
+        let targets = results
+            .flatMap { $0.items.filter(\.isSelected) }
+            .map { CleanTarget(id: $0.id, url: $0.url.standardizedFileURL) }
         guard !targets.isEmpty else { return }
-        guard let library = libraryURL else { return }
-        
-        // ✅ [수정] 비동기 fallback(NSWorkspace.recycle)의 결과까지 정확히 반영해
-        //   "실패한 항목이 UI에서 사라지는" 버그를 막습니다.
+        guard let library = libraryURL?.standardizedFileURL else { return }
+        guard !isCleaning else { return }
+
+        isCleaning = true
+        scanProgress = "junk.progress.cleaning".localized(with: targets.count)
+
         Task {
-            let started = library.startAccessingSecurityScopedResource()
-            defer { if started { library.stopAccessingSecurityScopedResource() } }
-            
-            let fm = FileManager.default
-            var succeededIDs = Set<UUID>()
-            var failedCount = 0
-            
-            for item in targets {
-                do {
-                    try fm.trashItem(at: item.url, resultingItemURL: nil)
-                    succeededIDs.insert(item.id)
-                } catch {
-                    // Fallback: NSWorkspace.recycle (비동기 콜백 → CheckedContinuation으로 동기화)
-                    let ok: Bool = await withCheckedContinuation { continuation in
-                        NSWorkspace.shared.recycle([item.url]) { _, error in
-                            continuation.resume(returning: error == nil)
-                        }
-                    }
-                    if ok {
-                        succeededIDs.insert(item.id)
-                    } else {
-                        failedCount += 1
-                    }
-                }
-            }
-            
-            // ✅ 성공한 항목만 UI에서 제거 (실패한 항목은 유지하여 사용자가 재시도 가능)
+            let outcome = await Task.detached(priority: .utility) {
+                await Self.moveTargetsToTrash(targets, scopedBy: library)
+            }.value
+
             for i in 0..<results.count {
-                results[i].items.removeAll { succeededIDs.contains($0.id) }
+                results[i].items.removeAll { outcome.succeededIDs.contains($0.id) }
             }
             results.removeAll { $0.items.isEmpty }
-            
-            // 실패가 있어도 결과 목록에 남아있어 사용자가 자연스럽게 인지/재시도 가능.
-            // (별도 상태 메시지 없이 UI 상태로만 표시)
-            _ = failedCount
+
+            isCleaning = false
+            if outcome.succeededIDs.isEmpty {
+                scanProgress = "junk.progress.clean_failed".localized
+            } else if outcome.failedCount > 0 {
+                scanProgress = "junk.progress.clean_partial".localized(with: outcome.succeededIDs.count, outcome.failedCount)
+            } else {
+                scanProgress = "junk.progress.clean_done".localized(with: outcome.succeededIDs.count)
+            }
+        }
+    }
+
+    nonisolated private static func moveTargetsToTrash(
+        _ targets: [CleanTarget],
+        scopedBy scopeURL: URL
+    ) async -> CleanOutcome {
+        let started = scopeURL.startAccessingSecurityScopedResource()
+        defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
+
+        let fm = FileManager.default
+        var succeededIDs = Set<UUID>()
+        var failedCount = 0
+
+        for target in targets {
+            do {
+                try fm.trashItem(at: target.url, resultingItemURL: nil)
+                succeededIDs.insert(target.id)
+            } catch {
+                let ok = await recycleUsingWorkspace(target.url)
+                if ok {
+                    succeededIDs.insert(target.id)
+                } else {
+                    failedCount += 1
+                }
+            }
+        }
+
+        return CleanOutcome(succeededIDs: succeededIDs, failedCount: failedCount)
+    }
+
+    @MainActor
+    private static func recycleUsingWorkspace(_ url: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            NSWorkspace.shared.recycle([url]) { _, error in
+                continuation.resume(returning: error == nil)
+            }
         }
     }
 }

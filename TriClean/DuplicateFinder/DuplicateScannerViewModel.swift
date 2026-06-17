@@ -51,6 +51,8 @@ final class DuplicateScannerViewModel: ObservableObject {
     @Published var minFileSizeKB: Int = 100    // 최소 파일 크기 (KB)
     @Published var lastCleanupResult: DuplicateCleanupResult? = nil
 
+    private var scanTask: Task<Void, Never>? = nil
+
     // MARK: - Computed
 
     var totalDuplicateGroups: Int { groups.count }
@@ -145,6 +147,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         guard let folderURL = scanFolderURL else { return }
         guard !isScanning else { return }
 
+        scanTask?.cancel()
         isScanning = true
         groups = []
         progress = 0
@@ -154,7 +157,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         let minBytes = Int64(minFileSizeKB) * 1024
         let rootURL = folderURL.standardizedFileURL
 
-        Task {
+        scanTask = Task {
             let started = rootURL.startAccessingSecurityScopedResource()
             defer { if started { rootURL.stopAccessingSecurityScopedResource() } }
 
@@ -494,7 +497,7 @@ final class DuplicateScannerViewModel: ObservableObject {
     nonisolated private static func collectFiles(in root: URL, minBytes: Int64) -> [FileCandidate] {
         let fm = FileManager.default
         let keys: [URLResourceKey] = [
-            .isRegularFileKey, .totalFileAllocatedSizeKey,
+            .isRegularFileKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey,
             .contentModificationDateKey, .isDirectoryKey, .isPackageKey
         ]
 
@@ -512,7 +515,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
 
-            let size = Int64(values.totalFileAllocatedSize ?? 0)
+            let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
             guard size >= minBytes else { continue }
 
             files.append(FileCandidate(

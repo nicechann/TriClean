@@ -39,6 +39,10 @@ struct JunkCategory: Identifiable, Hashable {
             case .caution:  return "junk.risk.caution".localized
             }
         }
+
+        nonisolated var defaultSelected: Bool {
+            self == .safe
+        }
     }
 
     func hash(into hasher: inout Hasher) {
@@ -51,11 +55,19 @@ struct JunkCategory: Identifiable, Hashable {
 }
 
 struct JunkItem: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     let url: URL
     let sizeBytes: Int64
     let categoryID: String
-    var isSelected: Bool = true
+    var isSelected: Bool
+
+    nonisolated init(id: UUID = UUID(), url: URL, sizeBytes: Int64, categoryID: String, isSelected: Bool = true) {
+        self.id = id
+        self.url = url
+        self.sizeBytes = sizeBytes
+        self.categoryID = categoryID
+        self.isSelected = isSelected
+    }
 
     var name: String { url.lastPathComponent }
     var path: String { url.path }

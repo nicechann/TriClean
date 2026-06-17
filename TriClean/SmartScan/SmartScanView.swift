@@ -71,11 +71,11 @@ struct SmartScanView: View {
 
     private var memoryUsagePercent: Int {
         let total = max(memoryViewModel.stats.totalBytes, 1)
-        return Int((Double(memoryViewModel.stats.usedBytes) / Double(total)) * 100.0)
+        return Int((Double(memoryViewModel.realUsedBytes) / Double(total)) * 100.0)
     }
 
     private var memoryUsedString: String {
-        ByteCountFormatter.string(fromByteCount: memoryViewModel.stats.usedBytes, countStyle: .memory)
+        ByteCountFormatter.string(fromByteCount: memoryViewModel.realUsedBytes, countStyle: .memory)
     }
 
     private var memoryTotalString: String {
