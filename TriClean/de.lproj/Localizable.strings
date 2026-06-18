@@ -607,6 +607,7 @@
 /* Photo Manager - step5 (select/delete) */
 "photos.select.count" = "%d ausgewählt";
 "photos.select.clear" = "Abwählen";
+"photos.select.all" = "Alle auswählen";
 "photos.action.trash" = "In den Papierkorb";
 "photos.action.reveal" = "Im Finder anzeigen";
 "photos.delete.confirm.title" = "Ausgewählte Fotos in den Papierkorb verschieben?";

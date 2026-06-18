@@ -607,6 +607,7 @@
 /* Photo Manager - step5 (select/delete) */
 "photos.select.count" = "%d 件選択";
 "photos.select.clear" = "選択解除";
+"photos.select.all" = "すべて選択";
 "photos.action.trash" = "ゴミ箱に移動";
 "photos.action.reveal" = "Finderで表示";
 "photos.delete.confirm.title" = "選択した写真をゴミ箱に移動しますか？";

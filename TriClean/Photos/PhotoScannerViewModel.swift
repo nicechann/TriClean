@@ -481,6 +481,50 @@ final class PhotoScannerViewModel: ObservableObject {
 
     func isSelected(_ id: String) -> Bool { selectedIDs.contains(id) }
 
+    private var similarKeeperIDs: Set<String> {
+        Set(similarGroups.compactMap { $0.items.first?.id })
+    }
+
+    private var visibleSelectionCandidates: [PhotoItem] {
+        let visibleItems: [PhotoItem]
+        switch selectedCategory {
+        case .all:
+            visibleItems = items
+        case .screenshot:
+            visibleItems = items.filter { $0.isScreenshot }
+        case .blurry:
+            visibleItems = isBlurAnalyzed ? items.filter { $0.isBlurry } : []
+        case .similar:
+            visibleItems = isSimilarAnalyzed ? similarGroups.flatMap { $0.items.dropFirst() } : []
+        }
+
+        let protectedIDs = similarKeeperIDs
+        return visibleItems.filter { !protectedIDs.contains($0.id) }
+    }
+
+    var canSelectVisibleItems: Bool {
+        guard !isDeleting else { return false }
+        let candidates = visibleSelectionCandidates
+        guard !candidates.isEmpty else { return false }
+        return candidates.contains { !selectedIDs.contains($0.id) }
+    }
+
+    /// 현재 탭/필터에서 보이는 항목을 전체 선택합니다.
+    /// 유사 그룹은 복구 안전성을 위해 각 그룹의 첫 장(keeper)을 선택하지 않습니다.
+    func selectVisibleItems() {
+        guard !isDeleting else { return }
+        let candidates = visibleSelectionCandidates
+        guard !candidates.isEmpty else { return }
+
+        deleteStatusMessage = nil
+        for item in candidates {
+            selectedIDs.insert(item.id)
+        }
+
+        // 사용자가 이전에 keeper를 선택해둔 상태에서도 그룹 전체 삭제가 되지 않도록 한 번 더 보정합니다.
+        selectedIDs.subtract(similarKeeperIDs)
+    }
+
     /// 선택 토글. 유사 그룹은 최소 1장을 남기도록 마지막 한 장 선택을 막습니다.
     func toggleSelection(_ id: String) {
         guard !isDeleting else { return }

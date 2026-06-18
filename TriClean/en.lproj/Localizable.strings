@@ -619,6 +619,7 @@
 /* Photo Manager - step5 (select/delete) */
 "photos.select.count" = "%d selected";
 "photos.select.clear" = "Deselect";
+"photos.select.all" = "Select All";
 "photos.action.trash" = "Move to Trash";
 "photos.action.reveal" = "Show in Finder";
 "photos.delete.confirm.title" = "Move selected photos to Trash?";

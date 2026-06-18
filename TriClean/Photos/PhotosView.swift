@@ -297,6 +297,8 @@ struct PhotosView: View {
             // 카테고리 필터 바 (2단계: 전체 / 스크린샷 활성, 유사/흐릿은 곧)
             categoryFilterBar
 
+            selectionToolbar
+
             // 안내(남은 분류는 추후 단계)
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "info.circle")
@@ -484,6 +486,30 @@ struct PhotosView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Selection toolbar
+
+    private var selectionToolbar: some View {
+        HStack(spacing: 8) {
+            Button {
+                viewModel.selectVisibleItems()
+            } label: {
+                Label("photos.select.all".localized, systemImage: "checkmark.circle")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(!viewModel.canSelectVisibleItems)
+
+            if viewModel.selectedCount > 0, !viewModel.isDeleting {
+                Text("photos.select.count".localized(with: viewModel.selectedCount))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 2)
     }
 
     // MARK: - Category filter

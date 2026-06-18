@@ -620,6 +620,7 @@
 /* Photo Manager - step5 (select/delete) */
 "photos.select.count" = "%d개 선택";
 "photos.select.clear" = "선택 해제";
+"photos.select.all" = "전체 선택";
 "photos.action.trash" = "휴지통으로 이동";
 "photos.action.reveal" = "Finder에서 보기";
 "photos.delete.confirm.title" = "선택한 사진을 휴지통으로 이동할까요?";

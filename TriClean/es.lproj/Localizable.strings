@@ -607,6 +607,7 @@
 /* Photo Manager - step5 (select/delete) */
 "photos.select.count" = "%d seleccionados";
 "photos.select.clear" = "Deseleccionar";
+"photos.select.all" = "Seleccionar todo";
 "photos.action.trash" = "Mover a la papelera";
 "photos.action.reveal" = "Mostrar en Finder";
 "photos.delete.confirm.title" = "¿Mover las fotos seleccionadas a la papelera?";
