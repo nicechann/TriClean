@@ -94,7 +94,7 @@
 "storage.msg.auto" = "Volviendo a analizar por cambio de criterio…";
 "storage.msg.canceled" = "Análisis cancelado.";
 "storage.msg.no_items" = "No se encontraron elementos en «%@» que coincidan con los criterios.";
-"storage.msg.completed" = "Análisis de «%@» completado. (%d carpetas / %d archivos)";
+"storage.msg.completed" = "Análisis de «%@» completado. (%ld carpetas / %ld archivos)";
 "storage.scope.select_home_msg" = "El uso de disco de la carpeta personal se calcula solo dentro del ámbito seleccionado.";
 "storage.scope.select_home_title" = "Seleccionar carpeta personal";
 "storage.scope.select_apps_title" = "Seleccionar carpeta Aplicaciones";
@@ -107,7 +107,7 @@
 "storage.msg.analyzing_home_apps" = "Analizando carpeta personal y Aplicaciones…";
 "storage.alert.delete.msg_folder" = "La carpeta «%@» se moverá a la Papelera. Puedes restaurarla desde el Finder.";
 "storage.alert.delete.msg_file" = "El archivo «%@» se moverá a la Papelera. Puedes restaurarlo desde el Finder.";
-"storage.alert.delete.msg_multi" = "%d elementos seleccionados se moverán a la Papelera. Puedes restaurarlos desde el Finder.";
+"storage.alert.delete.msg_multi" = "%ld elementos seleccionados se moverán a la Papelera. Puedes restaurarlos desde el Finder.";
 "storage.msg.canceling" = "Cancelando…";
 
 /* Apps View */
@@ -134,15 +134,15 @@
 "apps.details.library_guide" = "Selecciona arriba la «Biblioteca personal (~/Library)» para analizar los archivos relacionados.";
 "apps.details.scanning" = "Buscando archivos relacionados…";
 "apps.details.no_related" = "No se encontraron archivos relacionados.";
-"apps.details.found_count" = "Archivos relacionados (%d)";
+"apps.details.found_count" = "Archivos relacionados (%ld)";
 "apps.details.trash_selected" = "Mover selección a la Papelera";
 "apps.details.guide" = "Selecciona una app de la tabla o usa «Seleccionar .app manualmente» para revisar los detalles y los archivos relacionados (cachés, preferencias, etc.).";
 "apps.alert.uninstall.title" = "Mover paquetes de apps seleccionados a la Papelera";
-"apps.alert.uninstall.msg" = "¿Mover %1$d paquetes de apps eliminables a la Papelera de las %2$d apps seleccionadas? Se excluyen las apps del App Store; los elementos movidos pueden restaurarse desde la Papelera del Finder.";
+"apps.alert.uninstall.msg" = "¿Mover %1$ld paquetes de apps eliminables a la Papelera de las %2$ld apps seleccionadas? Se excluyen las apps del App Store; los elementos movidos pueden restaurarse desde la Papelera del Finder.";
 "apps.alert.fail.title" = "Error al mover (permiso)";
-"apps.alert.fail.msg" = "%d apps no se pudieron mover automáticamente debido a las políticas de seguridad de macOS (se requiere administrador).%@\nPor favor usa «Mostrar en el Finder» y elimínalas manualmente.";
+"apps.alert.fail.msg" = "%ld apps no se pudieron mover automáticamente debido a las políticas de seguridad de macOS (se requiere administrador).%@\nPor favor usa «Mostrar en el Finder» y elimínalas manualmente.";
 "apps.alert.related.title" = "Revisar archivos relacionados";
-"apps.alert.related.msg" = "¿Mover %1$d archivos/carpetas relacionados seleccionados (%2$@) a la Papelera?";
+"apps.alert.related.msg" = "¿Mover %1$ld archivos/carpetas relacionados seleccionados (%2$@) a la Papelera?";
 "apps.alert.reset.title" = "Restablecer permisos";
 "apps.alert.reset.msg" = "Esto eliminará todos los permisos de acceso a carpetas. Tendrás que volver a seleccionar las carpetas para analizarlas.";
 "apps.status.scoped_error" = "Sin permiso de acceso (Security-Scoped) a la carpeta Aplicaciones.";
@@ -152,7 +152,7 @@
 "apps.status.library_guide" = "Permiso requerido: selecciona la Biblioteca personal (~/Library).";
 "apps.status.library_needed" = "Permiso requerido: selecciona la Biblioteca personal (~/Library).";
 "apps.status.library_scoped_error" = "Sin permiso de acceso (Security-Scoped) a la carpeta Biblioteca personal.";
-"apps.status.loaded_count" = "%d apps cargadas.";
+"apps.status.loaded_count" = "%ld apps cargadas.";
 "apps.status.reset_success" = "Restablecimiento completo.";
 "apps.status.no_permission" = "Sin permiso de acceso.";
 "apps.status.not_app_bundle" = "El archivo seleccionado no es un paquete de app.";
@@ -174,12 +174,12 @@
 "apps.status.nothing_to_trash" = "No hay apps eliminables seleccionadas.";
 "apps.status.scanning" = "Analizando archivos relacionados…";
 "apps.status.scan_empty" = "No se encontraron archivos relacionados.";
-"apps.status.scan_found" = "Se encontraron %d elementos relacionados.";
-"apps.status.related_success" = "Se movieron %d elementos relacionados a la Papelera.";
-"apps.status.related_partial_fail" = "Se movieron %d elementos, fallaron %d.";
+"apps.status.scan_found" = "Se encontraron %ld elementos relacionados.";
+"apps.status.related_success" = "Se movieron %ld elementos relacionados a la Papelera.";
+"apps.status.related_partial_fail" = "Se movieron %ld elementos, fallaron %ld.";
 "apps.status.related_none" = "No se movió ningún elemento a la Papelera.";
-"apps.status.uninstall_success" = "Se movieron %d paquetes de apps a la Papelera.";
-"apps.status.uninstall_partial_fail" = "Se movieron %d paquetes de apps, fallaron %d.";
+"apps.status.uninstall_success" = "Se movieron %ld paquetes de apps a la Papelera.";
+"apps.status.uninstall_partial_fail" = "Se movieron %ld paquetes de apps, fallaron %ld.";
 "apps.status.uninstall_all_fail" = "No se pudieron mover los paquetes de apps seleccionados a la Papelera (se requiere permiso).";
 "apps.status.appstore_reference_only" = "Las apps del App Store se muestran solo como referencia.";
 
@@ -214,9 +214,9 @@
 "paywall.feat.memory_desc" = "Visualiza de un vistazo la composición y el uso estimados de la memoria del sistema";
 
 /* Trial & Banner */
-"trial.banner.status" = "Prueba: %d días restantes";
+"trial.banner.status" = "Prueba: %ld días restantes";
 "trial.bottom.title" = "Prueba gratuita";
-"trial.bottom.days_left" = "%d días restantes";
+"trial.bottom.days_left" = "%ld días restantes";
 "trial.bottom.buy_now" = "Comprar ahora";
 "trial.expired.msg" = "Tu prueba gratuita ha terminado.";
 "trial.expired.btn" = "Comprar versión completa";
@@ -339,13 +339,13 @@
 "duplicates.summary.groups" = "Grupos de duplicados";
 "duplicates.summary.reclaimable" = "Espacio recuperable";
 "duplicates.summary.scanned" = "Archivos analizados";
-"duplicates.count_format" = "%d";
+"duplicates.count_format" = "%ld";
 "duplicates.clean_selected" = "Limpiar duplicados (%@)";
 "duplicates.empty.done_title" = "No se encontraron archivos duplicados";
 "duplicates.empty.idle_title" = "Listo para analizar";
 "duplicates.empty.done_desc" = "No se encontraron archivos duplicados en la carpeta seleccionada.";
 "duplicates.empty.idle_desc" = "Haz clic en «Analizar» para buscar archivos duplicados.";
-"duplicates.group.files" = "%d archivos idénticos";
+"duplicates.group.files" = "%ld archivos idénticos";
 "duplicates.group.detail" = "%@ cada uno · %@ recuperables";
 "duplicates.file.help.keep" = "Conservar este archivo. Haz clic para marcarlo para eliminación.";
 "duplicates.file.help.delete" = "Marcado para eliminación. Haz clic para conservar este archivo.";
@@ -354,14 +354,14 @@
 "duplicates.panel.title" = "Selecciona la carpeta para buscar duplicados";
 "duplicates.panel.message" = "TriClean analiza la carpeta seleccionada y sus subcarpetas en busca de archivos duplicados.";
 "duplicates.status.collecting" = "Recopilando lista de archivos…";
-"duplicates.status.files_found" = "%d archivos encontrados";
+"duplicates.status.files_found" = "%ld archivos encontrados";
 "duplicates.status.grouping" = "Agrupando por tamaño…";
-"duplicates.status.size_candidates" = "%d archivos son candidatos a duplicado por tamaño.";
-"duplicates.status.partial_matches" = "%d grupos coinciden en hash parcial.";
-"duplicates.status.full_progress" = "Comparando hashes completos… %d/%d";
+"duplicates.status.size_candidates" = "%ld archivos son candidatos a duplicado por tamaño.";
+"duplicates.status.partial_matches" = "%ld grupos coinciden en hash parcial.";
+"duplicates.status.full_progress" = "Comparando hashes completos… %ld/%ld";
 "duplicates.status.none_found" = "No se encontraron archivos duplicados.";
-"duplicates.status.found_groups" = "Se encontraron %d grupos de duplicados (%@ recuperables)";
-"duplicates.status.deleted" = "Se movieron %d archivos duplicados a la Papelera.";
+"duplicates.status.found_groups" = "Se encontraron %ld grupos de duplicados (%@ recuperables)";
+"duplicates.status.deleted" = "Se movieron %ld archivos duplicados a la Papelera.";
 
 
 /* Storage UX */
@@ -369,9 +369,9 @@
 "storage.status.folder" = "Carpeta seleccionada";
 "storage.status.folder_none" = "Ninguna carpeta seleccionada";
 "storage.status.visible_results" = "Resultados visibles";
-"storage.status.visible_results_value" = "%d de nivel superior / %d secundarios";
+"storage.status.visible_results_value" = "%ld de nivel superior / %ld secundarios";
 "storage.status.min_size" = "Tamaño mínimo";
-"storage.min_size.display" = "%d MB o más";
+"storage.min_size.display" = "%ld MB o más";
 "storage.treemap.subtitle" = "Visualiza de un vistazo las carpetas y archivos más grandes.";
 "storage.treemap.hint" = "Sugerencia: haz clic en un elemento para mostrarlo en el Finder.";
 "storage.treemap.item_help" = "%@ — %@";
@@ -386,7 +386,7 @@
 /* Junk item selection */
 "junk.item.select_all" = "Seleccionar todo";
 "junk.item.deselect_all" = "Anular selección";
-"junk.item.more" = "y %d elementos más…";
+"junk.item.more" = "y %ld elementos más…";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Carpeta seleccionada";
@@ -396,9 +396,9 @@
 "settings.debug.purchase_on" = "Comprado";
 "settings.debug.purchase_off" = "No comprado";
 "settings.debug.trial_days" = "Días de prueba";
-"settings.debug.days_button" = "%d d";
+"settings.debug.days_button" = "%ld d";
 "settings.debug.actual_value" = "Real";
-"settings.debug.current_days" = "Actual: %d días";
+"settings.debug.current_days" = "Actual: %ld días";
 
 
 /* Apps View — Stage 3 */
@@ -415,8 +415,8 @@
 "apps.summary.selected" = "Seleccionadas";
 "apps.safety.title" = "Revisa de forma segura antes de la limpieza";
 "apps.safety.desc" = "TriClean mueve los paquetes de apps seleccionados y los archivos relacionados a la Papelera. No elimina elementos de forma permanente de inmediato, y las apps del App Store no pueden eliminarse desde esta pantalla.";
-"apps.selection.none" = "%d apps visibles en el filtro actual";
-"apps.selection.summary" = "%1$d seleccionadas · %2$d eliminables";
+"apps.selection.none" = "%ld apps visibles en el filtro actual";
+"apps.selection.summary" = "%1$ld seleccionadas · %2$ld eliminables";
 "apps.table.app" = "App";
 "apps.table.bundle" = "ID de paquete";
 "apps.table.location" = "Ubicación";
@@ -433,7 +433,7 @@
 "apps.related.size" = "Tamaño";
 "apps.related.folder" = "Carpeta";
 "apps.related.file" = "Archivo";
-"apps.related.footer" = "%1$d seleccionados · tamaño estimado de limpieza %2$@";
+"apps.related.footer" = "%1$ld seleccionados · tamaño estimado de limpieza %2$@";
 
 /* Duplicate Finder */
 "duplicate.header.title" = "Buscador de duplicados";
@@ -457,10 +457,10 @@
 "duplicate.selection.card_body" = "TriClean conserva un archivo probablemente original en cada grupo y selecciona automáticamente los demás para limpieza. Usa la ruta, el nombre del archivo, la ubicación de la carpeta y la fecha de modificación como pistas; revisa los elementos antes de moverlos a la Papelera.";
 "duplicate.action.apply_recommended" = "Selección automática";
 "duplicate.action.apply_recommended.help" = "Conserva un archivo probablemente original en cada grupo de duplicados y selecciona automáticamente los demás para limpieza.";
-"duplicate.footer.summary" = "%d grupos · %d archivos seleccionados · %@ recuperables";
-"duplicate.footer.delete" = "Limpiar duplicados (%d, %@)";
-"duplicate.group.header" = "%d archivos coincidentes · %@ cada uno";
-"duplicate.group.subheader" = "%d seleccionados para limpieza · %@ recuperables";
+"duplicate.footer.summary" = "%ld grupos · %ld archivos seleccionados · %@ recuperables";
+"duplicate.footer.delete" = "Limpiar duplicados (%ld, %@)";
+"duplicate.group.header" = "%ld archivos coincidentes · %@ cada uno";
+"duplicate.group.subheader" = "%ld seleccionados para limpieza · %@ recuperables";
 "duplicate.group.keep_oldest" = "Conservar el más antiguo";
 "duplicate.group.keep_newest" = "Conservar el más reciente";
 "duplicate.group.keep_hint" = "Debe quedar al menos un archivo en cada grupo.";
@@ -470,25 +470,25 @@
 "duplicate.file.keep" = "Conservar";
 "duplicate.file.delete" = "Eliminar";
 "duplicate.delete_confirm.title" = "Limpiar archivos duplicados";
-"duplicate.delete_confirm.message" = "%d archivos duplicados seleccionados (%@) se moverán a la Papelera. Se conserva al menos un archivo en cada grupo.";
+"duplicate.delete_confirm.message" = "%ld archivos duplicados seleccionados (%@) se moverán a la Papelera. Se conserva al menos un archivo en cada grupo.";
 "duplicate.cleanup_result.title" = "Limpieza completada";
-"duplicate.cleanup_result.body" = "Se movieron %d archivos duplicados a la Papelera. Espacio recuperado estimado: %@.";
-"duplicate.cleanup_result.body_with_failures" = "Se movieron %d archivos duplicados a la Papelera. Espacio recuperado estimado: %@. %d elementos no pudieron moverse.";
+"duplicate.cleanup_result.body" = "Se movieron %ld archivos duplicados a la Papelera. Espacio recuperado estimado: %@.";
+"duplicate.cleanup_result.body_with_failures" = "Se movieron %ld archivos duplicados a la Papelera. Espacio recuperado estimado: %@. %ld elementos no pudieron moverse.";
 "duplicate.status.collecting" = "Recopilando archivos…";
-"duplicate.status.found_files" = "%d archivos encontrados";
+"duplicate.status.found_files" = "%ld archivos encontrados";
 "duplicate.status.grouping_by_size" = "Agrupando archivos por tamaño…";
-"duplicate.status.same_size_candidates" = "%d archivos comparten el mismo tamaño";
-"duplicate.status.partial_hash_matches" = "%d grupos coinciden por hash parcial";
-"duplicate.status.hashing_full_progress" = "Comparando hashes completos… %d/%d";
+"duplicate.status.same_size_candidates" = "%ld archivos comparten el mismo tamaño";
+"duplicate.status.partial_hash_matches" = "%ld grupos coinciden por hash parcial";
+"duplicate.status.hashing_full_progress" = "Comparando hashes completos… %ld/%ld";
 "duplicate.status.no_duplicates_found" = "No se encontraron archivos duplicados.";
-"duplicate.status.scan_complete" = "Se encontraron %d grupos de duplicados (%@ recuperables)";
-"duplicate.status.selection_summary" = "%d grupos · %d archivos seleccionados · %@ recuperables";
+"duplicate.status.scan_complete" = "Se encontraron %ld grupos de duplicados (%@ recuperables)";
+"duplicate.status.selection_summary" = "%ld grupos · %ld archivos seleccionados · %@ recuperables";
 "duplicate.status.nothing_selected" = "No hay archivos duplicados seleccionados para limpieza.";
 "duplicate.status.recommended_applied" = "Se conservó un archivo en cada grupo y los demás se seleccionaron automáticamente para limpieza.";
 "duplicate.status.keep_newest_applied" = "Se conservó el archivo más reciente del grupo seleccionado.";
 "duplicate.status.keep_oldest_applied" = "Se conservó el archivo más antiguo del grupo seleccionado.";
-"duplicate.status.cleanup_done" = "Se movieron %d archivos duplicados a la Papelera (%@ recuperados).";
-"duplicate.status.cleanup_done_with_failures" = "Se movieron %d archivos duplicados a la Papelera (%@ recuperados). Fallaron %d.";
+"duplicate.status.cleanup_done" = "Se movieron %ld archivos duplicados a la Papelera (%@ recuperados).";
+"duplicate.status.cleanup_done_with_failures" = "Se movieron %ld archivos duplicados a la Papelera (%@ recuperados). Fallaron %ld.";
 "duplicate.status.cleanup_failed" = "TriClean no pudo mover los archivos duplicados seleccionados a la Papelera.";
 
 "duplicate.action.clear_selection" = "Borrar selección";
@@ -528,15 +528,15 @@
 "smartscan.junk.title" = "Archivos basura";
 "smartscan.junk.caption_permission" = "Permite primero el acceso a ~/Library en Almacenamiento.";
 "smartscan.junk.caption_scanning" = "Comprobando archivos basura.";
-"smartscan.junk.caption_found" = "Candidatos de limpieza encontrados en %d categorías.";
+"smartscan.junk.caption_found" = "Candidatos de limpieza encontrados en %ld categorías.";
 "smartscan.junk.caption_ready" = "El permiso está listo. Inicia un análisis.";
 "smartscan.duplicates.title" = "Duplicados";
 "smartscan.duplicates.caption_permission" = "Elige primero una carpeta de análisis en Duplicados.";
-"smartscan.duplicates.caption_found" = "Se encontraron %d grupos de duplicados.";
+"smartscan.duplicates.caption_found" = "Se encontraron %ld grupos de duplicados.";
 "smartscan.duplicates.caption_ready" = "La carpeta está lista. Inicia un análisis.";
 "smartscan.apps.caption_permission" = "Permite primero el acceso a la carpeta Applications en Apps.";
 "smartscan.apps.caption_scanning" = "Cargando lista de apps.";
-"smartscan.apps.caption_found" = "%d apps comprobadas · %d eliminables";
+"smartscan.apps.caption_found" = "%ld apps comprobadas · %ld eliminables";
 "smartscan.apps.caption_ready" = "El permiso está listo. Revisa tus apps.";
 "smartscan.actions.title" = "Acceso rápido";
 "smartscan.actions.storage" = "Almacenamiento";
@@ -565,14 +565,14 @@
 "photos.action.scanning" = "Analizando…";
 "photos.status.collecting" = "Recopilando archivos de imagen…";
 "photos.status.reading" = "Leyendo información de imágenes…";
-"photos.status.found" = "Se encontraron %d imágenes.";
+"photos.status.found" = "Se encontraron %ld imágenes.";
 "photos.status.empty" = "No se encontraron imágenes en esta carpeta.";
 "photos.status.ready" = "Listo para analizar.";
 "photos.phase.idle" = "Inactivo";
 "photos.phase.collecting" = "Recopilando archivos…";
 "photos.phase.reading" = "Leyendo información…";
 "photos.phase.done" = "Listo";
-"photos.summary.count" = "%d imágenes";
+"photos.summary.count" = "%ld imágenes";
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "Aún no hay imágenes";
 "photos.empty.desc" = "Elige una carpeta y ejecuta un análisis para ver sus imágenes.";
@@ -602,29 +602,29 @@
 "photos.similar.prompt.button" = "Iniciar análisis";
 "photos.similar.analyzing" = "Analizando fotos similares…";
 "photos.similar.empty" = "No se encontraron fotos similares.";
-"photos.similar.group.count" = "%d similares";
+"photos.similar.group.count" = "%ld similares";
 
 /* Photo Manager - step5 (select/delete) */
-"photos.select.count" = "%d seleccionados";
+"photos.select.count" = "%ld seleccionados";
 "photos.select.clear" = "Deseleccionar";
 "photos.select.all" = "Seleccionar todo";
 "photos.action.trash" = "Mover a la papelera";
 "photos.action.reveal" = "Mostrar en Finder";
 "photos.delete.confirm.title" = "¿Mover las fotos seleccionadas a la papelera?";
-"photos.delete.confirm.msg" = "%d elementos se moverán a la papelera. Puedes restaurarlos desde la papelera.";
+"photos.delete.confirm.msg" = "%ld elementos se moverán a la papelera. Puedes restaurarlos desde la papelera.";
 "photos.delete.confirm.button" = "Mover a la papelera";
 "photos.similar.select_extras" = "Todos menos uno";
-"photos.delete.status.moving" = "Moviendo %d elementos a la papelera…";
-"photos.delete.status.success" = "%d elementos se movieron a la papelera.";
-"photos.delete.status.partial" = "%1$d elementos se movieron a la papelera. %2$d elementos no se pudieron mover.";
-"photos.delete.status.failed" = "No se pudieron mover %d elementos a la papelera.";
+"photos.delete.status.moving" = "Moviendo %ld elementos a la papelera…";
+"photos.delete.status.success" = "%ld elementos se movieron a la papelera.";
+"photos.delete.status.partial" = "%1$ld elementos se movieron a la papelera. %2$ld elementos no se pudieron mover.";
+"photos.delete.status.failed" = "No se pudieron mover %ld elementos a la papelera.";
 
 // MARK: - Trash Operation Status
-"storage.msg.trash_moving" = "Moviendo %d elementos seleccionados a la Papelera…";
-"storage.msg.trash_done" = "%d elementos movidos a la Papelera.";
-"storage.msg.trash_partial" = "%d elementos movidos a la Papelera. %d elementos fallaron.";
+"storage.msg.trash_moving" = "Moviendo %ld elementos seleccionados a la Papelera…";
+"storage.msg.trash_done" = "%ld elementos movidos a la Papelera.";
+"storage.msg.trash_partial" = "%ld elementos movidos a la Papelera. %ld elementos fallaron.";
 "storage.msg.trash_failed" = "No se pudieron mover los elementos seleccionados a la Papelera.";
-"junk.progress.cleaning" = "Moviendo %d elementos seleccionados a la Papelera…";
-"junk.progress.clean_done" = "%d elementos movidos a la Papelera.";
-"junk.progress.clean_partial" = "%d elementos movidos a la Papelera. %d elementos fallaron.";
+"junk.progress.cleaning" = "Moviendo %ld elementos seleccionados a la Papelera…";
+"junk.progress.clean_done" = "%ld elementos movidos a la Papelera.";
+"junk.progress.clean_partial" = "%ld elementos movidos a la Papelera. %ld elementos fallaron.";
 "junk.progress.clean_failed" = "No se pudieron mover los elementos basura seleccionados a la Papelera.";

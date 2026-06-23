@@ -570,12 +570,21 @@ final class PhotoScannerViewModel: ObservableObject {
         isDeleting = true
         deleteStatusMessage = "photos.delete.status.moving".localized(with: toDelete.count)
 
+        // ✅ 삭제 시점에 보안 스코프를 직접 확보한다.
+        //    스캔 종료 후 finishScan에서 스코프가 풀렸거나 북마크가 stale해진 경우에도
+        //    삭제가 조용히 실패하지 않도록, 폴더 URL에 대한 스코프를 Task 내부에서 시작/종료한다.
+        let scopeURL = scanFolderURL?.standardizedFileURL
+
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
+
+            let started = scopeURL?.startAccessingSecurityScopedResource() ?? false
+            defer { if started { scopeURL?.stopAccessingSecurityScopedResource() } }
+
             var trashed = Set<String>()
             for item in toDelete {
                 if Task.isCancelled { break }
-                if Self.moveToTrash(item.url) { trashed.insert(item.id) }
+                if await Self.moveToTrash(item.url) { trashed.insert(item.id) }
             }
             let result = trashed
             let failedCount = toDelete.count - result.count
@@ -607,12 +616,22 @@ final class PhotoScannerViewModel: ObservableObject {
         selectedIDs.subtract(ids)
     }
 
-    nonisolated private static func moveToTrash(_ url: URL) -> Bool {
+    nonisolated private static func moveToTrash(_ url: URL) async -> Bool {
         do {
             try FileManager.default.trashItem(at: url, resultingItemURL: nil)
             return true
         } catch {
-            return false
+            // ✅ trashItem 실패 시 NSWorkspace.recycle로 폴백(다른 스캐너와 동일 패턴).
+            return await recycleUsingWorkspace(url)
+        }
+    }
+
+    @MainActor
+    private static func recycleUsingWorkspace(_ url: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            NSWorkspace.shared.recycle([url]) { _, error in
+                continuation.resume(returning: error == nil)
+            }
         }
     }
 

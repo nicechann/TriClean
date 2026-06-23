@@ -100,7 +100,7 @@
 "storage.msg.auto" = "조건 변경으로 다시 분석 중입니다…";
 "storage.msg.canceled" = "분석이 취소되었습니다.";
 "storage.msg.no_items" = "'%@' 폴더에 조건에 맞는 하위 항목이 없습니다.";
-"storage.msg.completed" = "'%@' 폴더 분석이 완료되었습니다. (폴더 %d개 / 파일 %d개)";
+"storage.msg.completed" = "'%@' 폴더 분석이 완료되었습니다. (폴더 %ld개 / 파일 %ld개)";
 "storage.scope.select_home_msg" = "Disk Usage의 Home Folder 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다.";
 "storage.scope.select_home_title" = "Home Folder 선택";
 "storage.scope.select_apps_msg" = "Disk Usage의 Applications 구간 계산을 위해 폴더를 선택합니다. (/Applications, ~/Applications 등 복수 선택 가능)";
@@ -113,7 +113,7 @@
 "storage.msg.analyzing_home_apps" = "Home/Applications 분석 중…";
 "storage.alert.delete.msg_folder" = "'%@' 폴더를 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.alert.delete.msg_file" = "'%@' 파일을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
-"storage.alert.delete.msg_multi" = "선택한 %d개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
+"storage.alert.delete.msg_multi" = "선택한 %ld개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.msg.canceling" = "취소 중…";
 
 /* ✅ [수정 v2] Apps View — "앱 제거" 표현을 "관련 파일 검토/정리"로 전환 */
@@ -140,12 +140,12 @@
 "apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 Home Library(~/Library)를 선택해 주세요.";
 "apps.details.scanning" = "관련 파일 검색 중…";
 "apps.details.no_related" = "관련 파일이 없거나 찾지 못했습니다.";
-"apps.details.found_count" = "관련 파일 (%d)";
+"apps.details.found_count" = "관련 파일 (%ld)";
 "apps.details.trash_selected" = "선택 항목 휴지통으로 이동";
 "apps.details.guide" = "테이블에서 앱을 선택해 세부 정보를 확인하거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정해 관련 파일(캐시, 설정 등)을 검토합니다.";
 "apps.alert.uninstall.title" = "선택한 앱 번들을 휴지통으로 이동";
 "apps.alert.fail.title" = "자동 이동 실패 (권한 제한)";
-"apps.alert.fail.msg" = "%d개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
+"apps.alert.fail.msg" = "%ld개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
 "apps.alert.related.title" = "관련 파일 정리";
 "apps.alert.reset.title" = "권한 초기화";
 "apps.alert.reset.msg" = "선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔이 가능합니다.";
@@ -156,7 +156,7 @@
 "apps.status.library_guide" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
 "apps.status.library_needed" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
 "apps.status.library_scoped_error" = "Home Library 폴더 접근 권한(Security-Scoped)이 없습니다.";
-"apps.status.loaded_count" = "%d개의 앱을 불러왔습니다.";
+"apps.status.loaded_count" = "%ld개의 앱을 불러왔습니다.";
 "apps.status.reset_success" = "초기화가 완료되었습니다.";
 "apps.status.no_permission" = "접근 권한이 없습니다.";
 "apps.status.not_app_bundle" = "선택한 파일은 앱 번들(.app)이 아닙니다.";
@@ -179,12 +179,12 @@
 "apps.status.nothing_to_trash" = "휴지통으로 이동할 앱이 없습니다.";
 "apps.status.scanning" = "관련 파일을 스캔 중…";
 "apps.status.scan_empty" = "관련 파일을 찾지 못했습니다.";
-"apps.status.scan_found" = "관련 항목 %d개를 찾았습니다.";
-"apps.status.related_success" = "관련 항목 %d개를 휴지통으로 이동했습니다.";
-"apps.status.related_partial_fail" = "%d개는 이동, %d개는 실패했습니다.";
+"apps.status.scan_found" = "관련 항목 %ld개를 찾았습니다.";
+"apps.status.related_success" = "관련 항목 %ld개를 휴지통으로 이동했습니다.";
+"apps.status.related_partial_fail" = "%ld개는 이동, %ld개는 실패했습니다.";
 "apps.status.related_none" = "이동할 항목이 없습니다.";
-"apps.status.uninstall_success" = "앱 번들 %d개를 휴지통으로 이동했습니다.";
-"apps.status.uninstall_partial_fail" = "앱 번들 %d개는 이동, %d개는 실패했습니다.";
+"apps.status.uninstall_success" = "앱 번들 %ld개를 휴지통으로 이동했습니다.";
+"apps.status.uninstall_partial_fail" = "앱 번들 %ld개는 이동, %ld개는 실패했습니다.";
 "apps.status.uninstall_all_fail" = "선택한 앱 번들을 휴지통으로 이동할 수 없습니다(권한 필요).";
 "apps.status.appstore_reference_only" = "App Store 앱은 참고용으로만 표시됩니다.";
 
@@ -216,9 +216,9 @@
 "settings.debug.clean_fill_desc" = "내부 메모리 테스트용 디버그 옵션입니다.";
 
 // MARK: - Trial & Banner
-"trial.banner.status" = "체험판: %d일 남음";
+"trial.banner.status" = "체험판: %ld일 남음";
 "trial.bottom.title" = "무료 체험";
-"trial.bottom.days_left" = "%d일 남음";
+"trial.bottom.days_left" = "%ld일 남음";
 "trial.bottom.buy_now" = "지금 구매하기";
 "trial.expired.msg" = "무료 체험 기간이 만료되었습니다.";
 "trial.expired.btn" = "정식 버전 구매하기";
@@ -349,13 +349,13 @@
 "duplicates.summary.groups" = "중복 그룹";
 "duplicates.summary.reclaimable" = "확보 가능 용량";
 "duplicates.summary.scanned" = "스캔 파일";
-"duplicates.count_format" = "%d개";
+"duplicates.count_format" = "%ld개";
 "duplicates.clean_selected" = "중복 파일 정리 (%@)";
 "duplicates.empty.done_title" = "중복 파일이 없습니다";
 "duplicates.empty.idle_title" = "스캔 대기 중";
 "duplicates.empty.done_desc" = "선택한 폴더에서 중복 파일을 찾지 못했습니다.";
 "duplicates.empty.idle_desc" = "'스캔' 버튼을 눌러 중복 파일을 찾아보세요.";
-"duplicates.group.files" = "%d개 동일 파일";
+"duplicates.group.files" = "%ld개 동일 파일";
 "duplicates.group.detail" = "각 %@ · %@ 확보 가능";
 "duplicates.file.help.keep" = "보존 중 (클릭하면 삭제 대상으로 변경)";
 "duplicates.file.help.delete" = "삭제 대상 (클릭하면 보존으로 변경)";
@@ -364,14 +364,14 @@
 "duplicates.panel.title" = "중복 파일을 찾을 폴더 선택";
 "duplicates.panel.message" = "선택한 폴더와 하위 폴더에서 중복 파일을 찾습니다.";
 "duplicates.status.collecting" = "파일 목록 수집 중…";
-"duplicates.status.files_found" = "%d개 파일 발견";
+"duplicates.status.files_found" = "%ld개 파일 발견";
 "duplicates.status.grouping" = "크기별 그룹화 중…";
-"duplicates.status.size_candidates" = "%d개 파일이 크기 기준으로 중복 후보입니다.";
-"duplicates.status.partial_matches" = "%d개 그룹이 부분 해시까지 일치합니다.";
-"duplicates.status.full_progress" = "전체 해시 비교 중… %d/%d";
+"duplicates.status.size_candidates" = "%ld개 파일이 크기 기준으로 중복 후보입니다.";
+"duplicates.status.partial_matches" = "%ld개 그룹이 부분 해시까지 일치합니다.";
+"duplicates.status.full_progress" = "전체 해시 비교 중… %ld/%ld";
 "duplicates.status.none_found" = "중복 파일을 찾지 못했습니다.";
-"duplicates.status.found_groups" = "%d개 중복 그룹 발견 (%@ 확보 가능)";
-"duplicates.status.deleted" = "%d개 중복 파일을 휴지통으로 이동했습니다.";
+"duplicates.status.found_groups" = "%ld개 중복 그룹 발견 (%@ 확보 가능)";
+"duplicates.status.deleted" = "%ld개 중복 파일을 휴지통으로 이동했습니다.";
 
 
 /* Storage UX */
@@ -379,9 +379,9 @@
 "storage.status.folder" = "선택한 폴더";
 "storage.status.folder_none" = "선택한 폴더 없음";
 "storage.status.visible_results" = "표시 중인 결과";
-"storage.status.visible_results_value" = "상위 %d개 / 하위 %d개";
+"storage.status.visible_results_value" = "상위 %ld개 / 하위 %ld개";
 "storage.status.min_size" = "최소 크기";
-"storage.min_size.display" = "%d MB+";
+"storage.min_size.display" = "%ld MB+";
 "storage.treemap.subtitle" = "용량이 큰 폴더와 파일을 한눈에 확인합니다.";
 "storage.treemap.hint" = "팁: 항목을 클릭하면 Finder에서 바로 확인할 수 있습니다.";
 "storage.treemap.item_help" = "%@ — %@";
@@ -396,7 +396,7 @@
 /* Junk item selection */
 "junk.item.select_all" = "전체 선택";
 "junk.item.deselect_all" = "전체 해제";
-"junk.item.more" = "외 %d개 항목…";
+"junk.item.more" = "외 %ld개 항목…";
 
 /* Duplicates */
 "duplicates.selected_folder" = "선택한 폴더";
@@ -406,9 +406,9 @@
 "settings.debug.purchase_on" = "구매 완료";
 "settings.debug.purchase_off" = "미구매";
 "settings.debug.trial_days" = "체험 기간";
-"settings.debug.days_button" = "%d일";
+"settings.debug.days_button" = "%ld일";
 "settings.debug.actual_value" = "실제 값";
-"settings.debug.current_days" = "현재 %d일";
+"settings.debug.current_days" = "현재 %ld일";
 
 
 /* Apps View — Stage 3 */
@@ -425,8 +425,8 @@
 "apps.summary.selected" = "선택됨";
 "apps.safety.title" = "안전하게 검토 후 정리";
 "apps.safety.desc" = "TriClean은 선택한 앱 번들과 관련 파일을 휴지통으로 이동합니다. 영구 삭제는 바로 수행하지 않으며, App Store 앱은 이 화면에서 제거할 수 없습니다.";
-"apps.selection.none" = "현재 필터에서 표시 중인 앱 %d개";
-"apps.selection.summary" = "선택 %1$d개 · 이 중 휴지통 이동 가능 %2$d개";
+"apps.selection.none" = "현재 필터에서 표시 중인 앱 %ld개";
+"apps.selection.summary" = "선택 %1$ld개 · 이 중 휴지통 이동 가능 %2$ld개";
 "apps.table.app" = "앱";
 "apps.table.bundle" = "Bundle ID";
 "apps.table.location" = "위치";
@@ -443,9 +443,9 @@
 "apps.related.size" = "크기";
 "apps.related.folder" = "폴더";
 "apps.related.file" = "파일";
-"apps.related.footer" = "선택된 %1$d개 항목 · 예상 정리 크기 %2$@";
-"apps.alert.uninstall.msg" = "선택한 앱 %2$d개 중 휴지통으로 이동 가능한 일반 앱 번들 %1$d개를 이동하시겠습니까? App Store 앱은 제외되며, 이동 후 Finder의 휴지통에서 복원할 수 있습니다.";
-"apps.alert.related.msg" = "선택한 %1$d개 관련 파일/폴더(%2$@)를 휴지통으로 이동하시겠습니까?";
+"apps.related.footer" = "선택된 %1$ld개 항목 · 예상 정리 크기 %2$@";
+"apps.alert.uninstall.msg" = "선택한 앱 %2$ld개 중 휴지통으로 이동 가능한 일반 앱 번들 %1$ld개를 이동하시겠습니까? App Store 앱은 제외되며, 이동 후 Finder의 휴지통에서 복원할 수 있습니다.";
+"apps.alert.related.msg" = "선택한 %1$ld개 관련 파일/폴더(%2$@)를 휴지통으로 이동하시겠습니까?";
 
 
 // MARK: - Duplicate Finder
@@ -470,10 +470,10 @@
 "duplicate.selection.card_body" = "각 그룹에서 원본으로 보이는 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택합니다. 경로, 이름, 위치, 수정일을 기준으로 판단하므로 실행 전 검토해 주세요.";
 "duplicate.action.apply_recommended" = "정리 대상 자동 선택";
 "duplicate.action.apply_recommended.help" = "각 중복 그룹에서 원본으로 보이는 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택합니다.";
-"duplicate.footer.summary" = "%d개 그룹 · %d개 파일 선택 · %@ 확보 가능";
-"duplicate.footer.delete" = "중복 파일 정리 (%d개, %@)";
-"duplicate.group.header" = "동일 파일 %d개 · 각 %@";
-"duplicate.group.subheader" = "%d개 정리 선택 · %@ 확보 가능";
+"duplicate.footer.summary" = "%ld개 그룹 · %ld개 파일 선택 · %@ 확보 가능";
+"duplicate.footer.delete" = "중복 파일 정리 (%ld개, %@)";
+"duplicate.group.header" = "동일 파일 %ld개 · 각 %@";
+"duplicate.group.subheader" = "%ld개 정리 선택 · %@ 확보 가능";
 "duplicate.group.keep_oldest" = "가장 오래된 파일 보존";
 "duplicate.group.keep_newest" = "가장 최신 파일 보존";
 "duplicate.group.keep_hint" = "각 그룹에서는 최소 1개 파일이 남아야 합니다.";
@@ -483,25 +483,25 @@
 "duplicate.file.keep" = "보존";
 "duplicate.file.delete" = "삭제";
 "duplicate.delete_confirm.title" = "중복 파일 정리";
-"duplicate.delete_confirm.message" = "선택한 중복 파일 %d개(%@)를 휴지통으로 이동합니다. 각 그룹에서는 최소 1개 파일이 보존됩니다.";
+"duplicate.delete_confirm.message" = "선택한 중복 파일 %ld개(%@)를 휴지통으로 이동합니다. 각 그룹에서는 최소 1개 파일이 보존됩니다.";
 "duplicate.cleanup_result.title" = "정리 완료";
-"duplicate.cleanup_result.body" = "중복 파일 %d개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다.";
-"duplicate.cleanup_result.body_with_failures" = "중복 파일 %d개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다. %d개 항목은 이동하지 못했습니다.";
+"duplicate.cleanup_result.body" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다.";
+"duplicate.cleanup_result.body_with_failures" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다. %ld개 항목은 이동하지 못했습니다.";
 "duplicate.status.collecting" = "파일 목록 수집 중...";
-"duplicate.status.found_files" = "%d개 파일 발견";
+"duplicate.status.found_files" = "%ld개 파일 발견";
 "duplicate.status.grouping_by_size" = "크기별 그룹화 중...";
-"duplicate.status.same_size_candidates" = "%d개 파일이 같은 크기입니다";
-"duplicate.status.partial_hash_matches" = "%d개 그룹의 부분 해시가 일치합니다";
-"duplicate.status.hashing_full_progress" = "전체 해시 비교 중... %d/%d";
+"duplicate.status.same_size_candidates" = "%ld개 파일이 같은 크기입니다";
+"duplicate.status.partial_hash_matches" = "%ld개 그룹의 부분 해시가 일치합니다";
+"duplicate.status.hashing_full_progress" = "전체 해시 비교 중... %ld/%ld";
 "duplicate.status.no_duplicates_found" = "중복 파일을 찾지 못했습니다.";
-"duplicate.status.scan_complete" = "%d개 중복 그룹 발견 (%@ 확보 가능)";
-"duplicate.status.selection_summary" = "%d개 그룹 · %d개 파일 선택 · %@ 확보 가능";
+"duplicate.status.scan_complete" = "%ld개 중복 그룹 발견 (%@ 확보 가능)";
+"duplicate.status.selection_summary" = "%ld개 그룹 · %ld개 파일 선택 · %@ 확보 가능";
 "duplicate.status.nothing_selected" = "정리 대상으로 선택된 중복 파일이 없습니다.";
 "duplicate.status.recommended_applied" = "각 그룹에서 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택했습니다.";
 "duplicate.status.keep_newest_applied" = "선택한 그룹에서 가장 최신 파일을 보존하도록 변경했습니다.";
 "duplicate.status.keep_oldest_applied" = "선택한 그룹에서 가장 오래된 파일을 보존하도록 변경했습니다.";
-"duplicate.status.cleanup_done" = "%d개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다.";
-"duplicate.status.cleanup_done_with_failures" = "%d개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다. %d개 항목은 실패했습니다.";
+"duplicate.status.cleanup_done" = "%ld개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다.";
+"duplicate.status.cleanup_done_with_failures" = "%ld개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다. %ld개 항목은 실패했습니다.";
 "duplicate.status.cleanup_failed" = "선택한 중복 파일을 휴지통으로 이동하지 못했습니다.";
 
 "duplicate.action.clear_selection" = "선택 해제";
@@ -541,15 +541,15 @@
 "smartscan.junk.title" = "정크 파일";
 "smartscan.junk.caption_permission" = "Storage 화면에서 ~/Library 접근 권한을 먼저 허용하세요.";
 "smartscan.junk.caption_scanning" = "정크 파일을 확인하는 중입니다.";
-"smartscan.junk.caption_found" = "%d개 카테고리에서 정리 후보를 찾았습니다.";
+"smartscan.junk.caption_found" = "%ld개 카테고리에서 정리 후보를 찾았습니다.";
 "smartscan.junk.caption_ready" = "권한이 준비되었습니다. 스캔을 시작하세요.";
 "smartscan.duplicates.title" = "중복 파일";
 "smartscan.duplicates.caption_permission" = "Duplicates 화면에서 스캔할 폴더를 먼저 선택하세요.";
-"smartscan.duplicates.caption_found" = "%d개 중복 그룹을 찾았습니다.";
+"smartscan.duplicates.caption_found" = "%ld개 중복 그룹을 찾았습니다.";
 "smartscan.duplicates.caption_ready" = "폴더가 준비되었습니다. 스캔을 시작하세요.";
 "smartscan.apps.caption_permission" = "Apps 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
 "smartscan.apps.caption_scanning" = "앱 목록을 불러오는 중입니다.";
-"smartscan.apps.caption_found" = "%d개 앱 확인 · 제거 가능 %d개";
+"smartscan.apps.caption_found" = "%ld개 앱 확인 · 제거 가능 %ld개";
 "smartscan.apps.caption_ready" = "권한이 준비되었습니다. 앱 목록을 확인하세요.";
 "smartscan.actions.title" = "빠른 이동";
 "smartscan.actions.storage" = "저장공간";
@@ -578,14 +578,14 @@
 "photos.action.scanning" = "스캔 중…";
 "photos.status.collecting" = "이미지 파일 수집 중…";
 "photos.status.reading" = "이미지 정보 읽는 중…";
-"photos.status.found" = "이미지 %d개를 찾았습니다.";
+"photos.status.found" = "이미지 %ld개를 찾았습니다.";
 "photos.status.empty" = "이 폴더에서 이미지를 찾지 못했습니다.";
 "photos.status.ready" = "스캔 준비됨.";
 "photos.phase.idle" = "대기";
 "photos.phase.collecting" = "파일 수집 중…";
 "photos.phase.reading" = "정보 읽는 중…";
 "photos.phase.done" = "완료";
-"photos.summary.count" = "이미지 %d개";
+"photos.summary.count" = "이미지 %ld개";
 "photos.summary.size" = "총 %@";
 "photos.empty.title" = "아직 이미지가 없습니다";
 "photos.empty.desc" = "폴더를 선택하고 스캔하면 이미지가 표시됩니다.";
@@ -615,29 +615,29 @@
 "photos.similar.prompt.button" = "분석 시작";
 "photos.similar.analyzing" = "유사한 사진 분석 중…";
 "photos.similar.empty" = "유사한 사진을 찾지 못했습니다.";
-"photos.similar.group.count" = "%d장 유사";
+"photos.similar.group.count" = "%ld장 유사";
 
 /* Photo Manager - step5 (select/delete) */
-"photos.select.count" = "%d개 선택";
+"photos.select.count" = "%ld개 선택";
 "photos.select.clear" = "선택 해제";
 "photos.select.all" = "전체 선택";
 "photos.action.trash" = "휴지통으로 이동";
 "photos.action.reveal" = "Finder에서 보기";
 "photos.delete.confirm.title" = "선택한 사진을 휴지통으로 이동할까요?";
-"photos.delete.confirm.msg" = "%d개 항목이 휴지통으로 이동됩니다. 휴지통에서 복구할 수 있습니다.";
+"photos.delete.confirm.msg" = "%ld개 항목이 휴지통으로 이동됩니다. 휴지통에서 복구할 수 있습니다.";
 "photos.delete.confirm.button" = "휴지통으로 이동";
 "photos.similar.select_extras" = "1장 남기고 선택";
-"photos.delete.status.moving" = "%d개 항목을 휴지통으로 이동 중…";
-"photos.delete.status.success" = "%d개 항목을 휴지통으로 이동했습니다.";
-"photos.delete.status.partial" = "%1$d개 항목을 휴지통으로 이동했습니다. %2$d개 항목은 이동하지 못했습니다.";
-"photos.delete.status.failed" = "%d개 항목을 휴지통으로 이동하지 못했습니다.";
+"photos.delete.status.moving" = "%ld개 항목을 휴지통으로 이동 중…";
+"photos.delete.status.success" = "%ld개 항목을 휴지통으로 이동했습니다.";
+"photos.delete.status.partial" = "%1$ld개 항목을 휴지통으로 이동했습니다. %2$ld개 항목은 이동하지 못했습니다.";
+"photos.delete.status.failed" = "%ld개 항목을 휴지통으로 이동하지 못했습니다.";
 
 // MARK: - Trash Operation Status
-"storage.msg.trash_moving" = "선택한 %d개 항목을 휴지통으로 이동 중입니다…";
-"storage.msg.trash_done" = "%d개 항목을 휴지통으로 이동했습니다.";
-"storage.msg.trash_partial" = "%d개 항목을 휴지통으로 이동했고, %d개 항목은 실패했습니다.";
+"storage.msg.trash_moving" = "선택한 %ld개 항목을 휴지통으로 이동 중입니다…";
+"storage.msg.trash_done" = "%ld개 항목을 휴지통으로 이동했습니다.";
+"storage.msg.trash_partial" = "%ld개 항목을 휴지통으로 이동했고, %ld개 항목은 실패했습니다.";
 "storage.msg.trash_failed" = "선택한 항목을 휴지통으로 이동하지 못했습니다.";
-"junk.progress.cleaning" = "선택한 %d개 항목을 휴지통으로 이동 중입니다…";
-"junk.progress.clean_done" = "%d개 항목을 휴지통으로 이동했습니다.";
-"junk.progress.clean_partial" = "%d개 항목을 휴지통으로 이동했고, %d개 항목은 실패했습니다.";
+"junk.progress.cleaning" = "선택한 %ld개 항목을 휴지통으로 이동 중입니다…";
+"junk.progress.clean_done" = "%ld개 항목을 휴지통으로 이동했습니다.";
+"junk.progress.clean_partial" = "%ld개 항목을 휴지통으로 이동했고, %ld개 항목은 실패했습니다.";
 "junk.progress.clean_failed" = "선택한 정크 항목을 휴지통으로 이동하지 못했습니다.";

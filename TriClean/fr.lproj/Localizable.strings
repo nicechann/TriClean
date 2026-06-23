@@ -94,7 +94,7 @@
 "storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
 "storage.msg.canceled" = "Analyse annulée.";
 "storage.msg.no_items" = "Aucun élément correspondant aux critères dans « %@ ».";
-"storage.msg.completed" = "Analyse de « %@ » terminée. (%d dossiers / %d fichiers)";
+"storage.msg.completed" = "Analyse de « %@ » terminée. (%ld dossiers / %ld fichiers)";
 "storage.scope.select_home_msg" = "L'utilisation du dossier personnel est calculée uniquement dans la zone sélectionnée.";
 "storage.scope.select_home_title" = "Sélectionner le dossier personnel";
 "storage.scope.select_apps_title" = "Sélectionner le dossier Applications";
@@ -107,7 +107,7 @@
 "storage.msg.analyzing_home_apps" = "Analyse du dossier personnel et des applications…";
 "storage.alert.delete.msg_folder" = "Le dossier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
 "storage.alert.delete.msg_file" = "Le fichier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
-"storage.alert.delete.msg_multi" = "Les %d éléments sélectionnés seront placés dans la corbeille. Vous pouvez les restaurer depuis le Finder.";
+"storage.alert.delete.msg_multi" = "Les %ld éléments sélectionnés seront placés dans la corbeille. Vous pouvez les restaurer depuis le Finder.";
 "storage.msg.canceling" = "Annulation…";
 
 /* Apps View */
@@ -134,15 +134,15 @@
 "apps.details.library_guide" = "Sélectionnez ci-dessus « Bibliothèque personnelle (~/Library) » pour analyser les fichiers liés.";
 "apps.details.scanning" = "Recherche des fichiers liés…";
 "apps.details.no_related" = "Aucun fichier lié trouvé.";
-"apps.details.found_count" = "Fichiers liés (%d)";
+"apps.details.found_count" = "Fichiers liés (%ld)";
 "apps.details.trash_selected" = "Placer la sélection dans la corbeille";
 "apps.details.guide" = "Sélectionnez une app dans le tableau ou utilisez « Sélectionner un .app manuellement » pour examiner les détails et les fichiers liés (caches, préférences, etc.).";
 "apps.alert.uninstall.title" = "Placer les bundles d'apps sélectionnés dans la corbeille";
-"apps.alert.uninstall.msg" = "Placer dans la corbeille %1$d bundles d'apps supprimables sur %2$d apps sélectionnées ? Les apps de l'App Store sont exclues, et les éléments déplacés peuvent être restaurés depuis la corbeille du Finder.";
+"apps.alert.uninstall.msg" = "Placer dans la corbeille %1$ld bundles d'apps supprimables sur %2$ld apps sélectionnées ? Les apps de l'App Store sont exclues, et les éléments déplacés peuvent être restaurés depuis la corbeille du Finder.";
 "apps.alert.fail.title" = "Échec du déplacement (autorisation)";
-"apps.alert.fail.msg" = "%d apps n'ont pas pu être déplacées automatiquement en raison des règles de sécurité macOS (administrateur requis).%@\nVeuillez utiliser « Afficher dans le Finder » et supprimer manuellement.";
+"apps.alert.fail.msg" = "%ld apps n'ont pas pu être déplacées automatiquement en raison des règles de sécurité macOS (administrateur requis).%@\nVeuillez utiliser « Afficher dans le Finder » et supprimer manuellement.";
 "apps.alert.related.title" = "Examiner les fichiers liés";
-"apps.alert.related.msg" = "Placer %1$d fichiers/dossiers liés sélectionnés (%2$@) dans la corbeille ?";
+"apps.alert.related.msg" = "Placer %1$ld fichiers/dossiers liés sélectionnés (%2$@) dans la corbeille ?";
 "apps.alert.reset.title" = "Réinitialiser les autorisations";
 "apps.alert.reset.msg" = "Cela effacera toutes les autorisations d'accès aux dossiers. Vous devrez sélectionner à nouveau les dossiers à analyser.";
 "apps.status.scoped_error" = "Aucune autorisation d'accès (Security-Scoped) au dossier Applications.";
@@ -152,7 +152,7 @@
 "apps.status.library_guide" = "Autorisation requise : veuillez sélectionner Bibliothèque personnelle (~/Library).";
 "apps.status.library_needed" = "Autorisation requise : veuillez sélectionner Bibliothèque personnelle (~/Library).";
 "apps.status.library_scoped_error" = "Aucune autorisation d'accès (Security-Scoped) au dossier Bibliothèque personnelle.";
-"apps.status.loaded_count" = "%d apps chargées.";
+"apps.status.loaded_count" = "%ld apps chargées.";
 "apps.status.reset_success" = "Réinitialisation terminée.";
 "apps.status.no_permission" = "Aucune autorisation d'accès.";
 "apps.status.not_app_bundle" = "Le fichier sélectionné n'est pas un bundle d'app.";
@@ -174,12 +174,12 @@
 "apps.status.nothing_to_trash" = "Aucune app supprimable sélectionnée.";
 "apps.status.scanning" = "Analyse des fichiers liés…";
 "apps.status.scan_empty" = "Aucun fichier lié trouvé.";
-"apps.status.scan_found" = "%d éléments liés trouvés.";
-"apps.status.related_success" = "%d éléments liés placés dans la corbeille.";
-"apps.status.related_partial_fail" = "%d éléments déplacés, %d ont échoué.";
+"apps.status.scan_found" = "%ld éléments liés trouvés.";
+"apps.status.related_success" = "%ld éléments liés placés dans la corbeille.";
+"apps.status.related_partial_fail" = "%ld éléments déplacés, %ld ont échoué.";
 "apps.status.related_none" = "Aucun élément n'a été placé dans la corbeille.";
-"apps.status.uninstall_success" = "%d bundles d'apps placés dans la corbeille.";
-"apps.status.uninstall_partial_fail" = "%d bundles d'apps déplacés, %d ont échoué.";
+"apps.status.uninstall_success" = "%ld bundles d'apps placés dans la corbeille.";
+"apps.status.uninstall_partial_fail" = "%ld bundles d'apps déplacés, %ld ont échoué.";
 "apps.status.uninstall_all_fail" = "Impossible de placer les bundles d'apps sélectionnés dans la corbeille (autorisation requise).";
 "apps.status.appstore_reference_only" = "Les apps de l'App Store sont affichées à titre indicatif uniquement.";
 
@@ -214,9 +214,9 @@
 "paywall.feat.memory_desc" = "Visualisez d'un coup d'œil la composition et l'utilisation estimées de la mémoire système";
 
 /* Trial & Banner */
-"trial.banner.status" = "Essai : %d jours restants";
+"trial.banner.status" = "Essai : %ld jours restants";
 "trial.bottom.title" = "Essai gratuit";
-"trial.bottom.days_left" = "%d jours restants";
+"trial.bottom.days_left" = "%ld jours restants";
 "trial.bottom.buy_now" = "Acheter maintenant";
 "trial.expired.msg" = "Votre essai gratuit a expiré.";
 "trial.expired.btn" = "Acheter la version complète";
@@ -339,13 +339,13 @@
 "duplicates.summary.groups" = "Groupes de doublons";
 "duplicates.summary.reclaimable" = "Espace récupérable";
 "duplicates.summary.scanned" = "Fichiers analysés";
-"duplicates.count_format" = "%d";
+"duplicates.count_format" = "%ld";
 "duplicates.clean_selected" = "Nettoyer les doublons (%@)";
 "duplicates.empty.done_title" = "Aucun doublon trouvé";
 "duplicates.empty.idle_title" = "Prêt à analyser";
 "duplicates.empty.done_desc" = "Aucun fichier en double n'a été trouvé dans le dossier sélectionné.";
 "duplicates.empty.idle_desc" = "Cliquez sur « Analyser » pour rechercher des fichiers en double.";
-"duplicates.group.files" = "%d fichiers identiques";
+"duplicates.group.files" = "%ld fichiers identiques";
 "duplicates.group.detail" = "%@ chacun · %@ récupérables";
 "duplicates.file.help.keep" = "Conserver ce fichier. Cliquez pour le marquer pour suppression.";
 "duplicates.file.help.delete" = "Marqué pour suppression. Cliquez pour conserver ce fichier.";
@@ -354,14 +354,14 @@
 "duplicates.panel.title" = "Sélectionner un dossier pour la recherche de doublons";
 "duplicates.panel.message" = "TriClean analyse le dossier sélectionné et ses sous-dossiers à la recherche de fichiers en double.";
 "duplicates.status.collecting" = "Collecte de la liste des fichiers…";
-"duplicates.status.files_found" = "%d fichiers trouvés";
+"duplicates.status.files_found" = "%ld fichiers trouvés";
 "duplicates.status.grouping" = "Regroupement par taille…";
-"duplicates.status.size_candidates" = "%d fichiers sont des candidats par taille.";
-"duplicates.status.partial_matches" = "%d groupes correspondent au hachage partiel.";
-"duplicates.status.full_progress" = "Comparaison des hachages complets… %d/%d";
+"duplicates.status.size_candidates" = "%ld fichiers sont des candidats par taille.";
+"duplicates.status.partial_matches" = "%ld groupes correspondent au hachage partiel.";
+"duplicates.status.full_progress" = "Comparaison des hachages complets… %ld/%ld";
 "duplicates.status.none_found" = "Aucun fichier en double trouvé.";
-"duplicates.status.found_groups" = "%d groupes de doublons trouvés (%@ récupérables)";
-"duplicates.status.deleted" = "%d fichiers en double placés dans la corbeille.";
+"duplicates.status.found_groups" = "%ld groupes de doublons trouvés (%@ récupérables)";
+"duplicates.status.deleted" = "%ld fichiers en double placés dans la corbeille.";
 
 
 /* Storage UX */
@@ -369,9 +369,9 @@
 "storage.status.folder" = "Dossier sélectionné";
 "storage.status.folder_none" = "Aucun dossier sélectionné";
 "storage.status.visible_results" = "Résultats visibles";
-"storage.status.visible_results_value" = "%d éléments principaux / %d enfants";
+"storage.status.visible_results_value" = "%ld éléments principaux / %ld enfants";
 "storage.status.min_size" = "Taille minimale";
-"storage.min_size.display" = "%d Mo et plus";
+"storage.min_size.display" = "%ld Mo et plus";
 "storage.treemap.subtitle" = "Voyez les plus gros dossiers et fichiers d'un coup d'œil.";
 "storage.treemap.hint" = "Astuce : cliquez sur un élément pour l'afficher dans le Finder.";
 "storage.treemap.item_help" = "%@ — %@";
@@ -386,7 +386,7 @@
 /* Junk item selection */
 "junk.item.select_all" = "Tout sélectionner";
 "junk.item.deselect_all" = "Tout désélectionner";
-"junk.item.more" = "et %d éléments de plus…";
+"junk.item.more" = "et %ld éléments de plus…";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Dossier sélectionné";
@@ -396,9 +396,9 @@
 "settings.debug.purchase_on" = "Acheté";
 "settings.debug.purchase_off" = "Non acheté";
 "settings.debug.trial_days" = "Jours d'essai";
-"settings.debug.days_button" = "%d j";
+"settings.debug.days_button" = "%ld j";
 "settings.debug.actual_value" = "Réel";
-"settings.debug.current_days" = "Actuel : %d jours";
+"settings.debug.current_days" = "Actuel : %ld jours";
 
 
 /* Apps View — Stage 3 */
@@ -415,8 +415,8 @@
 "apps.summary.selected" = "Sélectionnées";
 "apps.safety.title" = "Examiner avant le nettoyage";
 "apps.safety.desc" = "TriClean place les bundles d'apps et fichiers liés sélectionnés dans la corbeille. Aucune suppression définitive immédiate, et les apps de l'App Store ne peuvent pas être supprimées depuis cet écran.";
-"apps.selection.none" = "%d apps visibles dans le filtre actuel";
-"apps.selection.summary" = "%1$d sélectionnées · %2$d supprimables";
+"apps.selection.none" = "%ld apps visibles dans le filtre actuel";
+"apps.selection.summary" = "%1$ld sélectionnées · %2$ld supprimables";
 "apps.table.app" = "App";
 "apps.table.bundle" = "Identifiant de bundle";
 "apps.table.location" = "Emplacement";
@@ -433,7 +433,7 @@
 "apps.related.size" = "Taille";
 "apps.related.folder" = "Dossier";
 "apps.related.file" = "Fichier";
-"apps.related.footer" = "%1$d sélectionnés · taille de nettoyage estimée %2$@";
+"apps.related.footer" = "%1$ld sélectionnés · taille de nettoyage estimée %2$@";
 
 /* Duplicate Finder */
 "duplicate.header.title" = "Recherche de doublons";
@@ -457,10 +457,10 @@
 "duplicate.selection.card_body" = "TriClean conserve un fichier probablement original dans chaque groupe et sélectionne automatiquement les autres pour le nettoyage. Il utilise le chemin, le nom de fichier, l'emplacement du dossier et la date de modification comme indices ; vérifiez les éléments avant de les placer dans la corbeille.";
 "duplicate.action.apply_recommended" = "Sélection automatique";
 "duplicate.action.apply_recommended.help" = "Conserve un fichier probablement original dans chaque groupe de doublons et sélectionne automatiquement les autres pour le nettoyage.";
-"duplicate.footer.summary" = "%d groupes · %d fichiers sélectionnés · %@ récupérables";
-"duplicate.footer.delete" = "Nettoyer les doublons (%d, %@)";
-"duplicate.group.header" = "%d fichiers correspondants · %@ chacun";
-"duplicate.group.subheader" = "%d sélectionnés pour nettoyage · %@ récupérables";
+"duplicate.footer.summary" = "%ld groupes · %ld fichiers sélectionnés · %@ récupérables";
+"duplicate.footer.delete" = "Nettoyer les doublons (%ld, %@)";
+"duplicate.group.header" = "%ld fichiers correspondants · %@ chacun";
+"duplicate.group.subheader" = "%ld sélectionnés pour nettoyage · %@ récupérables";
 "duplicate.group.keep_oldest" = "Conserver le plus ancien";
 "duplicate.group.keep_newest" = "Conserver le plus récent";
 "duplicate.group.keep_hint" = "Au moins un fichier doit rester dans chaque groupe.";
@@ -470,25 +470,25 @@
 "duplicate.file.keep" = "Conserver";
 "duplicate.file.delete" = "Supprimer";
 "duplicate.delete_confirm.title" = "Nettoyer les fichiers en double";
-"duplicate.delete_confirm.message" = "%d fichiers en double sélectionnés (%@) seront placés dans la corbeille. Au moins un fichier est conservé dans chaque groupe.";
+"duplicate.delete_confirm.message" = "%ld fichiers en double sélectionnés (%@) seront placés dans la corbeille. Au moins un fichier est conservé dans chaque groupe.";
 "duplicate.cleanup_result.title" = "Nettoyage terminé";
-"duplicate.cleanup_result.body" = "%d fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@.";
-"duplicate.cleanup_result.body_with_failures" = "%d fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@. %d éléments n'ont pas pu être déplacés.";
+"duplicate.cleanup_result.body" = "%ld fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@.";
+"duplicate.cleanup_result.body_with_failures" = "%ld fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@. %ld éléments n'ont pas pu être déplacés.";
 "duplicate.status.collecting" = "Collecte des fichiers…";
-"duplicate.status.found_files" = "%d fichiers trouvés";
+"duplicate.status.found_files" = "%ld fichiers trouvés";
 "duplicate.status.grouping_by_size" = "Regroupement des fichiers par taille…";
-"duplicate.status.same_size_candidates" = "%d fichiers ont la même taille";
-"duplicate.status.partial_hash_matches" = "%d groupes correspondent au hachage partiel";
-"duplicate.status.hashing_full_progress" = "Comparaison des hachages complets… %d/%d";
+"duplicate.status.same_size_candidates" = "%ld fichiers ont la même taille";
+"duplicate.status.partial_hash_matches" = "%ld groupes correspondent au hachage partiel";
+"duplicate.status.hashing_full_progress" = "Comparaison des hachages complets… %ld/%ld";
 "duplicate.status.no_duplicates_found" = "Aucun fichier en double trouvé.";
-"duplicate.status.scan_complete" = "%d groupes de doublons trouvés (%@ récupérables)";
-"duplicate.status.selection_summary" = "%d groupes · %d fichiers sélectionnés · %@ récupérables";
+"duplicate.status.scan_complete" = "%ld groupes de doublons trouvés (%@ récupérables)";
+"duplicate.status.selection_summary" = "%ld groupes · %ld fichiers sélectionnés · %@ récupérables";
 "duplicate.status.nothing_selected" = "Aucun doublon sélectionné pour le nettoyage.";
 "duplicate.status.recommended_applied" = "Un fichier a été conservé dans chaque groupe et le reste a été automatiquement sélectionné pour le nettoyage.";
 "duplicate.status.keep_newest_applied" = "Le fichier le plus récent du groupe sélectionné a été conservé.";
 "duplicate.status.keep_oldest_applied" = "Le fichier le plus ancien du groupe sélectionné a été conservé.";
-"duplicate.status.cleanup_done" = "%d fichiers en double placés dans la corbeille (%@ récupérés).";
-"duplicate.status.cleanup_done_with_failures" = "%d fichiers en double placés dans la corbeille (%@ récupérés). %d échecs.";
+"duplicate.status.cleanup_done" = "%ld fichiers en double placés dans la corbeille (%@ récupérés).";
+"duplicate.status.cleanup_done_with_failures" = "%ld fichiers en double placés dans la corbeille (%@ récupérés). %ld échecs.";
 "duplicate.status.cleanup_failed" = "TriClean n'a pas pu placer les fichiers en double sélectionnés dans la corbeille.";
 
 "duplicate.action.clear_selection" = "Effacer la sélection";
@@ -528,15 +528,15 @@
 "smartscan.junk.title" = "Fichiers inutiles";
 "smartscan.junk.caption_permission" = "Autorisez d’abord l’accès à ~/Library dans Stockage.";
 "smartscan.junk.caption_scanning" = "Vérification des fichiers inutiles.";
-"smartscan.junk.caption_found" = "Candidats au nettoyage trouvés dans %d catégories.";
+"smartscan.junk.caption_found" = "Candidats au nettoyage trouvés dans %ld catégories.";
 "smartscan.junk.caption_ready" = "L’autorisation est prête. Lancez une analyse.";
 "smartscan.duplicates.title" = "Doublons";
 "smartscan.duplicates.caption_permission" = "Choisissez d’abord un dossier à analyser dans Doublons.";
-"smartscan.duplicates.caption_found" = "%d groupes de doublons trouvés.";
+"smartscan.duplicates.caption_found" = "%ld groupes de doublons trouvés.";
 "smartscan.duplicates.caption_ready" = "Le dossier est prêt. Lancez une analyse.";
 "smartscan.apps.caption_permission" = "Autorisez d’abord l’accès au dossier Applications dans Apps.";
 "smartscan.apps.caption_scanning" = "Chargement de la liste des apps.";
-"smartscan.apps.caption_found" = "%d apps vérifiées · %d supprimables";
+"smartscan.apps.caption_found" = "%ld apps vérifiées · %ld supprimables";
 "smartscan.apps.caption_ready" = "L’autorisation est prête. Consultez vos apps.";
 "smartscan.actions.title" = "Accès rapide";
 "smartscan.actions.storage" = "Stockage";
@@ -565,14 +565,14 @@
 "photos.action.scanning" = "Analyse…";
 "photos.status.collecting" = "Collecte des fichiers image…";
 "photos.status.reading" = "Lecture des informations…";
-"photos.status.found" = "%d images trouvées.";
+"photos.status.found" = "%ld images trouvées.";
 "photos.status.empty" = "Aucune image trouvée dans ce dossier.";
 "photos.status.ready" = "Prêt à analyser.";
 "photos.phase.idle" = "Inactif";
 "photos.phase.collecting" = "Collecte des fichiers…";
 "photos.phase.reading" = "Lecture des informations…";
 "photos.phase.done" = "Terminé";
-"photos.summary.count" = "%d images";
+"photos.summary.count" = "%ld images";
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "Aucune image pour l'instant";
 "photos.empty.desc" = "Choisissez un dossier et lancez une analyse pour lister ses images.";
@@ -602,29 +602,29 @@
 "photos.similar.prompt.button" = "Lancer l'analyse";
 "photos.similar.analyzing" = "Analyse des photos similaires…";
 "photos.similar.empty" = "Aucune photo similaire trouvée.";
-"photos.similar.group.count" = "%d similaires";
+"photos.similar.group.count" = "%ld similaires";
 
 /* Photo Manager - step5 (select/delete) */
-"photos.select.count" = "%d sélectionnés";
+"photos.select.count" = "%ld sélectionnés";
 "photos.select.clear" = "Désélectionner";
 "photos.select.all" = "Tout sélectionner";
 "photos.action.trash" = "Mettre à la corbeille";
 "photos.action.reveal" = "Afficher dans le Finder";
 "photos.delete.confirm.title" = "Mettre les photos sélectionnées à la corbeille ?";
-"photos.delete.confirm.msg" = "%d éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
+"photos.delete.confirm.msg" = "%ld éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
 "photos.delete.confirm.button" = "Mettre à la corbeille";
 "photos.similar.select_extras" = "Tout sauf un";
-"photos.delete.status.moving" = "Déplacement de %d éléments vers la corbeille…";
-"photos.delete.status.success" = "%d éléments ont été mis à la corbeille.";
-"photos.delete.status.partial" = "%1$d éléments ont été mis à la corbeille. %2$d éléments n’ont pas pu être déplacés.";
-"photos.delete.status.failed" = "%d éléments n’ont pas pu être mis à la corbeille.";
+"photos.delete.status.moving" = "Déplacement de %ld éléments vers la corbeille…";
+"photos.delete.status.success" = "%ld éléments ont été mis à la corbeille.";
+"photos.delete.status.partial" = "%1$ld éléments ont été mis à la corbeille. %2$ld éléments n’ont pas pu être déplacés.";
+"photos.delete.status.failed" = "%ld éléments n’ont pas pu être mis à la corbeille.";
 
 // MARK: - Trash Operation Status
-"storage.msg.trash_moving" = "Déplacement de %d éléments sélectionnés vers la corbeille…";
-"storage.msg.trash_done" = "%d éléments placés dans la corbeille.";
-"storage.msg.trash_partial" = "%d éléments placés dans la corbeille. %d éléments ont échoué.";
+"storage.msg.trash_moving" = "Déplacement de %ld éléments sélectionnés vers la corbeille…";
+"storage.msg.trash_done" = "%ld éléments placés dans la corbeille.";
+"storage.msg.trash_partial" = "%ld éléments placés dans la corbeille. %ld éléments ont échoué.";
 "storage.msg.trash_failed" = "Impossible de placer les éléments sélectionnés dans la corbeille.";
-"junk.progress.cleaning" = "Déplacement de %d éléments sélectionnés vers la corbeille…";
-"junk.progress.clean_done" = "%d éléments placés dans la corbeille.";
-"junk.progress.clean_partial" = "%d éléments placés dans la corbeille. %d éléments ont échoué.";
+"junk.progress.cleaning" = "Déplacement de %ld éléments sélectionnés vers la corbeille…";
+"junk.progress.clean_done" = "%ld éléments placés dans la corbeille.";
+"junk.progress.clean_partial" = "%ld éléments placés dans la corbeille. %ld éléments ont échoué.";
 "junk.progress.clean_failed" = "Impossible de placer les éléments indésirables sélectionnés dans la corbeille.";

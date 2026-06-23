@@ -100,7 +100,7 @@
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
 "storage.msg.no_items" = "No items found in '%@' matching the criteria.";
-"storage.msg.completed" = "Analysis of '%@' completed. (%d folders / %d files)";
+"storage.msg.completed" = "Analysis of '%@' completed. (%ld folders / %ld files)";
 "storage.scope.select_home_msg" = "Disk Usage for Home Folder is calculated only within the selected folder scope.";
 "storage.scope.select_home_title" = "Select Home Folder";
 "storage.scope.select_apps_title" = "Select Applications Folder";
@@ -113,7 +113,7 @@
 "storage.msg.analyzing_home_apps" = "Analyzing Home & Applications…";
 "storage.alert.delete.msg_folder" = "'%@' folder will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_file" = "'%@' file will be moved to Trash. You can restore it from Finder.";
-"storage.alert.delete.msg_multi" = "%d selected items will be moved to Trash. You can restore them from Finder.";
+"storage.alert.delete.msg_multi" = "%ld selected items will be moved to Trash. You can restore them from Finder.";
 "storage.msg.canceling" = "Canceling…";
 
 /* ✅ [v2] Apps View — "uninstall/remove" → "review related files" focus */
@@ -140,12 +140,12 @@
 "apps.details.library_guide" = "Select Home Library(~/Library) above to analyze related files.";
 "apps.details.scanning" = "Searching related files…";
 "apps.details.no_related" = "No related files found.";
-"apps.details.found_count" = "Related files (%d)";
+"apps.details.found_count" = "Related files (%ld)";
 "apps.details.trash_selected" = "Move Selected to Trash";
 "apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to review app details and related files (caches, preferences, etc.).";
 "apps.alert.uninstall.title" = "Move Selected App Bundles to Trash";
 "apps.alert.fail.title" = "Move Failed (Permission)";
-"apps.alert.fail.msg" = "%d apps could not be moved automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
+"apps.alert.fail.msg" = "%ld apps could not be moved automatically due to macOS security policies (Admin required).%@\nPlease use 'Reveal in Finder' and delete manually.";
 "apps.alert.related.title" = "Review Related Files";
 "apps.alert.reset.title" = "Reset Permissions";
 "apps.alert.reset.msg" = "This will clear all folder access permissions. You will need to re-select folders to scan.";
@@ -156,7 +156,7 @@
 "apps.status.library_guide" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_needed" = "Permission required: Please select Home Library (~/Library).";
 "apps.status.library_scoped_error" = "No access permission (Security-Scoped) for Home Library folder.";
-"apps.status.loaded_count" = "Loaded %d apps.";
+"apps.status.loaded_count" = "Loaded %ld apps.";
 "apps.status.reset_success" = "Reset complete.";
 "apps.status.no_permission" = "No access permission.";
 "apps.status.not_app_bundle" = "Selected file is not an app bundle.";
@@ -179,12 +179,12 @@
 "apps.status.nothing_to_trash" = "No removable apps selected.";
 "apps.status.scanning" = "Scanning related files…";
 "apps.status.scan_empty" = "No related files found.";
-"apps.status.scan_found" = "Found %d related items.";
-"apps.status.related_success" = "Moved %d related items to Trash.";
-"apps.status.related_partial_fail" = "Moved %d items, failed %d.";
+"apps.status.scan_found" = "Found %ld related items.";
+"apps.status.related_success" = "Moved %ld related items to Trash.";
+"apps.status.related_partial_fail" = "Moved %ld items, failed %ld.";
 "apps.status.related_none" = "Nothing was moved to Trash.";
-"apps.status.uninstall_success" = "Moved %d app bundles to Trash.";
-"apps.status.uninstall_partial_fail" = "Moved %d app bundles, failed %d.";
+"apps.status.uninstall_success" = "Moved %ld app bundles to Trash.";
+"apps.status.uninstall_partial_fail" = "Moved %ld app bundles, failed %ld.";
 "apps.status.uninstall_all_fail" = "Failed to move selected app bundles to Trash (permission required).";
 "apps.status.appstore_reference_only" = "App Store apps are shown for reference only.";
 
@@ -220,9 +220,9 @@
 "paywall.feat.memory_desc" = "View estimated system memory composition and usage at a glance";
 
 // MARK: - Trial & Banner
-"trial.banner.status" = "Trial: %d days left";
+"trial.banner.status" = "Trial: %ld days left";
 "trial.bottom.title" = "Free Trial";
-"trial.bottom.days_left" = "%d days left";
+"trial.bottom.days_left" = "%ld days left";
 "trial.bottom.buy_now" = "Buy Now";
 "trial.expired.msg" = "Your free trial has expired.";
 "trial.expired.btn" = "Buy Full Version";
@@ -348,13 +348,13 @@
 "duplicates.summary.groups" = "Duplicate Groups";
 "duplicates.summary.reclaimable" = "Reclaimable Space";
 "duplicates.summary.scanned" = "Scanned Files";
-"duplicates.count_format" = "%d";
+"duplicates.count_format" = "%ld";
 "duplicates.clean_selected" = "Clean Duplicates (%@)";
 "duplicates.empty.done_title" = "No duplicate files found";
 "duplicates.empty.idle_title" = "Ready to scan";
 "duplicates.empty.done_desc" = "No duplicate files were found in the selected folder.";
 "duplicates.empty.idle_desc" = "Click 'Scan' to look for duplicate files.";
-"duplicates.group.files" = "%d identical files";
+"duplicates.group.files" = "%ld identical files";
 "duplicates.group.detail" = "Each %@ · %@ reclaimable";
 "duplicates.file.help.keep" = "Keep this file. Click to mark it for deletion.";
 "duplicates.file.help.delete" = "Marked for deletion. Click to keep this file instead.";
@@ -363,14 +363,14 @@
 "duplicates.panel.title" = "Select Folder for Duplicate Scan";
 "duplicates.panel.message" = "TriClean scans the selected folder and its subfolders for duplicate files.";
 "duplicates.status.collecting" = "Collecting file list…";
-"duplicates.status.files_found" = "%d files found";
+"duplicates.status.files_found" = "%ld files found";
 "duplicates.status.grouping" = "Grouping by size…";
-"duplicates.status.size_candidates" = "%d files are duplicate candidates by size.";
-"duplicates.status.partial_matches" = "%d groups matched on partial hash.";
-"duplicates.status.full_progress" = "Comparing full hashes… %d/%d";
+"duplicates.status.size_candidates" = "%ld files are duplicate candidates by size.";
+"duplicates.status.partial_matches" = "%ld groups matched on partial hash.";
+"duplicates.status.full_progress" = "Comparing full hashes… %ld/%ld";
 "duplicates.status.none_found" = "No duplicate files were found.";
-"duplicates.status.found_groups" = "%d duplicate groups found (%@ reclaimable)";
-"duplicates.status.deleted" = "%d duplicate files were moved to Trash.";
+"duplicates.status.found_groups" = "%ld duplicate groups found (%@ reclaimable)";
+"duplicates.status.deleted" = "%ld duplicate files were moved to Trash.";
 
 
 /* Storage UX */
@@ -378,9 +378,9 @@
 "storage.status.folder" = "Selected Folder";
 "storage.status.folder_none" = "No folder selected";
 "storage.status.visible_results" = "Visible Results";
-"storage.status.visible_results_value" = "%d top-level / %d child items";
+"storage.status.visible_results_value" = "%ld top-level / %ld child items";
 "storage.status.min_size" = "Minimum Size";
-"storage.min_size.display" = "%d MB+";
+"storage.min_size.display" = "%ld MB+";
 "storage.treemap.subtitle" = "See the largest folders and files at a glance.";
 "storage.treemap.hint" = "Tip: Click an item to reveal it in Finder.";
 "storage.treemap.item_help" = "%@ — %@";
@@ -395,7 +395,7 @@
 /* Junk item selection */
 "junk.item.select_all" = "Select All";
 "junk.item.deselect_all" = "Deselect All";
-"junk.item.more" = "and %d more items…";
+"junk.item.more" = "and %ld more items…";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Selected Folder";
@@ -405,9 +405,9 @@
 "settings.debug.purchase_on" = "Purchased";
 "settings.debug.purchase_off" = "Not Purchased";
 "settings.debug.trial_days" = "Trial Days";
-"settings.debug.days_button" = "%d d";
+"settings.debug.days_button" = "%ld d";
 "settings.debug.actual_value" = "Actual";
-"settings.debug.current_days" = "Current: %d days";
+"settings.debug.current_days" = "Current: %ld days";
 
 
 /* Apps View — Stage 3 */
@@ -424,8 +424,8 @@
 "apps.summary.selected" = "Selected";
 "apps.safety.title" = "Review safely before cleanup";
 "apps.safety.desc" = "TriClean moves selected app bundles and related files to Trash. It does not permanently delete items immediately, and App Store apps cannot be removed from this screen.";
-"apps.selection.none" = "%d apps visible in the current filter";
-"apps.selection.summary" = "%1$d selected · %2$d removable to Trash";
+"apps.selection.none" = "%ld apps visible in the current filter";
+"apps.selection.summary" = "%1$ld selected · %2$ld removable to Trash";
 "apps.table.app" = "App";
 "apps.table.bundle" = "Bundle ID";
 "apps.table.location" = "Location";
@@ -442,9 +442,9 @@
 "apps.related.size" = "Size";
 "apps.related.folder" = "Folder";
 "apps.related.file" = "File";
-"apps.related.footer" = "%1$d selected · estimated cleanup size %2$@";
-"apps.alert.uninstall.msg" = "Move %1$d removable app bundles to Trash out of %2$d selected apps? App Store apps are excluded, and moved items can be restored from Finder Trash.";
-"apps.alert.related.msg" = "Move %1$d selected related files/folders (%2$@) to Trash?";
+"apps.related.footer" = "%1$ld selected · estimated cleanup size %2$@";
+"apps.alert.uninstall.msg" = "Move %1$ld removable app bundles to Trash out of %2$ld selected apps? App Store apps are excluded, and moved items can be restored from Finder Trash.";
+"apps.alert.related.msg" = "Move %1$ld selected related files/folders (%2$@) to Trash?";
 
 
 // MARK: - Duplicate Finder
@@ -469,10 +469,10 @@
 "duplicate.selection.card_body" = "TriClean keeps one likely-original file in each group and automatically selects the rest for cleanup. It uses path, filename, folder location, and modification date as hints, so review items before moving them to Trash.";
 "duplicate.action.apply_recommended" = "Auto-Select Cleanup";
 "duplicate.action.apply_recommended.help" = "Keeps one likely-original file in each duplicate group and automatically selects the rest for cleanup.";
-"duplicate.footer.summary" = "%d groups · %d files selected · %@ recoverable";
-"duplicate.footer.delete" = "Clean Duplicates (%d, %@)";
-"duplicate.group.header" = "%d matching files · %@ each";
-"duplicate.group.subheader" = "%d selected for cleanup · %@ recoverable";
+"duplicate.footer.summary" = "%ld groups · %ld files selected · %@ recoverable";
+"duplicate.footer.delete" = "Clean Duplicates (%ld, %@)";
+"duplicate.group.header" = "%ld matching files · %@ each";
+"duplicate.group.subheader" = "%ld selected for cleanup · %@ recoverable";
 "duplicate.group.keep_oldest" = "Keep Oldest";
 "duplicate.group.keep_newest" = "Keep Newest";
 "duplicate.group.keep_hint" = "At least one file must remain in each group.";
@@ -482,25 +482,25 @@
 "duplicate.file.keep" = "Keep";
 "duplicate.file.delete" = "Delete";
 "duplicate.delete_confirm.title" = "Clean Duplicate Files";
-"duplicate.delete_confirm.message" = "%d selected duplicate files (%@) will be moved to Trash. At least one file is preserved in each group.";
+"duplicate.delete_confirm.message" = "%ld selected duplicate files (%@) will be moved to Trash. At least one file is preserved in each group.";
 "duplicate.cleanup_result.title" = "Cleanup Complete";
-"duplicate.cleanup_result.body" = "%d duplicate files were moved to Trash. Estimated recovered space: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%d duplicate files were moved to Trash. Estimated recovered space: %@. %d items could not be moved.";
+"duplicate.cleanup_result.body" = "%ld duplicate files were moved to Trash. Estimated recovered space: %@.";
+"duplicate.cleanup_result.body_with_failures" = "%ld duplicate files were moved to Trash. Estimated recovered space: %@. %ld items could not be moved.";
 "duplicate.status.collecting" = "Collecting files…";
-"duplicate.status.found_files" = "%d files found";
+"duplicate.status.found_files" = "%ld files found";
 "duplicate.status.grouping_by_size" = "Grouping files by size…";
-"duplicate.status.same_size_candidates" = "%d files share the same size";
-"duplicate.status.partial_hash_matches" = "%d groups matched by partial hash";
-"duplicate.status.hashing_full_progress" = "Comparing full hashes… %d/%d";
+"duplicate.status.same_size_candidates" = "%ld files share the same size";
+"duplicate.status.partial_hash_matches" = "%ld groups matched by partial hash";
+"duplicate.status.hashing_full_progress" = "Comparing full hashes… %ld/%ld";
 "duplicate.status.no_duplicates_found" = "No duplicate files found.";
-"duplicate.status.scan_complete" = "%d duplicate groups found (%@ recoverable)";
-"duplicate.status.selection_summary" = "%d groups · %d files selected · %@ recoverable";
+"duplicate.status.scan_complete" = "%ld duplicate groups found (%@ recoverable)";
+"duplicate.status.selection_summary" = "%ld groups · %ld files selected · %@ recoverable";
 "duplicate.status.nothing_selected" = "No duplicate files are selected for cleanup.";
 "duplicate.status.recommended_applied" = "One file was kept in each group, and the rest were automatically selected for cleanup.";
 "duplicate.status.keep_newest_applied" = "Kept the newest file in the selected group.";
 "duplicate.status.keep_oldest_applied" = "Kept the oldest file in the selected group.";
-"duplicate.status.cleanup_done" = "%d duplicate files moved to Trash (%@ recovered).";
-"duplicate.status.cleanup_done_with_failures" = "%d duplicate files moved to Trash (%@ recovered). %d items failed.";
+"duplicate.status.cleanup_done" = "%ld duplicate files moved to Trash (%@ recovered).";
+"duplicate.status.cleanup_done_with_failures" = "%ld duplicate files moved to Trash (%@ recovered). %ld items failed.";
 "duplicate.status.cleanup_failed" = "TriClean could not move the selected duplicate files to Trash.";
 
 "duplicate.action.clear_selection" = "Clear Selection";
@@ -540,15 +540,15 @@
 "smartscan.junk.title" = "Junk Files";
 "smartscan.junk.caption_permission" = "Allow ~/Library access in Storage first.";
 "smartscan.junk.caption_scanning" = "Checking junk files.";
-"smartscan.junk.caption_found" = "Cleanup candidates found in %d categories.";
+"smartscan.junk.caption_found" = "Cleanup candidates found in %ld categories.";
 "smartscan.junk.caption_ready" = "Permission is ready. Start a scan.";
 "smartscan.duplicates.title" = "Duplicates";
 "smartscan.duplicates.caption_permission" = "Choose a scan folder in Duplicates first.";
-"smartscan.duplicates.caption_found" = "%d duplicate groups found.";
+"smartscan.duplicates.caption_found" = "%ld duplicate groups found.";
 "smartscan.duplicates.caption_ready" = "Folder is ready. Start a scan.";
 "smartscan.apps.caption_permission" = "Allow Applications folder access in Apps first.";
 "smartscan.apps.caption_scanning" = "Loading app list.";
-"smartscan.apps.caption_found" = "%d apps checked · %d removable";
+"smartscan.apps.caption_found" = "%ld apps checked · %ld removable";
 "smartscan.apps.caption_ready" = "Permission is ready. Review your apps.";
 "smartscan.actions.title" = "Quick Access";
 "smartscan.actions.storage" = "Storage";
@@ -577,14 +577,14 @@
 "photos.action.scanning" = "Scanning…";
 "photos.status.collecting" = "Collecting image files…";
 "photos.status.reading" = "Reading image info…";
-"photos.status.found" = "Found %d images.";
+"photos.status.found" = "Found %ld images.";
 "photos.status.empty" = "No images found in this folder.";
 "photos.status.ready" = "Ready to scan.";
 "photos.phase.idle" = "Idle";
 "photos.phase.collecting" = "Collecting files…";
 "photos.phase.reading" = "Reading info…";
 "photos.phase.done" = "Done";
-"photos.summary.count" = "%d images";
+"photos.summary.count" = "%ld images";
 "photos.summary.size" = "Total %@";
 "photos.empty.title" = "No images yet";
 "photos.empty.desc" = "Choose a folder and run a scan to list its images.";
@@ -614,29 +614,29 @@
 "photos.similar.prompt.button" = "Start Analysis";
 "photos.similar.analyzing" = "Analyzing for similar photos…";
 "photos.similar.empty" = "No similar photos found.";
-"photos.similar.group.count" = "%d similar";
+"photos.similar.group.count" = "%ld similar";
 
 /* Photo Manager - step5 (select/delete) */
-"photos.select.count" = "%d selected";
+"photos.select.count" = "%ld selected";
 "photos.select.clear" = "Deselect";
 "photos.select.all" = "Select All";
 "photos.action.trash" = "Move to Trash";
 "photos.action.reveal" = "Show in Finder";
 "photos.delete.confirm.title" = "Move selected photos to Trash?";
-"photos.delete.confirm.msg" = "%d items will be moved to the Trash. You can restore them from the Trash.";
+"photos.delete.confirm.msg" = "%ld items will be moved to the Trash. You can restore them from the Trash.";
 "photos.delete.confirm.button" = "Move to Trash";
 "photos.similar.select_extras" = "Select all but one";
-"photos.delete.status.moving" = "Moving %d items to the Trash…";
-"photos.delete.status.success" = "Moved %d items to the Trash.";
-"photos.delete.status.partial" = "Moved %1$d items to the Trash. %2$d items could not be moved.";
-"photos.delete.status.failed" = "Could not move %d items to the Trash.";
+"photos.delete.status.moving" = "Moving %ld items to the Trash…";
+"photos.delete.status.success" = "Moved %ld items to the Trash.";
+"photos.delete.status.partial" = "Moved %1$ld items to the Trash. %2$ld items could not be moved.";
+"photos.delete.status.failed" = "Could not move %ld items to the Trash.";
 
 // MARK: - Trash Operation Status
-"storage.msg.trash_moving" = "Moving %d selected items to Trash…";
-"storage.msg.trash_done" = "%d items moved to Trash.";
-"storage.msg.trash_partial" = "%d items moved to Trash. %d items failed.";
+"storage.msg.trash_moving" = "Moving %ld selected items to Trash…";
+"storage.msg.trash_done" = "%ld items moved to Trash.";
+"storage.msg.trash_partial" = "%ld items moved to Trash. %ld items failed.";
 "storage.msg.trash_failed" = "Could not move the selected items to Trash.";
-"junk.progress.cleaning" = "Moving %d selected items to Trash…";
-"junk.progress.clean_done" = "%d items moved to Trash.";
-"junk.progress.clean_partial" = "%d items moved to Trash. %d items failed.";
+"junk.progress.cleaning" = "Moving %ld selected items to Trash…";
+"junk.progress.clean_done" = "%ld items moved to Trash.";
+"junk.progress.clean_partial" = "%ld items moved to Trash. %ld items failed.";
 "junk.progress.clean_failed" = "Could not move the selected junk items to Trash.";
