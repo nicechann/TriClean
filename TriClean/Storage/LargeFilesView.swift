@@ -826,7 +826,7 @@ struct LargeFilesView: View {
     }
 
     private func confirmDelete() {
-        let targets = deleteTargets
+        let targets = Self.normalizedDeleteTargets(deleteTargets)
         guard !targets.isEmpty else { return }
         guard !isDeleting else { return }
 
@@ -836,7 +836,7 @@ struct LargeFilesView: View {
 
         Task {
             let succeededURLs = await Task.detached(priority: .utility) {
-                Self.moveToTrash(targets, selectedRootURL: rootURL)
+                await Self.moveToTrash(targets, selectedRootURL: rootURL)
             }.value
 
             let failedCount = max(0, targets.count - succeededURLs.count)
@@ -864,8 +864,8 @@ struct LargeFilesView: View {
                 return false
             }
 
-            let succeededIDs = Set(targets.filter { succeededURLs.contains($0.url.standardizedFileURL) }.map(\.id))
-            tableSelection.subtract(succeededIDs)
+            let remainingIDs = Set(folderResults.map(\.id))
+            tableSelection.formIntersection(remainingIDs)
 
             isDeleting = false
             deleteTargets = []
@@ -875,7 +875,32 @@ struct LargeFilesView: View {
         }
     }
 
-    nonisolated private static func moveToTrash(_ items: [FolderInfo], selectedRootURL: URL?) -> Set<URL> {
+    nonisolated private static func normalizedDeleteTargets(_ items: [FolderInfo]) -> [FolderInfo] {
+        let sorted = items.sorted { lhs, rhs in
+            let lhsPath = lhs.url.standardizedFileURL.path
+            let rhsPath = rhs.url.standardizedFileURL.path
+            if lhsPath.count == rhsPath.count { return lhsPath < rhsPath }
+            return lhsPath.count < rhsPath.count
+        }
+
+        var result: [FolderInfo] = []
+        for item in sorted {
+            let targetPath = item.url.standardizedFileURL.path
+            let isCoveredByParent = result.contains { parent in
+                let parentURL = parent.url.standardizedFileURL
+                guard parent.isDirectory else { return false }
+                let parentPath = parentURL.path.hasSuffix("/") ? parentURL.path : parentURL.path + "/"
+                return targetPath.hasPrefix(parentPath)
+            }
+
+            if !isCoveredByParent {
+                result.append(item)
+            }
+        }
+        return result
+    }
+
+    nonisolated private static func moveToTrash(_ items: [FolderInfo], selectedRootURL: URL?) async -> Set<URL> {
         var succeededURLs = Set<URL>()
         let fm = FileManager.default
 
@@ -888,13 +913,27 @@ struct LargeFilesView: View {
                 try fm.trashItem(at: target, resultingItemURL: nil)
                 succeededURLs.insert(target)
             } catch {
-                Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles").error("Trash failed: \(error.localizedDescription, privacy: .public)")
+                let recycled = await recycleWithWorkspace(target)
+                if recycled {
+                    succeededURLs.insert(target)
+                } else {
+                    Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles").error("Trash failed: \(error.localizedDescription, privacy: .public)")
+                }
             }
 
             token.stop()
         }
 
         return succeededURLs
+    }
+
+    @MainActor
+    private static func recycleWithWorkspace(_ url: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            NSWorkspace.shared.recycle([url]) { _, error in
+                continuation.resume(returning: error == nil)
+            }
+        }
     }
 
     nonisolated private static func scopeURL(for target: URL, selectedRootURL: URL?) -> URL {

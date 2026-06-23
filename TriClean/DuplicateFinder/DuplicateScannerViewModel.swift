@@ -110,6 +110,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             bookmarkDataIsStale: &stale
         ) {
             scanFolderURL = url
+            if stale { saveBookmark(url: url) }
         }
     }
 
@@ -490,6 +491,8 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     private struct FileCandidate: Sendable {
         let url: URL
+        /// Duplicate detection must use the logical file size. Allocated size can differ
+        /// for sparse/compressed files and would split identical files before hashing.
         let size: Int64
         let modDate: Date?
     }
@@ -515,12 +518,12 @@ final class DuplicateScannerViewModel: ObservableObject {
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
 
-            let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
-            guard size >= minBytes else { continue }
+            let logicalSize = Int64(values.fileSize ?? 0)
+            guard logicalSize >= minBytes else { continue }
 
             files.append(FileCandidate(
                 url: url,
-                size: size,
+                size: logicalSize,
                 modDate: values.contentModificationDate
             ))
         }

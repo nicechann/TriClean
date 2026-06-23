@@ -35,10 +35,12 @@ private struct StorageDiskScopeBookmarks {
         guard let data = UserDefaults.standard.data(forKey: key.rawValue) else { return nil }
         var isStale = false
         do {
-            return try URL(resolvingBookmarkData: data,
-                           options: [.withSecurityScope, .withoutUI],
-                           relativeTo: nil,
-                           bookmarkDataIsStale: &isStale)
+            let url = try URL(resolvingBookmarkData: data,
+                              options: [.withSecurityScope, .withoutUI],
+                              relativeTo: nil,
+                              bookmarkDataIsStale: &isStale)
+            if isStale { save(url: url, for: key) }
+            return url
         } catch {
             storageLogger.error("Bookmark load failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
             return nil
@@ -73,6 +75,7 @@ private struct StorageDiskScopeBookmarks {
         do {
             let datas = try PropertyListDecoder().decode([Data].self, from: blob)
             var urls: [URL] = []
+            var hasStaleBookmark = false
             urls.reserveCapacity(datas.count)
             
             for data in datas {
@@ -82,10 +85,13 @@ private struct StorageDiskScopeBookmarks {
                                       relativeTo: nil,
                                       bookmarkDataIsStale: &isStale) {
                     urls.append(url.standardizedFileURL)
+                    hasStaleBookmark = hasStaleBookmark || isStale
                 }
             }
             
-            return Array(Set(urls)).sorted { $0.path < $1.path }
+            let uniqueURLs = Array(Set(urls)).sorted { $0.path < $1.path }
+            if hasStaleBookmark { save(urls: uniqueURLs, for: key) }
+            return uniqueURLs
         } catch {
             storageLogger.error("Bookmarks load(many) failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
             return []

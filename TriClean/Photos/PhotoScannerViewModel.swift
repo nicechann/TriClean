@@ -113,12 +113,6 @@ final class PhotoScannerViewModel: ObservableObject {
         loadBookmark()
     }
 
-    deinit {
-        if didStartAccessingFolderScope {
-            accessedFolderURL?.stopAccessingSecurityScopedResource()
-        }
-    }
-
     private func loadBookmark() {
         guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
         var stale = false
@@ -203,7 +197,12 @@ final class PhotoScannerViewModel: ObservableObject {
 
         // ✅ 보안 스코프: 결과가 표시되는 동안(썸네일 lazy 로딩 포함) 접근을 유지.
         //    스캔 직후 닫으면 샌드박스에서 썸네일 파일 읽기가 거부되어 모두 실패합니다.
-        beginFolderAccess(root)
+        guard beginFolderAccess(root) else {
+            isScanning = false
+            phase = .done
+            statusMessage = "common.permission_needed".localized
+            return
+        }
 
         // ✅ 실제 취소 가능한 detached 작업(핸들을 보관해 직접 cancel)
         let collect = Task.detached(priority: .utility) { () -> [PhotoItem] in
@@ -238,21 +237,22 @@ final class PhotoScannerViewModel: ObservableObject {
     /// 현재 결과가 가리키는 폴더의 보안 스코프 접근을 유지(썸네일 로딩 위해).
     /// 다른 폴더로 바뀌면 이전 접근을 닫고 새 접근을 시작합니다.
     private var accessedFolderURL: URL? = nil
-    private var didStartAccessingFolderScope = false
+    private var folderAccessToken: SecurityScopedAccessToken? = nil
 
-    private func beginFolderAccess(_ url: URL) {
-        if accessedFolderURL == url, didStartAccessingFolderScope { return }
+    private func beginFolderAccess(_ url: URL) -> Bool {
+        if accessedFolderURL == url, folderAccessToken != nil { return true }
         releaseFolderAccess()
-        didStartAccessingFolderScope = url.startAccessingSecurityScopedResource()
+
+        guard let token = SecurityScopedAccessToken(url: url) else { return false }
+        folderAccessToken = token
         accessedFolderURL = url
+        return true
     }
 
     private func releaseFolderAccess() {
-        if didStartAccessingFolderScope {
-            accessedFolderURL?.stopAccessingSecurityScopedResource()
-        }
+        folderAccessToken?.stop()
+        folderAccessToken = nil
         accessedFolderURL = nil
-        didStartAccessingFolderScope = false
     }
 
     func cancelScan() {
