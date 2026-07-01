@@ -21,7 +21,7 @@
 "common.select" = "선택…";
 "common.change" = "변경…";
 "common.clear" = "해제";
-"common.scan" = "Scan";
+"common.scan" = "스캔";
 "common.updated" = "업데이트됨: %@";
 "common.version" = "버전";
 "common.build" = "빌드";
@@ -40,9 +40,9 @@
 
 /* Memory View */
 "memory.in_use" = "사용중: %@";
-"memory.total" = "Total: %@";
-"memory.used" = "Used: %@";
-"memory.available" = "Available: %@";
+"memory.total" = "전체: %@";
+"memory.used" = "사용: %@";
+"memory.available" = "사용 가능: %@";
 
 /* ✅ [수정 v2] "Clean/Optimize" 관련 완전 제거 → "새로고침" 전용 */
 "memory.clean_btn" = "새로고침";
@@ -58,39 +58,39 @@
 
 "memory.composition" = "메모리 구성";
 "memory.composition_note" = "※ macOS Mach VM 통계(host_statistics64) 기반 추정값입니다. Activity Monitor 수치와 다를 수 있습니다.";
-"memory.significant_usage" = "Significant Memory Usage";
+"memory.significant_usage" = "메모리 사용량 상위 앱";
 "memory.significant_empty" = "표시할 실행 앱이 없습니다.";
-"memory.legend.app" = "App Memory";
-"memory.legend.wired" = "Wired Memory";
-"memory.legend.compressed" = "Compressed";
-"memory.legend.available" = "Available";
+"memory.legend.app" = "앱 메모리";
+"memory.legend.wired" = "고정 메모리";
+"memory.legend.compressed" = "압축됨";
+"memory.legend.available" = "사용 가능";
 "memory.donut.in_use" = "사용 중";
 
 "memory.tray_message" = "메모리 추정치를 새로고침했습니다.";
 "memory.tooltip.app_click" = "%@ (%@) 활성화";
 
 /* Storage View */
-"storage.header" = "Disk Usage";
+"storage.header" = "디스크 사용량";
 "storage.loading" = "디스크 정보를 불러오는 중…";
-"storage.legend.home" = "Home Folder";
-"storage.legend.apps" = "Applications";
-"storage.legend.other" = "Other Used";
-"storage.legend.free" = "Free Space";
+"storage.legend.home" = "홈 폴더";
+"storage.legend.apps" = "응용 프로그램";
+"storage.legend.other" = "기타 사용";
+"storage.legend.free" = "여유 공간";
 "storage.permission.home" = "권한 필요: Home 폴더를 선택해 주세요.";
 "storage.permission.apps" = "권한 필요: Applications 폴더를 선택해 주세요.";
 "storage.scope_note" = "※ Home/Applications 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다. 선택하지 않으면 'Other Used'로만 표시됩니다.";
-"storage.scan.header" = "Disk Scan";
-"storage.scan.btn" = "Select Folder & Scan";
-"storage.scan.updating" = "Updating…";
-"storage.scan.scanning" = "Scanning…";
+"storage.scan.header" = "디스크 스캔";
+"storage.scan.btn" = "폴더 선택 후 스캔";
+"storage.scan.updating" = "업데이트 중…";
+"storage.scan.scanning" = "스캔 중…";
 "storage.scan.tip" = "Tip: 시스템 폴더보다는 홈 폴더(~) 또는 /Users 하위 폴더를 선택하는 것을 권장합니다.";
-"storage.scan.min_size" = "Min Folder Size";
-"storage.scan.sort" = "Top Folder Sort";
-"storage.scan.sort.default" = "Default";
-"storage.scan.sort.name" = "Name";
-"storage.scan.sort.size" = "Size";
+"storage.scan.min_size" = "최소 폴더 크기";
+"storage.scan.sort" = "상위 폴더 정렬";
+"storage.scan.sort.default" = "기본값";
+"storage.scan.sort.name" = "이름";
+"storage.scan.sort.size" = "크기";
 "storage.scan.sort.note" = "스캔 중에는 발견순으로 표시되며, 완료 후 정렬이 1회 적용됩니다.";
-"storage.results.header" = "Results";
+"storage.results.header" = "결과";
 "storage.alert.delete.title" = "정말 삭제하시겠습니까?";
 "storage.alert.delete.message" = "'%@' %@를 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.item.folder" = "폴더";
@@ -122,7 +122,7 @@
 "apps.btn.manual_select" = "앱 파일 직접 선택…";
 "apps.search.placeholder" = "앱 이름 또는 Bundle ID 검색";
 "apps.btn.uninstall" = "휴지통으로 이동";
-"apps.btn.details" = "Details";
+"apps.btn.details" = "세부 정보";
 "apps.scope.apps_folder" = "Applications 폴더 선택";
 "apps.scope.apps_msg" = "앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다.";
 "apps.scope.library_folder" = "Home Library(~/Library) 선택";
@@ -189,15 +189,15 @@
 "apps.status.appstore_reference_only" = "App Store 앱은 참고용으로만 표시됩니다.";
 
 /* Settings View */
-"settings.display" = "Display";
-"settings.menubar_unit" = "Menu Bar Unit";
+"settings.display" = "표시";
+"settings.menubar_unit" = "메뉴 막대 단위";
 "settings.menubar_unit_desc" = "메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.";
-"settings.app_activation" = "App Activation";
+"settings.app_activation" = "앱 활성화";
 "settings.app_activation_desc" = "Significant Memory Usage에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.";
-"settings.app_activation.single" = "Single";
-"settings.app_activation.all" = "All";
-"settings.about" = "About";
-"settings.help" = "Help";
+"settings.app_activation.single" = "단일";
+"settings.app_activation.all" = "전체";
+"settings.about" = "정보";
+"settings.help" = "도움말";
 
 /* ✅ [수정 v2] Settings Help — "모니터링 전용" 명확화 */
 "settings.help.clean_title" = "메모리 추정치: 표시 방식";
@@ -208,10 +208,10 @@
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Memory";
 "menubar.clean" = "새로고침";
-"menubar.open_triclean" = "Open TriClean";
+"menubar.open_triclean" = "TriClean 열기";
 
 /* Debug */
-"settings.debug" = "Debug";
+"settings.debug" = "디버그";
 "settings.debug.clean_fill_mode" = "메모리 디버그 모드";
 "settings.debug.clean_fill_desc" = "내부 메모리 테스트용 디버그 옵션입니다.";
 
@@ -286,12 +286,12 @@
 "sidebar.large_files" = "큰 파일";
 
 /* Storage Surface */
-"storage.treemap.title" = "Disk Map";
-"storage.table.item" = "Item";
-"storage.table.size" = "Size";
+"storage.treemap.title" = "디스크 맵";
+"storage.table.item" = "항목";
+"storage.table.size" = "크기";
 
 /* Junk Cleaner */
-"junk.section.title" = "Recommended Cleanup";
+"junk.section.title" = "권장 정리 항목";
 "junk.section.subtitle" = "자주 쌓이는 캐시·로그·개발 찌꺼기를 빠르게 점검합니다.";
 "junk.section.select_library_hint" = "~/Library 폴더를 선택하면 정리 가능한 항목을 자동으로 찾습니다.";
 "junk.section.select_library" = "~/Library 선택";
@@ -309,21 +309,21 @@
 "junk.risk.safe" = "권장";
 "junk.risk.moderate" = "검토";
 "junk.risk.caution" = "주의";
-"junk.category.system_caches.title" = "App Caches";
+"junk.category.system_caches.title" = "앱 캐시";
 "junk.category.system_caches.desc" = "앱이 생성한 캐시 파일입니다. 삭제해도 앱 재시작 시 다시 생성됩니다.";
-"junk.category.system_logs.title" = "App Logs";
+"junk.category.system_logs.title" = "앱 로그";
 "junk.category.system_logs.desc" = "앱 로그 파일입니다. 디버깅이 필요 없으면 정리할 수 있습니다.";
 "junk.category.xcode_derived.title" = "Xcode DerivedData";
 "junk.category.xcode_derived.desc" = "Xcode 빌드 캐시입니다. 개발 중이 아니라면 정리해도 됩니다.";
-"junk.category.xcode_archives.title" = "Xcode Archives";
+"junk.category.xcode_archives.title" = "Xcode 아카이브";
 "junk.category.xcode_archives.desc" = "이전 빌드 아카이브입니다. 보관이 필요 없다면 삭제 가능합니다.";
-"junk.category.safari_cache.title" = "Safari Cache";
+"junk.category.safari_cache.title" = "Safari 캐시";
 "junk.category.safari_cache.desc" = "Safari 브라우저 캐시입니다. 삭제 시 첫 로딩이 잠시 느려질 수 있습니다.";
-"junk.category.mail_downloads.title" = "Mail Downloads";
+"junk.category.mail_downloads.title" = "메일 다운로드";
 "junk.category.mail_downloads.desc" = "Mail 앱이 내려받은 첨부파일 캐시입니다.";
-"junk.category.saved_app_state.title" = "Saved App State";
+"junk.category.saved_app_state.title" = "저장된 앱 상태";
 "junk.category.saved_app_state.desc" = "앱이 마지막으로 열려 있던 창 상태입니다. 삭제 시 기본 상태로 시작될 수 있습니다.";
-"junk.category.crash_reports.title" = "Crash Reports";
+"junk.category.crash_reports.title" = "충돌 보고서";
 "junk.category.crash_reports.desc" = "앱 크래시 리포트입니다. 분석이 필요 없다면 정리할 수 있습니다.";
 "junk.category.webkit_cache.title" = "WebKit Cache";
 "junk.category.webkit_cache.desc" = "WebKit 기반 앱의 캐시 데이터입니다.";
@@ -331,7 +331,7 @@
 "junk.category.http_storage.desc" = "앱의 HTTP 캐시 및 저장소입니다.";
 
 /* Duplicate Finder */
-"duplicates.title" = "Duplicate Finder";
+"duplicates.title" = "중복 파일 찾기";
 "duplicates.subtitle" = "동일한 내용의 중복 파일을 찾아 정리합니다.";
 "duplicates.min_size" = "최소:";
 "duplicates.change_folder" = "폴더 변경";
@@ -381,7 +381,7 @@
 "storage.status.visible_results" = "표시 중인 결과";
 "storage.status.visible_results_value" = "상위 %ld개 / 하위 %ld개";
 "storage.status.min_size" = "최소 크기";
-"storage.min_size.display" = "%ld MB+";
+"storage.min_size.display" = "%ld MB 이상";
 "storage.treemap.subtitle" = "용량이 큰 폴더와 파일을 한눈에 확인합니다.";
 "storage.treemap.hint" = "팁: 항목을 클릭하면 Finder에서 바로 확인할 수 있습니다.";
 "storage.treemap.item_help" = "%@ — %@";
@@ -449,7 +449,7 @@
 
 
 // MARK: - Duplicate Finder
-"duplicate.header.title" = "Duplicate Finder";
+"duplicate.header.title" = "중복 파일 찾기";
 "duplicate.header.subtitle" = "동일한 내용의 중복 파일을 찾아 정리 전에 안전하게 검토합니다.";
 "duplicate.header.min_size" = "최소:";
 "duplicate.header.change_folder" = "폴더 변경";

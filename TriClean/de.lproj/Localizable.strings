@@ -580,7 +580,7 @@
 "photos.category.all" = "Alle";
 "photos.category.similar" = "Ähnlich";
 "photos.category.blurry" = "Unscharf";
-"photos.category.screenshot" = "Screenshots";
+"photos.category.screenshot" = "Bildschirmfotos";
 
 /* Photo Manager - step2 */
 "photos.category.soon" = "Bald";
