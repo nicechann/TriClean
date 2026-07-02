@@ -628,3 +628,8 @@
 "junk.progress.clean_done" = "%ld 個の項目をゴミ箱に移動しました。";
 "junk.progress.clean_partial" = "%ld 個の項目をゴミ箱に移動しました。%ld 個の項目は失敗しました。";
 "junk.progress.clean_failed" = "選択したジャンク項目をゴミ箱に移動できませんでした。";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU: %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "現在のプロセッサ使用率";

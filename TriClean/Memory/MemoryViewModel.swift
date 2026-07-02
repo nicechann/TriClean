@@ -54,6 +54,10 @@ final class MemoryViewModel: ObservableObject {
     @Published var stats: MemoryStats = .empty
     @Published var displayUnit: MemoryDisplayUnit = .percent
 
+    // ✅ CPU 사용률(%). 누적 카운터 델타로 계산하므로 첫 샘플은 기준선만 잡고,
+    //    두 번째 갱신(다음 5초)부터 값이 채워집니다. 그전에는 nil.
+    @Published var cpuUsagePercent: Int? = nil
+
     // ✅ [삭제됨] cleanFillMode — 메모리 압박 모드 설정 제거
 
     // MARK: - Significant Memory Usage
@@ -64,6 +68,9 @@ final class MemoryViewModel: ObservableObject {
 
     // ✅ @MainActor 격리이므로 race 없이 안전하게 접근 가능
     private var lastSignificantAppsRefresh: Date = .distantPast
+
+    // ✅ CPU 사용률 계산용 직전 tick 스냅샷 (@MainActor 격리로 race 없음)
+    private var previousCPUTicks: CPUTicks? = nil
 
     // ✅ 메뉴바 텍스트 자동 갱신용 Timer (5초 주기)
     //   - 사용자가 윈도우를 열지 않아도 메뉴바 숫자가 실시간으로 갱신됨
@@ -104,6 +111,12 @@ final class MemoryViewModel: ObservableObject {
 
     var usageText: String { "\(usagePercent)%" }
 
+    /// CPU 사용률 표시 문자열. 아직 표본이 없으면 "—".
+    var cpuUsageText: String {
+        guard let cpuUsagePercent else { return "—" }
+        return "\(cpuUsagePercent)%"
+    }
+
     var formattedCurrentUsage: String {
         switch displayUnit {
         case .percent:   return "\(usagePercent)%"
@@ -125,11 +138,46 @@ final class MemoryViewModel: ObservableObject {
         // 통계 수집은 짧지만 system call이므로 background에서 수행하고,
         // UI 반영만 MainActor에서 처리합니다.
         Task { @MainActor in
-            let latest = await Self.fetchStatsInBackground(priority: .userInitiated)
+            // 메모리 통계와 CPU tick을 병렬로 수집
+            async let statsTask = Self.fetchStatsInBackground(priority: .userInitiated)
+            async let ticksTask = Self.fetchCPUTicksInBackground(priority: .userInitiated)
+            let (latest, ticks) = await (statsTask, ticksTask)
+
             withAnimation(.easeInOut(duration: 0.25)) {
                 self.stats = latest
             }
+            self.updateCPUUsage(with: ticks)
         }
+    }
+
+    /// CPU tick 델타로 사용률을 계산해 반영합니다.
+    /// 첫 호출은 기준선만 저장하고 값을 채우지 않습니다(누적 카운터라 두 표본의 차이가 필요).
+    private func updateCPUUsage(with ticks: CPUTicks?) {
+        guard let ticks else { return }
+        defer { previousCPUTicks = ticks }
+
+        guard let previous = previousCPUTicks else { return }
+
+        // 누적 카운터의 wrap-around를 감안해 wrapping 뺄셈(&-) 사용
+        let userDelta   = Double(ticks.user   &- previous.user)
+        let systemDelta = Double(ticks.system &- previous.system)
+        let niceDelta   = Double(ticks.nice   &- previous.nice)
+        let idleDelta   = Double(ticks.idle   &- previous.idle)
+
+        let usedDelta  = userDelta + systemDelta + niceDelta
+        let totalDelta = usedDelta + idleDelta
+        guard totalDelta > 0 else { return }
+
+        let percent = Int((usedDelta / totalDelta * 100.0).rounded())
+        withAnimation(.easeInOut(duration: 0.25)) {
+            self.cpuUsagePercent = min(max(percent, 0), 100)
+        }
+    }
+
+    nonisolated private static func fetchCPUTicksInBackground(priority: TaskPriority) async -> CPUTicks? {
+        await Task.detached(priority: priority) {
+            CPULoadReader.read()
+        }.value
     }
 
     func refreshSignificantApps(limit: Int = 10) {
@@ -304,3 +352,45 @@ nonisolated enum MemoryReader {
 // ✅ [삭제됨] MemoryCleaner enum 전체 — 메모리 버퍼 할당/해제로 캐시 퍼지를 유도하는 코드
 // Apple Guideline 1.1.6 위반: "부정확한 디바이스 데이터" 및 "오해를 유발하는 기능"
 // 샌드박스 환경에서 메모리를 실제로 "최적화"할 수 없으며, 사용자에게 잘못된 기대를 줄 수 있음
+
+
+// MARK: - CPULoadReader
+
+/// host_statistics(HOST_CPU_LOAD_INFO)로 읽은 누적 CPU tick.
+/// user/system/idle/nice는 부팅 이후 누적값이며, 두 시점의 차이로 사용률을 계산합니다.
+nonisolated struct CPUTicks: Sendable {
+    let user: UInt32
+    let system: UInt32
+    let idle: UInt32
+    let nice: UInt32
+}
+
+nonisolated enum CPULoadReader {
+
+    /// 전체 코어 집계 CPU tick을 읽어옵니다. 실패 시 nil.
+    nonisolated static func read() -> CPUTicks? {
+        // ✅ MemoryReader와 동일하게 mach_host_self()는 deallocate하지 않습니다.
+        let host = mach_host_self()
+
+        var info = host_cpu_load_info_data_t()
+        var count = mach_msg_type_number_t(
+            MemoryLayout<host_cpu_load_info_data_t>.stride / MemoryLayout<integer_t>.stride
+        )
+
+        let kr: kern_return_t = withUnsafeMutablePointer(to: &info) { ptr in
+            ptr.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { intPtr in
+                host_statistics(host, HOST_CPU_LOAD_INFO, intPtr, &count)
+            }
+        }
+
+        guard kr == KERN_SUCCESS else { return nil }
+
+        // cpu_ticks 인덱스: 0=USER, 1=SYSTEM, 2=IDLE, 3=NICE
+        return CPUTicks(
+            user:   info.cpu_ticks.0,
+            system: info.cpu_ticks.1,
+            idle:   info.cpu_ticks.2,
+            nice:   info.cpu_ticks.3
+        )
+    }
+}

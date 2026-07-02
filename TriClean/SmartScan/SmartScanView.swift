@@ -177,6 +177,14 @@ struct SmartScanView: View {
             )
 
             overviewCard(
+                title: "smartscan.cpu.title".localized,
+                value: memoryViewModel.cpuUsageText,
+                caption: "smartscan.cpu.caption".localized,
+                systemImage: "cpu",
+                progress: memoryViewModel.cpuUsagePercent.map { Double($0) / 100.0 }
+            )
+
+            overviewCard(
                 title: "smartscan.junk.title".localized,
                 value: junkValueText,
                 caption: junkCaptionText,

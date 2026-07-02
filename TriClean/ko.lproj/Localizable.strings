@@ -641,3 +641,8 @@
 "junk.progress.clean_done" = "%ld개 항목을 휴지통으로 이동했습니다.";
 "junk.progress.clean_partial" = "%ld개 항목을 휴지통으로 이동했고, %ld개 항목은 실패했습니다.";
 "junk.progress.clean_failed" = "선택한 정크 항목을 휴지통으로 이동하지 못했습니다.";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU: %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "현재 프로세서 사용률";

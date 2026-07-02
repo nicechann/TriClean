@@ -628,3 +628,8 @@
 "junk.progress.clean_done" = "%ld éléments placés dans la corbeille.";
 "junk.progress.clean_partial" = "%ld éléments placés dans la corbeille. %ld éléments ont échoué.";
 "junk.progress.clean_failed" = "Impossible de placer les éléments indésirables sélectionnés dans la corbeille.";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU : %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "Charge processeur actuelle";

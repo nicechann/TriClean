@@ -27,6 +27,9 @@ struct MenuMemoryView: View {
             Text("memory.available".localized(with: viewModel.availableMemoryText))
                 .font(.caption)
 
+            Text("cpu.usage".localized(with: viewModel.cpuUsageText))
+                .font(.caption)
+
             // ✅ 면책 문구 추가 — 수치가 추정값임을 명시 (Apple 심사 대응)
             Text("memory.menubar_disclaimer".localized)
                 .font(.caption2)

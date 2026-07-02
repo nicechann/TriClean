@@ -628,3 +628,8 @@
 "junk.progress.clean_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
 "junk.progress.clean_partial" = "%ld Elemente wurden in den Papierkorb verschoben. %ld Elemente sind fehlgeschlagen.";
 "junk.progress.clean_failed" = "Die ausgewählten Junk-Elemente konnten nicht in den Papierkorb verschoben werden.";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU: %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "Aktuelle Prozessorauslastung";

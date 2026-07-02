@@ -628,3 +628,8 @@
 "junk.progress.clean_done" = "%ld elementos movidos a la Papelera.";
 "junk.progress.clean_partial" = "%ld elementos movidos a la Papelera. %ld elementos fallaron.";
 "junk.progress.clean_failed" = "No se pudieron mover los elementos basura seleccionados a la Papelera.";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU: %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "Uso actual del procesador";
