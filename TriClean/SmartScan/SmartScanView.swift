@@ -106,7 +106,7 @@ struct SmartScanView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 18)
                     .fill(Color.accentColor.opacity(0.14))
-                Image(systemName: "sparkles")
+                Image(systemName: "gauge.with.dots.needle.67percent")
                     .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(Color.accentColor)
             }
