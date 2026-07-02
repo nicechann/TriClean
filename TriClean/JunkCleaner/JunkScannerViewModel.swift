@@ -26,6 +26,8 @@ final class JunkScannerViewModel: ObservableObject {
     @Published var libraryURL: URL? = nil
     @Published var lastScanDate: Date? = nil
     @Published var isCleaning: Bool = false
+    /// 스캔 시 폴더 접근 권한이 만료/무효인 경우 true. (조용한 빈 결과 방지용)
+    @Published var accessDenied: Bool = false
     
     // MARK: - Computed
     
@@ -135,6 +137,7 @@ final class JunkScannerViewModel: ObservableObject {
         if panel.runModal() == .OK, let url = panel.url {
             saveBookmark(url: url)
             libraryURL = url
+            accessDenied = false
         }
     }
     
@@ -145,6 +148,7 @@ final class JunkScannerViewModel: ObservableObject {
         guard !isScanning else { return }
         
         isScanning = true
+        accessDenied = false
         results = []
         scanProgress = "junk.progress.preparing".localized
         
@@ -158,6 +162,20 @@ final class JunkScannerViewModel: ObservableObject {
                 if started { libraryStd.stopAccessingSecurityScopedResource() }
             }
             
+            // ✅ 접근 권한 검증: 스코프 접근 실패 + 디렉터리 읽기 불가면
+            //    조용히 빈 결과로 끝내지 않고 재선택을 안내한다.
+            let readable = await Task.detached(priority: .utility) {
+                Self.isDirectoryReadable(libraryStd)
+            }.value
+            if !started && !readable {
+                await MainActor.run {
+                    self.isScanning = false
+                    self.accessDenied = true
+                    self.scanProgress = ""
+                }
+                return
+            }
+
             var scanResults: [JunkScanResult] = []
             
             for category in categories {
@@ -213,6 +231,20 @@ final class JunkScannerViewModel: ObservableObject {
     
     // MARK: - 정크 아이템 스캔 (백그라운드)
     
+    /// 디렉터리 읽기 가능 여부 프로브(권한 실패 시 false).
+    nonisolated private static func isDirectoryReadable(_ url: URL) -> Bool {
+        do {
+            _ = try FileManager.default.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: nil,
+                options: []
+            )
+            return true
+        } catch {
+            return false
+        }
+    }
+
     nonisolated private static func scanJunkItems(
         at url: URL,
         categoryID: String,

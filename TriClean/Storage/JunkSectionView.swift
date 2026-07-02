@@ -86,8 +86,31 @@ struct JunkSectionView: View {
                 .controlSize(.small)
             }
 
+            // ── 접근 권한 만료 안내 ──
+            if viewModel.accessDenied {
+                HStack(spacing: 10) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("junk.section.access_title".localized)
+                            .font(.caption.bold())
+                        Text("junk.section.access_desc".localized)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button("common.change".localized) {
+                        viewModel.selectLibraryFolder()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                .padding(10)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.orange.opacity(0.1)))
+            }
+
             // ── 준비 상태 / 잘못된 경로 안내 ──
-            if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults {
+            if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults && !viewModel.accessDenied {
                 HStack(spacing: 10) {
                     Image(systemName: viewModel.isValidLibraryPath ? "checkmark.circle" : "exclamationmark.triangle")
                         .foregroundStyle(viewModel.isValidLibraryPath ? .green : .orange)

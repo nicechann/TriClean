@@ -651,3 +651,8 @@
 "duplicate.empty.access_title" = "Folder access expired";
 "duplicate.empty.access_body" = "TriClean can no longer access this folder. Tap “Change Folder” above and select it again.";
 "duplicate.status.access_denied" = "Folder access expired. Please re-select the folder.";
+
+/* Junk — 접근 권한 만료 안내 */
+"junk.section.access_title" = "Folder access expired";
+"junk.section.access_desc" = "TriClean can no longer access ~/Library. Tap “Change” and select the folder again.";
+"smartscan.junk.caption_access" = "Folder access expired. Please re-select it in Storage.";

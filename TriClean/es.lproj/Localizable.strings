@@ -639,3 +639,8 @@
 "duplicate.empty.access_title" = "El acceso a la carpeta caducó";
 "duplicate.empty.access_body" = "TriClean ya no puede acceder a esta carpeta. Pulsa «Cambiar carpeta» arriba y vuelve a seleccionarla.";
 "duplicate.status.access_denied" = "El acceso a la carpeta caducó. Vuelve a seleccionar la carpeta.";
+
+/* Junk — 접근 권한 만료 안내 */
+"junk.section.access_title" = "El acceso a la carpeta caducó";
+"junk.section.access_desc" = "TriClean ya no puede acceder a ~/Library. Pulsa «Cambiar» y vuelve a seleccionar la carpeta.";
+"smartscan.junk.caption_access" = "El acceso a la carpeta caducó. Vuelve a seleccionarla en Almacenamiento.";

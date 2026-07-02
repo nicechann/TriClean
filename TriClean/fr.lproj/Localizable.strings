@@ -639,3 +639,8 @@
 "duplicate.empty.access_title" = "Accès au dossier expiré";
 "duplicate.empty.access_body" = "TriClean ne peut plus accéder à ce dossier. Touchez « Changer de dossier » ci-dessus et sélectionnez-le à nouveau.";
 "duplicate.status.access_denied" = "Accès au dossier expiré. Veuillez re-sélectionner le dossier.";
+
+/* Junk — 접근 권한 만료 안내 */
+"junk.section.access_title" = "Accès au dossier expiré";
+"junk.section.access_desc" = "TriClean ne peut plus accéder à ~/Library. Touchez « Changer » et sélectionnez le dossier à nouveau.";
+"smartscan.junk.caption_access" = "Accès au dossier expiré. Re-sélectionnez-le dans Stockage.";

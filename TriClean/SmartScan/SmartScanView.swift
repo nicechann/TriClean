@@ -210,12 +210,14 @@ struct SmartScanView: View {
     private var junkValueText: String {
         if junkViewModel.isScanning { return "smartscan.state.scanning".localized }
         if junkViewModel.libraryURL == nil { return "smartscan.state.permission".localized }
+        if junkViewModel.accessDenied { return "smartscan.state.permission".localized }
         if junkViewModel.hasResults { return junkViewModel.totalJunkString }
         return "smartscan.state.ready".localized
     }
 
     private var junkCaptionText: String {
         if junkViewModel.libraryURL == nil { return "smartscan.junk.caption_permission".localized }
+        if junkViewModel.accessDenied { return "smartscan.junk.caption_access".localized }
         if junkViewModel.isScanning { return junkViewModel.scanProgress.isEmpty ? "smartscan.junk.caption_scanning".localized : junkViewModel.scanProgress }
         if junkViewModel.hasResults { return "smartscan.junk.caption_found".localized(with: junkViewModel.results.count) }
         return "smartscan.junk.caption_ready".localized
