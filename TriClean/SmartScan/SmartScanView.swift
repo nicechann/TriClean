@@ -106,7 +106,7 @@ struct SmartScanView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 18)
                     .fill(Color.accentColor.opacity(0.14))
-                Image(systemName: "gauge.with.dots.needle.67percent")
+                Image(systemName: "speedometer")
                     .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(Color.accentColor)
             }
@@ -226,12 +226,14 @@ struct SmartScanView: View {
     private var duplicateValueText: String {
         if duplicateViewModel.isScanning { return "smartscan.state.scanning".localized }
         if duplicateViewModel.scanFolderURL == nil { return "smartscan.state.permission".localized }
+        if duplicateViewModel.phase == .accessDenied { return "smartscan.state.permission".localized }
         if !duplicateViewModel.groups.isEmpty { return duplicateViewModel.totalReclaimableString }
         return "smartscan.state.ready".localized
     }
 
     private var duplicateCaptionText: String {
         if duplicateViewModel.scanFolderURL == nil { return "smartscan.duplicates.caption_permission".localized }
+        if duplicateViewModel.phase == .accessDenied { return "duplicate.status.access_denied".localized }
         if duplicateViewModel.isScanning { return duplicateViewModel.statusMessage.isEmpty ? duplicateViewModel.phase.displayText : duplicateViewModel.statusMessage }
         if !duplicateViewModel.groups.isEmpty { return "smartscan.duplicates.caption_found".localized(with: duplicateViewModel.groups.count) }
         return "smartscan.duplicates.caption_ready".localized
