@@ -633,3 +633,9 @@
 "cpu.usage" = "CPU: %@";
 "smartscan.cpu.title" = "CPU";
 "smartscan.cpu.caption" = "現在のプロセッサ使用率";
+
+/* Duplicate Finder — 접근 권한 만료 안내 */
+"duplicate.phase.access_denied" = "アクセス権限なし";
+"duplicate.empty.access_title" = "フォルダのアクセス権限が失効しました";
+"duplicate.empty.access_body" = "このフォルダにアクセスできません。上の「フォルダを変更」からフォルダを選び直してください。";
+"duplicate.status.access_denied" = "フォルダのアクセス権限が失効しました。フォルダを選び直してください。";

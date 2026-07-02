@@ -74,6 +74,7 @@ enum DuplicateScanPhase: String {
     case hashingPartial
     case hashingFull
     case done
+    case accessDenied
 
     var displayText: String {
         switch self {
@@ -83,6 +84,7 @@ enum DuplicateScanPhase: String {
         case .hashingPartial:  return "duplicate.phase.partial_hash".localized
         case .hashingFull:     return "duplicate.phase.full_hash".localized
         case .done:            return "duplicate.phase.done".localized
+        case .accessDenied:    return "duplicate.phase.access_denied".localized
         }
     }
 }

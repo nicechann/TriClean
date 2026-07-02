@@ -633,3 +633,9 @@
 "cpu.usage" = "CPU: %@";
 "smartscan.cpu.title" = "CPU";
 "smartscan.cpu.caption" = "Uso actual del procesador";
+
+/* Duplicate Finder — 접근 권한 만료 안내 */
+"duplicate.phase.access_denied" = "Sin acceso";
+"duplicate.empty.access_title" = "El acceso a la carpeta caducó";
+"duplicate.empty.access_body" = "TriClean ya no puede acceder a esta carpeta. Pulsa «Cambiar carpeta» arriba y vuelve a seleccionarla.";
+"duplicate.status.access_denied" = "El acceso a la carpeta caducó. Vuelve a seleccionar la carpeta.";

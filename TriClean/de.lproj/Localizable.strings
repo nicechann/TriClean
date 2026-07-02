@@ -633,3 +633,9 @@
 "cpu.usage" = "CPU: %@";
 "smartscan.cpu.title" = "CPU";
 "smartscan.cpu.caption" = "Aktuelle Prozessorauslastung";
+
+/* Duplicate Finder — 접근 권한 만료 안내 */
+"duplicate.phase.access_denied" = "Kein Zugriff";
+"duplicate.empty.access_title" = "Ordnerzugriff abgelaufen";
+"duplicate.empty.access_body" = "TriClean kann nicht mehr auf diesen Ordner zugreifen. Tippe oben auf „Ordner ändern“ und wähle ihn erneut aus.";
+"duplicate.status.access_denied" = "Ordnerzugriff abgelaufen. Bitte wähle den Ordner erneut aus.";

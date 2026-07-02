@@ -139,6 +139,8 @@ final class DuplicateScannerViewModel: ObservableObject {
             saveBookmark(url: url)
             scanFolderURL = url
             lastCleanupResult = nil
+            phase = .idle
+            statusMessage = ""
         }
     }
 
@@ -161,6 +163,20 @@ final class DuplicateScannerViewModel: ObservableObject {
         scanTask = Task {
             let started = rootURL.startAccessingSecurityScopedResource()
             defer { if started { rootURL.stopAccessingSecurityScopedResource() } }
+
+            // ✅ 접근 권한 검증: 보안 스코프 접근이 실패하고(코드 서명 변경 등으로 북마크가
+            //    무효화된 경우) 실제 디렉터리 읽기도 불가하면, 조용히 "중복 없음"으로 끝내지 않고
+            //    사용자에게 폴더 재선택을 안내한다.
+            let readable = await Task.detached(priority: .utility) {
+                Self.isDirectoryReadable(rootURL)
+            }.value
+            if !started && !readable {
+                phase = .accessDenied
+                isScanning = false
+                progress = 0
+                statusMessage = "duplicate.status.access_denied".localized
+                return
+            }
 
             // Phase 1: 파일 수집
             phase = .collectingFiles
@@ -495,6 +511,21 @@ final class DuplicateScannerViewModel: ObservableObject {
         /// for sparse/compressed files and would split identical files before hashing.
         let size: Int64
         let modDate: Date?
+    }
+
+    /// 디렉터리 읽기 가능 여부 프로브. 나열이 성공하면 true(빈 폴더 포함),
+    /// 권한 실패(보안 스코프 무효 등) 시 throw → false.
+    nonisolated private static func isDirectoryReadable(_ url: URL) -> Bool {
+        do {
+            _ = try FileManager.default.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: nil,
+                options: []
+            )
+            return true
+        } catch {
+            return false
+        }
     }
 
     nonisolated private static func collectFiles(in root: URL, minBytes: Int64) -> [FileCandidate] {

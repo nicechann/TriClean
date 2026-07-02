@@ -268,20 +268,50 @@ struct DuplicateFinderView: View {
 
     private var emptySection: some View {
         VStack(spacing: 12) {
-            Image(systemName: viewModel.phase == .done ? "checkmark.seal" : "doc.text.magnifyingglass")
+            Image(systemName: emptyIconName)
                 .font(.largeTitle)
-                .foregroundStyle(viewModel.phase == .done ? .green : .secondary)
-            Text(viewModel.phase == .done ? "duplicate.empty.none_title".localized : "duplicate.empty.waiting_title".localized)
+                .foregroundStyle(emptyIconColor)
+            Text(emptyTitle)
                 .font(.headline)
-            Text(viewModel.phase == .done
-                 ? "duplicate.empty.none_body".localized
-                 : "duplicate.empty.waiting_body".localized)
+            Text(emptyBody)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
+    }
+
+    private var emptyIconName: String {
+        switch viewModel.phase {
+        case .accessDenied: return "exclamationmark.triangle"
+        case .done:         return "checkmark.seal"
+        default:            return "doc.text.magnifyingglass"
+        }
+    }
+
+    private var emptyIconColor: Color {
+        switch viewModel.phase {
+        case .accessDenied: return .orange
+        case .done:         return .green
+        default:            return .secondary
+        }
+    }
+
+    private var emptyTitle: String {
+        switch viewModel.phase {
+        case .accessDenied: return "duplicate.empty.access_title".localized
+        case .done:         return "duplicate.empty.none_title".localized
+        default:            return "duplicate.empty.waiting_title".localized
+        }
+    }
+
+    private var emptyBody: String {
+        switch viewModel.phase {
+        case .accessDenied: return "duplicate.empty.access_body".localized
+        case .done:         return "duplicate.empty.none_body".localized
+        default:            return "duplicate.empty.waiting_body".localized
+        }
     }
 
     // MARK: - 서브뷰
