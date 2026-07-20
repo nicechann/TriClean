@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UserNotifications
 
 enum SidebarItem: Hashable {
     case smartScan
