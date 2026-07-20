@@ -644,3 +644,14 @@
 "junk.section.access_title" = "Accès au dossier expiré";
 "junk.section.access_desc" = "TriClean ne peut plus accéder à ~/Library. Touchez « Changer » et sélectionnez le dossier à nouveau.";
 "smartscan.junk.caption_access" = "Accès au dossier expiré. Re-sélectionnez-le dans Stockage.";
+
+/* Rappel de nettoyage hebdomadaire */
+"settings.reminder" = "Rappel de nettoyage";
+"settings.reminder.toggle" = "Rappel hebdomadaire";
+"settings.reminder.toggle_desc" = "Recevez une notification une fois par semaine pour nettoyer les fichiers inutiles, les doublons et les gros fichiers.";
+"settings.reminder.weekday" = "Jour";
+"settings.reminder.time" = "Heure";
+"settings.reminder.denied" = "Les notifications de TriClean sont désactivées. Activez-les dans Réglages Système pour recevoir des rappels.";
+"settings.reminder.open_settings" = "Ouvrir Réglages Système";
+"reminder.notification.title" = "C'est l'heure du rangement";
+"reminder.notification.body" = "C'est votre nettoyage hebdomadaire. Analysez les fichiers inutiles, les doublons et les gros fichiers pour libérer de l'espace.";

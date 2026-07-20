@@ -644,3 +644,14 @@
 "junk.section.access_title" = "Ordnerzugriff abgelaufen";
 "junk.section.access_desc" = "TriClean kann nicht mehr auf ~/Library zugreifen. Tippe auf „Ändern“ und wähle den Ordner erneut aus.";
 "smartscan.junk.caption_access" = "Ordnerzugriff abgelaufen. Bitte im Speicher erneut auswählen.";
+
+/* Wöchentliche Aufräum-Erinnerung */
+"settings.reminder" = "Aufräum-Erinnerung";
+"settings.reminder.toggle" = "Wöchentliche Erinnerung";
+"settings.reminder.toggle_desc" = "Erhalte einmal pro Woche eine Mitteilung, um Datenmüll, Duplikate und große Dateien aufzuräumen.";
+"settings.reminder.weekday" = "Tag";
+"settings.reminder.time" = "Uhrzeit";
+"settings.reminder.denied" = "Mitteilungen für TriClean sind deaktiviert. Aktiviere sie in den Systemeinstellungen, um Erinnerungen zu erhalten.";
+"settings.reminder.open_settings" = "Systemeinstellungen öffnen";
+"reminder.notification.title" = "Zeit zum Aufräumen";
+"reminder.notification.body" = "Deine wöchentliche Aufräumaktion steht an. Suche nach Datenmüll, Duplikaten und großen Dateien, um Speicher freizugeben.";

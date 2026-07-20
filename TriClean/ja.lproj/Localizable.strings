@@ -644,3 +644,14 @@
 "junk.section.access_title" = "フォルダのアクセス権限が失効しました";
 "junk.section.access_desc" = "~/Library にアクセスできません。「変更」からフォルダを選び直してください。";
 "smartscan.junk.caption_access" = "フォルダのアクセス権限が失効しました。ストレージで選び直してください。";
+
+/* 週次クリーンアップリマインダー */
+"settings.reminder" = "クリーンアップリマインダー";
+"settings.reminder.toggle" = "週次リマインダー";
+"settings.reminder.toggle_desc" = "毎週1回、不要ファイル・重複・大きいファイルの整理をお知らせします。";
+"settings.reminder.weekday" = "曜日";
+"settings.reminder.time" = "時刻";
+"settings.reminder.denied" = "TriClean の通知がオフになっています。リマインダーを受け取るにはシステム設定で通知をオンにしてください。";
+"settings.reminder.open_settings" = "システム設定を開く";
+"reminder.notification.title" = "整理の時間です";
+"reminder.notification.body" = "週次クリーンアップの時間です。不要ファイル・重複・大きいファイルをスキャンして空き容量を増やしましょう。";

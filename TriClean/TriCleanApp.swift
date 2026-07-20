@@ -68,6 +68,8 @@ struct TriCleanApp: App {
     @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
     @StateObject private var appsViewModel = AppsViewModel()
     @StateObject private var photoViewModel = PhotoScannerViewModel()
+    // ✅ 주간 정리 리마인더 매니저 (다른 매니저와 동일하게 .shared 싱글톤을 주입)
+    @StateObject private var reminderManager = CleanupReminderManager.shared
     @State private var showPaywallSheet: Bool = false
     @AppStorage("didShowOnboarding") private var didShowOnboarding = false
     @State private var showOnboarding = false
@@ -136,6 +138,7 @@ struct TriCleanApp: App {
             .environmentObject(duplicateViewModel)
             .environmentObject(appsViewModel)
             .environmentObject(photoViewModel)
+            .environmentObject(reminderManager)
             // ✅ 체험 중에는 Paywall을 시트로 띄움
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView(allowDismiss: true)
@@ -149,6 +152,8 @@ struct TriCleanApp: App {
             .onChange(of: scenePhase) { newPhase in
                 if newPhase == .active {
                     trialManager.refresh()
+                    // ✅ 시스템 설정에서 알림 권한이 바뀌었을 수 있으므로 활성화 시 예약을 보정
+                    reminderManager.refreshSchedule()
                 }
             }
         }

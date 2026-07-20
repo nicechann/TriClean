@@ -656,3 +656,14 @@
 "junk.section.access_title" = "Folder access expired";
 "junk.section.access_desc" = "TriClean can no longer access ~/Library. Tap “Change” and select the folder again.";
 "smartscan.junk.caption_access" = "Folder access expired. Please re-select it in Storage.";
+
+/* 주간 정리 리마인더 */
+"settings.reminder" = "Cleanup Reminder";
+"settings.reminder.toggle" = "Weekly reminder";
+"settings.reminder.toggle_desc" = "Get a notification once a week to clean up junk, duplicates, and large files.";
+"settings.reminder.weekday" = "Day";
+"settings.reminder.time" = "Time";
+"settings.reminder.denied" = "Notifications are turned off for TriClean. Turn them on in System Settings to receive reminders.";
+"settings.reminder.open_settings" = "Open System Settings";
+"reminder.notification.title" = "Time to tidy up";
+"reminder.notification.body" = "It's your weekly cleanup. Scan for junk, duplicates, and large files to free up space.";

@@ -94,7 +94,25 @@ struct ContentView: View {
 
 struct SettingsView: View {
     @EnvironmentObject var memoryViewModel: MemoryViewModel
+    @EnvironmentObject var reminderManager: CleanupReminderManager
     @AppStorage("significantAppActivationMode") private var significantAppActivationMode: String = "single"
+
+    // ✅ 리마인더 시/분(Int) ↔ DatePicker(Date) 브리지
+    private var reminderTimeBinding: Binding<Date> {
+        Binding(
+            get: {
+                var c = DateComponents()
+                c.hour = reminderManager.hour
+                c.minute = reminderManager.minute
+                return Calendar.current.date(from: c) ?? Date()
+            },
+            set: { newDate in
+                let c = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                reminderManager.hour = c.hour ?? reminderManager.hour
+                reminderManager.minute = c.minute ?? reminderManager.minute
+            }
+        )
+    }
     #if DEBUG
     @EnvironmentObject var storeManager: StoreManager
     @EnvironmentObject var trialManager: TrialManager
@@ -167,6 +185,65 @@ struct SettingsView: View {
                         .padding(10)
                     } label: {
                         Text("settings.display".localized)
+                    }
+
+                    // Reminder
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Toggle(isOn: $reminderManager.isEnabled) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("settings.reminder.toggle".localized)
+                                    Text("settings.reminder.toggle_desc".localized)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .toggleStyle(.switch)
+
+                            if reminderManager.isEnabled {
+                                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                                    GridRow {
+                                        Text("settings.reminder.weekday".localized)
+                                            .frame(width: 120, alignment: .leading)
+                                        Picker("", selection: $reminderManager.weekday) {
+                                            ForEach(Array(Calendar.current.weekdaySymbols.enumerated()), id: \.offset) { idx, name in
+                                                Text(name).tag(idx + 1)   // 1=일 ... 7=토
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        .frame(width: 180, alignment: .leading)
+                                    }
+                                    GridRow {
+                                        Text("settings.reminder.time".localized)
+                                            .frame(width: 120, alignment: .leading)
+                                        DatePicker("", selection: reminderTimeBinding, displayedComponents: .hourAndMinute)
+                                            .labelsHidden()
+                                            .frame(width: 180, alignment: .leading)
+                                    }
+                                }
+
+                                if reminderManager.authStatus == .denied {
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(.orange)
+                                        Text("settings.reminder.denied".localized)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                        Button("settings.reminder.open_settings".localized) {
+                                            reminderManager.openSystemNotificationSettings()
+                                        }
+                                        .buttonStyle(.link)
+                                        .controlSize(.small)
+                                    }
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("settings.reminder".localized)
                     }
 
                     // About
@@ -291,4 +368,5 @@ struct SettingsView: View {
         .environmentObject(DuplicateScannerViewModel())
         .environmentObject(AppsViewModel())
         .environmentObject(PhotoScannerViewModel())
+        .environmentObject(CleanupReminderManager.shared)
 }

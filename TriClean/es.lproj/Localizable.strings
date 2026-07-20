@@ -644,3 +644,14 @@
 "junk.section.access_title" = "El acceso a la carpeta caducó";
 "junk.section.access_desc" = "TriClean ya no puede acceder a ~/Library. Pulsa «Cambiar» y vuelve a seleccionar la carpeta.";
 "smartscan.junk.caption_access" = "El acceso a la carpeta caducó. Vuelve a seleccionarla en Almacenamiento.";
+
+/* Recordatorio de limpieza semanal */
+"settings.reminder" = "Recordatorio de limpieza";
+"settings.reminder.toggle" = "Recordatorio semanal";
+"settings.reminder.toggle_desc" = "Recibe una notificación una vez por semana para limpiar archivos basura, duplicados y grandes.";
+"settings.reminder.weekday" = "Día";
+"settings.reminder.time" = "Hora";
+"settings.reminder.denied" = "Las notificaciones de TriClean están desactivadas. Actívalas en Ajustes del Sistema para recibir recordatorios.";
+"settings.reminder.open_settings" = "Abrir Ajustes del Sistema";
+"reminder.notification.title" = "Hora de ordenar";
+"reminder.notification.body" = "Es tu limpieza semanal. Busca archivos basura, duplicados y grandes para liberar espacio.";
