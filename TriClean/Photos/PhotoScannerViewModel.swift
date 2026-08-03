@@ -58,7 +58,10 @@ final class PhotoScannerViewModel: ObservableObject {
     static let blurThreshold: Double = 60.0
 
     /// dHash 해밍 거리 임계값. 이 값 이하면 '유사'로 묶음(낮을수록 더 엄격).
-    static let similarHammingThreshold: Int = 10
+    /// ✅ [수정] 64비트 dHash에서 10은 지나치게 관대해, 어둡거나 단조로운 사진
+    ///   (야경·문서 스캔·화이트보드)이 서로 무관해도 같은 그룹으로 묶였다.
+    ///   그룹 전체 선택 후 일괄 삭제가 한 번의 클릭으로 일어나므로 보수적으로 조정.
+    static let similarHammingThreshold: Int = 6
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
 
     // MARK: - Computed
@@ -856,21 +859,47 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     /// 해밍 거리 임계값으로 그리디 클러스터링. 2장 이상인 그룹만 반환.
+    /// ✅ [수정] 기존 구현의 두 가지 문제를 함께 해결한다.
+    ///   1) 대표 해시 하나와만 비교하고 첫 매칭 그룹에 넣어, 입력 순서에 따라
+    ///      결과가 달라지고 "A~B 유사, B~C 유사, A~C 완전 다름"인 사진들이
+    ///      한 그룹으로 묶였다(비추이성).
+    ///   2) 그 그룹을 사용자가 일괄 선택해 삭제하면 무관한 사진까지 사라진다.
+    ///   → 그룹의 **모든** 구성원과 임계값 이내일 때만 편입하고(완전 연결),
+    ///     조건을 만족하는 그룹 중 가장 가까운 곳을 선택한다.
     nonisolated static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
-        var groups: [(rep: UInt64, ids: [String])] = []
+        var groups: [[(id: String, hash: UInt64)]] = []
+
         for (id, hash) in hashes {
             if Task.isCancelled { break }
-            var placed = false
+
+            var bestIndex: Int?
+            var bestDistance = Int.max
+
             for gi in groups.indices {
-                if (groups[gi].rep ^ hash).nonzeroBitCount <= threshold {
-                    groups[gi].ids.append(id)
-                    placed = true
-                    break
+                var worst = 0
+                var fits = true
+                for member in groups[gi] {
+                    let distance = (member.hash ^ hash).nonzeroBitCount
+                    if distance > threshold {
+                        fits = false
+                        break
+                    }
+                    worst = max(worst, distance)
+                }
+                if fits && worst < bestDistance {
+                    bestDistance = worst
+                    bestIndex = gi
                 }
             }
-            if !placed { groups.append((rep: hash, ids: [id])) }
+
+            if let bestIndex {
+                groups[bestIndex].append((id: id, hash: hash))
+            } else {
+                groups.append([(id: id, hash: hash)])
+            }
         }
-        return groups.filter { $0.ids.count >= 2 }.map { $0.ids }
+
+        return groups.filter { $0.count >= 2 }.map { $0.map(\.id) }
     }
 
 
