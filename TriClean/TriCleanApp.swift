@@ -8,34 +8,211 @@
 import SwiftUI
 import AppKit
 
+/// macOS에서 SwiftUI의 `.frame(minWidth:minHeight:)`는 "콘텐츠 레이아웃" 최소치일 뿐,
+/// 윈도우 자체의 최소 크기를 강제하지 않습니다.
+/// 실제 창 크기 제한을 위해 NSWindow의 `contentMinSize`/`minSize`를 설정합니다.
+private struct WindowMinSizeSetter: NSViewRepresentable {
+    let minContentSize: NSSize
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView(frame: .zero)
+        DispatchQueue.main.async { apply(to: view) }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async { apply(to: nsView) }
+    }
+
+    private func apply(to view: NSView) {
+        guard let window = view.window else { return }
+
+        // 콘텐츠 기준 최소 크기
+        window.contentMinSize = minContentSize
+
+        // 프레임 기준 최소 크기(타이틀바 포함)
+        let frameSize = window.frameRect(forContentRect: NSRect(origin: .zero, size: minContentSize)).size
+        window.minSize = frameSize
+    }
+}
+
+// ✅ 체험판 남은 기간을 보여주는 간단한 배너
+struct TrialBannerView: View {
+    let daysLeft: Int
+    
+    var body: some View {
+        Text("trial.banner.status".localized(with: daysLeft))
+            .font(.caption.bold())
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Color.red.opacity(0.85))
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .shadow(radius: 2)
+            .padding()
+    }
+}
+
 @main
 struct TriCleanApp: App {
+    
+    // ✅ 앱 상태 관리 객체들 (구매 관리, 체험 기간 관리, 메모리 뷰모델)
+    @StateObject private var memoryViewModel = MemoryViewModel()
+    @StateObject private var storeManager = StoreManager.shared
+    @StateObject private var trialManager = TrialManager.shared
 
+    // ✅ [공유 스캐너 모델] SmartScan과 각 상세 탭(Storage/Duplicates/Apps)이
+    //   같은 인스턴스를 공유하도록 앱 레벨에서 한 번만 생성해 EnvironmentObject로 주입.
+    //   (기존: 각 화면이 @StateObject로 따로 생성 → 스캔 결과가 탭 간 공유되지 않던 문제 해결)
+    @StateObject private var junkViewModel = JunkScannerViewModel()
+    @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
+    @StateObject private var appsViewModel = AppsViewModel()
+    @StateObject private var photoViewModel = PhotoScannerViewModel()
+    // ✅ 주간 정리 리마인더 매니저 (다른 매니저와 동일하게 .shared 싱글톤을 주입)
+    @StateObject private var reminderManager = CleanupReminderManager.shared
+    @State private var showPaywallSheet: Bool = false
+    @AppStorage("didShowOnboarding") private var didShowOnboarding = false
+    @State private var showOnboarding = false
+    
+    @Environment(\.openWindow) private var openWindow
+    // ✅ [추가] scenePhase 감지를 위해 환경 변수 선언 (에러 해결)
+    @Environment(\.scenePhase) private var scenePhase
+    
+    private let minWindowContentSize = NSSize(width: 1180, height: 840)
+    
     init() {
         NSWindow.allowsAutomaticWindowTabbing = false
     }
-
-    // ✅ 앱 전체에서 공유할 단 하나의 MemoryViewModel
-    @StateObject private var memoryViewModel = MemoryViewModel()
-
+    
     var body: some Scene {
         // 메인 윈도우
-        WindowGroup {
-            ContentView()
-                .frame(minWidth: 900, minHeight: 600)
-                .environmentObject(memoryViewModel)   // 🔹 인스턴스 #1 아님, 공용 인스턴스
+        WindowGroup(id: "main") {
+            ZStack {
+                // ✅ 초기 구매상태 로딩 전에는 로딩 화면을 보여서 Paywall 깜빡임 방지
+                if !storeManager.hasLoadedPurchaseState {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .controlSize(.large)
+                        Text("store.status.checking".localized)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                } else if storeManager.isPurchased || !trialManager.isTrialExpired {
+                    // (구매 완료) OR (체험 기간 유효) -> 정상 화면
+                    ContentView()
+                        .overlay(alignment: .bottomTrailing) {
+                            // 아직 구매하지 않은 체험판 사용자에게 남은 기간 표시
+                            if !storeManager.isPurchased {
+                                TrialBannerView(daysLeft: trialManager.daysRemaining)
+                                    .onTapGesture {
+                                        openPaywallWindow()
+                                    }
+                            }
+                        }
+                        .onAppear {
+                            if !didShowOnboarding {
+                                didShowOnboarding = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                    showOnboarding = true
+                                }
+                            }
+                        }
+                    
+                } else {
+                    // 체험 기간 만료 + 미구매 사용자 -> 루트 Paywall 표시(닫기 버튼 없음)
+                    PaywallView(allowDismiss: false)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            // ✅ 창 최소 크기 강제(사용자가 강제로 줄여도 깨지지 않도록)
+            .background(WindowMinSizeSetter(minContentSize: minWindowContentSize))
+            // ✅ 레이아웃 최소치(콘텐츠)
+            .frame(minWidth: minWindowContentSize.width, minHeight: minWindowContentSize.height)
+            // ✅ EnvironmentObject 주입(하위 뷰에서 공통 사용)
+            .environmentObject(memoryViewModel)
+            .environmentObject(storeManager)
+            .environmentObject(trialManager)
+            // ✅ 공유 스캐너 모델 주입
+            .environmentObject(junkViewModel)
+            .environmentObject(duplicateViewModel)
+            .environmentObject(appsViewModel)
+            .environmentObject(photoViewModel)
+            .environmentObject(reminderManager)
+            // ✅ 체험 중에는 Paywall을 시트로 띄움
+            .sheet(isPresented: $showPaywallSheet) {
+                PaywallView(allowDismiss: true)
+                    .environmentObject(storeManager)
+            }
+            // ✅ 첫 실행 온보딩
+            .sheet(isPresented: $showOnboarding) {
+                OnboardingView(isPresented: $showOnboarding)
+            }
+            // ✅ [추가] 앱이 활성화될 때마다 체험 기간 재계산
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .active {
+                    trialManager.refresh()
+                    // ✅ 시스템 설정에서 알림 권한이 바뀌었을 수 있으므로 활성화 시 예약을 보정
+                    reminderManager.refreshSchedule()
+                }
+            }
         }
-
-        // 메뉴바
+        .commands {
+            // 메뉴바에 '라이선스' 관련 메뉴 추가 (선택 사항)
+            CommandGroup(after: .appInfo) {
+                if !storeManager.isPurchased {
+                    Button("menu.buy_pro".localized) {
+                        openPaywallWindow()
+                    }
+                }
+            }
+        }
+        
+        // 메뉴바 (상태 표시줄 아이콘)
         MenuBarExtra {
             // 메뉴바 팝업 내용
-            MenuMemoryView()
-                .environmentObject(memoryViewModel)   // 🔹 같은 인스턴스 재사용
+            if storeManager.isPurchased || !trialManager.isTrialExpired {
+                MenuMemoryView()
+                    .environmentObject(memoryViewModel)
+            } else {
+                // 체험판 만료 시 메뉴바 기능 제한
+                VStack(spacing: 12) {
+                    Text("trial.expired.msg".localized)
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    
+                    Button("trial.expired.btn".localized) {
+                        NSApp.activate(ignoringOtherApps: true)
+                        openPaywallWindow()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+            }
         } label: {
-            // 메뉴바에 보이는 텍스트/아이콘
-            Text("\(memoryViewModel.usagePercent)%")
+            // ✅ 고정된 "%" 대신 ViewModel의 설정된 단위(%, MB)를 따라감
+            Text(memoryViewModel.formattedCurrentUsage)
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
         }
         .menuBarExtraStyle(.window)
+    }
+    
+    // ✅ 결제창 띄우기 헬퍼: 체험 중에는 "시트"로, 만료 시에는 앱 활성화만 수행(이미 루트 Paywall)
+    private func openPaywallWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        
+        // 메인 윈도우가 닫혀 있으면 새로 열고, 이미 있으면 앞으로 가져오기
+        if let window = NSApp.windows.first(where: { $0.isVisible }) ?? NSApp.windows.first {
+            window.deminiaturize(nil)
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            openWindow(id: "main")
+        }
+        
+        guard !storeManager.isPurchased else { return }
+        guard !trialManager.isTrialExpired else { return }
+        
+        // 체험 중(미구매)이라면 Paywall 시트를 띄움
+        showPaywallSheet = true
     }
 }

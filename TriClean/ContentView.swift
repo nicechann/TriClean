@@ -2,392 +2,372 @@
 //  ContentView.swift
 //  TriClean
 //
-//  Created by changyu Kang on 08/12/2025.
+//  ✅ Option A: Junk Cleaner를 Storage에 통합 — 사이드바에서 제거
 //
 
 import SwiftUI
 import Combine
+import UserNotifications
 
-// 왼쪽 메뉴에 들어갈 섹션 정의
-enum TriCleanSection: String, CaseIterable, Identifiable {
-    case storage
-    case memory
-    case apps
-
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .storage: return "Storage"
-        case .memory:  return "Memory"
-        case .apps:    return "Apps"
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .storage: return "대용량 폴더 정리"
-        case .memory:  return "메모리 모니터 & 정리"
-        case .apps:    return "앱 관련 파일 정리"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .storage: return "externaldrive.fill"
-        case .memory:  return "memorychip"
-        case .apps:    return "app.fill"
-        }
-    }
-}
-
-// 사이드바 상단에 표시할 상태 뱃지용 ViewModel
-final class SidebarStatusViewModel: ObservableObject {
-
-    // ✅ 프로젝트 다른 ViewModel과 동일하게 명시적으로 구현
-    let objectWillChange = ObservableObjectPublisher()
-
-    @Published var memoryUsagePercent: Int = 0 {
-        willSet { objectWillChange.send() }
-    }
-
-    @Published var isRefreshing: Bool = false {
-        willSet { objectWillChange.send() }
-    }
-
-    init() {
-        refreshMemory()
-    }
-
-    func refreshMemory() {
-        guard !isRefreshing else { return }
-        isRefreshing = true
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/vm_stat")
-
-            let pipe = Pipe()
-            process.standardOutput = pipe
-
-            do {
-                try process.run()
-            } catch {
-                DispatchQueue.main.async {
-                    self.isRefreshing = false
-                }
-                return
-            }
-
-            process.waitUntilExit()
-
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else {
-                DispatchQueue.main.async {
-                    self.isRefreshing = false
-                }
-                return
-            }
-
-            var freePages: Double = 0
-            var activePages: Double = 0
-            var inactivePages: Double = 0
-            var wiredPages: Double = 0
-            var compressedPages: Double = 0
-
-            for line in output.split(separator: "\n") {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-
-                if trimmed.hasPrefix("Pages free") {
-                    freePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages active") {
-                    activePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages inactive") {
-                    inactivePages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages wired down") {
-                    wiredPages = Self.parsePages(from: trimmed)
-                } else if trimmed.hasPrefix("Pages occupied by compressor") {
-                    compressedPages = Self.parsePages(from: trimmed)
-                }
-            }
-
-            let totalPages = freePages + activePages + inactivePages + wiredPages + compressedPages
-            let usedPages  = activePages + inactivePages + wiredPages + compressedPages
-
-            let percent: Int
-            if totalPages > 0 {
-                // Double 비율 → Int %
-                percent = Int((usedPages / totalPages) * 100.0)
-            } else {
-                percent = 0
-            }
-
-            DispatchQueue.main.async {
-                self.memoryUsagePercent = max(0, min(100, percent))
-                self.isRefreshing = false
-            }
-        }
-    }
-
-    private static func parsePages(from line: String) -> Double {
-        let comps = line.components(separatedBy: CharacterSet.decimalDigits.inverted)
-        for part in comps {
-            if let value = Double(part) {
-                return value
-            }
-        }
-        return 0
-    }
-}
-
-// 사이드바 상단 상태 뱃지 뷰
-struct SidebarStatusView: View {
-    @ObservedObject var viewModel: SidebarStatusViewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles.rectangle.stack")
-                    .font(.title3)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("TriClean")
-                        .font(.headline)
-                    Text("v1.0.0")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            HStack {
-                Text("Memory")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text("\(viewModel.memoryUsagePercent)%")
-                    .font(.caption)
-                    .monospacedDigit()
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        Capsule()
-                            .fill(Color.accentColor.opacity(0.12))
-                    )
-            }
-
-            HStack {
-                Text("현재 사용 중인 메모리 비율입니다.")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Button {
-                    viewModel.refreshMemory()
-                } label: {
-                    if viewModel.isRefreshing {
-                        ProgressView()
-                            .scaleEffect(0.6)
-                    } else {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                }
-                .buttonStyle(.borderless)
-                .help("메모리 사용률 새로고침")
-            }
-        }
-        .padding(.vertical, 6)
-    }
-}
-
-// 사이드바 항목 식별용 enum
 enum SidebarItem: Hashable {
+    case smartScan
     case storage
     case memory
+    case largeFiles
     case apps
+    case duplicates
+    case photos
+    case settings
 }
+
+// ✅ [삭제됨] SidebarStatusViewModel — 정의만 있고 인스턴스화되지 않던 미사용 코드.
+//   사이드바 상태는 MemoryViewModel.formattedCurrentUsage가 직접 표시함.
 
 struct ContentView: View {
 
-    // TriCleanApp 에서 주입한 MemoryViewModel
     @EnvironmentObject var memoryViewModel: MemoryViewModel
-
-    // 현재 선택된 사이드바 항목
-    @State private var selection: SidebarItem? = .storage   // ✅ 기본값: storage
+    @State private var selection: SidebarItem? = .smartScan
 
     var body: some View {
         NavigationSplitView {
-            // MARK: - 사이드바
             List(selection: $selection) {
-                // STORAGE
-                NavigationLink(value: SidebarItem.storage) {
-                    Label("Storage", systemImage: "internaldrive")
-                }
-
-                // MEMORY
-                NavigationLink(value: SidebarItem.memory) {
-                    HStack {
-                        Label("Memory", systemImage: "memorychip")
-                        Spacer()
-                        Text("\(memoryViewModel.usagePercent)%")
-                            .font(.caption)
+                Section("sidebar.section.system".localized) {
+                    NavigationLink(value: SidebarItem.smartScan) {
+                        Label("sidebar.smartscan".localized, systemImage: "sparkles")
+                    }
+                    NavigationLink(value: SidebarItem.storage) {
+                        Label("sidebar.storage".localized, systemImage: "internaldrive")
+                    }
+                    NavigationLink(value: SidebarItem.memory) {
+                        HStack {
+                            Label("sidebar.memory".localized, systemImage: "memorychip")
+                            Spacer()
+                            Text(memoryViewModel.formattedCurrentUsage)
+                                .font(.caption)
+                        }
+                    }
+                    NavigationLink(value: SidebarItem.apps) {
+                        Label("sidebar.apps".localized, systemImage: "app.dashed")
                     }
                 }
-
-                // APPS
-                NavigationLink(value: SidebarItem.apps) {
-                    Label("Apps", systemImage: "app.dashed")
+                
+                Section("sidebar.section.cleanup".localized) {
+                    NavigationLink(value: SidebarItem.largeFiles) {
+                        Label("sidebar.large_files".localized, systemImage: "doc.text.magnifyingglass")
+                    }
+                    NavigationLink(value: SidebarItem.duplicates) {
+                        Label("sidebar.duplicates".localized, systemImage: "doc.on.doc")
+                    }
+                    NavigationLink(value: SidebarItem.photos) {
+                        Label("sidebar.photos".localized, systemImage: "photo.on.rectangle.angled")
+                    }
+                }
+                
+                Section {
+                    NavigationLink(value: SidebarItem.settings) {
+                        Label("sidebar.settings".localized, systemImage: "gearshape")
+                    }
                 }
             }
             .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320)
 
         } detail: {
-            // MARK: - 오른쪽 상세 화면
-            switch selection ?? .storage {   // ✅ 선택 없으면 storage 로
-            case .storage:
-                StorageView()
-
-            case .memory:
-                MemoryView()   // 같은 MemoryViewModel 을 EnvironmentObject 로 사용
-
-            case .apps:
-                AppsView()
+            switch selection ?? .smartScan {
+            case .smartScan:    SmartScanView { target in selection = target }
+            case .storage:      StorageView()
+            case .memory:       MemoryView()
+            case .largeFiles:   LargeFilesView()
+            case .apps:         AppsView()
+            case .duplicates:   DuplicateFinderView()
+            case .photos:       PhotosView()
+            case .settings:     SettingsView()
             }
         }
         .onAppear {
-            // 앱 처음 뜰 때 Storage가 선택되도록 보정
-            if selection == nil {
-                selection = .storage
-            }
-            // 메모리 값 초기 로딩
+            if selection == nil { selection = .smartScan }
             memoryViewModel.refresh()
         }
+    }
+}
+
+// MARK: - Settings
+
+struct SettingsView: View {
+    @EnvironmentObject var memoryViewModel: MemoryViewModel
+    @EnvironmentObject var reminderManager: CleanupReminderManager
+    @AppStorage("significantAppActivationMode") private var significantAppActivationMode: String = "single"
+
+    // ✅ 리마인더 시/분(Int) ↔ DatePicker(Date) 브리지
+    private var reminderTimeBinding: Binding<Date> {
+        Binding(
+            get: {
+                var c = DateComponents()
+                c.hour = reminderManager.hour
+                c.minute = reminderManager.minute
+                return Calendar.current.date(from: c) ?? Date()
+            },
+            set: { newDate in
+                let c = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                reminderManager.hour = c.hour ?? reminderManager.hour
+                reminderManager.minute = c.minute ?? reminderManager.minute
+            }
+        )
+    }
+    #if DEBUG
+    @EnvironmentObject var storeManager: StoreManager
+    @EnvironmentObject var trialManager: TrialManager
+    #endif
+
+    private var appVersion: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "—"
+    }
+    private var buildNumber: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "—"
+    }
+    private var macOSVersion: String {
+        ProcessInfo.processInfo.operatingSystemVersionString
+    }
+
+    // ✅ [삭제됨] CleanPreset / cleanPresetBinding — MemoryCleaner 제거에 따라 불필요
+
+    var body: some View {
+        ScrollView {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 12) {
+
+                    // Display
+                    GroupBox {
+                        Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                            GridRow(alignment: .top) {
+                                Text("settings.menubar_unit".localized)
+                                    .frame(width: 120, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $memoryViewModel.displayUnit) {
+                                        ForEach(MemoryDisplayUnit.allCases) { unit in
+                                            Text(unit.title).tag(unit)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 180, alignment: .leading)
+                                    Text("settings.menubar_unit_desc".localized)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+
+                            GridRow(alignment: .top) {
+                                Text("settings.app_activation".localized)
+                                    .frame(width: 120, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $significantAppActivationMode) {
+                                        Text("settings.app_activation.single".localized).tag("single")
+                                        Text("settings.app_activation.all".localized).tag("all")
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 180, alignment: .leading)
+                                    Text("settings.app_activation_desc".localized)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("settings.display".localized)
+                    }
+
+                    // Reminder
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Toggle(isOn: $reminderManager.isEnabled) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("settings.reminder.toggle".localized)
+                                    Text("settings.reminder.toggle_desc".localized)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .toggleStyle(.switch)
+
+                            if reminderManager.isEnabled {
+                                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                                    GridRow {
+                                        Text("settings.reminder.weekday".localized)
+                                            .frame(width: 120, alignment: .leading)
+                                        Picker("", selection: $reminderManager.weekday) {
+                                            ForEach(Array(Calendar.current.weekdaySymbols.enumerated()), id: \.offset) { idx, name in
+                                                Text(name).tag(idx + 1)   // 1=일 ... 7=토
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        .frame(width: 180, alignment: .leading)
+                                    }
+                                    GridRow {
+                                        Text("settings.reminder.time".localized)
+                                            .frame(width: 120, alignment: .leading)
+                                        DatePicker("", selection: reminderTimeBinding, displayedComponents: .hourAndMinute)
+                                            .labelsHidden()
+                                            .frame(width: 180, alignment: .leading)
+                                    }
+                                }
+
+                                if reminderManager.authStatus == .denied {
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(.orange)
+                                        Text("settings.reminder.denied".localized)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                        Button("settings.reminder.open_settings".localized) {
+                                            reminderManager.openSystemNotificationSettings()
+                                        }
+                                        .buttonStyle(.link)
+                                        .controlSize(.small)
+                                    }
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("settings.reminder".localized)
+                    }
+
+                    // About
+                    GroupBox {
+                        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
+                            GridRow {
+                                Text("common.version".localized)
+                                Text(appVersion).foregroundColor(.secondary)
+                            }
+                            GridRow {
+                                Text("common.build".localized)
+                                Text(buildNumber).foregroundColor(.secondary)
+                            }
+                            GridRow {
+                                Text("common.macos".localized)
+                                Text(macOSVersion)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("settings.about".localized)
+                    }
+
+                    // Help
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 10) {
+                            DisclosureGroup {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("settings.help.clean_desc".localized)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 6)
+                            } label: {
+                                Text("settings.help.clean_title".localized).font(.callout)
+                            }
+
+                            DisclosureGroup {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("settings.help.search_desc".localized)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 6)
+                            } label: {
+                                Text("settings.help.search_title".localized).font(.callout)
+                            }
+                        }
+                        .padding(10)
+                    } label: {
+                        Text("settings.help".localized)
+                    }
+
+                    #if DEBUG
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 14) {
+                            // ✅ [삭제됨] Cache Fill Mode
+
+                            // 구매 상태 오버라이드
+                            HStack(spacing: 12) {
+                                Text("settings.debug.purchase_status".localized)
+                                    .frame(width: 140, alignment: .leading)
+                                Toggle("", isOn: $storeManager.debugPurchaseOverride)
+                                    .toggleStyle(.switch)
+                                    .labelsHidden()
+                                Text(storeManager.debugPurchaseOverride ? "settings.debug.purchase_on".localized : "settings.debug.purchase_off".localized)
+                                    .font(.caption)
+                                    .foregroundStyle(storeManager.debugPurchaseOverride ? Color.green : Color.secondary)
+                            }
+
+                            HStack(spacing: 12) {
+                                Text("settings.debug.trial_days".localized)
+                                    .frame(width: 140, alignment: .leading)
+                                HStack(spacing: 6) {
+                                    ForEach([0, 1, 3, 7], id: \.self) { days in
+                                        Button("settings.debug.days_button".localized(with: days)) {
+                                            trialManager.debugSetDaysRemaining(days)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .controlSize(.small)
+                                        .tint(trialManager.daysRemaining == days ? .accentColor : .secondary)
+                                    }
+                                    Button("settings.debug.actual_value".localized) {
+                                        trialManager.debugResetTrialOverride()
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.small)
+                                }
+                                Text("settings.debug.current_days".localized(with: trialManager.daysRemaining))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(10)
+                    } label: {
+                        Text("settings.debug".localized)
+                    }
+                    #endif
+                }
+                .frame(minWidth: 560, idealWidth: 600, maxWidth: 640, alignment: .leading)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle("sidebar.settings".localized)
     }
 }
 
 #Preview {
     ContentView()
         .environmentObject(MemoryViewModel())
+        .environmentObject(StoreManager.shared)
+        .environmentObject(TrialManager.shared)
+        .environmentObject(JunkScannerViewModel())
+        .environmentObject(DuplicateScannerViewModel())
+        .environmentObject(AppsViewModel())
+        .environmentObject(PhotoScannerViewModel())
+        .environmentObject(CleanupReminderManager.shared)
 }
-
-//struct ContentView: View {
-//
-//    // TriCleanApp 에서 주입한 MemoryViewModel 환경 객체
-//    @EnvironmentObject var memoryViewModel: MemoryViewModel
-//
-//    var body: some View {
-//        NavigationSplitView {
-//            // MARK: - 사이드바
-//            List {
-//                // STORAGE
-//                NavigationLink {
-//                    StorageView()
-//                } label: {
-//                    Label("Storage", systemImage: "internaldrive")
-//                }
-//
-//                // MEMORY
-//                NavigationLink {
-//                    MemoryView()    // ✅ 여기서도 같은 환경 객체 사용
-//                } label: {
-//                    HStack {
-//                        Label("Memory", systemImage: "memorychip")
-//                        Spacer()
-//                        // ✅ 도넛/상단 Usage 와 동일한 값
-//                        Text("\(memoryViewModel.usagePercent)%")
-//                            .font(.caption)
-//                    }
-//                }
-//
-//                // APPS
-//                NavigationLink {
-//                    AppsView()
-//                } label: {
-//                    Label("Apps", systemImage: "app.dashed")
-//                }
-//            }
-//            .listStyle(.sidebar)
-//
-//        } detail: {
-//            // 기본 Detail 화면 – 필요하면 StorageView() 등으로 변경 가능
-//            MemoryView()
-//        }
-//        .onAppear {
-//            // 앱 처음 뜰 때 실제 메모리 값 한 번 갱신
-//            memoryViewModel.refresh()
-//        }
-//    }
-//}
-//
-//#Preview {
-//    ContentView()
-//        .environmentObject(MemoryViewModel())
-//}
-
-//struct ContentView: View {
-//    @State private var selection: TriCleanSection? = .storage
-//    @StateObject private var statusViewModel = SidebarStatusViewModel()
-//    // ✅ TriCleanApp 에서 내려준 MemoryViewModel
-//    @EnvironmentObject var memoryViewModel: MemoryViewModel
-//    //@StateObject private var memoryViewModel = MemoryViewModel()
-//
-//    var body: some View {
-//        NavigationSplitView {
-//            sidebar
-//        } detail: {
-//            detailView
-//        }
-//        .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 280)
-//        .frame(minWidth: 900, minHeight: 600)
-//    }
-//
-//    // MARK: - Sidebar
-//
-//    private var sidebar: some View {
-//        List(selection: $selection) {
-//            Section {
-//                SidebarStatusView(viewModel: statusViewModel)
-//            }
-//
-//            Section("기능") {
-//                ForEach(TriCleanSection.allCases) { section in
-//                    HStack(spacing: 8) {
-//                        Image(systemName: section.systemImage)
-//                            .frame(width: 20)
-//                        VStack(alignment: .leading, spacing: 2) {
-//                            Text(section.title)
-//                                .font(.headline)
-//                            Text(section.subtitle)
-//                                .font(.caption)
-//                                .foregroundColor(.secondary)
-//                        }
-//                    }
-//                    .padding(.vertical, 4)
-//                    .tag(section as TriCleanSection?)
-//                }
-//            }
-//        }
-//        .listStyle(.sidebar)
-//    }
-//
-//    // MARK: - Detail
-//
-//    @ViewBuilder
-//    private var detailView: some View {
-//        switch selection {
-//        case .storage, .none:
-//            StorageView()
-//                //.navigationTitle("Storage")
-//        case .memory:
-////            MemoryView(viewModel: memoryViewModel)
-////            Text("\(memoryViewModel.usagePercent)%")
-//
-//            MemoryView()
-//                //.navigationTitle("Memory")
-//        case .apps:
-//            AppsView()
-//                //.navigationTitle("Apps")
-//        }
-//    }
-//}
-//
-//#Preview {
-//    ContentView()
-//}

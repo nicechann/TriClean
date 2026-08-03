@@ -1,0 +1,666 @@
+/*
+  Localizable.strings (Japanese)
+  TriClean
+*/
+
+/* Common */
+"common.cancel" = "キャンセル";
+"common.confirm" = "確認";
+"common.close" = "閉じる";
+"common.delete" = "削除";
+"common.refresh" = "更新";
+"common.trash" = "ゴミ箱に入れる";
+"common.finder" = "Finderに表示";
+"common.finder_app" = "Finder";
+"common.macos" = "macOS";
+"common.permission_needed" = "アクセス権が必要";
+"common.quit" = "TriCleanを終了";
+"common.select" = "選択…";
+"common.change" = "変更…";
+"common.clear" = "クリア";
+"common.scan" = "スキャン";
+"common.updated" = "更新日時: %@";
+"common.version" = "バージョン";
+"common.build" = "ビルド";
+"common.move_to_trash" = "ゴミ箱に入れる";
+
+/* Sidebar */
+"sidebar.storage" = "ストレージ";
+"sidebar.memory" = "メモリ";
+"sidebar.apps" = "App";
+"sidebar.settings" = "設定";
+"sidebar.storage.subtitle" = "ディスク使用状況を分析";
+"sidebar.memory.subtitle" = "メモリ使用状況を表示";
+"sidebar.apps.subtitle" = "App関連ファイルを確認";
+"sidebar.status.memory_usage" = "現在の推定メモリ使用量です。";
+"sidebar.status.refresh_help" = "メモリの推定値を更新";
+
+/* Memory View */
+"memory.in_use" = "使用中: %@";
+"memory.total" = "合計: %@";
+"memory.used" = "使用済み: %@";
+"memory.available" = "利用可能: %@";
+
+"memory.clean_btn" = "更新";
+"memory.clean_desc" = "公開されたmacOS APIに基づきメモリ推定値を更新します。";
+"memory.optimize_btn" = "更新";
+"memory.optimize_desc" = "公開されたmacOS APIに基づきメモリ推定値を更新します。";
+"memory.optimize_done" = "メモリの推定値を更新しました。";
+
+"memory.disclaimer" = "表示される値は macOS の公開API (host_statistics64) に基づく推定値であり、実際のメモリ状態とは異なる場合があります。本Appはシステムのメモリ状態を変更しません。";
+"memory.menubar_disclaimer" = "表示値はおおよその推定値で、参考用です。";
+
+"memory.composition" = "メモリ構成";
+"memory.composition_note" = "※ macOSのMach VM統計 (host_statistics64) に基づく推定値で、アクティビティモニタとは異なる場合があります。";
+"memory.significant_usage" = "メモリ使用量の多いApp";
+"memory.significant_empty" = "表示する実行中のAppがありません。";
+"memory.legend.app" = "App メモリ";
+"memory.legend.wired" = "確保中メモリ";
+"memory.legend.compressed" = "圧縮済み";
+"memory.legend.available" = "利用可能";
+"memory.donut.in_use" = "使用中";
+
+"memory.tray_message" = "メモリの推定値を更新しました。";
+"memory.tooltip.app_click" = "%@ をアクティブにする (%@)";
+
+/* Storage View */
+"storage.header" = "ディスク使用状況";
+"storage.loading" = "ディスク情報を読み込み中…";
+"storage.legend.home" = "ホームフォルダ";
+"storage.legend.apps" = "App";
+"storage.legend.other" = "その他使用済み";
+"storage.legend.free" = "空き容量";
+"storage.permission.home" = "アクセス権が必要: ホームフォルダを選択";
+"storage.permission.apps" = "アクセス権が必要: Appフォルダを選択";
+"storage.scope_note" = "※ ホーム/Appの使用量は選択範囲内でのみ計算されます。それ以外は「その他使用済み」と表示されます。";
+"storage.scan.header" = "ディスクスキャン";
+"storage.scan.btn" = "フォルダを選択してスキャン";
+"storage.scan.updating" = "更新中…";
+"storage.scan.scanning" = "スキャン中…";
+"storage.scan.tip" = "ヒント: ホームフォルダ (~) または /Users 配下のスキャンを推奨します。";
+"storage.scan.min_size" = "最小フォルダサイズ";
+"storage.scan.sort" = "上位フォルダの並び順";
+"storage.scan.sort.default" = "デフォルト";
+"storage.scan.sort.name" = "名前";
+"storage.scan.sort.size" = "サイズ";
+"storage.scan.sort.note" = "スキャン中は検出順で表示され、完了後に並び替えが適用されます。";
+"storage.results.header" = "結果";
+"storage.alert.delete.title" = "削除してもよろしいですか?";
+"storage.alert.delete.message" = "「%@」%@ をゴミ箱に移動します。Finderから復元できます。";
+"storage.item.folder" = "フォルダ";
+"storage.item.file" = "ファイル";
+"storage.msg.empty" = "スキャン結果がありません。「フォルダを選択してスキャン」をクリックして開始してください。";
+"storage.msg.manual" = "「%@」フォルダを分析中…";
+"storage.msg.auto" = "条件が変更されたため再分析中…";
+"storage.msg.canceled" = "スキャンをキャンセルしました。";
+"storage.msg.no_items" = "「%@」に条件に一致する項目はありません。";
+"storage.msg.completed" = "「%@」の分析が完了しました。(%ld フォルダ / %ld ファイル)";
+"storage.scope.select_home_msg" = "ホームフォルダのディスク使用量は、選択した範囲内でのみ計算されます。";
+"storage.scope.select_home_title" = "ホームフォルダを選択";
+"storage.scope.select_apps_title" = "Appフォルダを選択";
+"storage.scope.select_apps_msg" = "Appのディスク使用量を計算するフォルダを選択します。(複数選択可。例: /Applications, ~/Applications)";
+"storage.scope.guide" = "※ ホーム/Appの使用量は選択範囲内でのみ計算されます。それ以外は「その他使用済み」と表示されます。";
+"storage.scan.default_msg" = "スキャン結果がありません。上の「フォルダを選択してスキャン」をクリックして分析を開始してください。";
+"storage.scope.home_needed" = "アクセス権が必要: ホームフォルダを選択してください。";
+"storage.scope.apps_needed" = "アクセス権が必要: Appフォルダを選択してください。";
+"storage.usage.format" = "%2$@ 中 %1$@ を使用";
+"storage.msg.analyzing_home_apps" = "ホームとAppを分析中…";
+"storage.alert.delete.msg_folder" = "「%@」フォルダをゴミ箱に移動します。Finderから復元できます。";
+"storage.alert.delete.msg_file" = "「%@」ファイルをゴミ箱に移動します。Finderから復元できます。";
+"storage.alert.delete.msg_multi" = "選択した %ld 個の項目をゴミ箱に移動します。Finderから復元できます。";
+"storage.msg.canceling" = "キャンセル中…";
+
+/* Apps View */
+"apps.header.uninstall" = "インストール済みのApp";
+"apps.header.desc" = "選択した範囲内のAppバンドルをスキャンします。ゴミ箱に移動できるのはユーザーがインストールした非App Store Appのみです。システム、保護された、またはApp Store Appは参照のみ表示され、この画面からは削除できません。";
+"apps.btn.manual_select" = ".appを手動で選択…";
+"apps.search.placeholder" = "App名またはバンドルIDを検索";
+"apps.btn.uninstall" = "ゴミ箱に入れる";
+"apps.btn.details" = "詳細";
+"apps.scope.apps_folder" = "Appフォルダを選択";
+"apps.scope.apps_msg" = "Appをスキャンするフォルダを選択します (例: /Applications または ~/Applications)。\nTriCleanは選択した範囲内のみをスキャンします。";
+"apps.scope.library_folder" = "ホームライブラリ (~/Library) を選択";
+"apps.scope.library_msg" = "関連ファイル (環境設定/キャッシュ) の範囲を指定します。\nTriCleanは選択したライブラリ内の残骸のみを検出します。";
+"apps.scope.reset" = "アクセス権をリセット…";
+"apps.list.title" = "インストール済みのApp";
+"apps.list.loading" = "インストール済みAppを読み込み中…";
+"apps.list.guide_select" = "Appフォルダを選択し「スキャン」をクリックしてください。";
+"apps.list.empty" = "表示するAppがありません。(検索またはスコープを確認)";
+"apps.type.system" = "システムApp";
+"apps.type.user" = "ユーザーApp";
+"apps.type.protected" = "保護";
+"apps.type.appstore" = "App Store";
+"apps.details.selected" = "選択したApp";
+"apps.details.library_guide" = "上で「ホームライブラリ (~/Library)」を選択すると関連ファイルを分析できます。";
+"apps.details.scanning" = "関連ファイルを検索中…";
+"apps.details.no_related" = "関連ファイルは見つかりませんでした。";
+"apps.details.found_count" = "関連ファイル (%ld)";
+"apps.details.trash_selected" = "選択した項目をゴミ箱に入れる";
+"apps.details.guide" = "テーブルからAppを選択するか「.appを手動で選択」を使って、App詳細と関連ファイル (キャッシュ、環境設定など) を確認してください。";
+"apps.alert.uninstall.title" = "選択したAppバンドルをゴミ箱に移動";
+"apps.alert.uninstall.msg" = "選択した %2$ld 個のAppのうち、削除可能な %1$ld 個のAppバンドルをゴミ箱に移動しますか? App Store Appは除外され、移動された項目はFinderのゴミ箱から復元できます。";
+"apps.alert.fail.title" = "移動失敗 (アクセス権)";
+"apps.alert.fail.msg" = "%ld 個のAppがmacOSのセキュリティポリシーにより自動移動できませんでした (管理者権限が必要)。%@\n「Finderに表示」を使用して手動で削除してください。";
+"apps.alert.related.title" = "関連ファイルを確認";
+"apps.alert.related.msg" = "選択した %1$ld 個の関連ファイル/フォルダ (%2$@) をゴミ箱に移動しますか?";
+"apps.alert.reset.title" = "アクセス権をリセット";
+"apps.alert.reset.msg" = "すべてのフォルダのアクセス権をクリアします。スキャンするにはフォルダを再選択する必要があります。";
+"apps.status.scoped_error" = "Appフォルダのアクセス権 (Security-Scoped) がありません。";
+"apps.manual.msg" = "関連ファイルを確認するAppを選択してください (.app)。";
+"apps.manual.title" = "Appを手動で選択";
+"apps.status.library_selected" = "ホームライブラリを選択しました: %@";
+"apps.status.library_guide" = "アクセス権が必要: ホームライブラリ (~/Library) を選択してください。";
+"apps.status.library_needed" = "アクセス権が必要: ホームライブラリ (~/Library) を選択してください。";
+"apps.status.library_scoped_error" = "ホームライブラリのアクセス権 (Security-Scoped) がありません。";
+"apps.status.loaded_count" = "%ld 個のAppを読み込みました。";
+"apps.status.reset_success" = "リセット完了。";
+"apps.status.no_permission" = "アクセス権がありません。";
+"apps.status.not_app_bundle" = "選択したファイルはAppバンドルではありません。";
+"apps.status.app_selected" = "Appを選択しました: %@";
+"apps.status.read_fail" = "ファイルの読み込みに失敗しました。";
+"apps.status.app_added" = "Appを追加しました: %@";
+"apps.details.appstore_note" = "App Store Appはこの画面から削除できません。Launchpad (長押し) または Finder から直接削除してください。";
+"apps.status.folder_needed" = "アクセス権が必要: フォルダを選択してください。";
+"apps.alert.fail.list" = "\\n\\n失敗: %@";
+"apps.help.select_first" = "対象となるAppバンドルを1つ以上選択してください。";
+"apps.help.all_protected" = "選択した項目は保護、システム、または App Store Appのため、ここでは削除できません。";
+"apps.help.partial_protected" = "選択した項目の一部は保護、システム、またはApp Store Appのためスキップされます。";
+"apps.help.move_trash" = "選択した非App Store Appバンドルをゴミ箱に移動します。";
+"apps.help.removing" = "移動中…";
+"apps.scope.library_analysis" = "ホームライブラリ (~/Library) — 関連ファイルをスキャン";
+"apps.status.folder_selected" = "フォルダを選択: %@";
+"apps.status.bookmark_fail" = "フォルダのアクセス権の保存に失敗: %@";
+"apps.status.app_bookmark_fail" = "Appのアクセス権の保存に失敗: %@";
+"apps.status.nothing_to_trash" = "削除可能なAppが選択されていません。";
+"apps.status.scanning" = "関連ファイルをスキャン中…";
+"apps.status.scan_empty" = "関連ファイルは見つかりませんでした。";
+"apps.status.scan_found" = "%ld 個の関連項目が見つかりました。";
+"apps.status.related_success" = "%ld 個の関連項目をゴミ箱に移動しました。";
+"apps.status.related_partial_fail" = "%ld 個を移動、%ld 個が失敗しました。";
+"apps.status.related_none" = "ゴミ箱に移動された項目はありません。";
+"apps.status.uninstall_success" = "%ld 個のAppバンドルをゴミ箱に移動しました。";
+"apps.status.uninstall_partial_fail" = "%ld 個のAppバンドルを移動、%ld 個が失敗しました。";
+"apps.status.uninstall_all_fail" = "選択したAppバンドルをゴミ箱に移動できませんでした (アクセス権が必要)。";
+"apps.status.appstore_reference_only" = "App Store Appは参照のみ表示されます。";
+
+/* Settings View */
+"settings.display" = "表示";
+"settings.menubar_unit" = "メニューバー単位";
+"settings.menubar_unit_desc" = "メニューバーとサイドバーに表示するメモリ単位を選択します。";
+"settings.app_activation" = "Appのアクティブ化";
+"settings.app_activation_desc" = "「メモリ使用量の多いApp」のアイコンをクリックしたときの挙動を選択します (単一ウインドウ vs すべてのウインドウ)。";
+"settings.app_activation.single" = "単一";
+"settings.app_activation.all" = "すべて";
+"settings.about" = "TriCleanについて";
+"settings.help" = "ヘルプ";
+
+"settings.help.clean_title" = "メモリ推定値の仕組み";
+"settings.help.clean_desc" = "• メモリ値は host_statistics64 などのmacOS公開APIから計算されます。\n• TriCleanに表示される数値は推定値で、アクティビティモニタとは異なる場合があります。\n• 「更新」は表示値のみを更新し、システムのメモリ状態は変更しません。\n• 本Appはモニタリング専用で、メモリの最適化や解放は行いません。";
+"settings.help.search_title" = "App検索: Spotlightインデックス";
+"settings.help.search_desc" = "• Spotlightインデックスが無効な場合、検索結果が空になることがあります。\n• サンドボックス内では、アクセス可能なパスのみが検索されます。";
+
+/* Menu Bar */
+"menubar.memory.title" = "TriClean – メモリ";
+"menubar.clean" = "更新";
+"menubar.open_triclean" = "TriCleanを開く";
+
+/* Debug */
+"settings.debug" = "デバッグ";
+"settings.debug.clean_fill_mode" = "メモリデバッグモード";
+"settings.debug.clean_fill_desc" = "内部テスト用のデバッグ専用オプションです。";
+
+/* Paywall */
+"paywall.feat.memory" = "リアルタイムメモリモニタリング";
+"paywall.feat.memory_desc" = "システムメモリの構成と使用量の推定値を一目で確認";
+
+/* Trial & Banner */
+"trial.banner.status" = "体験版: 残り %ld 日";
+"trial.bottom.title" = "無料体験";
+"trial.bottom.days_left" = "残り %ld 日";
+"trial.bottom.buy_now" = "今すぐ購入";
+"trial.expired.msg" = "無料体験期間が終了しました。";
+"trial.expired.btn" = "製品版を購入";
+"paywall.expired.banner" = "7日間の無料体験が終了しました。すべての機能を引き続き使用するには購入するか、Appを終了してください。";
+
+/* Paywall (Features) */
+"paywall.title" = "TriClean Premium";
+"paywall.subtitle" = "すべての機能を制限なく使用";
+"paywall.feat.disk" = "ディスク使用量分析";
+"paywall.feat.disk_desc" = "大容量ファイルやフォルダをすばやく検索";
+"paywall.feat.apps" = "Appファイルレビュー";
+"paywall.feat.apps_desc" = "Appバンドルとユーザーライブラリ関連ファイルを確認";
+"paywall.feat.auto" = "システムモニタリングダッシュボード";
+"paywall.feat.auto_desc" = "ストレージとメモリの情報を一画面で確認";
+
+/* Paywall (Buttons & Status) */
+"paywall.btn.buy_format" = "今すぐ購入 (%@)";
+"paywall.btn.restore" = "購入を復元";
+"paywall.btn.later" = "後で";
+"store.status.checking" = "購入状態を確認中…";
+"store.status.loading_products" = "製品情報を読み込み中…";
+"store.error.load_failed" = "製品情報の読み込みに失敗しました。";
+"store.btn.retry" = "再試行";
+
+/* Menubar */
+"menu.buy_pro" = "TriClean Proを購入...";
+
+/* Paywall (Links) */
+"paywall.link.privacy" = "プライバシーポリシー";
+"paywall.link.terms" = "利用規約";
+
+"paywall.error.title"   = "購入エラー";
+"paywall.error.unknown" = "不明なエラーが発生しました。";
+
+"store.error.product_not_found"   = "製品が見つかりません。製品IDまたはStoreKit設定を確認してください。";
+"store.error.load_failed_detail"  = "製品の読み込みに失敗: %@";
+
+/* Onboarding */
+"onboarding.welcome.title" = "TriCleanへようこそ";
+"onboarding.welcome.desc" = "ストレージ使用量、メモリ推定値、App関連ファイルを一画面で確認できます。";
+"onboarding.storage.title" = "ディスク分析";
+"onboarding.storage.desc" = "ディスクをスキャンして大容量フォルダやファイルを検出します。選択してゴミ箱に移動し空き容量を確保できます。";
+"onboarding.memory.title" = "メモリモニタ";
+"onboarding.memory.desc" = "macOS公開APIを使ってメモリ使用量と構成の推定値を表示します。本Appはシステムのメモリを変更しません。";
+"onboarding.apps.title" = "Appファイルレビュー";
+"onboarding.apps.desc" = "ホームライブラリにあるAppバンドルと関連ファイルを確認します。App Store Appは参照のみ表示されます。";
+"onboarding.btn.next" = "次へ";
+"onboarding.btn.back" = "戻る";
+"onboarding.btn.start" = "開始";
+
+/* Sidebar Sections */
+"sidebar.section.system" = "システム";
+"sidebar.section.cleanup" = "クリーンアップ";
+"sidebar.duplicates" = "重複ファイル";
+"largefiles.subtitle" = "選択したフォルダ内の大きなファイルやフォルダを見つけて、安全に整理できます。";
+"largefiles.title" = "大容量ファイル";
+"sidebar.large_files" = "大容量ファイル";
+
+/* Storage Surface */
+"storage.treemap.title" = "ディスクマップ";
+"storage.table.item" = "項目";
+"storage.table.size" = "サイズ";
+
+/* Junk Cleaner */
+"junk.section.title" = "おすすめのクリーンアップ";
+"junk.section.subtitle" = "キャッシュ、ログ、不要な開発残骸をすばやく確認します。";
+"junk.section.select_library_hint" = "~/Library を選択するとクリーン可能な項目を自動で検出します。";
+"junk.section.select_library" = "~/Library を選択";
+"junk.section.scan" = "スキャン";
+"junk.section.found" = "検出: %@";
+"junk.section.selected" = "選択: %@";
+"junk.section.clean" = "クリーン";
+"junk.section.last_scan" = "最終スキャン: %@";
+"junk.section.alert.title" = "選択した不要ファイルをクリーン";
+"junk.section.alert.message" = "%@ をゴミ箱に移動します。\nFinderから復元できます。";
+"junk.scope.title" = "ホームライブラリ (~/Library) を選択";
+"junk.scope.message" = "不要ファイルをスキャンするホームライブラリフォルダを選択してください。";
+"junk.progress.preparing" = "スキャンを準備中…";
+"junk.progress.scanning_format" = "%@ をスキャン中…";
+"junk.risk.safe" = "推奨";
+"junk.risk.moderate" = "確認";
+"junk.risk.caution" = "注意";
+"junk.category.system_caches.title" = "Appキャッシュ";
+"junk.category.system_caches.desc" = "Appが作成したキャッシュファイル。Appの再起動時に自動で再生成される場合があります。";
+"junk.category.system_logs.title" = "Appログ";
+"junk.category.system_logs.desc" = "通常はデバッグのみに必要なAppログファイルです。";
+"junk.category.xcode_derived.title" = "Xcode DerivedData";
+"junk.category.xcode_derived.desc" = "Xcodeのビルドキャッシュ。不要であれば安全に削除できます。";
+"junk.category.xcode_archives.title" = "Xcodeアーカイブ";
+"junk.category.xcode_archives.desc" = "過去のビルドから保存されたAppアーカイブ。不要であれば削除できます。";
+"junk.category.safari_cache.title" = "Safariキャッシュ";
+"junk.category.safari_cache.desc" = "Safariブラウザのキャッシュ。削除後は最初のページ読み込みが少し遅くなる場合があります。";
+"junk.category.mail_downloads.title" = "メールのダウンロード";
+"junk.category.mail_downloads.desc" = "メールAppが使用するダウンロード済み添付ファイルのキャッシュです。";
+"junk.category.saved_app_state.title" = "保存されたApp状態";
+"junk.category.saved_app_state.desc" = "ウインドウとタブの復元データ。削除後はAppがデフォルト状態で再開する場合があります。";
+"junk.category.crash_reports.title" = "クラッシュレポート";
+"junk.category.crash_reports.desc" = "AppとmacOSによって生成されたクラッシュレポート。不要であれば安全にクリーンできます。";
+"junk.category.webkit_cache.title" = "WebKitキャッシュ";
+"junk.category.webkit_cache.desc" = "WebKitベースのAppが使用するキャッシュデータです。";
+"junk.category.http_storage.title" = "HTTPストレージ";
+"junk.category.http_storage.desc" = "Appが使用するHTTPキャッシュとストレージです。";
+
+/* Duplicate Finder (legacy keys) */
+"duplicates.title" = "重複ファイル検索";
+"duplicates.subtitle" = "同じ内容のファイルを検出してクリーンアップします。";
+"duplicates.min_size" = "最小:";
+"duplicates.change_folder" = "フォルダを変更";
+"duplicates.select_folder_title" = "重複検索するフォルダを選択";
+"duplicates.select_folder_desc" = "TriCleanは選択したフォルダとサブフォルダ内のファイルを比較します。\n3段階チェック (ファイルサイズ → 部分ハッシュ → 完全ハッシュ) を使用します。";
+"duplicates.select_folder" = "フォルダを選択";
+"duplicates.alert.title" = "重複ファイルをクリーン";
+"duplicates.alert.message" = "選択した重複ファイルをゴミ箱に移動します。\n各グループに少なくとも1つのファイルが残ります。";
+"duplicates.phase.idle" = "待機中";
+"duplicates.phase.collecting" = "ファイルを収集中…";
+"duplicates.phase.grouping" = "サイズ別にグループ化中…";
+"duplicates.phase.partial" = "部分ハッシュを比較中…";
+"duplicates.phase.full" = "完全ハッシュを比較中…";
+"duplicates.phase.done" = "完了";
+"duplicates.summary.groups" = "重複グループ";
+"duplicates.summary.reclaimable" = "回収可能な容量";
+"duplicates.summary.scanned" = "スキャン済みファイル";
+"duplicates.count_format" = "%ld";
+"duplicates.clean_selected" = "重複をクリーン (%@)";
+"duplicates.empty.done_title" = "重複ファイルは見つかりませんでした";
+"duplicates.empty.idle_title" = "スキャン準備完了";
+"duplicates.empty.done_desc" = "選択したフォルダに重複ファイルはありませんでした。";
+"duplicates.empty.idle_desc" = "「スキャン」をクリックして重複ファイルを検索します。";
+"duplicates.group.files" = "%ld 個の同一ファイル";
+"duplicates.group.detail" = "各 %@ · %@ 回収可能";
+"duplicates.file.help.keep" = "このファイルを保持。クリックで削除対象に変更できます。";
+"duplicates.file.help.delete" = "削除対象です。クリックで保持に変更できます。";
+"duplicates.file.keep" = "保持";
+"duplicates.file.delete" = "削除";
+"duplicates.panel.title" = "重複スキャンするフォルダを選択";
+"duplicates.panel.message" = "TriCleanは選択したフォルダとサブフォルダ内の重複ファイルをスキャンします。";
+"duplicates.status.collecting" = "ファイル一覧を収集中…";
+"duplicates.status.files_found" = "%ld 個のファイルを検出";
+"duplicates.status.grouping" = "サイズ別にグループ化中…";
+"duplicates.status.size_candidates" = "サイズが一致する重複候補が %ld 個あります。";
+"duplicates.status.partial_matches" = "部分ハッシュで %ld グループが一致しました。";
+"duplicates.status.full_progress" = "完全ハッシュを比較中… %ld/%ld";
+"duplicates.status.none_found" = "重複ファイルは見つかりませんでした。";
+"duplicates.status.found_groups" = "%ld 個の重複グループを検出 (%@ 回収可能)";
+"duplicates.status.deleted" = "%ld 個の重複ファイルをゴミ箱に移動しました。";
+
+
+/* Storage UX */
+"storage.status.header" = "現在のスキャン";
+"storage.status.folder" = "選択中のフォルダ";
+"storage.status.folder_none" = "フォルダ未選択";
+"storage.status.visible_results" = "表示結果";
+"storage.status.visible_results_value" = "上位 %ld 件 / 子項目 %ld 件";
+"storage.status.min_size" = "最小サイズ";
+"storage.min_size.display" = "%ld MB以上";
+"storage.treemap.subtitle" = "最大のフォルダとファイルを一目で確認できます。";
+"storage.treemap.hint" = "ヒント: 項目をクリックするとFinderに表示します。";
+"storage.treemap.item_help" = "%@ — %@";
+
+/* Junk Section */
+"junk.section.ready_title" = "スキャン準備完了";
+"junk.section.ready_desc" = "選択した ~/Library 範囲をスキャンしてキャッシュ、ログ、不要な残骸を確認します。";
+"junk.section.wrong_path_warning" = "このパスは ~/Library ではありません。不要ファイルが見つからない可能性があります。";
+"junk.section.wrong_path_title" = "間違ったフォルダが選択されています";
+"junk.section.wrong_path_desc" = "不要ファイルは ~/Library にあります。「変更」をタップして ~/Library フォルダを選択してください。";
+
+/* Junk item selection */
+"junk.item.select_all" = "すべて選択";
+"junk.item.deselect_all" = "選択解除";
+"junk.item.more" = "他 %ld 件…";
+
+/* Duplicates */
+"duplicates.selected_folder" = "選択中のフォルダ";
+
+/* Settings Debug */
+"settings.debug.purchase_status" = "購入状態";
+"settings.debug.purchase_on" = "購入済み";
+"settings.debug.purchase_off" = "未購入";
+"settings.debug.trial_days" = "体験日数";
+"settings.debug.days_button" = "%ld 日";
+"settings.debug.actual_value" = "実際の値";
+"settings.debug.current_days" = "現在: %ld 日";
+
+
+/* Apps View — Stage 3 */
+"apps.filter.label" = "フィルタ";
+"apps.filter.all" = "すべて";
+"apps.filter.removable" = "削除可能";
+"apps.filter.appstore" = "App Store";
+"apps.filter.protected" = "保護/システム";
+"apps.btn.select_visible" = "表示中を選択";
+"apps.btn.clear_selection" = "選択解除";
+"apps.summary.total" = "すべてのApp";
+"apps.summary.removable" = "削除可能";
+"apps.summary.appstore" = "App Store";
+"apps.summary.selected" = "選択中";
+"apps.safety.title" = "クリーンアップ前に安全に確認";
+"apps.safety.desc" = "TriCleanは選択したAppバンドルと関連ファイルをゴミ箱に移動します。即座に完全削除はせず、App Store Appはこの画面から削除できません。";
+"apps.selection.none" = "現在のフィルタで %ld 個のAppが表示中";
+"apps.selection.summary" = "%1$ld 選択中 · ゴミ箱に移動可能 %2$ld 個";
+"apps.table.app" = "App";
+"apps.table.bundle" = "バンドルID";
+"apps.table.location" = "場所";
+"apps.table.type" = "種類";
+"apps.table.modified" = "変更日";
+"apps.table.operation" = "操作";
+"apps.details.modified" = "変更日: %@";
+"apps.related.total_count" = "総項目数";
+"apps.related.total_size" = "合計サイズ";
+"apps.related.selected" = "選択中";
+"apps.related.selected_size" = "選択サイズ";
+"apps.related.path" = "パス";
+"apps.related.type" = "種類";
+"apps.related.size" = "サイズ";
+"apps.related.folder" = "フォルダ";
+"apps.related.file" = "ファイル";
+"apps.related.footer" = "%1$ld 選択中 · 推定クリーンアップサイズ %2$@";
+
+/* Duplicate Finder */
+"duplicate.header.title" = "重複ファイル検索";
+"duplicate.header.subtitle" = "内容が同じ重複ファイルを検出し、クリーンアップ前に安全に確認します。";
+"duplicate.header.min_size" = "最小:";
+"duplicate.header.change_folder" = "フォルダを変更";
+"duplicate.header.select_folder" = "フォルダを選択";
+"duplicate.select_folder.title" = "重複スキャンするフォルダを選択";
+"duplicate.select_folder.message" = "TriCleanは選択したフォルダとサブフォルダから内容が同じファイルを検索します。";
+"duplicate.empty.select_title" = "重複ファイルを検索するフォルダを選択";
+"duplicate.empty.select_body" = "TriCleanは選択したフォルダとサブフォルダから同一ファイルをスキャンします。ファイルサイズ、部分ハッシュ、完全ハッシュを比較し信頼できる結果を提示します。";
+"duplicate.empty.none_title" = "重複ファイルは見つかりませんでした";
+"duplicate.empty.none_body" = "TriCleanは選択したフォルダで重複ファイルを検出しませんでした。";
+"duplicate.empty.waiting_title" = "スキャン準備完了";
+"duplicate.empty.waiting_body" = "「スキャン」をクリックして重複ファイルを検索します。";
+"duplicate.summary.groups" = "重複グループ";
+"duplicate.summary.selected_files" = "選択中のファイル";
+"duplicate.summary.selected_space" = "選択中の容量";
+"duplicate.summary.scanned_files" = "スキャン済みファイル";
+"duplicate.selection.card_title" = "推奨選択を自動適用";
+"duplicate.selection.card_body" = "TriCleanは各グループでオリジナルと推定されるファイルを1つ保持し、残りをクリーンアップ対象として自動選択します。パス、ファイル名、フォルダ位置、変更日をヒントとして使用するため、ゴミ箱に移動する前に各項目を確認してください。";
+"duplicate.action.apply_recommended" = "クリーンアップを自動選択";
+"duplicate.action.apply_recommended.help" = "各重複グループでオリジナルと推定されるファイルを1つ保持し、残りをクリーンアップ対象に自動選択します。";
+"duplicate.footer.summary" = "%ld グループ · %ld 個のファイル選択中 · %@ 回収可能";
+"duplicate.footer.delete" = "重複をクリーン (%ld, %@)";
+"duplicate.group.header" = "%ld 個の一致ファイル · 各 %@";
+"duplicate.group.subheader" = "クリーンアップ対象 %ld 個 · %@ 回収可能";
+"duplicate.group.keep_oldest" = "最も古いものを保持";
+"duplicate.group.keep_newest" = "最も新しいものを保持";
+"duplicate.group.keep_hint" = "各グループに少なくとも1つのファイルを残す必要があります。";
+"duplicate.file.help.keep" = "このファイルを保持。クリックでクリーンアップ対象に変更できます。";
+"duplicate.file.help.delete" = "クリーンアップ対象です。クリックでこのファイルを保持に変更できます。";
+"duplicate.file.reveal" = "Finderに表示";
+"duplicate.file.keep" = "保持";
+"duplicate.file.delete" = "削除";
+"duplicate.delete_confirm.title" = "重複ファイルをクリーン";
+"duplicate.delete_confirm.message" = "選択した %ld 個の重複ファイル (%@) をゴミ箱に移動します。各グループに少なくとも1つのファイルが残ります。";
+"duplicate.cleanup_result.title" = "クリーンアップ完了";
+"duplicate.cleanup_result.body" = "%ld 個の重複ファイルをゴミ箱に移動しました。回収容量の推定: %@。";
+"duplicate.cleanup_result.body_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました。回収容量の推定: %@。%ld 件は移動できませんでした。";
+"duplicate.status.collecting" = "ファイルを収集中…";
+"duplicate.status.found_files" = "%ld 個のファイルを検出";
+"duplicate.status.grouping_by_size" = "サイズ別にグループ化中…";
+"duplicate.status.same_size_candidates" = "サイズが一致するファイルが %ld 個あります";
+"duplicate.status.partial_hash_matches" = "部分ハッシュで %ld グループが一致";
+"duplicate.status.hashing_full_progress" = "完全ハッシュを比較中… %ld/%ld";
+"duplicate.status.no_duplicates_found" = "重複ファイルは見つかりませんでした。";
+"duplicate.status.scan_complete" = "%ld 個の重複グループを検出 (%@ 回収可能)";
+"duplicate.status.selection_summary" = "%ld グループ · %ld 個のファイル選択中 · %@ 回収可能";
+"duplicate.status.nothing_selected" = "クリーンアップ対象の重複ファイルは選択されていません。";
+"duplicate.status.recommended_applied" = "各グループで1つを保持し、残りをクリーンアップ対象として自動選択しました。";
+"duplicate.status.keep_newest_applied" = "選択したグループの最新ファイルを保持しました。";
+"duplicate.status.keep_oldest_applied" = "選択したグループの最古ファイルを保持しました。";
+"duplicate.status.cleanup_done" = "%ld 個の重複ファイルをゴミ箱に移動しました (%@ 回収)。";
+"duplicate.status.cleanup_done_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました (%@ 回収)。%ld 件が失敗。";
+"duplicate.status.cleanup_failed" = "TriCleanは選択した重複ファイルをゴミ箱に移動できませんでした。";
+
+"duplicate.action.clear_selection" = "選択解除";
+"duplicate.action.clear_selection.help" = "選択中のクリーンアップ項目をすべてクリアし、すべてのファイルを保持状態に戻します。";
+"duplicate.status.selection_cleared" = "クリーンアップ選択をすべて解除しました。";
+
+/* Duplicate scan phase */
+"duplicate.phase.idle" = "待機中";
+"duplicate.phase.collecting" = "ファイルを収集中...";
+"duplicate.phase.grouping" = "サイズ別にグループ化中...";
+"duplicate.phase.partial_hash" = "部分ハッシュを比較中...";
+"duplicate.phase.full_hash" = "完全ハッシュを比較中...";
+"duplicate.phase.done" = "完了";
+
+/* Smart Scan */
+"sidebar.smartscan" = "Smart Scan";
+"smartscan.title" = "Macスマートスキャン";
+"smartscan.subtitle" = "ストレージ、不要ファイル、重複ファイル、アプリ、メモリの状態を1つのダッシュボードで確認できます。";
+"smartscan.last.never" = "まだスキャンしていません";
+"smartscan.last.updated" = "最終確認: %@";
+"smartscan.action.scan" = "スキャン開始";
+"smartscan.action.scanning" = "スキャン中";
+"smartscan.status.ready" = "スキャン準備完了";
+"smartscan.status.updated" = "状態を更新しました。";
+"smartscan.status.disk_unavailable" = "ディスク情報を読み取れませんでした。";
+"smartscan.status.checked" = "確認済み";
+"smartscan.status.available" = "準備完了";
+"smartscan.status.permission_needed" = "アクセス許可が必要";
+"smartscan.state.scanning" = "スキャン中";
+"smartscan.state.permission" = "アクセス許可が必要";
+"smartscan.state.ready" = "準備完了";
+"smartscan.storage.title" = "ストレージ";
+"smartscan.storage.caption" = "%@ 使用中 / 合計 %@";
+"smartscan.storage.caption_unavailable" = "ストレージ情報を確認できません。";
+"smartscan.memory.title" = "メモリ";
+"smartscan.memory.caption" = "%@ 使用中 / 合計 %@";
+"smartscan.junk.title" = "不要ファイル";
+"smartscan.junk.caption_permission" = "まずストレージ画面で ~/Library へのアクセスを許可してください。";
+"smartscan.junk.caption_scanning" = "不要ファイルを確認しています。";
+"smartscan.junk.caption_found" = "%ld カテゴリでクリーンアップ候補が見つかりました。";
+"smartscan.junk.caption_ready" = "アクセス許可の準備ができました。スキャンを開始してください。";
+"smartscan.duplicates.title" = "重複ファイル";
+"smartscan.duplicates.caption_permission" = "まず重複ファイル画面でスキャンするフォルダを選択してください。";
+"smartscan.duplicates.caption_found" = "%ld 個の重複グループが見つかりました。";
+"smartscan.duplicates.caption_ready" = "フォルダの準備ができました。スキャンを開始してください。";
+"smartscan.apps.caption_permission" = "まずアプリ画面でApplicationsフォルダへのアクセスを許可してください。";
+"smartscan.apps.caption_scanning" = "アプリ一覧を読み込んでいます。";
+"smartscan.apps.caption_found" = "%ld 個のアプリを確認 · 削除可能 %ld 個";
+"smartscan.apps.caption_ready" = "アクセス許可の準備ができました。アプリ一覧を確認してください。";
+"smartscan.actions.title" = "クイックアクセス";
+"smartscan.actions.storage" = "ストレージ";
+"smartscan.actions.apps" = "アプリ";
+"smartscan.actions.duplicates" = "重複ファイル";
+"smartscan.actions.memory" = "メモリ";
+"smartscan.details.title" = "スキャン項目";
+"smartscan.details.storage.title" = "ディスク状態";
+"smartscan.details.storage.message" = "%@ ボリュームの空き容量は %@ です。";
+"smartscan.details.junk.title" = "不要ファイルのクリーンアップ";
+"smartscan.details.apps.title" = "アプリと関連ファイル";
+"smartscan.details.duplicates.title" = "重複ファイルのクリーンアップ";
+"smartscan.details.open" = "開く";
+"smartscan.safety.title" = "削除は各詳細画面でのみ実行されます。";
+"smartscan.safety.body" = "Smart Scanは概要と移動先を提供します。実際のクリーンアップは、項目を確認してからゴミ箱へ移動する方式で実行されます。";
+
+
+/* Photo Manager */
+"sidebar.photos" = "写真";
+"photos.title" = "写真マネージャ";
+"photos.subtitle" = "選択したフォルダ内の類似・ぼやけ・スクリーンショット画像を検索します。";
+"photos.select_folder.title" = "写真を検索するフォルダを選択";
+"photos.select_folder.message" = "TriClean は選択したフォルダとそのサブフォルダ内の画像ファイルをスキャンします。";
+"photos.scope.select_hint" = "画像を検索するフォルダを選択してください。";
+"photos.action.scan" = "スキャン";
+"photos.action.scanning" = "スキャン中…";
+"photos.status.collecting" = "画像ファイルを収集中…";
+"photos.status.reading" = "画像情報を読み込み中…";
+"photos.status.found" = "%ld 枚の画像が見つかりました。";
+"photos.status.empty" = "このフォルダに画像が見つかりませんでした。";
+"photos.status.ready" = "スキャンの準備ができました。";
+"photos.phase.idle" = "待機";
+"photos.phase.collecting" = "ファイルを収集中…";
+"photos.phase.reading" = "情報を読み込み中…";
+"photos.phase.done" = "完了";
+"photos.summary.count" = "%ld 枚の画像";
+"photos.summary.size" = "合計 %@";
+"photos.empty.title" = "まだ画像がありません";
+"photos.empty.desc" = "フォルダを選択してスキャンすると画像が一覧表示されます。";
+"photos.note.detection_coming" = "スクリーンショットは自動的に検出されます。ぼやけた写真と類似した写真は各タブで分析してください。";
+"photos.category.all" = "すべて";
+"photos.category.similar" = "類似";
+"photos.category.blurry" = "ぼやけ";
+"photos.category.screenshot" = "スクリーンショット";
+
+/* Photo Manager - step2 */
+"photos.category.soon" = "近日";
+"photos.filter.empty" = "このカテゴリに該当する項目はありません。";
+
+/* Photo Manager - step2 fix */
+"photos.status.cancelled" = "スキャンを中止しました。";
+"photos.action.stop" = "中止";
+
+/* Photo Manager - step3 (blur) */
+"photos.blur.analyzing" = "ぼやけた写真を分析中…";
+"photos.blur.prompt.title" = "ぼやけた写真を検索";
+"photos.blur.prompt.desc" = "画像を分析してぼやけた写真を見つけます。写真が多い場合は時間がかかることがあります。";
+"photos.blur.prompt.button" = "分析を開始";
+
+/* Photo Manager - step4 (similar) */
+"photos.similar.prompt.title" = "類似した写真を検索";
+"photos.similar.prompt.desc" = "ほぼ重複・視覚的に類似した写真をグループ化します。写真が多い場合は時間がかかることがあります。";
+"photos.similar.prompt.button" = "分析を開始";
+"photos.similar.analyzing" = "類似した写真を分析中…";
+"photos.similar.empty" = "類似した写真は見つかりませんでした。";
+"photos.similar.group.count" = "%ld 枚が類似";
+
+/* Photo Manager - step5 (select/delete) */
+"photos.select.count" = "%ld 件選択";
+"photos.select.clear" = "選択解除";
+"photos.select.all" = "すべて選択";
+"photos.action.trash" = "ゴミ箱に移動";
+"photos.action.reveal" = "Finderで表示";
+"photos.delete.confirm.title" = "選択した写真をゴミ箱に移動しますか？";
+"photos.delete.confirm.msg" = "%ld 件の項目がゴミ箱に移動されます。ゴミ箱から復元できます。";
+"photos.delete.confirm.button" = "ゴミ箱に移動";
+"photos.similar.select_extras" = "1枚を残して選択";
+"photos.delete.status.moving" = "%ld 件の項目をゴミ箱に移動中…";
+"photos.delete.status.success" = "%ld 件の項目をゴミ箱に移動しました。";
+"photos.delete.status.partial" = "%1$ld 件の項目をゴミ箱に移動しました。%2$ld 件は移動できませんでした。";
+"photos.delete.status.failed" = "%ld 件の項目をゴミ箱に移動できませんでした。";
+
+// MARK: - Trash Operation Status
+"storage.msg.trash_moving" = "選択した %ld 個の項目をゴミ箱に移動中…";
+"storage.msg.trash_done" = "%ld 個の項目をゴミ箱に移動しました。";
+"storage.msg.trash_partial" = "%ld 個の項目をゴミ箱に移動しました。%ld 個の項目は失敗しました。";
+"storage.msg.trash_failed" = "選択した項目をゴミ箱に移動できませんでした。";
+"junk.progress.cleaning" = "選択した %ld 個の項目をゴミ箱に移動中…";
+"junk.progress.clean_done" = "%ld 個の項目をゴミ箱に移動しました。";
+"junk.progress.clean_partial" = "%ld 個の項目をゴミ箱に移動しました。%ld 個の項目は失敗しました。";
+"junk.progress.clean_failed" = "選択したジャンク項目をゴミ箱に移動できませんでした。";
+
+/* CPU (Smart Scan / 메뉴바) */
+"cpu.usage" = "CPU: %@";
+"smartscan.cpu.title" = "CPU";
+"smartscan.cpu.caption" = "現在のプロセッサ使用率";
+
+/* Duplicate Finder — 접근 권한 만료 안내 */
+"duplicate.phase.access_denied" = "アクセス権限なし";
+"duplicate.empty.access_title" = "フォルダのアクセス権限が失効しました";
+"duplicate.empty.access_body" = "このフォルダにアクセスできません。上の「フォルダを変更」からフォルダを選び直してください。";
+"duplicate.status.access_denied" = "フォルダのアクセス権限が失効しました。フォルダを選び直してください。";
+
+/* Junk — 접근 권한 만료 안내 */
+"junk.section.access_title" = "フォルダのアクセス権限が失効しました";
+"junk.section.access_desc" = "~/Library にアクセスできません。「変更」からフォルダを選び直してください。";
+"smartscan.junk.caption_access" = "フォルダのアクセス権限が失効しました。ストレージで選び直してください。";
+
+/* 週次クリーンアップリマインダー */
+"settings.reminder" = "クリーンアップリマインダー";
+"settings.reminder.toggle" = "週次リマインダー";
+"settings.reminder.toggle_desc" = "毎週1回、不要ファイル・重複・大きいファイルの整理をお知らせします。";
+"settings.reminder.weekday" = "曜日";
+"settings.reminder.time" = "時刻";
+"settings.reminder.denied" = "TriClean の通知がオフになっています。リマインダーを受け取るにはシステム設定で通知をオンにしてください。";
+"settings.reminder.open_settings" = "システム設定を開く";
+"reminder.notification.title" = "整理の時間です";
+"reminder.notification.body" = "週次クリーンアップの時間です。不要ファイル・重複・大きいファイルをスキャンして空き容量を増やしましょう。";
+
+/* MARK: - 削除の安全性検証 (v1.4.4 追加) */
+"junk.progress.clean_invalid" = "削除できる項目がありません。%ld 件が変更されたため除外されました。もう一度スキャンしてください。";
+"duplicate.status.cleanup_running" = "重複ファイルをゴミ箱に移動中…";
+"duplicate.status.revalidate_needed" = "保持するファイルを確認できなかったため %ld グループをスキップしました。もう一度スキャンしてください。";
+"apps.status.related_invalid" = "削除できる関連ファイルがありません。%ld 件が変更されたため除外されました。";
+"apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
+"photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";
+"store.error.product_unavailable" = "App Storeから製品情報を読み込めませんでした。通信状況を確認してもう一度お試しください。";
