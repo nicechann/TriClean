@@ -740,7 +740,17 @@ final class PhotoScannerViewModel: ObservableObject {
     nonisolated private static func matchesScreenshotName(_ url: URL) -> Bool {
         guard url.pathExtension.lowercased() == "png" else { return false }
         let name = url.deletingPathExtension().lastPathComponent.lowercased()
-        return ["screenshot", "screen shot", "스크린샷"].contains { name.hasPrefix($0) || name.contains($0) }
+        // ✅ [수정] en/ko만 지원해 ja/de/es/fr 사용자는 Spotlight 미인덱싱 시
+        //   스크린샷을 전혀 찾지 못했다. 앱이 지원하는 6개 언어의 기본 파일명을 모두 처리.
+        let markers = [
+            "screenshot", "screen shot",     // en
+            "스크린샷",                        // ko
+            "スクリーンショット",                // ja
+            "bildschirmfoto",                // de
+            "captura de pantalla",           // es
+            "capture d'écran", "capture d’écran" // fr (직선/곡선 아포스트로피 모두)
+        ]
+        return markers.contains { name.hasPrefix($0) || name.contains($0) }
     }
 
     // MARK: - 흐릿함 점수 (라플라시안 분산)

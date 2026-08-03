@@ -65,8 +65,8 @@ final class DuplicateScannerViewModel: ObservableObject {
         ByteCountFormatter.string(fromByteCount: totalReclaimableBytes, countStyle: .file)
     }
 
-    var totalFilesScanned: Int { scannedFileCount }
-    private var scannedFileCount: Int = 0
+    /// ✅ [수정] 비-@Published 저장 프로퍼티를 참조해 뷰가 갱신되지 않던 문제.
+    @Published private(set) var totalFilesScanned: Int = 0
 
     var selectedDeleteCount: Int {
         groups.reduce(0) { $0 + $1.selectedDeleteCount }
@@ -154,7 +154,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         isScanning = true
         groups = []
         progress = 0
-        scannedFileCount = 0
+        totalFilesScanned = 0
         lastCleanupResult = nil
 
         let minBytes = Int64(minFileSizeKB) * 1024
@@ -186,7 +186,7 @@ final class DuplicateScannerViewModel: ObservableObject {
                 Self.collectFiles(in: rootURL, minBytes: minBytes)
             }.value
 
-            scannedFileCount = allFiles.count
+            totalFilesScanned = allFiles.count
             statusMessage = "duplicate.status.found_files".localized(with: allFiles.count)
 
             guard !allFiles.isEmpty else {

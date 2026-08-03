@@ -30,8 +30,16 @@ nonisolated struct MemoryStats: Sendable {
     var compressedBytes: Int64 // Compressed
     var cachedBytes: Int64     // 파일 캐시, inactive 등
     var freeBytes: Int64       // Free
+    /// 실제 설치된 물리 메모리. 0이면 카테고리 합계로 대체한다.
+    var physicalBytes: Int64 = 0
 
+    /// ✅ [수정] 기존에는 카테고리 합계를 총량으로 사용해 speculative 등
+    ///   누락분만큼 실제 설치 메모리보다 작게 표시됐다.
     var totalBytes: Int64 {
+        physicalBytes > 0 ? physicalBytes : categorySumBytes
+    }
+
+    var categorySumBytes: Int64 {
         appBytes + wiredBytes + compressedBytes + cachedBytes + freeBytes
     }
 

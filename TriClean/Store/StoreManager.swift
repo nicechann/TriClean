@@ -61,7 +61,8 @@ final class StoreManager: ObservableObject {
     //   - 앱 종료 시 Task는 시스템에 의해 자동 정리됨.
 
     func purchase() async throws {
-        guard let product = products.first else { return }
+        // ✅ [수정] 조용히 return하면 상품 로드 실패 시 버튼이 반응 없는 것처럼 보인다.
+        guard let product = products.first else { throw StoreError.productUnavailable }
         isLoading = true
         defer { isLoading = false }
 
@@ -151,13 +152,19 @@ final class StoreManager: ObservableObject {
         }
     }
 
+    /// ✅ [수정] 진입 시 `isPurchased = false`를 즉시 publish하면
+    ///   Transaction.updates 수신으로 재실행될 때 구매 사용자에게 Paywall이
+    ///   순간 노출된다. 로컬에서 판정하고 종료 시 한 번만 반영한다.
     private func updatePurchasedStatus() async {
-        defer { hasLoadedPurchaseState = true }
-        isPurchased = false
+        var resolved = false
+        defer {
+            isPurchased = resolved
+            hasLoadedPurchaseState = true
+        }
 
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
-            isPurchased = true
+            resolved = true
             return
         }
         #endif
@@ -166,7 +173,7 @@ final class StoreManager: ObservableObject {
             do {
                 let transaction = try verified(result)
                 if transaction.productID == productID {
-                    isPurchased = true
+                    resolved = true
                     return
                 }
             } catch { continue }
@@ -177,7 +184,7 @@ final class StoreManager: ObservableObject {
                 let appTransaction = try verified(await AppTransaction.shared)
                 if let v = Version.parse(appTransaction.originalAppVersion),
                    v <= Version(major: 1, minor: 0, patch: 0) {
-                    isPurchased = true
+                    resolved = true
                     return
                 }
             } catch {}
@@ -188,6 +195,17 @@ final class StoreManager: ObservableObject {
         switch result {
         case .verified(let safe):       return safe
         case .unverified(_, let error): throw error
+        }
+    }
+}
+
+/// 구매 흐름에서 사용자에게 노출되는 오류.
+enum StoreError: LocalizedError {
+    case productUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .productUnavailable: return "store.error.product_unavailable".localized
         }
     }
 }

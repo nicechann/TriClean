@@ -148,7 +148,7 @@
 "apps.status.scoped_error" = "Sin permiso de acceso (Security-Scoped) a la carpeta Aplicaciones.";
 "apps.manual.msg" = "Selecciona la app (.app) para revisar sus archivos relacionados.";
 "apps.manual.title" = "Seleccionar app manualmente";
-"apps.status.library_selected" = "Biblioteca personal seleccionada.";
+"apps.status.library_selected" = "Biblioteca personal seleccionada: %@";
 "apps.status.library_guide" = "Permiso requerido: selecciona la Biblioteca personal (~/Library).";
 "apps.status.library_needed" = "Permiso requerido: selecciona la Biblioteca personal (~/Library).";
 "apps.status.library_scoped_error" = "Sin permiso de acceso (Security-Scoped) a la carpeta Biblioteca personal.";
@@ -156,9 +156,9 @@
 "apps.status.reset_success" = "Restablecimiento completo.";
 "apps.status.no_permission" = "Sin permiso de acceso.";
 "apps.status.not_app_bundle" = "El archivo seleccionado no es un paquete de app.";
-"apps.status.app_selected" = "App seleccionada.";
+"apps.status.app_selected" = "App seleccionada: %@";
 "apps.status.read_fail" = "Error al leer el archivo.";
-"apps.status.app_added" = "App añadida.";
+"apps.status.app_added" = "App añadida: %@";
 "apps.details.appstore_note" = "Las apps del App Store no se pueden eliminar desde esta pantalla. Elimínalas directamente desde el Launchpad (mantén pulsado) o desde el Finder.";
 "apps.status.folder_needed" = "Permiso requerido: selecciona una carpeta.";
 "apps.alert.fail.list" = "\\n\\nFallidas: %@";
@@ -663,3 +663,4 @@
 "apps.status.related_invalid" = "No se puede eliminar ningún archivo relacionado. Se omitieron %ld elemento(s) que cambiaron.";
 "apps.failed_names.overflow" = "%1$@ y %2$ld más";
 "photos.delete.status.invalid" = "No se puede eliminar ninguna foto. Vuelve a seleccionar la carpeta y analiza de nuevo.";
+"store.error.product_unavailable" = "No se pudo cargar la información del producto desde el App Store. Comprueba tu conexión e inténtalo de nuevo.";

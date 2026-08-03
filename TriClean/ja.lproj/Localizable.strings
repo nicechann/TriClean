@@ -148,7 +148,7 @@
 "apps.status.scoped_error" = "Appフォルダのアクセス権 (Security-Scoped) がありません。";
 "apps.manual.msg" = "関連ファイルを確認するAppを選択してください (.app)。";
 "apps.manual.title" = "Appを手動で選択";
-"apps.status.library_selected" = "ホームライブラリを選択しました。";
+"apps.status.library_selected" = "ホームライブラリを選択しました: %@";
 "apps.status.library_guide" = "アクセス権が必要: ホームライブラリ (~/Library) を選択してください。";
 "apps.status.library_needed" = "アクセス権が必要: ホームライブラリ (~/Library) を選択してください。";
 "apps.status.library_scoped_error" = "ホームライブラリのアクセス権 (Security-Scoped) がありません。";
@@ -156,9 +156,9 @@
 "apps.status.reset_success" = "リセット完了。";
 "apps.status.no_permission" = "アクセス権がありません。";
 "apps.status.not_app_bundle" = "選択したファイルはAppバンドルではありません。";
-"apps.status.app_selected" = "Appを選択しました。";
+"apps.status.app_selected" = "Appを選択しました: %@";
 "apps.status.read_fail" = "ファイルの読み込みに失敗しました。";
-"apps.status.app_added" = "Appを追加しました。";
+"apps.status.app_added" = "Appを追加しました: %@";
 "apps.details.appstore_note" = "App Store Appはこの画面から削除できません。Launchpad (長押し) または Finder から直接削除してください。";
 "apps.status.folder_needed" = "アクセス権が必要: フォルダを選択してください。";
 "apps.alert.fail.list" = "\\n\\n失敗: %@";
@@ -663,3 +663,4 @@
 "apps.status.related_invalid" = "削除できる関連ファイルがありません。%ld 件が変更されたため除外されました。";
 "apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
 "photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";
+"store.error.product_unavailable" = "App Storeから製品情報を読み込めませんでした。通信状況を確認してもう一度お試しください。";

@@ -332,19 +332,22 @@ nonisolated enum MemoryReader {
         let fileBackedPages  = Int64(vmStats.external_page_count)
         let purgeablePages   = Int64(vmStats.purgeable_count)
 
-        _ = speculativePages
-
         let totalResident  = activePages + inactivePages
         let anonymousPages = totalResident - fileBackedPages
         let appPages       = max(0, anonymousPages - purgeablePages)
-        let cachedPages    = fileBackedPages + purgeablePages
+
+        // ✅ [수정] speculative 페이지를 버리지 않고 활성 모니터와 동일하게
+        //   캐시 쪽으로 분류한다. free_count에는 speculative가 포함되어 있다.
+        let adjustedFreePages = max(0, freePages - speculativePages)
+        let cachedPages       = fileBackedPages + purgeablePages + speculativePages
 
         return MemoryStats(
             appBytes:        appPages        * ps,
             wiredBytes:      wiredPages      * ps,
             compressedBytes: compressedPages * ps,
             cachedBytes:     cachedPages     * ps,
-            freeBytes:       freePages       * ps
+            freeBytes:       adjustedFreePages * ps,
+            physicalBytes:   Int64(ProcessInfo.processInfo.physicalMemory)
         )
     }
 }

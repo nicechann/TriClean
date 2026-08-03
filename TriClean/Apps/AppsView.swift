@@ -877,10 +877,10 @@ final class AppsViewModel: ObservableObject {
                 self.installedApps.removeAll { successIDs.contains($0.id) }
                 self.selectedInstalledAppIDs.subtract(successIDs)
 
-                if let selected = self.selectedApp, successIDs.contains(selected.appPath) {
-                    self.selectedApp = nil
-                    self.relatedItems = []
-                }
+                // ✅ [수정] 제거 성공 시 관련 파일 목록까지 비우면, 앱이 목록에서도
+                //    사라져 재선택이 불가능해지고 남은 캐시/설정을 정리할 방법이
+                //    없어진다(사용자 리뷰로 확인된 문제). 목록을 유지해 이어서
+                //    정리할 수 있게 한다.
             }
 
             if succeeded.isEmpty && !failed.isEmpty {
@@ -1017,7 +1017,8 @@ final class AppsViewModel: ObservableObject {
         }
 
         let head = names.prefix(maxCount).joined(separator: ", ")
-        return "\(head) 외 \(names.count - maxCount)개"
+        // ✅ [수정] 하드코딩된 한국어 문자열을 제거하고 로컬라이즈 키로 대체.
+        return "apps.failed_names.overflow".localized(with: head, names.count - maxCount)
     }
 }
 
