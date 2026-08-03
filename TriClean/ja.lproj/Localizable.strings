@@ -655,3 +655,11 @@
 "settings.reminder.open_settings" = "システム設定を開く";
 "reminder.notification.title" = "整理の時間です";
 "reminder.notification.body" = "週次クリーンアップの時間です。不要ファイル・重複・大きいファイルをスキャンして空き容量を増やしましょう。";
+
+/* MARK: - 削除の安全性検証 (v1.4.4 追加) */
+"junk.progress.clean_invalid" = "削除できる項目がありません。%ld 件が変更されたため除外されました。もう一度スキャンしてください。";
+"duplicate.status.cleanup_running" = "重複ファイルをゴミ箱に移動中…";
+"duplicate.status.revalidate_needed" = "保持するファイルを確認できなかったため %ld グループをスキップしました。もう一度スキャンしてください。";
+"apps.status.related_invalid" = "削除できる関連ファイルがありません。%ld 件が変更されたため除外されました。";
+"apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
+"photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";

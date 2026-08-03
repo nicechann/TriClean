@@ -167,7 +167,10 @@ final class JunkScannerViewModel: ObservableObject {
             let readable = await Task.detached(priority: .utility) {
                 Self.isDirectoryReadable(libraryStd)
             }.value
-            if !started && !readable {
+            // ✅ [수정] 기존 `!started && !readable`은 스코프는 열렸지만 북마크가
+            //    stale해서 실제로 읽을 수 없는 경우를 통과시켜, 조용히 빈 결과를
+            //    보여줬다. 읽기 가능 여부만으로 판정한다.
+            if !readable {
                 await MainActor.run {
                     self.isScanning = false
                     self.accessDenied = true
@@ -359,12 +362,19 @@ final class JunkScannerViewModel: ObservableObject {
     }
 
     func cleanSelected() {
-        let targets = results
+        let candidates = results
             .flatMap { $0.items.filter(\.isSelected) }
             .map { CleanTarget(id: $0.id, url: $0.url.standardizedFileURL) }
-        guard !targets.isEmpty else { return }
+        guard !candidates.isEmpty else { return }
         guard let library = libraryURL?.standardizedFileURL else { return }
         guard !isCleaning else { return }
+
+        // ✅ 라이브러리 스코프 밖의 경로, 이미 사라진 경로는 삭제 대상에서 제외한다.
+        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: library, url: \.url)
+        guard !targets.isEmpty else {
+            scanProgress = "junk.progress.clean_invalid".localized(with: rejectedCount)
+            return
+        }
 
         isCleaning = true
         scanProgress = "junk.progress.cleaning".localized(with: targets.count)

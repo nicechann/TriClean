@@ -406,20 +406,39 @@ final class DuplicateScannerViewModel: ObservableObject {
         guard !isDeleting else { return }
 
         // 1) 삭제 대상을 미리 스냅샷 (Sendable한 값 타입으로)
-        var targets: [DeleteTarget] = []
+        //    ✅ 보존본(isKeep)이 스캔 이후 이동/삭제된 그룹은 통째로 건너뛴다.
+        //       그대로 진행하면 그룹의 모든 사본이 삭제되어 원본까지 잃는다.
+        let fm = FileManager.default
+        var candidates: [DeleteTarget] = []
+        var skippedGroups = 0
         for group in groups {
+            guard let keeper = group.keptFile,
+                  fm.fileExists(atPath: keeper.url.standardizedFileURL.path) else {
+                skippedGroups += 1
+                continue
+            }
             for file in group.files where !file.isKeep {
-                targets.append(DeleteTarget(
+                candidates.append(DeleteTarget(
                     fileID: file.id,
                     url: file.url,
                     perFileSize: group.fileSize
                 ))
             }
         }
-        guard !targets.isEmpty else { return }
+
+        // ✅ 스캔 폴더 스코프 밖의 경로, 이미 사라진 경로도 제외한다.
+        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: folder, url: \.url)
+        guard !targets.isEmpty else {
+            let skipped = skippedGroups + rejectedCount
+            statusMessage = skipped > 0
+                ? "duplicate.status.revalidate_needed".localized(with: skipped)
+                : "duplicate.status.nothing_selected".localized
+            return
+        }
 
         isDeleting = true
-        statusMessage = "duplicate.status.cleanup_failed".localized   // placeholder; 종료 시 갱신
+        // ✅ [수정] 삭제 진행 중에 "정리 실패" 문구가 노출되던 문제. 진행 중 문구로 교체.
+        statusMessage = "duplicate.status.cleanup_running".localized
 
         Task { @MainActor [weak self, targets, folder] in
             let outcome = await Task.detached(priority: .userInitiated) {

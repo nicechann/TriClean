@@ -563,8 +563,20 @@ final class PhotoScannerViewModel: ObservableObject {
     /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거.
     func deleteSelected() {
         guard !isDeleting else { return }
-        let toDelete = items.filter { selectedIDs.contains($0.id) }
-        guard !toDelete.isEmpty else { return }
+        let selected = items.filter { selectedIDs.contains($0.id) }
+        guard !selected.isEmpty else { return }
+
+        // ✅ 스캔 폴더 스코프 밖의 경로, 이미 사라진 경로는 삭제 대상에서 제외한다.
+        //    스코프가 아예 없으면 삭제를 시도하지 않는다.
+        guard let scope = scanFolderURL?.standardizedFileURL else {
+            deleteStatusMessage = "photos.delete.status.invalid".localized
+            return
+        }
+        let (toDelete, _) = DeletionSafety.sanitize(selected, scope: scope, url: \.url)
+        guard !toDelete.isEmpty else {
+            deleteStatusMessage = "photos.delete.status.invalid".localized
+            return
+        }
 
         cancelRunningAnalysesForDeletion()
         isDeleting = true
@@ -573,13 +585,13 @@ final class PhotoScannerViewModel: ObservableObject {
         // ✅ 삭제 시점에 보안 스코프를 직접 확보한다.
         //    스캔 종료 후 finishScan에서 스코프가 풀렸거나 북마크가 stale해진 경우에도
         //    삭제가 조용히 실패하지 않도록, 폴더 URL에 대한 스코프를 Task 내부에서 시작/종료한다.
-        let scopeURL = scanFolderURL?.standardizedFileURL
+        let scopeURL = scope
 
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
 
-            let started = scopeURL?.startAccessingSecurityScopedResource() ?? false
-            defer { if started { scopeURL?.stopAccessingSecurityScopedResource() } }
+            let started = scopeURL.startAccessingSecurityScopedResource()
+            defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
 
             var trashed = Set<String>()
             for item in toDelete {

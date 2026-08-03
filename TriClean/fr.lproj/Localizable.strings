@@ -655,3 +655,11 @@
 "settings.reminder.open_settings" = "Ouvrir Réglages Système";
 "reminder.notification.title" = "C'est l'heure du rangement";
 "reminder.notification.body" = "C'est votre nettoyage hebdomadaire. Analysez les fichiers inutiles, les doublons et les gros fichiers pour libérer de l'espace.";
+
+/* MARK: - Validation de sécurité de suppression (ajouté en v1.4.4) */
+"junk.progress.clean_invalid" = "Aucun élément à supprimer. %ld élément(s) ont changé et ont été ignorés. Veuillez relancer l'analyse.";
+"duplicate.status.cleanup_running" = "Déplacement des doublons vers la corbeille…";
+"duplicate.status.revalidate_needed" = "%ld groupe(s) ignoré(s) car le fichier à conserver n'a pas pu être vérifié. Veuillez relancer l'analyse.";
+"apps.status.related_invalid" = "Aucun fichier associé ne peut être supprimé. %ld élément(s) ont changé et ont été ignorés.";
+"apps.failed_names.overflow" = "%1$@ et %2$ld autre(s)";
+"photos.delete.status.invalid" = "Aucune photo ne peut être supprimée. Veuillez resélectionner le dossier et relancer l'analyse.";

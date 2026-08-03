@@ -655,3 +655,11 @@
 "settings.reminder.open_settings" = "Abrir Ajustes del Sistema";
 "reminder.notification.title" = "Hora de ordenar";
 "reminder.notification.body" = "Es tu limpieza semanal. Busca archivos basura, duplicados y grandes para liberar espacio.";
+
+/* MARK: - Validación de seguridad de eliminación (añadido en v1.4.4) */
+"junk.progress.clean_invalid" = "No hay elementos para eliminar. Se omitieron %ld elemento(s) que cambiaron. Vuelve a analizar.";
+"duplicate.status.cleanup_running" = "Moviendo duplicados a la papelera…";
+"duplicate.status.revalidate_needed" = "Se omitieron %ld grupo(s) porque no se pudo verificar el archivo que se conserva. Vuelve a analizar.";
+"apps.status.related_invalid" = "No se puede eliminar ningún archivo relacionado. Se omitieron %ld elemento(s) que cambiaron.";
+"apps.failed_names.overflow" = "%1$@ y %2$ld más";
+"photos.delete.status.invalid" = "No se puede eliminar ninguna foto. Vuelve a seleccionar la carpeta y analiza de nuevo.";

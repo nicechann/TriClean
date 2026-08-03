@@ -770,7 +770,9 @@ final class AppsViewModel: ObservableObject {
 
             guard let path = MDItemCopyAttribute(item, kMDItemPath) as? String, !path.isEmpty else { continue }
             let url = URL(fileURLWithPath: path)
-            guard url.path.hasPrefix(searchScope.path) else { continue }
+            // ✅ [수정] 단순 hasPrefix는 `/Users/me/Library2`를
+            //    `/Users/me/Library` 하위로 오판한다. 경계 검사로 교체.
+            guard DeletionSafety.isContained(url, inScope: searchScope) else { continue }
 
             let isDir = (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
             let sizeBytes = fileSize(at: url)
@@ -936,8 +938,21 @@ final class AppsViewModel: ObservableObject {
     }
 
     func removeSelectedRelatedItems() {
-        let targets = relatedItems.filter { $0.selected }
-        guard !targets.isEmpty else { return }
+        let candidates = relatedItems.filter { $0.selected }
+        guard !candidates.isEmpty else { return }
+
+        // ✅ Home Library 스코프 밖의 경로는 삭제하지 않는다.
+        guard let libraryRoot = userLibraryFolderURL else {
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.library_needed".localized
+            return
+        }
+        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: libraryRoot, url: \.url)
+        guard !targets.isEmpty else {
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.related_invalid".localized(with: rejectedCount)
+            return
+        }
 
         isRemoving = true
         lastStatusMessage = nil

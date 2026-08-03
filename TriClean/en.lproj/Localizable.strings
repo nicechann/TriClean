@@ -667,3 +667,11 @@
 "settings.reminder.open_settings" = "Open System Settings";
 "reminder.notification.title" = "Time to tidy up";
 "reminder.notification.body" = "It's your weekly cleanup. Scan for junk, duplicates, and large files to free up space.";
+
+/* MARK: - Deletion safety validation (added in v1.4.4) */
+"junk.progress.clean_invalid" = "Nothing to remove. %ld item(s) changed and were skipped. Please scan again.";
+"duplicate.status.cleanup_running" = "Moving duplicates to Trash…";
+"duplicate.status.revalidate_needed" = "Skipped %ld group(s) because the file to keep could not be verified. Please scan again.";
+"apps.status.related_invalid" = "No related files can be removed. %ld item(s) changed and were skipped.";
+"apps.failed_names.overflow" = "%1$@ and %2$ld more";
+"photos.delete.status.invalid" = "No photos can be removed. Please reselect the folder and scan again.";

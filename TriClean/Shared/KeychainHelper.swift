@@ -38,7 +38,12 @@ final class KeychainHelper {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account,
-            kSecAttrSynchronizable: kCFBooleanFalse as Any
+            kSecAttrSynchronizable: kCFBooleanFalse as Any,
+            // ✅ macOS에서 kSecAttrAccessible / kSecAttrSynchronizable은
+            //    데이터 보호 키체인에서만 유효하다. 이 플래그가 없으면 레거시
+            //    파일 기반 키체인으로 라우팅되어 두 속성이 무시될 수 있고,
+            //    SecItemUpdate에 kSecAttrAccessible을 넘기면 errSecParam이 날 수 있다.
+            kSecUseDataProtectionKeychain: true
         ]
 
         let updateAttributes: [CFString: Any] = [
@@ -76,8 +81,31 @@ final class KeychainHelper {
         return addStatus
     }
 
+    /// 데이터 보호 키체인을 먼저 조회하고, 없으면 레거시(파일 기반) 키체인을 확인한다.
+    ///
+    /// ⚠️ 마이그레이션 주의: 이전 버전은 레거시 키체인에 저장했다. 데이터 보호
+    ///    키체인만 조회하면 기존 사용자의 trial 기록이 사라진 것으로 보여
+    ///    체험판이 재부여된다. 레거시에서 찾으면 즉시 새 키체인으로 승격한다.
     func read(service: String, account: String) -> Data? {
-        let query: [CFString: Any] = [
+        if let data = readItem(service: service, account: account, dataProtection: true) {
+            return data
+        }
+
+        if let legacy = readItem(service: service, account: account, dataProtection: false) {
+            let status = save(legacy, service: service, account: account)
+            if status != errSecSuccess {
+                keychainLogger.error(
+                    "Keychain migration failed status=\(status, privacy: .public) service=\(service, privacy: .private)"
+                )
+            }
+            return legacy
+        }
+
+        return nil
+    }
+
+    private func readItem(service: String, account: String, dataProtection: Bool) -> Data? {
+        var query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account,
@@ -85,6 +113,9 @@ final class KeychainHelper {
             kSecMatchLimit: kSecMatchLimitOne,
             kSecAttrSynchronizable: kCFBooleanFalse as Any
         ]
+        if dataProtection {
+            query[kSecUseDataProtectionKeychain] = true
+        }
 
         var dataTypeRef: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
