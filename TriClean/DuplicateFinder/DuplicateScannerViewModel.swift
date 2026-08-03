@@ -647,7 +647,8 @@ final class DuplicateScannerViewModel: ObservableObject {
         return duplicateFiles
     }
 
-    private nonisolated static func recommendedKeepIndex(for files: [DuplicateFile], rootURL: URL) -> Int {
+    // 테스트에서 접근할 수 있도록 internal (호출부는 여전히 내부 전용)
+    nonisolated static func recommendedKeepIndex(for files: [DuplicateFile], rootURL: URL) -> Int {
         guard !files.isEmpty else { return 0 }
 
         var bestIndex = 0
@@ -673,7 +674,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         return bestIndex
     }
 
-    private nonisolated static func recommendationScore(for file: DuplicateFile, rootURL: URL) -> Int {
+    nonisolated static func recommendationScore(for file: DuplicateFile, rootURL: URL) -> Int {
         let loweredName = file.url.lastPathComponent.lowercased()
         // ✅ 다국어 "사본/복사" 마커 확장 (앱 지원 언어: en/ko/ja/de/es/fr)
         let duplicateMarkers = [

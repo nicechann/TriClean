@@ -737,7 +737,8 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     /// 스크린샷 파일명 패턴(영문/한글) + PNG. Spotlight 미적용분 보완(파일 열지 않음, 저렴).
-    nonisolated private static func matchesScreenshotName(_ url: URL) -> Bool {
+    // 테스트에서 접근할 수 있도록 internal
+    nonisolated static func matchesScreenshotName(_ url: URL) -> Bool {
         guard url.pathExtension.lowercased() == "png" else { return false }
         let name = url.deletingPathExtension().lastPathComponent.lowercased()
         // ✅ [수정] en/ko만 지원해 ja/de/es/fr 사용자는 Spotlight 미인덱싱 시
@@ -855,7 +856,7 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     /// 해밍 거리 임계값으로 그리디 클러스터링. 2장 이상인 그룹만 반환.
-    nonisolated private static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
+    nonisolated static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
         var groups: [(rep: UInt64, ids: [String])] = []
         for (id, hash) in hashes {
             if Task.isCancelled { break }
