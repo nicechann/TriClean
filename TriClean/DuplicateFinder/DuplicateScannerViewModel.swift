@@ -458,7 +458,6 @@ final class DuplicateScannerViewModel: ObservableObject {
         snapshots: [DeleteGroupSnapshot],
         folder: URL
     ) async -> DeleteOutcome {
-        let fm = FileManager.default
         var candidates: [DeleteTarget] = []
         var excludedCount = 0
 
