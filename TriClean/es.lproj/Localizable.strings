@@ -653,6 +653,7 @@
 "apps.failed_names.overflow" = "%1$@ y %2$ld más";
 "photos.delete.status.invalid" = "No se puede eliminar ninguna foto. Vuelve a seleccionar la carpeta y analiza de nuevo.";
 "store.error.product_unavailable" = "No se pudo cargar la información del producto desde el App Store. Comprueba tu conexión e inténtalo de nuevo.";
+"store.error.no_purchase_to_restore" = "No se encontró ninguna compra anterior para restaurar con esta cuenta de Apple.";
 
 // Deletion revalidation summaries
 "duplicate.status.cleanup_summary" = "Se movieron %1$ld archivos duplicados a la Papelera y se liberaron %2$@. Fallaron: %3$ld; omitidos tras verificar: %4$ld.";

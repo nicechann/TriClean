@@ -653,6 +653,7 @@
 "apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
 "photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";
 "store.error.product_unavailable" = "App Storeから製品情報を読み込めませんでした。通信状況を確認してもう一度お試しください。";
+"store.error.no_purchase_to_restore" = "このApple Accountで復元できる以前の購入が見つかりませんでした。";
 
 // Deletion revalidation summaries
 "duplicate.status.cleanup_summary" = "%1$ld 個の重複ファイルをゴミ箱に移動し、%2$@ を確保しました。失敗 %3$ld 件、再検証で除外 %4$ld 件です。";

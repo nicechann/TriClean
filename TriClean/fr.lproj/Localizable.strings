@@ -653,6 +653,7 @@
 "apps.failed_names.overflow" = "%1$@ et %2$ld autre(s)";
 "photos.delete.status.invalid" = "Aucune photo ne peut être supprimée. Veuillez resélectionner le dossier et relancer l'analyse.";
 "store.error.product_unavailable" = "Impossible de charger les informations du produit depuis l'App Store. Vérifiez votre connexion et réessayez.";
+"store.error.no_purchase_to_restore" = "Aucun achat antérieur à restaurer n’a été trouvé pour ce compte Apple.";
 
 // Deletion revalidation summaries
 "duplicate.status.cleanup_summary" = "%1$ld fichiers en double ont été placés dans la corbeille et %2$@ ont été libérés. Échecs : %3$ld ; ignorés après vérification : %4$ld.";

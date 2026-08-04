@@ -112,6 +112,17 @@ nonisolated enum DeletionSafety {
         return (accepted, rejected)
     }
 
+    /// 단일 항목이 스캔 시 저장한 파일 시스템 식별 정보와 여전히 일치하는지 확인합니다.
+    /// 일괄 검증 이후 실제 삭제까지 시간이 지난 경우, `trashItem` 직전에 다시 호출합니다.
+    nonisolated static func isIdentityCurrent<T>(
+        _ candidate: T,
+        url: (T) -> URL,
+        identity: (T) -> FileIdentitySnapshot?
+    ) -> Bool {
+        guard let snapshot = identity(candidate) else { return false }
+        return snapshot.matchesCurrentItem(at: url(candidate))
+    }
+
     /// 스캔 시 저장한 파일 시스템 식별 정보와 현재 항목이 일치하는 대상만 남깁니다.
     /// 같은 경로가 다른 파일이나 폴더로 교체된 경우 삭제에서 제외합니다.
     nonisolated static func revalidateIdentity<T>(
@@ -123,8 +134,7 @@ nonisolated enum DeletionSafety {
         var rejected = 0
 
         for candidate in candidates {
-            guard let snapshot = identity(candidate),
-                  snapshot.matchesCurrentItem(at: url(candidate)) else {
+            guard isIdentityCurrent(candidate, url: url, identity: identity) else {
                 rejected += 1
                 continue
             }

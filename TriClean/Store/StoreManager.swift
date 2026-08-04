@@ -93,7 +93,17 @@ final class StoreManager: ObservableObject {
         defer { isLoading = false }
 
         try await AppStore.sync()
-        await updatePurchasedStatus()
+
+        // 복원 요청의 결과를 이 호출에서 직접 확정합니다. Transaction.updates 등에서
+        // 시작된 이전 상태 조회가 뒤늦게 완료돼 결과를 덮지 않도록 세대도 갱신합니다.
+        let restored = await resolvePurchasedStatus()
+        purchaseStateGeneration &+= 1
+        isPurchased = restored
+        hasLoadedPurchaseState = true
+
+        guard restored else {
+            throw StoreError.noPurchaseToRestore
+        }
     }
 
     private func loadProducts() async {
@@ -218,10 +228,14 @@ final class StoreManager: ObservableObject {
 /// 구매 흐름에서 사용자에게 노출되는 오류.
 enum StoreError: LocalizedError {
     case productUnavailable
+    case noPurchaseToRestore
 
     var errorDescription: String? {
         switch self {
-        case .productUnavailable: return "store.error.product_unavailable".localized
+        case .productUnavailable:
+            return "store.error.product_unavailable".localized
+        case .noPurchaseToRestore:
+            return "store.error.no_purchase_to_restore".localized
         }
     }
 }

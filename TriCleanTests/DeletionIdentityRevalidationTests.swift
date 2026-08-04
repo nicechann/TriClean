@@ -71,4 +71,38 @@ final class DeletionIdentityRevalidationTests: XCTestCase {
         XCTAssertTrue(result.accepted.isEmpty)
         XCTAssertEqual(result.rejectedCount, 2)
     }
+    func test_일괄검증후_두번째항목이_교체되면_삭제직전검증에서_거부한다() throws {
+        let first = root.appendingPathComponent("first.dat")
+        let second = root.appendingPathComponent("second.dat")
+        try Data("first".utf8).write(to: first)
+        try Data("second-old".utf8).write(to: second)
+
+        let candidates = [
+            Target(url: first, identity: FileIdentitySnapshot.captureItem(first)),
+            Target(url: second, identity: FileIdentitySnapshot.captureItem(second))
+        ]
+
+        let initiallyValidated = DeletionSafety.revalidateIdentity(
+            candidates,
+            url: \.url,
+            identity: \.identity
+        )
+        XCTAssertEqual(initiallyValidated.accepted.count, 2)
+
+        // 첫 번째 항목을 처리하는 동안 두 번째 경로가 새 파일로 교체된 상황을 재현합니다.
+        try FileManager.default.removeItem(at: second)
+        try Data("second-new-content".utf8).write(to: second)
+
+        XCTAssertTrue(DeletionSafety.isIdentityCurrent(
+            initiallyValidated.accepted[0],
+            url: \.url,
+            identity: \.identity
+        ))
+        XCTAssertFalse(DeletionSafety.isIdentityCurrent(
+            initiallyValidated.accepted[1],
+            url: \.url,
+            identity: \.identity
+        ))
+    }
+
 }

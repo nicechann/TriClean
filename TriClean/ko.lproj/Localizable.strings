@@ -666,6 +666,7 @@
 "apps.failed_names.overflow" = "%1$@ 외 %2$ld개";
 "photos.delete.status.invalid" = "삭제할 수 있는 사진이 없습니다. 폴더를 다시 선택한 뒤 검사해 주세요.";
 "store.error.product_unavailable" = "App Store에서 상품 정보를 불러올 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.";
+"store.error.no_purchase_to_restore" = "현재 Apple 계정에서 복원할 이전 구매 내역을 찾지 못했습니다.";
 
 // Deletion revalidation summaries
 "duplicate.status.cleanup_summary" = "%1$ld개 중복 파일을 휴지통으로 이동했습니다. %2$@를 확보했습니다. 실패 %3$ld개, 변경되어 제외 %4$ld개입니다.";

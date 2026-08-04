@@ -429,14 +429,31 @@ final class JunkScannerViewModel: ObservableObject {
         let fm = FileManager.default
         var succeededIDs = Set<UUID>()
         var failedCount = 0
+        var runtimeRejectedCount = 0
 
         for target in identityValidated.accepted {
+            // 앞선 항목을 처리하는 동안 실행 중인 앱이 같은 경로를 다시 만들 수 있으므로
+            // 실제 휴지통 이동 직전에 항목 정체성을 한 번 더 확인합니다.
+            guard DeletionSafety.isIdentityCurrent(
+                target,
+                url: \.url,
+                identity: \.fileIdentity
+            ) else {
+                runtimeRejectedCount += 1
+                continue
+            }
+
             do {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 succeededIDs.insert(target.id)
             } catch {
-                guard target.fileIdentity?.matchesCurrentItem(at: target.url) == true else {
-                    failedCount += 1
+                // trashItem 실패 후 NSWorkspace 폴백을 실행하기 직전에도 다시 검증합니다.
+                guard DeletionSafety.isIdentityCurrent(
+                    target,
+                    url: \.url,
+                    identity: \.fileIdentity
+                ) else {
+                    runtimeRejectedCount += 1
                     continue
                 }
                 let ok = await recycleUsingWorkspace(target.url)
@@ -451,7 +468,9 @@ final class JunkScannerViewModel: ObservableObject {
         return CleanOutcome(
             succeededIDs: succeededIDs,
             failedCount: failedCount,
-            excludedCount: sanitized.rejectedCount + identityValidated.rejectedCount
+            excludedCount: sanitized.rejectedCount
+                + identityValidated.rejectedCount
+                + runtimeRejectedCount
         )
     }
 

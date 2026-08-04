@@ -931,14 +931,35 @@ struct LargeFilesView: View {
         )
         var succeededURLs = Set<URL>()
         let fm = FileManager.default
+        var runtimeRejectedCount = 0
 
         for item in identityValidated.accepted {
             let target = item.url.standardizedFileURL
+
+            // 여러 항목을 순차 처리하는 동안 같은 경로의 파일이나 폴더가 교체될 수 있으므로
+            // 실제 휴지통 이동 직전에 스캔 당시 항목과 동일한지 다시 확인합니다.
+            guard DeletionSafety.isIdentityCurrent(
+                item,
+                url: \.url,
+                identity: \.fileIdentity
+            ) else {
+                runtimeRejectedCount += 1
+                continue
+            }
+
             do {
                 try fm.trashItem(at: target, resultingItemURL: nil)
                 succeededURLs.insert(target)
             } catch {
-                guard item.fileIdentity?.matchesCurrentItem(at: target) == true else { continue }
+                // trashItem 실패 후 NSWorkspace 폴백 직전에도 교체 여부를 재검증합니다.
+                guard DeletionSafety.isIdentityCurrent(
+                    item,
+                    url: \.url,
+                    identity: \.fileIdentity
+                ) else {
+                    runtimeRejectedCount += 1
+                    continue
+                }
                 let recycled = await recycleWithWorkspace(target)
                 if recycled {
                     succeededURLs.insert(target)
@@ -951,7 +972,9 @@ struct LargeFilesView: View {
 
         return LargeDeleteOutcome(
             succeededURLs: succeededURLs,
-            rejectedCount: sanitized.rejectedCount + identityValidated.rejectedCount
+            rejectedCount: sanitized.rejectedCount
+                + identityValidated.rejectedCount
+                + runtimeRejectedCount
         )
     }
 
