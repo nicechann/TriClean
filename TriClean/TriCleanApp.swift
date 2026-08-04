@@ -137,6 +137,9 @@ struct TriCleanApp: App {
                 if let termsURL = AppLinks.termsOfUse {
                     Link("paywall.link.terms".localized, destination: termsURL)
                 }
+                if let supportURL = AppLinks.supportPage {
+                    Link("settings.support_link".localized, destination: supportURL)
+                }
             }
         }
         

@@ -245,6 +245,7 @@
 // MARK: - Paywall (Links)
 "paywall.link.privacy" = "개인정보";
 "paywall.link.terms" = "이용약관";
+"settings.support_link" = "고객지원";
 
 /* Paywall 결제 오류 알림 */
 "paywall.error.title"   = "결제 오류";

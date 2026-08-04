@@ -10,4 +10,5 @@ import Foundation
 enum AppLinks {
     static let privacyPolicy = URL(string: "https://nicechann.github.io/TriClean-Support/privacy")
     static let termsOfUse = URL(string: "https://nicechann.github.io/TriClean-Support/terms")
+    static let supportPage = URL(string: "https://nicechann.github.io/TriClean-Support/")
 }

@@ -240,6 +240,7 @@
 /* Paywall (Links) */
 "paywall.link.privacy" = "Confidentialité";
 "paywall.link.terms" = "Conditions d'utilisation";
+"settings.support_link" = "Assistance";
 
 "paywall.error.title"   = "Erreur d'achat";
 "paywall.error.unknown" = "Une erreur inconnue s'est produite.";

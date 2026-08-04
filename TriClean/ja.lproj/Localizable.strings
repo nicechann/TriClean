@@ -240,6 +240,7 @@
 /* Paywall (Links) */
 "paywall.link.privacy" = "プライバシーポリシー";
 "paywall.link.terms" = "利用規約";
+"settings.support_link" = "サポート";
 
 "paywall.error.title"   = "購入エラー";
 "paywall.error.unknown" = "不明なエラーが発生しました。";

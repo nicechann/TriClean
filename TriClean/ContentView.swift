@@ -283,6 +283,11 @@ struct SettingsView: View {
                                     Label("paywall.link.terms".localized, systemImage: "doc.text.fill")
                                 }
                             }
+                            if let supportURL = AppLinks.supportPage {
+                                Link(destination: supportURL) {
+                                    Label("settings.support_link".localized, systemImage: "questionmark.circle.fill")
+                                }
+                            }
                             Spacer()
                         }
                         .buttonStyle(.link)

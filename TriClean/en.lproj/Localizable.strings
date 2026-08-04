@@ -246,6 +246,7 @@
 // MARK: - Paywall (Links)
 "paywall.link.privacy" = "Privacy Policy";
 "paywall.link.terms" = "Terms of Use";
+"settings.support_link" = "Support";
 
 "paywall.error.title"   = "Purchase Error";
 "paywall.error.unknown" = "An unknown error occurred.";
