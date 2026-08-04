@@ -304,13 +304,11 @@
 "junk.category.safari_cache.title" = "Caché de Safari";
 "junk.category.safari_cache.desc" = "Caché del navegador Safari. Las cargas iniciales de páginas pueden ser ligeramente más lentas tras eliminarlo.";
 "junk.category.mail_downloads.title" = "Descargas de Mail";
-"junk.category.mail_downloads.desc" = "Caché de archivos adjuntos descargados utilizado por Mail.";
+"junk.category.mail_downloads.desc" = "Copias de los archivos adjuntos descargados por Mail. Revísalas antes de limpiar para no eliminar archivos que necesites.";
 "junk.category.saved_app_state.title" = "Estado guardado de apps";
 "junk.category.saved_app_state.desc" = "Datos de restauración de ventanas y pestañas. Las apps pueden reabrirse en su estado predeterminado tras eliminarlos.";
 "junk.category.crash_reports.title" = "Informes de fallos";
 "junk.category.crash_reports.desc" = "Informes de fallos generados por las apps y macOS. Es seguro limpiarlos si no los necesitas.";
-"junk.category.webkit_cache.title" = "Caché de WebKit";
-"junk.category.webkit_cache.desc" = "Datos en caché utilizados por las apps basadas en WebKit.";
 "junk.category.http_storage.title" = "Almacenamiento HTTP";
 "junk.category.http_storage.desc" = "Caché y almacenamiento HTTP utilizados por las apps.";
 

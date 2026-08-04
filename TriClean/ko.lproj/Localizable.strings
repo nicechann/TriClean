@@ -314,13 +314,11 @@
 "junk.category.safari_cache.title" = "Safari 캐시";
 "junk.category.safari_cache.desc" = "Safari 브라우저 캐시입니다. 삭제 시 첫 로딩이 잠시 느려질 수 있습니다.";
 "junk.category.mail_downloads.title" = "메일 다운로드";
-"junk.category.mail_downloads.desc" = "Mail 앱이 내려받은 첨부파일 캐시입니다.";
+"junk.category.mail_downloads.desc" = "Mail 앱에서 내려받은 첨부파일 사본입니다. 필요한 파일이 없는지 확인한 후 정리하세요.";
 "junk.category.saved_app_state.title" = "저장된 앱 상태";
 "junk.category.saved_app_state.desc" = "앱이 마지막으로 열려 있던 창 상태입니다. 삭제 시 기본 상태로 시작될 수 있습니다.";
 "junk.category.crash_reports.title" = "충돌 보고서";
 "junk.category.crash_reports.desc" = "앱 크래시 리포트입니다. 분석이 필요 없다면 정리할 수 있습니다.";
-"junk.category.webkit_cache.title" = "WebKit Cache";
-"junk.category.webkit_cache.desc" = "WebKit 기반 앱의 캐시 데이터입니다.";
 "junk.category.http_storage.title" = "HTTP Storage";
 "junk.category.http_storage.desc" = "앱의 HTTP 캐시 및 저장소입니다.";
 

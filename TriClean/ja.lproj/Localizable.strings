@@ -304,13 +304,11 @@
 "junk.category.safari_cache.title" = "Safariキャッシュ";
 "junk.category.safari_cache.desc" = "Safariブラウザのキャッシュ。削除後は最初のページ読み込みが少し遅くなる場合があります。";
 "junk.category.mail_downloads.title" = "メールのダウンロード";
-"junk.category.mail_downloads.desc" = "メールAppが使用するダウンロード済み添付ファイルのキャッシュです。";
+"junk.category.mail_downloads.desc" = "メールAppでダウンロードした添付ファイルのコピーです。必要なファイルがないか確認してから整理してください。";
 "junk.category.saved_app_state.title" = "保存されたApp状態";
 "junk.category.saved_app_state.desc" = "ウインドウとタブの復元データ。削除後はAppがデフォルト状態で再開する場合があります。";
 "junk.category.crash_reports.title" = "クラッシュレポート";
 "junk.category.crash_reports.desc" = "AppとmacOSによって生成されたクラッシュレポート。不要であれば安全にクリーンできます。";
-"junk.category.webkit_cache.title" = "WebKitキャッシュ";
-"junk.category.webkit_cache.desc" = "WebKitベースのAppが使用するキャッシュデータです。";
 "junk.category.http_storage.title" = "HTTPストレージ";
 "junk.category.http_storage.desc" = "Appが使用するHTTPキャッシュとストレージです。";
 

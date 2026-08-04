@@ -153,7 +153,7 @@ extension JunkCategory {
             relativePaths: [
                 "Containers/com.apple.mail/Data/Library/Mail Downloads"
             ],
-            riskLevel: .safe
+            riskLevel: .moderate
         ),
         JunkCategory(
             id: "saved_app_state",
@@ -172,14 +172,6 @@ extension JunkCategory {
                 "Logs/DiagnosticReports",
                 "Logs/CrashReporter"
             ],
-            riskLevel: .safe
-        ),
-        JunkCategory(
-            id: "webkit_cache",
-            name: "junk.category.webkit_cache.title".localized,
-            icon: "globe",
-            description: "junk.category.webkit_cache.desc".localized,
-            relativePaths: ["WebKit"],
             riskLevel: .safe
         ),
         JunkCategory(

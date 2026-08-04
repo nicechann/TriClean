@@ -304,13 +304,11 @@
 "junk.category.safari_cache.title" = "Safari-Cache";
 "junk.category.safari_cache.desc" = "Cache des Safari-Browsers. Erste Seitenladevorgänge können nach dem Entfernen leicht langsamer sein.";
 "junk.category.mail_downloads.title" = "Mail-Downloads";
-"junk.category.mail_downloads.desc" = "Heruntergeladener Anhang-Cache von Mail.";
+"junk.category.mail_downloads.desc" = "Kopien von mit Mail geladenen Anhängen. Prüfe sie vor dem Bereinigen, damit keine benötigten Dateien entfernt werden.";
 "junk.category.saved_app_state.title" = "Gesicherter App-Zustand";
 "junk.category.saved_app_state.desc" = "Daten zur Wiederherstellung von Fenstern und Tabs. Apps können nach dem Entfernen im Standardzustand starten.";
 "junk.category.crash_reports.title" = "Absturzberichte";
 "junk.category.crash_reports.desc" = "Von Apps und macOS erstellte Absturzberichte. Bei Nichtbedarf gefahrlos zu bereinigen.";
-"junk.category.webkit_cache.title" = "WebKit-Cache";
-"junk.category.webkit_cache.desc" = "Cache-Daten, die von WebKit-basierten Apps verwendet werden.";
 "junk.category.http_storage.title" = "HTTP-Speicher";
 "junk.category.http_storage.desc" = "HTTP-Cache und Speicher, die von Apps verwendet werden.";
 
