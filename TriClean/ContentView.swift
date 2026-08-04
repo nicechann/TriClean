@@ -116,7 +116,6 @@ struct SettingsView: View {
     }
     #if DEBUG
     @EnvironmentObject var storeManager: StoreManager
-    @EnvironmentObject var trialManager: TrialManager
     #endif
 
     private var appVersion: String {
@@ -271,6 +270,27 @@ struct SettingsView: View {
                         Text("settings.about".localized)
                     }
 
+                    // 개인정보 및 이용약관은 구매 여부와 관계없이 항상 접근 가능해야 합니다.
+                    GroupBox {
+                        HStack(spacing: 16) {
+                            if let privacyURL = AppLinks.privacyPolicy {
+                                Link(destination: privacyURL) {
+                                    Label("paywall.link.privacy".localized, systemImage: "hand.raised.fill")
+                                }
+                            }
+                            if let termsURL = AppLinks.termsOfUse {
+                                Link(destination: termsURL) {
+                                    Label("paywall.link.terms".localized, systemImage: "doc.text.fill")
+                                }
+                            }
+                            Spacer()
+                        }
+                        .buttonStyle(.link)
+                        .padding(10)
+                    } label: {
+                        Text("settings.legal".localized)
+                    }
+
                     // Help
                     GroupBox {
                         VStack(alignment: .leading, spacing: 10) {
@@ -320,28 +340,6 @@ struct SettingsView: View {
                                     .foregroundStyle(storeManager.debugPurchaseOverride ? Color.green : Color.secondary)
                             }
 
-                            HStack(spacing: 12) {
-                                Text("settings.debug.trial_days".localized)
-                                    .frame(width: 140, alignment: .leading)
-                                HStack(spacing: 6) {
-                                    ForEach([0, 1, 3, 7], id: \.self) { days in
-                                        Button("settings.debug.days_button".localized(with: days)) {
-                                            trialManager.debugSetDaysRemaining(days)
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .controlSize(.small)
-                                        .tint(trialManager.daysRemaining == days ? .accentColor : .secondary)
-                                    }
-                                    Button("settings.debug.actual_value".localized) {
-                                        trialManager.debugResetTrialOverride()
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
-                                }
-                                Text("settings.debug.current_days".localized(with: trialManager.daysRemaining))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
                         }
                         .padding(10)
                     } label: {
@@ -364,7 +362,6 @@ struct SettingsView: View {
     ContentView()
         .environmentObject(MemoryViewModel())
         .environmentObject(StoreManager.shared)
-        .environmentObject(TrialManager.shared)
         .environmentObject(JunkScannerViewModel())
         .environmentObject(DuplicateScannerViewModel())
         .environmentObject(AppsViewModel())

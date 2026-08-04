@@ -66,4 +66,38 @@ final class PhotoDeletionSafetyTests: XCTestCase {
         XCTAssertEqual(result.targets.map(\.id), [selectedCopy.id])
         XCTAssertEqual(result.excludedItemCount, 0)
     }
+    func test_보존본이_같은_경로의_다른_파일로_교체되면_삭제하지_않는다() throws {
+        let keeper = try item("keeper-replaced.jpg", create: true)
+        let selectedCopy = try item("copy-replaced.jpg", create: true)
+        let group = PhotoGroup(id: "group-replaced", items: [keeper, selectedCopy])
+
+        try FileManager.default.removeItem(at: keeper.url)
+        try Data("different image".utf8).write(to: keeper.url)
+
+        let result = PhotoScannerViewModel.preparePhotoDeletion(
+            selected: [selectedCopy],
+            similarGroups: [group],
+            scope: root
+        )
+
+        XCTAssertTrue(result.targets.isEmpty)
+        XCTAssertEqual(result.excludedItemCount, 1)
+    }
+
+    func test_삭제대상이_같은_경로의_다른_파일로_교체되면_제외한다() throws {
+        let selected = try item("selected-replaced.jpg", create: true)
+
+        try FileManager.default.removeItem(at: selected.url)
+        try Data("new file".utf8).write(to: selected.url)
+
+        let result = PhotoScannerViewModel.preparePhotoDeletion(
+            selected: [selected],
+            similarGroups: [],
+            scope: root
+        )
+
+        XCTAssertTrue(result.targets.isEmpty)
+        XCTAssertEqual(result.excludedItemCount, 1)
+    }
+
 }

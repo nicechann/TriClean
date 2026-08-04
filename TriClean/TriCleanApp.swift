@@ -36,30 +36,12 @@ private struct WindowMinSizeSetter: NSViewRepresentable {
     }
 }
 
-// ✅ 체험판 남은 기간을 보여주는 간단한 배너
-struct TrialBannerView: View {
-    let daysLeft: Int
-    
-    var body: some View {
-        Text("trial.banner.status".localized(with: daysLeft))
-            .font(.caption.bold())
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Color.red.opacity(0.85))
-            .foregroundColor(.white)
-            .clipShape(Capsule())
-            .shadow(radius: 2)
-            .padding()
-    }
-}
-
 @main
 struct TriCleanApp: App {
     
-    // ✅ 앱 상태 관리 객체들 (구매 관리, 체험 기간 관리, 메모리 뷰모델)
+    // 앱 상태 관리 객체들
     @StateObject private var memoryViewModel = MemoryViewModel()
     @StateObject private var storeManager = StoreManager.shared
-    @StateObject private var trialManager = TrialManager.shared
 
     // ✅ [공유 스캐너 모델] SmartScan과 각 상세 탭(Storage/Duplicates/Apps)이
     //   같은 인스턴스를 공유하도록 앱 레벨에서 한 번만 생성해 EnvironmentObject로 주입.
@@ -98,18 +80,9 @@ struct TriCleanApp: App {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
-                } else if storeManager.isPurchased || !trialManager.isTrialExpired {
-                    // (구매 완료) OR (체험 기간 유효) -> 정상 화면
+                } else {
+                    // 스캔과 분석은 무료로 제공하고, 실제 삭제·정리 실행만 구매 상태에서 허용합니다.
                     ContentView()
-                        .overlay(alignment: .bottomTrailing) {
-                            // 아직 구매하지 않은 체험판 사용자에게 남은 기간 표시
-                            if !storeManager.isPurchased {
-                                TrialBannerView(daysLeft: trialManager.daysRemaining)
-                                    .onTapGesture {
-                                        openPaywallWindow()
-                                    }
-                            }
-                        }
                         .onAppear {
                             if !didShowOnboarding {
                                 didShowOnboarding = true
@@ -118,11 +91,6 @@ struct TriCleanApp: App {
                                 }
                             }
                         }
-                    
-                } else {
-                    // 체험 기간 만료 + 미구매 사용자 -> 루트 Paywall 표시(닫기 버튼 없음)
-                    PaywallView(allowDismiss: false)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             // ✅ 창 최소 크기 강제(사용자가 강제로 줄여도 깨지지 않도록)
@@ -132,38 +100,42 @@ struct TriCleanApp: App {
             // ✅ EnvironmentObject 주입(하위 뷰에서 공통 사용)
             .environmentObject(memoryViewModel)
             .environmentObject(storeManager)
-            .environmentObject(trialManager)
             // ✅ 공유 스캐너 모델 주입
             .environmentObject(junkViewModel)
             .environmentObject(duplicateViewModel)
             .environmentObject(appsViewModel)
             .environmentObject(photoViewModel)
             .environmentObject(reminderManager)
-            // ✅ 체험 중에는 Paywall을 시트로 띄움
+            // 결제창 표시
             .sheet(isPresented: $showPaywallSheet) {
-                PaywallView(allowDismiss: true)
+                PaywallView()
                     .environmentObject(storeManager)
             }
             // ✅ 첫 실행 온보딩
             .sheet(isPresented: $showOnboarding) {
                 OnboardingView(isPresented: $showOnboarding)
             }
-            // ✅ [추가] 앱이 활성화될 때마다 체험 기간 재계산
             .onChange(of: scenePhase) { newPhase in
                 if newPhase == .active {
-                    trialManager.refresh()
                     // ✅ 시스템 설정에서 알림 권한이 바뀌었을 수 있으므로 활성화 시 예약을 보정
                     reminderManager.refreshSchedule()
                 }
             }
         }
         .commands {
-            // 메뉴바에 '라이선스' 관련 메뉴 추가 (선택 사항)
             CommandGroup(after: .appInfo) {
                 if !storeManager.isPurchased {
                     Button("menu.buy_pro".localized) {
                         openPaywallWindow()
                     }
+                    Divider()
+                }
+
+                if let privacyURL = AppLinks.privacyPolicy {
+                    Link("paywall.link.privacy".localized, destination: privacyURL)
+                }
+                if let termsURL = AppLinks.termsOfUse {
+                    Link("paywall.link.terms".localized, destination: termsURL)
                 }
             }
         }
@@ -171,24 +143,8 @@ struct TriCleanApp: App {
         // 메뉴바 (상태 표시줄 아이콘)
         MenuBarExtra {
             // 메뉴바 팝업 내용
-            if storeManager.isPurchased || !trialManager.isTrialExpired {
-                MenuMemoryView()
-                    .environmentObject(memoryViewModel)
-            } else {
-                // 체험판 만료 시 메뉴바 기능 제한
-                VStack(spacing: 12) {
-                    Text("trial.expired.msg".localized)
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    
-                    Button("trial.expired.btn".localized) {
-                        NSApp.activate(ignoringOtherApps: true)
-                        openPaywallWindow()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
-            }
+            MenuMemoryView()
+                .environmentObject(memoryViewModel)
         } label: {
             // ✅ 고정된 "%" 대신 ViewModel의 설정된 단위(%, MB)를 따라감
             Text(memoryViewModel.formattedCurrentUsage)
@@ -197,7 +153,7 @@ struct TriCleanApp: App {
         .menuBarExtraStyle(.window)
     }
     
-    // ✅ 결제창 띄우기 헬퍼: 체험 중에는 "시트"로, 만료 시에는 앱 활성화만 수행(이미 루트 Paywall)
+    // 미구매 사용자가 삭제·정리 기능을 선택했을 때 결제창을 표시합니다.
     private func openPaywallWindow() {
         NSApp.activate(ignoringOtherApps: true)
         
@@ -210,9 +166,7 @@ struct TriCleanApp: App {
         }
         
         guard !storeManager.isPurchased else { return }
-        guard !trialManager.isTrialExpired else { return }
         
-        // 체험 중(미구매)이라면 Paywall 시트를 띄움
         showPaywallSheet = true
     }
 }

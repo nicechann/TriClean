@@ -215,27 +215,20 @@
 "settings.debug.clean_fill_mode" = "메모리 디버그 모드";
 "settings.debug.clean_fill_desc" = "내부 메모리 테스트용 디버그 옵션입니다.";
 
-// MARK: - Trial & Banner
-"trial.banner.status" = "체험판: %ld일 남음";
-"trial.bottom.title" = "무료 체험";
-"trial.bottom.days_left" = "%ld일 남음";
-"trial.bottom.buy_now" = "지금 구매하기";
-"trial.expired.msg" = "무료 체험 기간이 만료되었습니다.";
-"trial.expired.btn" = "정식 버전 구매하기";
-"paywall.expired.banner" = "7일 무료 체험이 종료되었습니다. 모든 기능을 계속 사용하려면 구매하시거나, 앱을 종료해주세요.";
+// MARK: - Upgrade & Paywall
 
 // MARK: - Paywall (Features)
-"paywall.title" = "TriClean Premium";
-"paywall.subtitle" = "모든 기능을 무제한으로 사용하세요";
+"paywall.title" = "TriClean 평생 이용권";
+"paywall.subtitle" = "파일 삭제와 정리 기능을 잠금 해제하세요";
 /* ✅ [수정 v2] Paywall 기능 설명 — "모니터링" 중심 */
-"paywall.feat.memory" = "실시간 메모리 모니터링";
-"paywall.feat.memory_desc" = "시스템 메모리 구성과 사용량 추정치를 한눈에 확인하세요";
-"paywall.feat.disk" = "디스크 사용량 분석";
-"paywall.feat.disk_desc" = "대용량 파일과 폴더를 빠르게 찾아보세요";
-"paywall.feat.apps" = "앱 관련 파일 검토";
-"paywall.feat.apps_desc" = "앱 번들과 사용자 라이브러리 관련 파일 위치를 함께 확인";
-"paywall.feat.auto" = "시스템 모니터링 대시보드";
-"paywall.feat.auto_desc" = "저장 공간과 메모리 정보를 한곳에서 확인하세요";
+"paywall.feat.memory" = "안전한 휴지통 이동";
+"paywall.feat.memory_desc" = "삭제 전 경로와 파일 상태를 다시 확인하고 복구 가능한 휴지통으로 이동합니다";
+"paywall.feat.disk" = "대용량·정크 파일 정리";
+"paywall.feat.disk_desc" = "분석 결과에서 선택한 대용량 파일과 불필요 파일을 정리하세요";
+"paywall.feat.apps" = "앱과 잔여 파일 정리";
+"paywall.feat.apps_desc" = "선택한 앱과 관련 캐시·설정 파일을 확인 후 정리하세요";
+"paywall.feat.auto" = "중복·유사 사진 정리";
+"paywall.feat.auto_desc" = "보존할 파일을 남기고 선택한 중복 파일과 사진을 정리하세요";
 
 // MARK: - Paywall (Buttons & Status)
 "paywall.btn.buy_format" = "지금 구매 (%@)";
@@ -405,10 +398,6 @@
 "settings.debug.purchase_status" = "구매 상태";
 "settings.debug.purchase_on" = "구매 완료";
 "settings.debug.purchase_off" = "미구매";
-"settings.debug.trial_days" = "체험 기간";
-"settings.debug.days_button" = "%ld일";
-"settings.debug.actual_value" = "실제 값";
-"settings.debug.current_days" = "현재 %ld일";
 
 
 /* Apps View — Stage 3 */
@@ -685,3 +674,10 @@
 "apps.status.related_summary" = "관련 항목 %1$ld개를 이동했습니다. 실패 %2$ld개, 변경되어 제외 %3$ld개입니다.";
 "photos.delete.status.revalidate" = "선택한 사진을 삭제하지 않았습니다. 보존 사진 또는 경로가 변경된 항목 %ld개를 제외했습니다. 다시 검사해 주세요.";
 "photos.delete.status.summary" = "%1$ld개 사진을 휴지통으로 이동했습니다. 실패 %2$ld개, 안전을 위해 제외 %3$ld개입니다.";
+
+// Free analysis / legal access
+"settings.legal" = "지원 및 법적 고지";
+"upgrade.bottom.title" = "무료 분석 모드";
+"upgrade.bottom.desc" = "스캔과 결과 확인은 무료입니다. 파일 삭제와 정리 기능은 평생 이용권에서 사용할 수 있습니다.";
+"upgrade.bottom.buy" = "평생 이용권 구매";
+"paywall.free_mode.notice" = "스캔과 분석은 무료로 이용할 수 있습니다. 파일 삭제와 정리 기능은 평생 이용권 구매 후 사용할 수 있습니다.";

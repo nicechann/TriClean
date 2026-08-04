@@ -9,7 +9,9 @@
 import SwiftUI
 
 struct JunkSectionView: View {
+    @EnvironmentObject private var storeManager: StoreManager
     @ObservedObject var viewModel: JunkScannerViewModel
+    let onUpgradeRequired: () -> Void
     @State private var showCleanConfirm = false
     @State private var expandedCategories: Set<String> = []
 
@@ -157,7 +159,11 @@ struct JunkSectionView: View {
                     Spacer()
 
                     Button(role: .destructive) {
-                        showCleanConfirm = true
+                        if storeManager.isPurchased {
+                            showCleanConfirm = true
+                        } else {
+                            onUpgradeRequired()
+                        }
                     } label: {
                         Label("junk.section.clean".localized, systemImage: "trash")
                     }
@@ -194,6 +200,10 @@ struct JunkSectionView: View {
         )
         .alert("junk.section.alert.title".localized, isPresented: $showCleanConfirm) {
             Button("common.move_to_trash".localized, role: .destructive) {
+                guard storeManager.isPurchased else {
+                    onUpgradeRequired()
+                    return
+                }
                 viewModel.cleanSelected()
             }
             Button("common.cancel".localized, role: .cancel) {}

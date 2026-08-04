@@ -27,7 +27,6 @@ private struct LargeFilesSecurityScopedAccessToken {
 
 struct LargeFilesView: View {
     @EnvironmentObject private var storeManager: StoreManager
-    @EnvironmentObject private var trialManager: TrialManager
 
     @State private var showPaywall = false
 
@@ -133,10 +132,7 @@ struct LargeFilesView: View {
         .safeAreaInset(edge: .bottom) {
             if !storeManager.isPurchased {
                 Divider()
-                TrialBottomBanner(
-                    daysRemaining: trialManager.daysRemaining,
-                    onBuyTap: { showPaywall = true }
-                )
+                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, outerPadding + sectionInset)
                 .padding(.vertical, 10)
@@ -144,7 +140,7 @@ struct LargeFilesView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(allowDismiss: true)
+            PaywallView()
                 .environmentObject(storeManager)
         }
         .task(id: minFolderSizeMB) {
@@ -814,11 +810,19 @@ struct LargeFilesView: View {
     }
 
     private func requestDelete(_ item: FolderInfo) {
+        guard storeManager.isPurchased else {
+            showPaywall = true
+            return
+        }
         deleteTargets = [item]
         showingDeleteAlert = true
     }
 
     private func deleteSelectedFolders() {
+        guard storeManager.isPurchased else {
+            showPaywall = true
+            return
+        }
         let selected = folderResults.filter { tableSelection.contains($0.id) }
         guard !selected.isEmpty else { return }
         deleteTargets = selected
@@ -831,6 +835,11 @@ struct LargeFilesView: View {
     }
 
     private func confirmDelete() {
+        guard storeManager.isPurchased else {
+            deleteTargets = []
+            showPaywall = true
+            return
+        }
         let candidates = Self.normalizedDeleteTargets(deleteTargets)
         guard !candidates.isEmpty else { return }
         guard !isDeleting else { return }

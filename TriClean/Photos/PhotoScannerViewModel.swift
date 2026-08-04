@@ -376,6 +376,7 @@ final class PhotoScannerViewModel: ObservableObject {
 
         let snapshot = items
         let threshold = Self.similarHammingThreshold
+        let aspectRatioTolerance = Self.similarAspectRatioTolerance
         let workers = max(2, ProcessInfo.processInfo.activeProcessorCount)
 
         var slices: [[PhotoItem]] = []
@@ -424,7 +425,11 @@ final class PhotoScannerViewModel: ObservableObject {
             }
 
             // 2) 클러스터링 (이미 .utility detached 컨텍스트라 그대로 계산)
-            let groupIDs = Self.clusterByHash(hashes, threshold: threshold)
+            let groupIDs = Self.clusterByHash(
+                hashes,
+                threshold: threshold,
+                aspectRatioTolerance: aspectRatioTolerance
+            )
 
             if Task.isCancelled {
                 await MainActor.run { self.finishSimilar(cancelled: true) }
@@ -588,6 +593,7 @@ final class PhotoScannerViewModel: ObservableObject {
     /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거합니다.
     /// 유사 사진 그룹은 삭제 직전에 실제 보존본이 남아 있는지 다시 확인합니다.
     func deleteSelected() {
+        guard StoreManager.shared.isPurchased else { return }
         guard !isDeleting else { return }
         let selected = items.filter { selectedIDs.contains($0.id) }
         guard !selected.isEmpty else { return }
@@ -620,7 +626,7 @@ final class PhotoScannerViewModel: ObservableObject {
             var trashed = Set<String>()
             for item in preparation.targets {
                 if Task.isCancelled { break }
-                if await Self.moveToTrash(item.url) { trashed.insert(item.id) }
+                if await Self.moveToTrash(item) { trashed.insert(item.id) }
             }
 
             let result = trashed
@@ -656,6 +662,11 @@ final class PhotoScannerViewModel: ObservableObject {
         let selectedIDs = Set(selected.map(\.id))
         var unsafeSelectedIDs = Set<String>()
 
+        // 스캔 이후 같은 경로의 파일이 교체된 경우 새 파일을 삭제하지 않습니다.
+        for item in selected where item.fileIdentity?.matchesCurrentFile(at: item.url) != true {
+            unsafeSelectedIDs.insert(item.id)
+        }
+
         for group in similarGroups {
             let selectedInGroup = group.items.filter { selectedIDs.contains($0.id) }
             guard !selectedInGroup.isEmpty else { continue }
@@ -663,7 +674,7 @@ final class PhotoScannerViewModel: ObservableObject {
             let hasValidSurvivor = group.items.contains { item in
                 !selectedIDs.contains(item.id)
                     && DeletionSafety.isContained(item.url, inScope: scope)
-                    && FileManager.default.fileExists(atPath: item.url.standardizedFileURL.path)
+                    && item.fileIdentity?.matchesCurrentFile(at: item.url) == true
             }
 
             if !hasValidSurvivor {
@@ -696,13 +707,14 @@ final class PhotoScannerViewModel: ObservableObject {
         selectedIDs.subtract(ids)
     }
 
-    nonisolated private static func moveToTrash(_ url: URL) async -> Bool {
+    nonisolated private static func moveToTrash(_ item: PhotoItem) async -> Bool {
+        guard item.fileIdentity?.matchesCurrentFile(at: item.url) == true else { return false }
         do {
-            try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            try FileManager.default.trashItem(at: item.url, resultingItemURL: nil)
             return true
         } catch {
             // ✅ trashItem 실패 시 NSWorkspace.recycle로 폴백(다른 스캐너와 동일 패턴).
-            return await recycleUsingWorkspace(url)
+            return await recycleUsingWorkspace(item.url)
         }
     }
 
@@ -947,7 +959,7 @@ final class PhotoScannerViewModel: ObservableObject {
     nonisolated static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
         clusterByHash(
             hashes.map {
-                SimilarHashCandidate(id: $0.0, hash: $0.1, pixelWidth: 0, pixelHeight: 0)
+                SimilarHashCandidate(id: $0.0, hash: $0.1, pixelWidth: 1, pixelHeight: 1)
             },
             threshold: threshold
         )
@@ -958,7 +970,8 @@ final class PhotoScannerViewModel: ObservableObject {
     /// 항상 같은 결과를 만들며, 그룹의 모든 구성원과 해밍 거리·비율 조건을 만족해야 합니다.
     nonisolated static func clusterByHash(
         _ hashes: [SimilarHashCandidate],
-        threshold: Int
+        threshold: Int,
+        aspectRatioTolerance: Double = 0.05
     ) -> [[String]] {
         let ordered = hashes.sorted {
             if $0.hash == $1.hash { return $0.id < $1.id }
@@ -977,7 +990,7 @@ final class PhotoScannerViewModel: ObservableObject {
                 var fits = true
 
                 for member in groups[groupIndex] {
-                    guard hasCompatibleAspectRatio(candidate, member) else {
+                    guard hasCompatibleAspectRatio(candidate, member, tolerance: aspectRatioTolerance) else {
                         fits = false
                         break
                     }
@@ -1016,8 +1029,8 @@ final class PhotoScannerViewModel: ObservableObject {
     ) -> Bool {
         guard lhs.pixelWidth > 0, lhs.pixelHeight > 0,
               rhs.pixelWidth > 0, rhs.pixelHeight > 0 else {
-            // 메타데이터를 읽지 못한 일부 형식은 기존 해시 비교로 폴백합니다.
-            return true
+            // 비율을 확인할 수 없는 사진은 자동 유사 그룹에서 제외합니다.
+            return false
         }
 
         let lhsLandscape = lhs.pixelWidth >= lhs.pixelHeight

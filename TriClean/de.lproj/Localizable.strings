@@ -210,27 +210,20 @@
 "settings.debug.clean_fill_desc" = "Debug-Option ausschließlich für interne Tests.";
 
 /* Paywall */
-"paywall.feat.memory" = "Echtzeit-Speicherüberwachung";
-"paywall.feat.memory_desc" = "Geschätzte Systemspeicher-Zusammensetzung und -Nutzung auf einen Blick";
+"paywall.feat.memory" = "Sicher in den Papierkorb";
+"paywall.feat.memory_desc" = "Pfade und Dateistatus werden vor dem Verschieben in den wiederherstellbaren Papierkorb erneut geprüft";
 
-/* Trial & Banner */
-"trial.banner.status" = "Testversion: noch %ld Tage";
-"trial.bottom.title" = "Kostenlose Testversion";
-"trial.bottom.days_left" = "Noch %ld Tage";
-"trial.bottom.buy_now" = "Jetzt kaufen";
-"trial.expired.msg" = "Ihre kostenlose Testversion ist abgelaufen.";
-"trial.expired.btn" = "Vollversion kaufen";
-"paywall.expired.banner" = "Ihre 7-tägige kostenlose Testphase ist beendet. Kaufen Sie die App, um alle Funktionen weiterhin zu nutzen, oder beenden Sie sie.";
+/* Upgrade & Paywall */
 
 /* Paywall (Features) */
-"paywall.title" = "TriClean Premium";
-"paywall.subtitle" = "Alle Funktionen freischalten";
-"paywall.feat.disk" = "Speichernutzungs-Analyse";
-"paywall.feat.disk_desc" = "Große Dateien und Ordner schnell finden";
-"paywall.feat.apps" = "App-Datei-Überprüfung";
-"paywall.feat.apps_desc" = "App-Bundles und zugehörige Dateien in der Privat-Library prüfen";
-"paywall.feat.auto" = "Systemüberwachungs-Dashboard";
-"paywall.feat.auto_desc" = "Speicher- und Arbeitsspeicherinformationen an einem Ort";
+"paywall.title" = "TriClean Dauerzugang";
+"paywall.subtitle" = "Löschen und Bereinigen freischalten";
+"paywall.feat.disk" = "Große Dateien und Datenmüll";
+"paywall.feat.disk_desc" = "Ausgewählte große und unnötige Dateien aus den Analyseergebnissen bereinigen";
+"paywall.feat.apps" = "Apps und zugehörige Dateien";
+"paywall.feat.apps_desc" = "Ausgewählte Apps, Caches und Einstellungen prüfen und entfernen";
+"paywall.feat.auto" = "Duplikate und ähnliche Fotos";
+"paywall.feat.auto_desc" = "Benötigte Dateien behalten und ausgewählte Duplikate und Fotos bereinigen";
 
 /* Paywall (Buttons & Status) */
 "paywall.btn.buy_format" = "Jetzt kaufen (%@)";
@@ -395,10 +388,6 @@
 "settings.debug.purchase_status" = "Kaufstatus";
 "settings.debug.purchase_on" = "Gekauft";
 "settings.debug.purchase_off" = "Nicht gekauft";
-"settings.debug.trial_days" = "Testtage";
-"settings.debug.days_button" = "%ld T";
-"settings.debug.actual_value" = "Tatsächlich";
-"settings.debug.current_days" = "Aktuell: %ld Tage";
 
 
 /* Apps View — Stage 3 */
@@ -672,3 +661,10 @@
 "apps.status.related_summary" = "%1$ld zugehörige Elemente wurden verschoben. Fehlgeschlagen: %2$ld; nach erneuter Prüfung übersprungen: %3$ld.";
 "photos.delete.status.revalidate" = "Es wurden keine ausgewählten Fotos entfernt. %ld Element(e) wurden übersprungen, weil sich das aufzubewahrende Foto oder der Pfad geändert hat. Bitte erneut scannen.";
 "photos.delete.status.summary" = "%1$ld Fotos wurden in den Papierkorb verschoben. Fehlgeschlagen: %2$ld; aus Sicherheitsgründen übersprungen: %3$ld.";
+
+// Free analysis / legal access
+"settings.legal" = "Support & Rechtliches";
+"upgrade.bottom.title" = "Kostenloser Analysemodus";
+"upgrade.bottom.desc" = "Scans und Ergebnisse sind kostenlos. Löschen und Bereinigen erfordern die lebenslange Freischaltung.";
+"upgrade.bottom.buy" = "Dauerzugang kaufen";
+"paywall.free_mode.notice" = "Scannen und Analysieren sind kostenlos. Löschen und Bereinigen sind nach dem Kauf der lebenslangen Freischaltung verfügbar.";

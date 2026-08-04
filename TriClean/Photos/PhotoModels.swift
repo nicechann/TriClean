@@ -47,6 +47,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
     let modificationDate: Date?
     let pixelWidth: Int
     let pixelHeight: Int
+    let fileIdentity: FileIdentitySnapshot?
 
     /// 이후 단계(삭제 UI)에서 사용. 1단계에서는 항상 false로 시작합니다.
     var isSelected: Bool = false
@@ -75,6 +76,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
         modificationDate: Date?,
         pixelWidth: Int,
         pixelHeight: Int,
+        fileIdentity: FileIdentitySnapshot? = nil,
         isScreenshot: Bool = false,
         isSelected: Bool = false
     ) {
@@ -84,6 +86,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
         self.modificationDate = modificationDate
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.capture(url)
         self.isScreenshot = isScreenshot
         self.isSelected = isSelected
     }

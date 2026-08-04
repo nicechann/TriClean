@@ -15,39 +15,8 @@ struct PaywallView: View {
     @State private var purchaseErrorMessage: String? = nil
     @State private var showPurchaseErrorAlert: Bool = false
 
-    let allowDismiss: Bool
-
-    init(allowDismiss: Bool = true) {
-        self.allowDismiss = allowDismiss
-    }
-
     var body: some View {
         VStack(spacing: 24) {
-            // ✅ [추가] 만료 상태에서만 표시되는 상황 안내 배너
-            //   사용자가 "왜 갇혔는지" 모르고 당황하는 UX 문제 해결
-            if !allowDismiss {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                    Text("paywall.expired.banner".localized)
-                        .font(.caption)
-                        .foregroundStyle(.primary)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.orange.opacity(0.12))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.orange.opacity(0.35), lineWidth: 1)
-                )
-            }
-
             // 1. 상단 아이콘 및 타이틀
             VStack(spacing: 12) {
                 Image(systemName: "star.fill")
@@ -61,6 +30,13 @@ struct PaywallView: View {
                 Text("paywall.subtitle".localized)
                     .font(.body)
                     .foregroundStyle(.secondary)
+
+                Text("paywall.free_mode.notice".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 12)
             }
             .padding(.top, 20)
 
@@ -150,35 +126,23 @@ struct PaywallView: View {
                 .controlSize(.large)
                 .disabled(storeManager.isLoading)
 
-                // 나중에 하기 (시트에서만)
-                if allowDismiss {
-                    Button { dismiss() } label: {
-                        Text("paywall.btn.later".localized)
-                            .font(.subheadline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                } else {
-                    // ✅ [추가] 만료 시: 명시적 "종료" 버튼 — 사용자가 갇혔다고 느끼지 않도록
-                    Button {
-                        NSApp.terminate(nil)
-                    } label: {
-                        Text("common.quit".localized)
-                            .font(.subheadline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .keyboardShortcut("q", modifiers: [.command])
+                Button { dismiss() } label: {
+                    Text("paywall.btn.later".localized)
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
 
                 // 하단 링크
                 HStack(spacing: 20) {
-                    Link("paywall.link.privacy".localized, destination: URL(string: "https://nicechann.github.io/TriClean-Support/privacy")!)
-                    Link("paywall.link.terms".localized,   destination: URL(string: "https://nicechann.github.io/TriClean-Support/terms")!)
+                    if let privacyURL = AppLinks.privacyPolicy {
+                        Link("paywall.link.privacy".localized, destination: privacyURL)
+                    }
+                    if let termsURL = AppLinks.termsOfUse {
+                        Link("paywall.link.terms".localized, destination: termsURL)
+                    }
                 }
                 .font(.caption)
                 .foregroundStyle(.blue)
@@ -188,7 +152,7 @@ struct PaywallView: View {
         .padding(30)
         // ✅ 다국어 장문에서도 콘텐츠가 잘리지 않도록 고정 높이 대신 최소 높이만 지정
         .frame(width: 450)
-        .frame(minHeight: allowDismiss ? 650 : 720)
+        .frame(minHeight: 650)
         .fixedSize(horizontal: false, vertical: true)
         .background(Color(nsColor: .windowBackgroundColor))
         .cornerRadius(12)
@@ -196,10 +160,10 @@ struct PaywallView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.3))
         .onAppear {
-            if allowDismiss, storeManager.isPurchased { dismiss() }
+            if storeManager.isPurchased { dismiss() }
         }
         .onChange(of: storeManager.isPurchased) { newValue in
-            if allowDismiss, newValue { dismiss() }
+            if newValue { dismiss() }
         }
         // ✅ [수정] 하드코딩 한국어 → localized 키로 교체
         .alert("paywall.error.title".localized, isPresented: $showPurchaseErrorAlert) {

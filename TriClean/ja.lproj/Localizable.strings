@@ -210,27 +210,20 @@
 "settings.debug.clean_fill_desc" = "内部テスト用のデバッグ専用オプションです。";
 
 /* Paywall */
-"paywall.feat.memory" = "リアルタイムメモリモニタリング";
-"paywall.feat.memory_desc" = "システムメモリの構成と使用量の推定値を一目で確認";
+"paywall.feat.memory" = "安全にゴミ箱へ移動";
+"paywall.feat.memory_desc" = "削除前にパスとファイル状態を再確認し、復元可能なゴミ箱へ移動します";
 
-/* Trial & Banner */
-"trial.banner.status" = "体験版: 残り %ld 日";
-"trial.bottom.title" = "無料体験";
-"trial.bottom.days_left" = "残り %ld 日";
-"trial.bottom.buy_now" = "今すぐ購入";
-"trial.expired.msg" = "無料体験期間が終了しました。";
-"trial.expired.btn" = "製品版を購入";
-"paywall.expired.banner" = "7日間の無料体験が終了しました。すべての機能を引き続き使用するには購入するか、Appを終了してください。";
+/* Upgrade & Paywall */
 
 /* Paywall (Features) */
-"paywall.title" = "TriClean Premium";
-"paywall.subtitle" = "すべての機能を制限なく使用";
-"paywall.feat.disk" = "ディスク使用量分析";
-"paywall.feat.disk_desc" = "大容量ファイルやフォルダをすばやく検索";
-"paywall.feat.apps" = "Appファイルレビュー";
-"paywall.feat.apps_desc" = "Appバンドルとユーザーライブラリ関連ファイルを確認";
-"paywall.feat.auto" = "システムモニタリングダッシュボード";
-"paywall.feat.auto_desc" = "ストレージとメモリの情報を一画面で確認";
+"paywall.title" = "TriClean 買い切り版";
+"paywall.subtitle" = "ファイルの削除と整理機能を解除";
+"paywall.feat.disk" = "大容量・不要ファイルの整理";
+"paywall.feat.disk_desc" = "分析結果から選択した大容量ファイルと不要ファイルを整理します";
+"paywall.feat.apps" = "Appと関連ファイルの整理";
+"paywall.feat.apps_desc" = "選択したApp、キャッシュ、設定ファイルを確認して整理します";
+"paywall.feat.auto" = "重複・類似写真の整理";
+"paywall.feat.auto_desc" = "残すファイルを確保し、選択した重複ファイルと写真を整理します";
 
 /* Paywall (Buttons & Status) */
 "paywall.btn.buy_format" = "今すぐ購入 (%@)";
@@ -395,10 +388,6 @@
 "settings.debug.purchase_status" = "購入状態";
 "settings.debug.purchase_on" = "購入済み";
 "settings.debug.purchase_off" = "未購入";
-"settings.debug.trial_days" = "体験日数";
-"settings.debug.days_button" = "%ld 日";
-"settings.debug.actual_value" = "実際の値";
-"settings.debug.current_days" = "現在: %ld 日";
 
 
 /* Apps View — Stage 3 */
@@ -672,3 +661,10 @@
 "apps.status.related_summary" = "関連項目を %1$ld 個移動しました。失敗 %2$ld 件、再検証で除外 %3$ld 件です。";
 "photos.delete.status.revalidate" = "選択した写真は削除されませんでした。保持する写真またはパスが変更された %ld 件を除外しました。もう一度スキャンしてください。";
 "photos.delete.status.summary" = "%1$ld 枚の写真をゴミ箱に移動しました。失敗 %2$ld 件、安全のため除外 %3$ld 件です。";
+
+// Free analysis / legal access
+"settings.legal" = "サポートと法的情報";
+"upgrade.bottom.title" = "無料分析モード";
+"upgrade.bottom.desc" = "スキャンと結果の確認は無料です。ファイルの削除と整理には買い切り版が必要です。";
+"upgrade.bottom.buy" = "買い切り版を購入";
+"paywall.free_mode.notice" = "スキャンと分析は無料で利用できます。ファイルの削除と整理は買い切り版の購入後に利用できます。";

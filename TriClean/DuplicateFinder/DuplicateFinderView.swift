@@ -11,7 +11,9 @@ import SwiftUI
 struct DuplicateFinderView: View {
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
     @EnvironmentObject private var viewModel: DuplicateScannerViewModel
+    @EnvironmentObject private var storeManager: StoreManager
     @State private var showDeleteConfirm = false
+    @State private var showPaywall = false
     @State private var expandedGroupIDs: Set<UUID> = []
 
     var body: some View {
@@ -33,6 +35,10 @@ struct DuplicateFinderView: View {
         .padding()
         .alert("duplicate.delete_confirm.title".localized, isPresented: $showDeleteConfirm) {
             Button("common.move_to_trash".localized, role: .destructive) {
+                guard storeManager.isPurchased else {
+                    showPaywall = true
+                    return
+                }
                 viewModel.deleteDuplicates()
             }
             Button("common.cancel".localized, role: .cancel) {}
@@ -43,6 +49,10 @@ struct DuplicateFinderView: View {
                     viewModel.selectedReclaimableString
                 )
             )
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environmentObject(storeManager)
         }
         .alert(item: $viewModel.lastCleanupResult) { result in
             Alert(
@@ -250,7 +260,11 @@ struct DuplicateFinderView: View {
                 Spacer()
 
                 Button(role: .destructive) {
-                    showDeleteConfirm = true
+                    if storeManager.isPurchased {
+                        showDeleteConfirm = true
+                    } else {
+                        showPaywall = true
+                    }
                 } label: {
                     Label(
                         "duplicate.footer.delete".localized(with: viewModel.selectedDeleteCount, viewModel.selectedReclaimableString),
@@ -492,5 +506,6 @@ struct DuplicateFinderView: View {
 #Preview {
     DuplicateFinderView()
         .environmentObject(DuplicateScannerViewModel())
+        .environmentObject(StoreManager.shared)
         .frame(width: 960, height: 720)
 }

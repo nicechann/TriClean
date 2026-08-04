@@ -119,4 +119,17 @@ final class PhotoClusteringTests: XCTestCase {
         )
     }
 
+    func test_픽셀_크기를_확인할_수_없는_사진은_자동_그룹에서_제외한다() {
+        let known = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "known", hash: 0x1234, pixelWidth: 1200, pixelHeight: 800
+        )
+        let unknown = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "unknown", hash: 0x1234, pixelWidth: 0, pixelHeight: 0
+        )
+
+        XCTAssertTrue(
+            PhotoScannerViewModel.clusterByHash([known, unknown], threshold: threshold).isEmpty
+        )
+    }
+
 }

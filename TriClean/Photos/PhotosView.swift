@@ -63,10 +63,12 @@ final class PhotoThumbnailCache {
 struct PhotosView: View {
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
     @EnvironmentObject private var viewModel: PhotoScannerViewModel
+    @EnvironmentObject private var storeManager: StoreManager
 
     private let columns = [GridItem(.adaptive(minimum: 120, maximum: 120), spacing: 12)]
 
     @State private var showDeleteConfirm = false
+    @State private var showPaywall = false
 
     var body: some View {
         ScrollView {
@@ -94,10 +96,18 @@ struct PhotosView: View {
         .alert("photos.delete.confirm.title".localized, isPresented: $showDeleteConfirm) {
             Button("common.cancel".localized, role: .cancel) { }
             Button("photos.delete.confirm.button".localized, role: .destructive) {
+                guard storeManager.isPurchased else {
+                    showPaywall = true
+                    return
+                }
                 viewModel.deleteSelected()
             }
         } message: {
             Text("photos.delete.confirm.msg".localized(with: viewModel.selectedCount))
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environmentObject(storeManager)
         }
     }
 
@@ -126,7 +136,11 @@ struct PhotosView: View {
             .buttonStyle(.bordered)
             .disabled(viewModel.isDeleting)
             Button(role: .destructive) {
-                showDeleteConfirm = true
+                if storeManager.isPurchased {
+                    showDeleteConfirm = true
+                } else {
+                    showPaywall = true
+                }
             } label: {
                 Label("photos.action.trash".localized, systemImage: "trash")
             }
@@ -602,6 +616,7 @@ private struct PhotoThumbnailCell: View {
 
     let item: PhotoItem
     @EnvironmentObject private var viewModel: PhotoScannerViewModel
+    @EnvironmentObject private var storeManager: StoreManager
     @State private var image: NSImage?
     @State private var didFinishLoading = false
 
@@ -692,5 +707,6 @@ private struct PhotoThumbnailCell: View {
 #Preview {
     PhotosView()
         .environmentObject(PhotoScannerViewModel())
+        .environmentObject(StoreManager.shared)
         .frame(width: 960, height: 720)
 }

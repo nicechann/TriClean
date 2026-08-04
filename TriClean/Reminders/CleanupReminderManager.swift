@@ -11,7 +11,7 @@
 //  - 예약은 UNCalendarNotificationTrigger(repeats: true)로 매주 같은 요일·시간에 반복.
 //  - 같은 활성화 주기에는 고정 식별자로 add해 기존 예약을 교체하고,
 //    OFF → ON 시에는 새 식별자로 회전해 비동기 삭제와 신규 예약의 경쟁 조건을 방지합니다.
-//  - 다른 매니저(StoreManager/TrialManager/KeychainHelper)와 동일하게
+//  - 다른 매니저(StoreManager)와 동일하게
 //    @MainActor + .shared 싱글톤 + os.Logger 패턴을 따릅니다.
 //
 

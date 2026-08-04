@@ -54,7 +54,20 @@ struct DuplicateFile: Identifiable, Hashable {
     let id = UUID()
     let url: URL
     let modificationDate: Date?
+    let fileIdentity: FileIdentitySnapshot?
     var isKeep: Bool = false    // true = 보존, false = 삭제 대상
+
+    nonisolated init(
+        url: URL,
+        modificationDate: Date?,
+        fileIdentity: FileIdentitySnapshot? = nil,
+        isKeep: Bool = false
+    ) {
+        self.url = url
+        self.modificationDate = modificationDate
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.capture(url)
+        self.isKeep = isKeep
+    }
 
     var name: String { url.lastPathComponent }
     var path: String { url.path }

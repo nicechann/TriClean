@@ -362,9 +362,8 @@ private struct DiskUsageSummaryView: View {
 
 struct StorageView: View {
 
-    // ✅ StoreManager, TrialManager 연결
+    // 구매 상태 연결
     @EnvironmentObject private var storeManager: StoreManager
-    @EnvironmentObject private var trialManager: TrialManager
 
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용 (SmartScan과 상태 공유)
     @EnvironmentObject private var junkViewModel: JunkScannerViewModel
@@ -392,7 +391,7 @@ struct StorageView: View {
             VStack(alignment: .leading, spacing: 14) {
                 diskHeaderSection
 
-                JunkSectionView(viewModel: junkViewModel)
+                JunkSectionView(viewModel: junkViewModel, onUpgradeRequired: { showPaywall = true })
                     .padding(.horizontal, sectionInset)
 
                 Spacer(minLength: 10)
@@ -406,10 +405,7 @@ struct StorageView: View {
         .safeAreaInset(edge: .bottom) {
             if !storeManager.isPurchased {
                 Divider()
-                TrialBottomBanner(
-                    daysRemaining: trialManager.daysRemaining,
-                    onBuyTap: { showPaywall = true }
-                )
+                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
                 .frame(maxWidth: .infinity)
                 // ✅ 상단 섹션(디스크 카드 내부 12pt 인셋)과 동일한 좌우 정렬
                 .padding(.horizontal, outerPadding + sectionInset)
@@ -419,7 +415,7 @@ struct StorageView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(allowDismiss: true)
+            PaywallView()
                 .environmentObject(storeManager)
         }
         .onAppear {

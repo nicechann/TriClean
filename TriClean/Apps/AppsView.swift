@@ -1053,9 +1053,11 @@ final class AppsViewModel: ObservableObject {
 struct AppsView: View {
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용
     @EnvironmentObject private var viewModel: AppsViewModel
+    @EnvironmentObject private var storeManager: StoreManager
     @State private var activeAlert: AppsActiveAlert?
     @State private var hoveredAppID: String? = nil
     @State private var showCompactDetailsSheet = false
+    @State private var showPaywall = false
 
     private let inspectorBreakpoint: CGFloat = 1400
     private let inspectorMinWidth: CGFloat = 340
@@ -1078,6 +1080,10 @@ struct AppsView: View {
         .alert(item: $activeAlert) { makeAlert($0) }
         .sheet(isPresented: $showCompactDetailsSheet) {
             compactDetailsSheet
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environmentObject(storeManager)
         }
     }
 
@@ -1333,7 +1339,7 @@ struct AppsView: View {
                     Spacer()
 
                     Button("apps.btn.uninstall".localized) {
-                        activeAlert = .uninstallApps
+                        requestPremiumAlert(.uninstallApps)
                     }
                     .frame(width: 120)
                     .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
@@ -1371,7 +1377,7 @@ struct AppsView: View {
                     .disabled(viewModel.selectedAppsCount == 0 || viewModel.isRemoving)
 
                     Button("apps.btn.uninstall".localized) {
-                        activeAlert = .uninstallApps
+                        requestPremiumAlert(.uninstallApps)
                     }
                     .frame(width: 120)
                     .disabled(viewModel.deletableSelectedApps.isEmpty || viewModel.isRemoving)
@@ -1647,7 +1653,7 @@ struct AppsView: View {
                             Spacer()
 
                             Button("apps.details.trash_selected".localized) {
-                                activeAlert = .removeRelatedFiles
+                                requestPremiumAlert(.removeRelatedFiles)
                             }
                             .disabled(viewModel.isRemoving || viewModel.selectedRelatedCount == 0)
                         }
@@ -1671,6 +1677,14 @@ struct AppsView: View {
         }
     }
 
+    private func requestPremiumAlert(_ alert: AppsActiveAlert) {
+        if storeManager.isPurchased {
+            activeAlert = alert
+        } else {
+            showPaywall = true
+        }
+    }
+
     private func makeAlert(_ alert: AppsActiveAlert) -> Alert {
         switch alert {
         case .uninstallApps:
@@ -1680,6 +1694,10 @@ struct AppsView: View {
                 title: Text("apps.alert.uninstall.title".localized),
                 message: Text(summary),
                 primaryButton: .destructive(Text("common.trash".localized)) {
+                    guard storeManager.isPurchased else {
+                        showPaywall = true
+                        return
+                    }
                     viewModel.uninstallSelectedInstalledApps { nextAlert in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.activeAlert = nextAlert
@@ -1709,6 +1727,10 @@ struct AppsView: View {
                 title: Text("apps.alert.related.title".localized),
                 message: Text("apps.alert.related.msg".localized(with: count, sizeText)),
                 primaryButton: .destructive(Text("common.trash".localized)) {
+                    guard storeManager.isPurchased else {
+                        showPaywall = true
+                        return
+                    }
                     viewModel.removeSelectedRelatedItems()
                 },
                 secondaryButton: .cancel(Text("common.cancel".localized))
@@ -1784,4 +1806,5 @@ struct AppsView: View {
 #Preview {
     AppsView()
         .environmentObject(AppsViewModel())
+        .environmentObject(StoreManager.shared)
 }

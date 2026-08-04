@@ -210,27 +210,20 @@
 "settings.debug.clean_fill_desc" = "Opción de depuración solo para pruebas internas.";
 
 /* Paywall */
-"paywall.feat.memory" = "Monitoreo de memoria en tiempo real";
-"paywall.feat.memory_desc" = "Visualiza de un vistazo la composición y el uso estimados de la memoria del sistema";
+"paywall.feat.memory" = "Mover a la papelera con seguridad";
+"paywall.feat.memory_desc" = "Se vuelven a comprobar las rutas y el estado antes de mover archivos a la papelera recuperable";
 
-/* Trial & Banner */
-"trial.banner.status" = "Prueba: %ld días restantes";
-"trial.bottom.title" = "Prueba gratuita";
-"trial.bottom.days_left" = "%ld días restantes";
-"trial.bottom.buy_now" = "Comprar ahora";
-"trial.expired.msg" = "Tu prueba gratuita ha terminado.";
-"trial.expired.btn" = "Comprar versión completa";
-"paywall.expired.banner" = "Tu prueba gratuita de 7 días ha terminado. Compra la app para seguir usando todas las funciones, o sal de la app.";
+/* Upgrade & Paywall */
 
 /* Paywall (Features) */
-"paywall.title" = "TriClean Premium";
-"paywall.subtitle" = "Desbloquea todas las funciones";
-"paywall.feat.disk" = "Análisis del uso del disco";
-"paywall.feat.disk_desc" = "Encuentra rápidamente archivos y carpetas grandes";
-"paywall.feat.apps" = "Revisión de archivos de apps";
-"paywall.feat.apps_desc" = "Revisa paquetes de apps y archivos relacionados en tu Biblioteca personal";
-"paywall.feat.auto" = "Panel de monitoreo del sistema";
-"paywall.feat.auto_desc" = "Mantén la información de almacenamiento y memoria en un solo lugar";
+"paywall.title" = "Acceso de por vida a TriClean";
+"paywall.subtitle" = "Desbloquea el borrado y la limpieza";
+"paywall.feat.disk" = "Limpieza de archivos grandes";
+"paywall.feat.disk_desc" = "Limpia los archivos grandes e innecesarios seleccionados en los resultados";
+"paywall.feat.apps" = "Limpieza de apps y archivos relacionados";
+"paywall.feat.apps_desc" = "Revisa y elimina apps, cachés y ajustes seleccionados";
+"paywall.feat.auto" = "Duplicados y fotos similares";
+"paywall.feat.auto_desc" = "Conserva los archivos necesarios y limpia los duplicados y fotos seleccionados";
 
 /* Paywall (Buttons & Status) */
 "paywall.btn.buy_format" = "Comprar (%@)";
@@ -395,10 +388,6 @@
 "settings.debug.purchase_status" = "Estado de la compra";
 "settings.debug.purchase_on" = "Comprado";
 "settings.debug.purchase_off" = "No comprado";
-"settings.debug.trial_days" = "Días de prueba";
-"settings.debug.days_button" = "%ld d";
-"settings.debug.actual_value" = "Real";
-"settings.debug.current_days" = "Actual: %ld días";
 
 
 /* Apps View — Stage 3 */
@@ -672,3 +661,10 @@
 "apps.status.related_summary" = "Se movieron %1$ld elementos relacionados. Fallaron: %2$ld; omitidos tras verificar: %3$ld.";
 "photos.delete.status.revalidate" = "No se eliminó ninguna foto seleccionada. Se omitieron %ld elemento(s) porque cambió la foto que debía conservarse o la ruta. Vuelve a analizar.";
 "photos.delete.status.summary" = "Se movieron %1$ld fotos a la Papelera. Fallaron: %2$ld; omitidas por seguridad: %3$ld.";
+
+// Free analysis / legal access
+"settings.legal" = "Soporte y avisos legales";
+"upgrade.bottom.title" = "Modo de análisis gratuito";
+"upgrade.bottom.desc" = "El análisis y los resultados son gratuitos. El borrado y la limpieza requieren el acceso de por vida.";
+"upgrade.bottom.buy" = "Comprar acceso de por vida";
+"paywall.free_mode.notice" = "El análisis es gratuito. El borrado de archivos y la limpieza están disponibles tras comprar el acceso de por vida.";

@@ -383,11 +383,17 @@ final class DuplicateScannerViewModel: ObservableObject {
         let fileID: UUID
         let url: URL
         let perFileSize: Int64
+        let fileIdentity: FileIdentitySnapshot?
+    }
+
+    private struct KeeperSnapshot: Sendable {
+        let url: URL
+        let fileIdentity: FileIdentitySnapshot?
     }
 
     /// 삭제 결과의 단위
     private struct DeleteGroupSnapshot: Sendable {
-        let keeperURL: URL?
+        let keeper: KeeperSnapshot?
         let targets: [DeleteTarget]
     }
 
@@ -401,6 +407,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     /// 삭제 직전에 보안 스코프 안에서 보존본과 모든 대상 경로를 재검증합니다.
     func deleteDuplicates() {
+        guard StoreManager.shared.isPurchased else { return }
         guard let folder = scanFolderURL?.standardizedFileURL else { return }
         guard canDeleteSelected else {
             statusMessage = "duplicate.status.nothing_selected".localized
@@ -410,9 +417,19 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         let snapshots: [DeleteGroupSnapshot] = groups.map { group in
             DeleteGroupSnapshot(
-                keeperURL: group.keptFile?.url.standardizedFileURL,
+                keeper: group.keptFile.map {
+                    KeeperSnapshot(
+                        url: $0.url.standardizedFileURL,
+                        fileIdentity: $0.fileIdentity
+                    )
+                },
                 targets: group.files.filter { !$0.isKeep }.map {
-                    DeleteTarget(fileID: $0.id, url: $0.url.standardizedFileURL, perFileSize: group.fileSize)
+                    DeleteTarget(
+                        fileID: $0.id,
+                        url: $0.url.standardizedFileURL,
+                        perFileSize: group.fileSize,
+                        fileIdentity: $0.fileIdentity
+                    )
                 }
             )
         }
@@ -446,13 +463,18 @@ final class DuplicateScannerViewModel: ObservableObject {
         var excludedCount = 0
 
         for snapshot in snapshots {
-            guard let keeperURL = snapshot.keeperURL,
-                  DeletionSafety.isContained(keeperURL, inScope: folder),
-                  fm.fileExists(atPath: keeperURL.path) else {
+            guard let keeper = snapshot.keeper,
+                  DeletionSafety.isContained(keeper.url, inScope: folder),
+                  keeper.fileIdentity?.matchesCurrentFile(at: keeper.url) == true else {
                 excludedCount += snapshot.targets.count
                 continue
             }
-            candidates.append(contentsOf: snapshot.targets)
+
+            let currentTargets = snapshot.targets.filter {
+                $0.fileIdentity?.matchesCurrentFile(at: $0.url) == true
+            }
+            excludedCount += snapshot.targets.count - currentTargets.count
+            candidates.append(contentsOf: currentTargets)
         }
 
         let sanitized = DeletionSafety.sanitize(candidates, scope: folder, url: \.url)
@@ -518,6 +540,11 @@ final class DuplicateScannerViewModel: ObservableObject {
         var failedCount = 0
 
         for target in targets {
+            guard target.fileIdentity?.matchesCurrentFile(at: target.url) == true else {
+                failedCount += 1
+                continue
+            }
+
             var didSucceed = false
 
             do {
