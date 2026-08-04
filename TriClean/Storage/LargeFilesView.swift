@@ -924,15 +924,21 @@ struct LargeFilesView: View {
         // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
         // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
         let sanitized = DeletionSafety.sanitize(candidates, scope: selectedRootURL, url: \.url)
+        let identityValidated = DeletionSafety.revalidateIdentity(
+            sanitized.accepted,
+            url: \.url,
+            identity: \.fileIdentity
+        )
         var succeededURLs = Set<URL>()
         let fm = FileManager.default
 
-        for item in sanitized.accepted {
+        for item in identityValidated.accepted {
             let target = item.url.standardizedFileURL
             do {
                 try fm.trashItem(at: target, resultingItemURL: nil)
                 succeededURLs.insert(target)
             } catch {
+                guard item.fileIdentity?.matchesCurrentItem(at: target) == true else { continue }
                 let recycled = await recycleWithWorkspace(target)
                 if recycled {
                     succeededURLs.insert(target)
@@ -945,7 +951,7 @@ struct LargeFilesView: View {
 
         return LargeDeleteOutcome(
             succeededURLs: succeededURLs,
-            rejectedCount: sanitized.rejectedCount
+            rejectedCount: sanitized.rejectedCount + identityValidated.rejectedCount
         )
     }
 

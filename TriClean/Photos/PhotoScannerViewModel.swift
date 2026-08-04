@@ -713,6 +713,7 @@ final class PhotoScannerViewModel: ObservableObject {
             try FileManager.default.trashItem(at: item.url, resultingItemURL: nil)
             return true
         } catch {
+            guard item.fileIdentity?.matchesCurrentFile(at: item.url) == true else { return false }
             // ✅ trashItem 실패 시 NSWorkspace.recycle로 폴백(다른 스캐너와 동일 패턴).
             return await recycleUsingWorkspace(item.url)
         }

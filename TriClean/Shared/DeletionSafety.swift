@@ -111,4 +111,27 @@ nonisolated enum DeletionSafety {
 
         return (accepted, rejected)
     }
+
+    /// 스캔 시 저장한 파일 시스템 식별 정보와 현재 항목이 일치하는 대상만 남깁니다.
+    /// 같은 경로가 다른 파일이나 폴더로 교체된 경우 삭제에서 제외합니다.
+    nonisolated static func revalidateIdentity<T>(
+        _ candidates: [T],
+        url: (T) -> URL,
+        identity: (T) -> FileIdentitySnapshot?
+    ) -> (accepted: [T], rejectedCount: Int) {
+        var accepted: [T] = []
+        var rejected = 0
+
+        for candidate in candidates {
+            guard let snapshot = identity(candidate),
+                  snapshot.matchesCurrentItem(at: url(candidate)) else {
+                rejected += 1
+                continue
+            }
+            accepted.append(candidate)
+        }
+
+        return (accepted, rejected)
+    }
+
 }

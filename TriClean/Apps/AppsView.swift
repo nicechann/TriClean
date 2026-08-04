@@ -108,6 +108,7 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let isSystemApp: Bool
     let isAppStoreApp: Bool
     let modifiedDate: Date?
+    let fileIdentity: FileIdentitySnapshot?
 
     // 미리 계산된 문자열 저장
     let id: String
@@ -124,7 +125,16 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
         return modifiedDate.formatted(date: .abbreviated, time: .omitted)
     }
 
-    nonisolated init(name: String, bundleID: String?, url: URL, canUninstall: Bool, isSystemApp: Bool, isAppStoreApp: Bool, modifiedDate: Date?) {
+    nonisolated init(
+        name: String,
+        bundleID: String?,
+        url: URL,
+        canUninstall: Bool,
+        isSystemApp: Bool,
+        isAppStoreApp: Bool,
+        modifiedDate: Date?,
+        fileIdentity: FileIdentitySnapshot? = nil
+    ) {
         self.name = name
         self.bundleID = bundleID
         self.url = url
@@ -132,6 +142,7 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
         self.isSystemApp = isSystemApp
         self.isAppStoreApp = isAppStoreApp
         self.modifiedDate = modifiedDate
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
         self.id = url.path(percentEncoded: false)
         self.location = url.deletingLastPathComponent().path(percentEncoded: false)
     }
@@ -142,6 +153,7 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     var selected: Bool
     let isDirectory: Bool
     let sizeBytes: Int64
+    let fileIdentity: FileIdentitySnapshot?
 
     let id: String
     let path: String
@@ -151,11 +163,18 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
         ByteCountFormatter.string(fromByteCount: sizeBytes, countStyle: .file)
     }
 
-    nonisolated init(url: URL, selected: Bool, isDirectory: Bool, sizeBytes: Int64 = 0) {
+    nonisolated init(
+        url: URL,
+        selected: Bool,
+        isDirectory: Bool,
+        sizeBytes: Int64 = 0,
+        fileIdentity: FileIdentitySnapshot? = nil
+    ) {
         self.url = url
         self.selected = selected
         self.isDirectory = isDirectory
         self.sizeBytes = sizeBytes
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
 
         let rawPath = url.path(percentEncoded: false)
         self.id = rawPath
@@ -847,6 +866,13 @@ final class AppsViewModel: ObservableObject {
     }
 
     func uninstallSelectedInstalledApps(completion: @escaping (AppsActiveAlert?) -> Void) {
+        guard StoreManager.shared.isPurchased else {
+            lastStatusIsError = false
+            lastStatusMessage = "paywall.free_mode.notice".localized
+            completion(nil)
+            return
+        }
+
         let candidates = deletableSelectedApps
         guard !candidates.isEmpty else {
             lastStatusIsError = true
@@ -928,10 +954,19 @@ final class AppsViewModel: ObservableObject {
         var failed: [AppsInstalledApp] = []
 
         for app in targets {
+            guard app.fileIdentity?.matchesCurrentItem(at: app.url) == true else {
+                failed.append(app)
+                continue
+            }
+
             do {
                 try fm.trashItem(at: app.url, resultingItemURL: nil)
                 succeeded.append(app)
             } catch {
+                guard app.fileIdentity?.matchesCurrentItem(at: app.url) == true else {
+                    failed.append(app)
+                    continue
+                }
                 let ok = await moveItemToTrashUsingWorkspace(url: app.url)
                 if ok { succeeded.append(app) }
                 else { failed.append(app) }
@@ -957,6 +992,12 @@ final class AppsViewModel: ObservableObject {
     }
 
     func removeSelectedRelatedItems() {
+        guard StoreManager.shared.isPurchased else {
+            lastStatusIsError = false
+            lastStatusMessage = "paywall.free_mode.notice".localized
+            return
+        }
+
         let candidates = relatedItems.filter { $0.selected }
         guard !candidates.isEmpty else { return }
         guard let libraryRoot = userLibraryFolderURL?.standardizedFileURL else {
@@ -1021,10 +1062,19 @@ final class AppsViewModel: ObservableObject {
         var failed: [AppsRelatedItem] = []
 
         for item in targets {
+            guard item.fileIdentity?.matchesCurrentItem(at: item.url) == true else {
+                failed.append(item)
+                continue
+            }
+
             do {
                 try fm.trashItem(at: item.url, resultingItemURL: nil)
                 succeeded.append(item)
             } catch {
+                guard item.fileIdentity?.matchesCurrentItem(at: item.url) == true else {
+                    failed.append(item)
+                    continue
+                }
                 let ok = await moveItemToTrashUsingWorkspace(url: item.url)
                 if ok { succeeded.append(item) }
                 else { failed.append(item) }

@@ -551,6 +551,10 @@ final class DuplicateScannerViewModel: ObservableObject {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 didSucceed = true
             } catch {
+                guard target.fileIdentity?.matchesCurrentFile(at: target.url) == true else {
+                    failedCount += 1
+                    continue
+                }
                 // Fallback: NSWorkspace.recycle (AppKit 접근은 MainActor에서 수행)
                 didSucceed = await recycleWithWorkspace(target.url)
             }

@@ -59,13 +59,22 @@ struct JunkItem: Identifiable, Hashable {
     let url: URL
     let sizeBytes: Int64
     let categoryID: String
+    let fileIdentity: FileIdentitySnapshot?
     var isSelected: Bool
 
-    nonisolated init(id: UUID = UUID(), url: URL, sizeBytes: Int64, categoryID: String, isSelected: Bool = true) {
+    nonisolated init(
+        id: UUID = UUID(),
+        url: URL,
+        sizeBytes: Int64,
+        categoryID: String,
+        fileIdentity: FileIdentitySnapshot? = nil,
+        isSelected: Bool = true
+    ) {
         self.id = id
         self.url = url
         self.sizeBytes = sizeBytes
         self.categoryID = categoryID
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
         self.isSelected = isSelected
     }
 

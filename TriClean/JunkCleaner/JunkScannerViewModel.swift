@@ -354,6 +354,7 @@ final class JunkScannerViewModel: ObservableObject {
     private struct CleanTarget: Sendable {
         let id: UUID
         let url: URL
+        let fileIdentity: FileIdentitySnapshot?
     }
 
     private struct CleanOutcome: Sendable {
@@ -363,9 +364,20 @@ final class JunkScannerViewModel: ObservableObject {
     }
 
     func cleanSelected() {
+        guard StoreManager.shared.isPurchased else {
+            scanProgress = "paywall.free_mode.notice".localized
+            return
+        }
+
         let candidates = results
             .flatMap { $0.items.filter(\.isSelected) }
-            .map { CleanTarget(id: $0.id, url: $0.url.standardizedFileURL) }
+            .map {
+                CleanTarget(
+                    id: $0.id,
+                    url: $0.url.standardizedFileURL,
+                    fileIdentity: $0.fileIdentity
+                )
+            }
         guard !candidates.isEmpty else { return }
         guard let library = libraryURL?.standardizedFileURL else { return }
         guard !isCleaning else { return }
@@ -409,15 +421,24 @@ final class JunkScannerViewModel: ObservableObject {
 
         // 보안 스코프가 열린 상태에서 경로 경계와 존재 여부를 삭제 직전에 검사합니다.
         let sanitized = DeletionSafety.sanitize(candidates, scope: scopeURL, url: \.url)
+        let identityValidated = DeletionSafety.revalidateIdentity(
+            sanitized.accepted,
+            url: \.url,
+            identity: \.fileIdentity
+        )
         let fm = FileManager.default
         var succeededIDs = Set<UUID>()
         var failedCount = 0
 
-        for target in sanitized.accepted {
+        for target in identityValidated.accepted {
             do {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 succeededIDs.insert(target.id)
             } catch {
+                guard target.fileIdentity?.matchesCurrentItem(at: target.url) == true else {
+                    failedCount += 1
+                    continue
+                }
                 let ok = await recycleUsingWorkspace(target.url)
                 if ok {
                     succeededIDs.insert(target.id)
@@ -430,7 +451,7 @@ final class JunkScannerViewModel: ObservableObject {
         return CleanOutcome(
             succeededIDs: succeededIDs,
             failedCount: failedCount,
-            excludedCount: sanitized.rejectedCount
+            excludedCount: sanitized.rejectedCount + identityValidated.rejectedCount
         )
     }
 

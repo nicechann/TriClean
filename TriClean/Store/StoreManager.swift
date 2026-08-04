@@ -24,6 +24,7 @@ private let storeLogger = Logger(subsystem: "com.nicechann.TriClean", category: 
 final class StoreManager: ObservableObject {
     static let shared = StoreManager()
     private var updatesTask: Task<Void, Never>?
+    private var purchaseStateGeneration: UInt = 0
 
     private let enableGrandfathering: Bool = false
     private let productID = "com.triclean.lifetime"
@@ -41,7 +42,13 @@ final class StoreManager: ObservableObject {
     @Published var debugPurchaseOverride: Bool = UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
         didSet {
             UserDefaults.standard.set(debugPurchaseOverride, forKey: "debug.purchaseOverride")
-            isPurchased = debugPurchaseOverride
+            purchaseStateGeneration &+= 1
+            if debugPurchaseOverride {
+                isPurchased = true
+                hasLoadedPurchaseState = true
+            } else {
+                Task { await updatePurchasedStatus() }
+            }
         }
     }
     #endif
@@ -61,6 +68,7 @@ final class StoreManager: ObservableObject {
     //   - 앱 종료 시 Task는 시스템에 의해 자동 정리됨.
 
     func purchase() async throws {
+        guard !isLoading else { return }
         // ✅ [수정] 조용히 return하면 상품 로드 실패 시 버튼이 반응 없는 것처럼 보인다.
         guard let product = products.first else { throw StoreError.productUnavailable }
         isLoading = true
@@ -80,6 +88,10 @@ final class StoreManager: ObservableObject {
     }
 
     func restore() async throws {
+        guard !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
+
         try await AppStore.sync()
         await updatePurchasedStatus()
     }
@@ -152,20 +164,22 @@ final class StoreManager: ObservableObject {
         }
     }
 
-    /// ✅ [수정] 진입 시 `isPurchased = false`를 즉시 publish하면
-    ///   Transaction.updates 수신으로 재실행될 때 구매 사용자에게 Paywall이
-    ///   순간 노출된다. 로컬에서 판정하고 종료 시 한 번만 반영한다.
+    /// 구매 상태 갱신은 여러 경로(초기화·구매·복원·Transaction.updates)에서
+    /// 동시에 요청될 수 있습니다. 세대 번호로 오래된 결과가 최신 상태를 덮지 않게 합니다.
     private func updatePurchasedStatus() async {
-        var resolved = false
-        defer {
-            isPurchased = resolved
-            hasLoadedPurchaseState = true
-        }
+        purchaseStateGeneration &+= 1
+        let generation = purchaseStateGeneration
+        let resolved = await resolvePurchasedStatus()
 
+        guard generation == purchaseStateGeneration else { return }
+        isPurchased = resolved
+        hasLoadedPurchaseState = true
+    }
+
+    private func resolvePurchasedStatus() async -> Bool {
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
-            resolved = true
-            return
+            return true
         }
         #endif
 
@@ -173,10 +187,11 @@ final class StoreManager: ObservableObject {
             do {
                 let transaction = try verified(result)
                 if transaction.productID == productID {
-                    resolved = true
-                    return
+                    return true
                 }
-            } catch { continue }
+            } catch {
+                continue
+            }
         }
 
         if enableGrandfathering {
@@ -184,11 +199,12 @@ final class StoreManager: ObservableObject {
                 let appTransaction = try verified(await AppTransaction.shared)
                 if let v = Version.parse(appTransaction.originalAppVersion),
                    v <= Version(major: 1, minor: 0, patch: 0) {
-                    resolved = true
-                    return
+                    return true
                 }
             } catch {}
         }
+
+        return false
     }
 
     nonisolated private func verified<T>(_ result: VerificationResult<T>) throws -> T {

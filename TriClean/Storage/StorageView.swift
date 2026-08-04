@@ -122,6 +122,7 @@ struct FolderInfo: Identifiable, Hashable, Sendable {
     let url: URL
     let sizeBytes: Int64
     let isDirectory: Bool
+    let fileIdentity: FileIdentitySnapshot?
     
     /// Table에서 "하위 항목처럼" 보이기 위한 들여쓰기 깊이
     /// - 0: 루트의 직계 결과(폴더/파일)
@@ -131,12 +132,20 @@ struct FolderInfo: Identifiable, Hashable, Sendable {
     /// depth > 0 인 경우, 어떤 상위 폴더 아래에 붙는지(표시/삭제 동기화용)
     let parentURL: URL?
     
-    nonisolated init(url: URL, sizeBytes: Int64, isDirectory: Bool, depth: Int = 0, parentURL: URL? = nil) {
+    nonisolated init(
+        url: URL,
+        sizeBytes: Int64,
+        isDirectory: Bool,
+        depth: Int = 0,
+        parentURL: URL? = nil,
+        fileIdentity: FileIdentitySnapshot? = nil
+    ) {
         self.url = url
         self.sizeBytes = sizeBytes
         self.isDirectory = isDirectory
         self.depth = depth
         self.parentURL = parentURL
+        self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
     }
     
     var name: String { url.lastPathComponent }
