@@ -36,4 +36,64 @@ final class JunkCategoryPolicyTests: XCTestCase {
             XCTAssertEqual(riskLevel.defaultSelected, riskLevel == .safe)
         }
     }
+
+    func test_일반캐시에서_Safari전용경로를_제외한다() throws {
+        let category = try XCTUnwrap(
+            JunkCategory.defaultCategories.first { $0.id == "system_caches" }
+        )
+
+        XCTAssertEqual(
+            category.excludedChildNames,
+            ["com.apple.Safari", "com.apple.Safari.SafeBrowsing"]
+        )
+    }
+
+    func test_일반로그에서_충돌보고서경로를_제외한다() throws {
+        let category = try XCTUnwrap(
+            JunkCategory.defaultCategories.first { $0.id == "system_logs" }
+        )
+
+        XCTAssertEqual(
+            category.excludedChildNames,
+            ["DiagnosticReports", "CrashReporter"]
+        )
+    }
+
+    func test_정크카테고리끼리_상위하위경로가_중복되지_않는다() {
+        let categories = JunkCategory.defaultCategories
+
+        for ancestorCategory in categories {
+            for ancestorPath in ancestorCategory.relativePaths {
+                let ancestorComponents = pathComponents(ancestorPath)
+
+                for descendantCategory in categories where descendantCategory.id != ancestorCategory.id {
+                    for descendantPath in descendantCategory.relativePaths {
+                        let descendantComponents = pathComponents(descendantPath)
+
+                        if descendantComponents == ancestorComponents {
+                            XCTFail(
+                                "\(ancestorCategory.id)와 \(descendantCategory.id)가 같은 경로 \(ancestorPath)을 중복 등록했습니다."
+                            )
+                            continue
+                        }
+
+                        guard descendantComponents.count > ancestorComponents.count,
+                              descendantComponents.starts(with: ancestorComponents)
+                        else { continue }
+
+                        let directChildName = descendantComponents[ancestorComponents.count]
+                        XCTAssertTrue(
+                            ancestorCategory.excludedChildNames.contains(directChildName),
+                            "\(ancestorCategory.id): \(ancestorPath)에서 별도 카테고리 경로 \(descendantPath)의 직계 하위 \(directChildName)을 제외해야 합니다."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private func pathComponents(_ path: String) -> [String] {
+        path.split(separator: "/").map(String.init)
+    }
+
 }

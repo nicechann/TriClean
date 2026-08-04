@@ -200,10 +200,12 @@ final class JunkScannerViewModel: ObservableObject {
                     // 폴더 전체 크기 계산
                     let categoryID = category.id
                     let defaultSelected = category.riskLevel.defaultSelected
+                    let excludedChildNames = category.excludedChildNames
                     let items = await Task.detached(priority: .utility) {
                         Self.scanJunkItems(
                             at: targetURL,
                             categoryID: categoryID,
+                            excludedChildNames: excludedChildNames,
                             defaultSelected: defaultSelected
                         )
                     }.value
@@ -251,6 +253,7 @@ final class JunkScannerViewModel: ObservableObject {
     nonisolated private static func scanJunkItems(
         at url: URL,
         categoryID: String,
+        excludedChildNames: Set<String>,
         defaultSelected: Bool
     ) -> [JunkItem] {
         let fm = FileManager.default
@@ -276,6 +279,10 @@ final class JunkScannerViewModel: ObservableObject {
         items.reserveCapacity(contents.count)
         
         for itemURL in contents {
+            guard !excludedChildNames.contains(itemURL.lastPathComponent) else {
+                continue
+            }
+
             let itemSize = folderSize(at: itemURL)
             guard itemSize > 1024 else { continue } // 1KB 미만 스킵
             

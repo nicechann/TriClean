@@ -17,7 +17,27 @@ struct JunkCategory: Identifiable, Hashable {
     let icon: String
     let description: String
     let relativePaths: [String]
+    /// 상위 경로를 스캔할 때 별도 카테고리로 제공하는 직계 하위 항목은 제외한다.
+    let excludedChildNames: Set<String>
     let riskLevel: RiskLevel
+
+    init(
+        id: String,
+        name: String,
+        icon: String,
+        description: String,
+        relativePaths: [String],
+        excludedChildNames: Set<String> = [],
+        riskLevel: RiskLevel
+    ) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.description = description
+        self.relativePaths = relativePaths
+        self.excludedChildNames = excludedChildNames
+        self.riskLevel = riskLevel
+    }
 
     enum RiskLevel: String, CaseIterable {
         case safe
@@ -108,6 +128,10 @@ extension JunkCategory {
             icon: "archivebox",
             description: "junk.category.system_caches.desc".localized,
             relativePaths: ["Caches"],
+            excludedChildNames: [
+                "com.apple.Safari",
+                "com.apple.Safari.SafeBrowsing"
+            ],
             riskLevel: .safe
         ),
         JunkCategory(
@@ -116,6 +140,10 @@ extension JunkCategory {
             icon: "doc.text",
             description: "junk.category.system_logs.desc".localized,
             relativePaths: ["Logs"],
+            excludedChildNames: [
+                "DiagnosticReports",
+                "CrashReporter"
+            ],
             riskLevel: .safe
         ),
         JunkCategory(
