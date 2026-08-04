@@ -3,28 +3,50 @@
 //  TriClean
 //
 //  삭제 대상 경로 검증을 한곳에 모은 타입.
-//  기존에는 LargeFilesView에만 경계 검사 로직이 있었고 Junk / Duplicate /
-//  Photos / Apps 삭제 경로에는 검증이 없었다. 모든 삭제가 동일한 검증을
-//  거치도록 공용화한다.
-//
-//  ⚠️ 새로 추가되는 삭제 경로는 반드시 이 타입을 통과시킬 것.
+//  모든 삭제 경로는 보안 스코프 접근을 시작한 뒤 이 타입으로 재검증해야 한다.
 //
 
 import Foundation
 
-enum DeletionSafety {
+nonisolated enum DeletionSafety {
+
+    /// 삭제를 허용할 경로 범위.
+    /// - descendantsOnly: 지정 폴더의 하위 항목만 허용하며 루트 자체는 거부합니다.
+    /// - exactItem: 사용자가 직접 선택한 단일 파일/앱 번들 자체만 허용합니다.
+    nonisolated struct Scope: Sendable {
+        nonisolated enum Policy: Sendable {
+            case descendantsOnly
+            case exactItem
+        }
+
+        let url: URL
+        let policy: Policy
+
+        nonisolated static func descendants(of url: URL) -> Scope {
+            Scope(url: url, policy: .descendantsOnly)
+        }
+
+        nonisolated static func exact(_ url: URL) -> Scope {
+            Scope(url: url, policy: .exactItem)
+        }
+    }
+
+    /// 심볼릭 링크를 해석한 표준 경로를 반환합니다.
+    nonisolated static func resolvedPath(for url: URL) -> String {
+        url.standardizedFileURL.resolvingSymlinksInPath().path
+    }
 
     /// 경계 검사가 가능한 스코프 경로를 만든다.
     /// 심볼릭 링크를 해석하고(`/var` → `/private/var`) 트레일링 슬래시를 붙여
     /// `/Users/me/Library2`가 `/Users/me/Library` 하위로 오판되는 것을 막는다.
     nonisolated static func scopePath(for url: URL) -> String {
-        let resolved = url.standardizedFileURL.resolvingSymlinksInPath().path
+        let resolved = resolvedPath(for: url)
         return resolved.hasSuffix("/") ? resolved : resolved + "/"
     }
 
     /// `url`이 `scopePath` **하위**에 있는지 검사한다. 스코프 루트 자신은 거부한다.
     nonisolated static func isContained(_ url: URL, in scopePath: String) -> Bool {
-        let target = url.standardizedFileURL.resolvingSymlinksInPath().path
+        let target = resolvedPath(for: url)
         guard target.count > scopePath.count else { return false }
         return target.hasPrefix(scopePath)
     }
@@ -33,16 +55,45 @@ enum DeletionSafety {
         isContained(url, in: scopePath(for: scope))
     }
 
-    /// 스코프 하위에 있고 실제로 존재하는 대상만 남긴다. 중복 경로는 제거한다.
-    ///
-    /// 스캔 시점과 삭제 시점 사이에 파일이 사라졌거나 경로가 조작된 경우를 걸러낸다.
-    /// - Returns: 검증을 통과한 대상과, 걸러진 대상의 개수
+    /// 두 URL이 심볼릭 링크 해석 후 같은 파일 경로를 가리키는지 확인합니다.
+    nonisolated static func isSameItem(_ lhs: URL, _ rhs: URL) -> Bool {
+        resolvedPath(for: lhs) == resolvedPath(for: rhs)
+    }
+
+    /// 대상 URL이 하나 이상의 허용 범위에 포함되는지 검사합니다.
+    nonisolated static func isAllowed(_ url: URL, in scopes: [Scope]) -> Bool {
+        scopes.contains { scope in
+            switch scope.policy {
+            case .descendantsOnly:
+                return isContained(url, inScope: scope.url)
+            case .exactItem:
+                return isSameItem(url, scope.url)
+            }
+        }
+    }
+
+    /// 단일 폴더 하위에 있고 실제로 존재하는 대상만 남긴다. 중복 경로는 제거한다.
+    /// 기존 호출부 호환을 위한 편의 오버로드입니다.
     nonisolated static func sanitize<T>(
         _ candidates: [T],
         scope: URL,
         url: (T) -> URL
     ) -> (accepted: [T], rejectedCount: Int) {
-        let root = scopePath(for: scope)
+        sanitize(candidates, scopes: [.descendants(of: scope)], url: url)
+    }
+
+    /// 허용 범위 안에 있고 실제로 존재하는 대상만 남긴다. 중복 경로는 제거한다.
+    ///
+    /// 반드시 보안 스코프 접근을 시작한 뒤 호출해야 합니다. 스캔과 삭제 사이에
+    /// 파일이 사라졌거나 심볼릭 링크가 바뀐 경우도 삭제 직전에 걸러냅니다.
+    /// - Returns: 검증을 통과한 대상과, 걸러진 대상의 개수
+    nonisolated static func sanitize<T>(
+        _ candidates: [T],
+        scopes: [Scope],
+        url: (T) -> URL
+    ) -> (accepted: [T], rejectedCount: Int) {
+        guard !scopes.isEmpty else { return ([], candidates.count) }
+
         let fm = FileManager.default
         var seen = Set<String>()
         var accepted: [T] = []
@@ -50,9 +101,11 @@ enum DeletionSafety {
 
         for candidate in candidates {
             let target = url(candidate).standardizedFileURL
-            guard isContained(target, in: root) else { rejected += 1; continue }
+            guard isAllowed(target, in: scopes) else { rejected += 1; continue }
             guard fm.fileExists(atPath: target.path) else { rejected += 1; continue }
-            guard seen.insert(target.resolvingSymlinksInPath().path).inserted else { rejected += 1; continue }
+
+            let resolved = resolvedPath(for: target)
+            guard seen.insert(resolved).inserted else { rejected += 1; continue }
             accepted.append(candidate)
         }
 

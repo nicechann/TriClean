@@ -87,13 +87,24 @@ final class TrialManager: ObservableObject {
 
         let now = Date()
 
-        // 1. 키체인에서 데이터 로드
-        guard let data = KeychainHelper.shared.read(service: keychainService, account: keychainAccount),
-              var trialData = try? JSONDecoder().decode(TrialData.self, from: data) else {
+        // 1. 키체인에서 데이터 로드. 조회 오류와 실제 미존재를 구분해
+        //    일시적인 키체인 장애가 신규 체험판 발급으로 이어지지 않게 합니다.
+        let loadedTrialData: TrialData
+        switch KeychainHelper.shared.readResult(service: keychainService, account: keychainAccount) {
+        case .found(let data):
+            guard let decoded = try? JSONDecoder().decode(TrialData.self, from: data) else {
+                trialLogger.error("Trial keychain data decode failed — treating as expired.")
+                return 0
+            }
+            loadedTrialData = decoded
 
-            // ✅ 키체인에 trial 데이터가 없는 경우:
-            //   (a) 진짜 최초 실행 → 신규 trial 부여.
-            //   (b) 과거에 키체인 저장이 실패했던 사용자 → fallback sentinel 확인 후 0일 반환.
+        case .failed(let status):
+            trialLogger.error(
+                "Trial keychain read failed status=\(status, privacy: .public) — treating as expired."
+            )
+            return 0
+
+        case .notFound:
             if UserDefaults.standard.bool(forKey: trialStartedFallbackKey) {
                 trialLogger.warning("Trial keychain missing but fallback sentinel set — treating as expired.")
                 return 0
@@ -101,15 +112,13 @@ final class TrialManager: ObservableObject {
 
             let newData = TrialData(firstLaunchDate: now, lastLaunchDate: now)
             let status = save(newData)
-
             if status != errSecSuccess {
-                // 키체인 저장에 실패했으므로, fallback sentinel을 기록해 둠.
-                // 이렇게 하면 다음 실행 시 또다시 7일을 받지 못함.
                 markTrialFallbackStarted(at: newData.firstLaunchDate, status: status)
             }
-
             return Int(trialDays)
         }
+
+        var trialData = loadedTrialData
 
         // 2. 🚨 시간 조작 감지 (Time Travel Protection)
         // (a) firstLaunchDate가 미래 → 키체인 변조로 체험 기간 무기한 연장 시도

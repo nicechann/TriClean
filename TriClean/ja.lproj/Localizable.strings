@@ -664,3 +664,11 @@
 "apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
 "photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";
 "store.error.product_unavailable" = "App Storeから製品情報を読み込めませんでした。通信状況を確認してもう一度お試しください。";
+
+// Deletion revalidation summaries
+"duplicate.status.cleanup_summary" = "%1$ld 個の重複ファイルをゴミ箱に移動し、%2$@ を確保しました。失敗 %3$ld 件、再検証で除外 %4$ld 件です。";
+"junk.progress.clean_summary" = "%1$ld 個の項目をゴミ箱に移動しました。失敗 %2$ld 件、再検証で除外 %3$ld 件です。";
+"apps.status.uninstall_invalid" = "削除できるAppがありません。%ld 個のAppが変更されたか、許可された範囲外です。";
+"apps.status.related_summary" = "関連項目を %1$ld 個移動しました。失敗 %2$ld 件、再検証で除外 %3$ld 件です。";
+"photos.delete.status.revalidate" = "選択した写真は削除されませんでした。保持する写真またはパスが変更された %ld 件を除外しました。もう一度スキャンしてください。";
+"photos.delete.status.summary" = "%1$ld 枚の写真をゴミ箱に移動しました。失敗 %2$ld 件、安全のため除外 %3$ld 件です。";

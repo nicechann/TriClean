@@ -100,9 +100,7 @@ final class MemoryViewModel: ObservableObject {
 
     // MARK: - 공개 계산 값
 
-    var realUsedBytes: Int64 {
-        stats.appBytes + stats.wiredBytes + stats.compressedBytes
-    }
+    var realUsedBytes: Int64 { stats.usedBytes }
 
     var usagePercent: Int {
         let total = max(stats.totalBytes, 1)
@@ -129,7 +127,7 @@ final class MemoryViewModel: ObservableObject {
     var freeMemoryText:      String { formatBytes(stats.freeBytes) }
     var cachedMemoryText:    String { formatBytes(stats.cachedBytes) }
 
-    var availableBytes: Int64 { stats.cachedBytes + stats.freeBytes }
+    var availableBytes: Int64 { stats.availableBytes }
     var availableMemoryText: String { formatBytes(availableBytes) }
 
     // MARK: - API

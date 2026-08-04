@@ -359,6 +359,7 @@ final class JunkScannerViewModel: ObservableObject {
     private struct CleanOutcome: Sendable {
         let succeededIDs: Set<UUID>
         let failedCount: Int
+        let excludedCount: Int
     }
 
     func cleanSelected() {
@@ -369,19 +370,12 @@ final class JunkScannerViewModel: ObservableObject {
         guard let library = libraryURL?.standardizedFileURL else { return }
         guard !isCleaning else { return }
 
-        // ✅ 라이브러리 스코프 밖의 경로, 이미 사라진 경로는 삭제 대상에서 제외한다.
-        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: library, url: \.url)
-        guard !targets.isEmpty else {
-            scanProgress = "junk.progress.clean_invalid".localized(with: rejectedCount)
-            return
-        }
-
         isCleaning = true
-        scanProgress = "junk.progress.cleaning".localized(with: targets.count)
+        scanProgress = "junk.progress.cleaning".localized(with: candidates.count)
 
         Task {
             let outcome = await Task.detached(priority: .utility) {
-                await Self.moveTargetsToTrash(targets, scopedBy: library)
+                await Self.moveTargetsToTrash(candidates, scopedBy: library)
             }.value
 
             for i in 0..<results.count {
@@ -391,9 +385,15 @@ final class JunkScannerViewModel: ObservableObject {
 
             isCleaning = false
             if outcome.succeededIDs.isEmpty {
-                scanProgress = "junk.progress.clean_failed".localized
-            } else if outcome.failedCount > 0 {
-                scanProgress = "junk.progress.clean_partial".localized(with: outcome.succeededIDs.count, outcome.failedCount)
+                scanProgress = outcome.excludedCount > 0
+                    ? "junk.progress.clean_invalid".localized(with: outcome.excludedCount)
+                    : "junk.progress.clean_failed".localized
+            } else if outcome.failedCount > 0 || outcome.excludedCount > 0 {
+                scanProgress = "junk.progress.clean_summary".localized(
+                    with: outcome.succeededIDs.count,
+                    outcome.failedCount,
+                    outcome.excludedCount
+                )
             } else {
                 scanProgress = "junk.progress.clean_done".localized(with: outcome.succeededIDs.count)
             }
@@ -401,17 +401,19 @@ final class JunkScannerViewModel: ObservableObject {
     }
 
     nonisolated private static func moveTargetsToTrash(
-        _ targets: [CleanTarget],
+        _ candidates: [CleanTarget],
         scopedBy scopeURL: URL
     ) async -> CleanOutcome {
         let started = scopeURL.startAccessingSecurityScopedResource()
         defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
 
+        // 보안 스코프가 열린 상태에서 경로 경계와 존재 여부를 삭제 직전에 검사합니다.
+        let sanitized = DeletionSafety.sanitize(candidates, scope: scopeURL, url: \.url)
         let fm = FileManager.default
         var succeededIDs = Set<UUID>()
         var failedCount = 0
 
-        for target in targets {
+        for target in sanitized.accepted {
             do {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 succeededIDs.insert(target.id)
@@ -425,7 +427,11 @@ final class JunkScannerViewModel: ObservableObject {
             }
         }
 
-        return CleanOutcome(succeededIDs: succeededIDs, failedCount: failedCount)
+        return CleanOutcome(
+            succeededIDs: succeededIDs,
+            failedCount: failedCount,
+            excludedCount: sanitized.rejectedCount
+        )
     }
 
     @MainActor

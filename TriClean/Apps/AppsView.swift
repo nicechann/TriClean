@@ -847,10 +847,36 @@ final class AppsViewModel: ObservableObject {
     }
 
     func uninstallSelectedInstalledApps(completion: @escaping (AppsActiveAlert?) -> Void) {
-        let targets = deletableSelectedApps
-        guard !targets.isEmpty else {
+        let candidates = deletableSelectedApps
+        guard !candidates.isEmpty else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.nothing_to_trash".localized
+            return
+        }
+
+        // 앱 목록 폴더의 하위 앱과 사용자가 직접 선택한 단일 앱 번들만 허용합니다.
+        // 보안 스코프를 먼저 연 뒤 경로 경계·존재 여부를 삭제 직전에 재검증합니다.
+        var scopeTokens: [AppsScopedAccessToken] = []
+        var deletionScopes: [DeletionSafety.Scope] = []
+        if let url = applicationsFolderURL?.standardizedFileURL,
+           let token = AppsScopedAccessToken(url: url) {
+            scopeTokens.append(token)
+            deletionScopes.append(.descendants(of: url))
+        }
+        if let url = manualAppBundleURL?.standardizedFileURL,
+           let token = AppsScopedAccessToken(url: url) {
+            scopeTokens.append(token)
+            deletionScopes.append(.exact(url))
+        }
+
+        let sanitized = DeletionSafety.sanitize(candidates, scopes: deletionScopes, url: \.url)
+        let acceptedIDs = Set(sanitized.accepted.map(\.id))
+        let rejectedApps = candidates.filter { !acceptedIDs.contains($0.id) }
+
+        guard !sanitized.accepted.isEmpty else {
+            scopeTokens.forEach { $0.stop() }
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.uninstall_invalid".localized(with: rejectedApps.count)
             return
         }
 
@@ -858,16 +884,13 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = nil
         lastStatusIsError = false
 
-        var scopeTokens: [AppsScopedAccessToken] = []
-        if let url = applicationsFolderURL, let t = AppsScopedAccessToken(url: url) { scopeTokens.append(t) }
-        if let url = manualAppBundleURL, let t = AppsScopedAccessToken(url: url) { scopeTokens.append(t) }
-
         Task {
             defer { scopeTokens.forEach { $0.stop() } }
 
-            let (succeeded, failed) = await Task.detached(priority: .userInitiated) {
-                await AppsViewModel.performUninstall(targets: targets)
+            let (succeeded, deletionFailed) = await Task.detached(priority: .userInitiated) {
+                await AppsViewModel.performUninstall(targets: sanitized.accepted)
             }.value
+            let failed = rejectedApps + deletionFailed
 
             self.isRemoving = false
             self.lastFailedApps = failed
@@ -876,11 +899,7 @@ final class AppsViewModel: ObservableObject {
             if !successIDs.isEmpty {
                 self.installedApps.removeAll { successIDs.contains($0.id) }
                 self.selectedInstalledAppIDs.subtract(successIDs)
-
-                // ✅ [수정] 제거 성공 시 관련 파일 목록까지 비우면, 앱이 목록에서도
-                //    사라져 재선택이 불가능해지고 남은 캐시/설정을 정리할 방법이
-                //    없어진다(사용자 리뷰로 확인된 문제). 목록을 유지해 이어서
-                //    정리할 수 있게 한다.
+                // selectedApp/relatedItems는 유지해 앱 제거 직후 잔여 파일 정리를 계속할 수 있게 합니다.
             }
 
             if succeeded.isEmpty && !failed.isEmpty {
@@ -940,31 +959,34 @@ final class AppsViewModel: ObservableObject {
     func removeSelectedRelatedItems() {
         let candidates = relatedItems.filter { $0.selected }
         guard !candidates.isEmpty else { return }
-
-        // ✅ Home Library 스코프 밖의 경로는 삭제하지 않는다.
-        guard let libraryRoot = userLibraryFolderURL else {
+        guard let libraryRoot = userLibraryFolderURL?.standardizedFileURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
-        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: libraryRoot, url: \.url)
-        guard !targets.isEmpty else {
+        guard let scopeToken = AppsScopedAccessToken(url: libraryRoot) else {
             lastStatusIsError = true
-            lastStatusMessage = "apps.status.related_invalid".localized(with: rejectedCount)
+            lastStatusMessage = "apps.status.library_needed".localized
+            return
+        }
+
+        // 보안 스코프를 연 상태에서 실제 삭제 대상을 재검증합니다.
+        let sanitized = DeletionSafety.sanitize(candidates, scope: libraryRoot, url: \.url)
+        guard !sanitized.accepted.isEmpty else {
+            scopeToken.stop()
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.related_invalid".localized(with: sanitized.rejectedCount)
             return
         }
 
         isRemoving = true
         lastStatusMessage = nil
 
-        var scopeTokens: [AppsScopedAccessToken] = []
-        if let root = userLibraryFolderURL, let t = AppsScopedAccessToken(url: root) { scopeTokens.append(t) }
-
         Task {
-            defer { scopeTokens.forEach { $0.stop() } }
+            defer { scopeToken.stop() }
 
             let (succeeded, failed) = await Task.detached(priority: .userInitiated) {
-                await AppsViewModel.performRelatedRemoval(targets: targets)
+                await AppsViewModel.performRelatedRemoval(targets: sanitized.accepted)
             }.value
 
             self.isRemoving = false
@@ -974,15 +996,19 @@ final class AppsViewModel: ObservableObject {
                 self.relatedItems.removeAll { successIDs.contains($0.id) }
             }
 
-            if !failed.isEmpty {
-                self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.related_partial_fail".localized(with: succeeded.count, failed.count)
-            } else if !succeeded.isEmpty {
+            if failed.isEmpty && sanitized.rejectedCount == 0 {
                 self.lastStatusIsError = false
                 self.lastStatusMessage = "apps.status.related_success".localized(with: succeeded.count)
-            } else {
+            } else if succeeded.isEmpty {
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "apps.status.related_none".localized
+            } else {
+                self.lastStatusIsError = true
+                self.lastStatusMessage = "apps.status.related_summary".localized(
+                    with: succeeded.count,
+                    failed.count,
+                    sanitized.rejectedCount
+                )
             }
         }
     }

@@ -664,3 +664,11 @@
 "apps.failed_names.overflow" = "%1$@ y %2$ld más";
 "photos.delete.status.invalid" = "No se puede eliminar ninguna foto. Vuelve a seleccionar la carpeta y analiza de nuevo.";
 "store.error.product_unavailable" = "No se pudo cargar la información del producto desde el App Store. Comprueba tu conexión e inténtalo de nuevo.";
+
+// Deletion revalidation summaries
+"duplicate.status.cleanup_summary" = "Se movieron %1$ld archivos duplicados a la Papelera y se liberaron %2$@. Fallaron: %3$ld; omitidos tras verificar: %4$ld.";
+"junk.progress.clean_summary" = "Se movieron %1$ld elementos a la Papelera. Fallaron: %2$ld; omitidos tras verificar: %3$ld.";
+"apps.status.uninstall_invalid" = "No se puede eliminar ninguna app. %ld app(s) cambiaron o están fuera de la ubicación permitida.";
+"apps.status.related_summary" = "Se movieron %1$ld elementos relacionados. Fallaron: %2$ld; omitidos tras verificar: %3$ld.";
+"photos.delete.status.revalidate" = "No se eliminó ninguna foto seleccionada. Se omitieron %ld elemento(s) porque cambió la foto que debía conservarse o la ruta. Vuelve a analizar.";
+"photos.delete.status.summary" = "Se movieron %1$ld fotos a la Papelera. Fallaron: %2$ld; omitidas por seguridad: %3$ld.";

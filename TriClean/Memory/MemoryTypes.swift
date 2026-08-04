@@ -43,8 +43,15 @@ nonisolated struct MemoryStats: Sendable {
         appBytes + wiredBytes + compressedBytes + cachedBytes + freeBytes
     }
 
+    /// 실제 사용 중으로 표시하는 메모리: App + Wired + Compressed.
     var usedBytes: Int64 {
-        totalBytes - freeBytes
+        min(max(appBytes + wiredBytes + compressedBytes, 0), max(totalBytes, 0))
+    }
+
+    /// 총 물리 메모리에서 실제 사용 중 메모리를 뺀 값.
+    /// 모든 화면과 메뉴바가 동일한 계산식을 사용합니다.
+    var availableBytes: Int64 {
+        max(totalBytes - usedBytes, 0)
     }
 
     static let empty = MemoryStats(

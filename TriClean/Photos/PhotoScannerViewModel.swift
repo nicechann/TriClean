@@ -62,6 +62,23 @@ final class PhotoScannerViewModel: ObservableObject {
     ///   (야경·문서 스캔·화이트보드)이 서로 무관해도 같은 그룹으로 묶였다.
     ///   그룹 전체 선택 후 일괄 삭제가 한 번의 클릭으로 일어나므로 보수적으로 조정.
     static let similarHammingThreshold: Int = 6
+
+    /// 원본 가로세로 비율 차이 허용 범위. 서로 다른 방향(가로/세로)은 항상 제외하고,
+    /// 같은 방향에서도 비율 차이가 5%를 넘으면 유사 사진 후보로 비교하지 않습니다.
+    static let similarAspectRatioTolerance: Double = 0.05
+
+    nonisolated struct SimilarHashCandidate: Sendable {
+        let id: String
+        let hash: UInt64
+        let pixelWidth: Int
+        let pixelHeight: Int
+    }
+
+    nonisolated struct PhotoDeletePreparation: Sendable {
+        let targets: [PhotoItem]
+        let excludedItemCount: Int
+    }
+
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
 
     // MARK: - Computed
@@ -372,16 +389,21 @@ final class PhotoScannerViewModel: ObservableObject {
 
         similarTask = Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
-            // 1) 병렬 dHash 계산 (UInt64는 Sendable이라 경계 통과 안전)
-            var hashes: [(String, UInt64)] = []
-            await withTaskGroup(of: [(String, UInt64)].self) { group in
+            // 1) 병렬 dHash 계산. 픽셀 크기도 함께 전달해 비율이 다른 사진은 제외합니다.
+            var hashes: [SimilarHashCandidate] = []
+            await withTaskGroup(of: [SimilarHashCandidate].self) { group in
                 for slice in slices {
                     group.addTask {
-                        var local: [(String, UInt64)] = []
+                        var local: [SimilarHashCandidate] = []
                         for item in slice {
                             if Task.isCancelled { break }
                             if let h = Self.differenceHash(url: item.url) {
-                                local.append((item.id, h))
+                                local.append(SimilarHashCandidate(
+                                    id: item.id,
+                                    hash: h,
+                                    pixelWidth: item.pixelWidth,
+                                    pixelHeight: item.pixelHeight
+                                ))
                             }
                         }
                         return local
@@ -563,60 +585,103 @@ final class PhotoScannerViewModel: ObservableObject {
         deleteStatusMessage = nil
     }
 
-    /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거.
+    /// 선택 항목을 휴지통으로 이동(복구 가능). 성공분만 모델에서 제거합니다.
+    /// 유사 사진 그룹은 삭제 직전에 실제 보존본이 남아 있는지 다시 확인합니다.
     func deleteSelected() {
         guard !isDeleting else { return }
         let selected = items.filter { selectedIDs.contains($0.id) }
         guard !selected.isEmpty else { return }
-
-        // ✅ 스캔 폴더 스코프 밖의 경로, 이미 사라진 경로는 삭제 대상에서 제외한다.
-        //    스코프가 아예 없으면 삭제를 시도하지 않는다.
         guard let scope = scanFolderURL?.standardizedFileURL else {
-            deleteStatusMessage = "photos.delete.status.invalid".localized
-            return
-        }
-        let (toDelete, _) = DeletionSafety.sanitize(selected, scope: scope, url: \.url)
-        guard !toDelete.isEmpty else {
             deleteStatusMessage = "photos.delete.status.invalid".localized
             return
         }
 
         cancelRunningAnalysesForDeletion()
         isDeleting = true
-        deleteStatusMessage = "photos.delete.status.moving".localized(with: toDelete.count)
+        deleteStatusMessage = "photos.delete.status.moving".localized(with: selected.count)
 
-        // ✅ 삭제 시점에 보안 스코프를 직접 확보한다.
-        //    스캔 종료 후 finishScan에서 스코프가 풀렸거나 북마크가 stale해진 경우에도
-        //    삭제가 조용히 실패하지 않도록, 폴더 URL에 대한 스코프를 Task 내부에서 시작/종료한다.
+        let selectedSnapshot = selected
+        let groupsSnapshot = similarGroups
         let scopeURL = scope
 
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
 
+            // 보안 스코프를 연 상태에서 경로 존재 여부와 심볼릭 링크 경계를 재검증합니다.
             let started = scopeURL.startAccessingSecurityScopedResource()
             defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
 
+            let preparation = Self.preparePhotoDeletion(
+                selected: selectedSnapshot,
+                similarGroups: groupsSnapshot,
+                scope: scopeURL
+            )
+
             var trashed = Set<String>()
-            for item in toDelete {
+            for item in preparation.targets {
                 if Task.isCancelled { break }
                 if await Self.moveToTrash(item.url) { trashed.insert(item.id) }
             }
+
             let result = trashed
-            let failedCount = toDelete.count - result.count
+            let failedCount = preparation.targets.count - result.count
+            let excludedCount = preparation.excludedItemCount
 
             await MainActor.run {
                 self.removeItems(result)
                 self.isDeleting = false
 
-                if result.isEmpty && failedCount > 0 {
-                    self.deleteStatusMessage = "photos.delete.status.failed".localized(with: failedCount)
-                } else if failedCount > 0 {
-                    self.deleteStatusMessage = "photos.delete.status.partial".localized(with: result.count, failedCount)
+                if preparation.targets.isEmpty {
+                    self.deleteStatusMessage = "photos.delete.status.revalidate".localized(with: excludedCount)
+                } else if failedCount > 0 || excludedCount > 0 {
+                    self.deleteStatusMessage = "photos.delete.status.summary".localized(
+                        with: result.count,
+                        failedCount,
+                        excludedCount
+                    )
                 } else {
                     self.deleteStatusMessage = "photos.delete.status.success".localized(with: result.count)
                 }
             }
         }
+    }
+
+    /// 삭제 직전 재검증. 유사 그룹에서 선택되지 않은 실제 파일이 하나도 남지 않으면
+    /// 해당 그룹의 선택 항목 전체를 제외해 원본까지 사라지는 상황을 방지합니다.
+    nonisolated static func preparePhotoDeletion(
+        selected: [PhotoItem],
+        similarGroups: [PhotoGroup],
+        scope: URL
+    ) -> PhotoDeletePreparation {
+        let selectedIDs = Set(selected.map(\.id))
+        var unsafeSelectedIDs = Set<String>()
+
+        for group in similarGroups {
+            let selectedInGroup = group.items.filter { selectedIDs.contains($0.id) }
+            guard !selectedInGroup.isEmpty else { continue }
+
+            let hasValidSurvivor = group.items.contains { item in
+                !selectedIDs.contains(item.id)
+                    && DeletionSafety.isContained(item.url, inScope: scope)
+                    && FileManager.default.fileExists(atPath: item.url.standardizedFileURL.path)
+            }
+
+            if !hasValidSurvivor {
+                unsafeSelectedIDs.formUnion(selectedInGroup.map(\.id))
+            }
+        }
+
+        let survivorProtectedCandidates = selected.filter { !unsafeSelectedIDs.contains($0.id) }
+        let (targets, rejectedCount) = DeletionSafety.sanitize(
+            survivorProtectedCandidates,
+            scope: scope,
+            url: \.url
+        )
+
+        return PhotoDeletePreparation(
+            targets: targets,
+            excludedItemCount: unsafeSelectedIDs.count + rejectedCount
+        )
     }
 
     private func removeItems(_ ids: Set<String>) {
@@ -699,20 +764,40 @@ final class PhotoScannerViewModel: ObservableObject {
             guard isImageFile(url: url, typeIdentifier: values.typeIdentifier) else { continue }
 
             let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
-            // ✅ 픽셀 크기 산출(파일별 디코딩)은 스캔에서 제거 — 썸네일 로드 시에만 필요
+            // ImageIO 메타데이터만 읽어 원본을 디코딩하지 않고 픽셀 크기를 확보합니다.
+            // EXIF 방향이 90도 회전된 사진은 표시 기준으로 가로/세로를 교환합니다.
+            let dimensions = imagePixelDimensions(url: url)
             let screenshot = screenshotPaths.contains(url.path) || matchesScreenshotName(url)
 
             result.append(PhotoItem(
                 url: url,
                 sizeBytes: size,
                 modificationDate: values.contentModificationDate,
-                pixelWidth: 0,
-                pixelHeight: 0,
+                pixelWidth: dimensions.width,
+                pixelHeight: dimensions.height,
                 isScreenshot: screenshot
             ))
         }
 
         return result
+    }
+
+    /// 이미지 전체 디코딩 없이 픽셀 크기와 EXIF 방향만 읽습니다.
+    nonisolated static func imagePixelDimensions(url: URL) -> (width: Int, height: Int) {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let widthNumber = properties[kCGImagePropertyPixelWidth] as? NSNumber,
+              let heightNumber = properties[kCGImagePropertyPixelHeight] as? NSNumber else {
+            return (0, 0)
+        }
+
+        var width = widthNumber.intValue
+        var height = heightNumber.intValue
+        let orientation = (properties[kCGImagePropertyOrientation] as? NSNumber)?.intValue ?? 1
+        if [5, 6, 7, 8].contains(orientation) {
+            swap(&width, &height)
+        }
+        return (max(width, 0), max(height, 0))
     }
 
     /// 스크린샷 경로 일괄 조회 (1순위, 빠름).
@@ -858,48 +943,91 @@ final class PhotoScannerViewModel: ObservableObject {
         return hash   // 8행 × 8비교 = 64비트
     }
 
-    /// 해밍 거리 임계값으로 그리디 클러스터링. 2장 이상인 그룹만 반환.
-    /// ✅ [수정] 기존 구현의 두 가지 문제를 함께 해결한다.
-    ///   1) 대표 해시 하나와만 비교하고 첫 매칭 그룹에 넣어, 입력 순서에 따라
-    ///      결과가 달라지고 "A~B 유사, B~C 유사, A~C 완전 다름"인 사진들이
-    ///      한 그룹으로 묶였다(비추이성).
-    ///   2) 그 그룹을 사용자가 일괄 선택해 삭제하면 무관한 사진까지 사라진다.
-    ///   → 그룹의 **모든** 구성원과 임계값 이내일 때만 편입하고(완전 연결),
-    ///     조건을 만족하는 그룹 중 가장 가까운 곳을 선택한다.
+    /// 기존 테스트와 해시 전용 호출부를 위한 편의 오버로드입니다.
     nonisolated static func clusterByHash(_ hashes: [(String, UInt64)], threshold: Int) -> [[String]] {
-        var groups: [[(id: String, hash: UInt64)]] = []
+        clusterByHash(
+            hashes.map {
+                SimilarHashCandidate(id: $0.0, hash: $0.1, pixelWidth: 0, pixelHeight: 0)
+            },
+            threshold: threshold
+        )
+    }
 
-        for (id, hash) in hashes {
+    /// 완전 연결 조건으로 유사 사진을 묶습니다.
+    /// 입력을 해시와 ID 순으로 먼저 정렬해 병렬 해시 계산 완료 순서와 관계없이
+    /// 항상 같은 결과를 만들며, 그룹의 모든 구성원과 해밍 거리·비율 조건을 만족해야 합니다.
+    nonisolated static func clusterByHash(
+        _ hashes: [SimilarHashCandidate],
+        threshold: Int
+    ) -> [[String]] {
+        let ordered = hashes.sorted {
+            if $0.hash == $1.hash { return $0.id < $1.id }
+            return $0.hash < $1.hash
+        }
+        var groups: [[SimilarHashCandidate]] = []
+
+        for candidate in ordered {
             if Task.isCancelled { break }
 
             var bestIndex: Int?
             var bestDistance = Int.max
 
-            for gi in groups.indices {
-                var worst = 0
+            for groupIndex in groups.indices {
+                var worstDistance = 0
                 var fits = true
-                for member in groups[gi] {
-                    let distance = (member.hash ^ hash).nonzeroBitCount
+
+                for member in groups[groupIndex] {
+                    guard hasCompatibleAspectRatio(candidate, member) else {
+                        fits = false
+                        break
+                    }
+
+                    let distance = (member.hash ^ candidate.hash).nonzeroBitCount
                     if distance > threshold {
                         fits = false
                         break
                     }
-                    worst = max(worst, distance)
+                    worstDistance = max(worstDistance, distance)
                 }
-                if fits && worst < bestDistance {
-                    bestDistance = worst
-                    bestIndex = gi
+
+                if fits && worstDistance < bestDistance {
+                    bestDistance = worstDistance
+                    bestIndex = groupIndex
                 }
             }
 
             if let bestIndex {
-                groups[bestIndex].append((id: id, hash: hash))
+                groups[bestIndex].append(candidate)
             } else {
-                groups.append([(id: id, hash: hash)])
+                groups.append([candidate])
             }
         }
 
-        return groups.filter { $0.count >= 2 }.map { $0.map(\.id) }
+        return groups
+            .filter { $0.count >= 2 }
+            .map { $0.map(\.id).sorted() }
+            .sorted { ($0.first ?? "") < ($1.first ?? "") }
+    }
+
+    nonisolated static func hasCompatibleAspectRatio(
+        _ lhs: SimilarHashCandidate,
+        _ rhs: SimilarHashCandidate,
+        tolerance: Double = 0.05
+    ) -> Bool {
+        guard lhs.pixelWidth > 0, lhs.pixelHeight > 0,
+              rhs.pixelWidth > 0, rhs.pixelHeight > 0 else {
+            // 메타데이터를 읽지 못한 일부 형식은 기존 해시 비교로 폴백합니다.
+            return true
+        }
+
+        let lhsLandscape = lhs.pixelWidth >= lhs.pixelHeight
+        let rhsLandscape = rhs.pixelWidth >= rhs.pixelHeight
+        guard lhsLandscape == rhsLandscape else { return false }
+
+        let lhsRatio = Double(lhs.pixelWidth) / Double(lhs.pixelHeight)
+        let rhsRatio = Double(rhs.pixelWidth) / Double(rhs.pixelHeight)
+        let relativeDifference = abs(lhsRatio - rhsRatio) / max(lhsRatio, rhsRatio)
+        return relativeDifference <= max(tolerance, 0)
     }
 
 

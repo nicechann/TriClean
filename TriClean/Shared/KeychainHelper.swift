@@ -11,7 +11,7 @@
 //   - kSecAttrAccessible 명시 (AfterFirstUnlock) — 백그라운드 접근 가능하면서 안전.
 //   - kSecAttrSynchronizable=false 명시 — iCloud Keychain 동기화로 인한
 //     "다른 Mac에서 trial 이어받기" 우회를 차단.
-//   - read에서 typeMismatch가 발생할 때 OSStatus만으로는 구분할 수 없으므로 nil 반환.
+//   - 키체인 조회 오류와 실제 미존재를 구분해 신규 체험판 오발급을 방지.
 //
 
 import Security
@@ -22,6 +22,12 @@ private let keychainLogger = Logger(
     subsystem: Bundle.main.bundleIdentifier ?? "com.nicechann.TriClean",
     category: "Keychain"
 )
+
+enum KeychainReadResult {
+    case found(Data)
+    case notFound
+    case failed(OSStatus)
+}
 
 final class KeychainHelper {
     static let shared = KeychainHelper()
@@ -81,30 +87,47 @@ final class KeychainHelper {
         return addStatus
     }
 
-    /// 데이터 보호 키체인을 먼저 조회하고, 없으면 레거시(파일 기반) 키체인을 확인한다.
-    ///
-    /// ⚠️ 마이그레이션 주의: 이전 버전은 레거시 키체인에 저장했다. 데이터 보호
-    ///    키체인만 조회하면 기존 사용자의 trial 기록이 사라진 것으로 보여
-    ///    체험판이 재부여된다. 레거시에서 찾으면 즉시 새 키체인으로 승격한다.
-    func read(service: String, account: String) -> Data? {
-        if let data = readItem(service: service, account: account, dataProtection: true) {
-            return data
+    /// 데이터 보호 키체인을 먼저 조회하고, 없을 때만 레거시 키체인을 확인합니다.
+    /// 조회 오류는 `notFound`와 구분해 호출자가 신규 데이터로 오판하지 않게 합니다.
+    func readResult(service: String, account: String) -> KeychainReadResult {
+        switch readItem(service: service, account: account, dataProtection: true) {
+        case .found(let data):
+            return .found(data)
+        case .failed(let status):
+            return .failed(status)
+        case .notFound:
+            break
         }
 
-        if let legacy = readItem(service: service, account: account, dataProtection: false) {
+        switch readItem(service: service, account: account, dataProtection: false) {
+        case .found(let legacy):
             let status = save(legacy, service: service, account: account)
             if status != errSecSuccess {
                 keychainLogger.error(
-                    "Keychain migration failed status=\(status, privacy: .public) service=\(service, privacy: .private)"
+                    "Keychain migration failed status=\(status, privacy: .public) service=\(service, privacy: .private) account=\(account, privacy: .private)"
                 )
             }
-            return legacy
+            return .found(legacy)
+        case .notFound:
+            return .notFound
+        case .failed(let status):
+            return .failed(status)
         }
-
-        return nil
     }
 
-    private func readItem(service: String, account: String, dataProtection: Bool) -> Data? {
+    /// 기존 호출부 호환용. 신규 보안 로직은 `readResult`를 사용해야 합니다.
+    func read(service: String, account: String) -> Data? {
+        guard case .found(let data) = readResult(service: service, account: account) else {
+            return nil
+        }
+        return data
+    }
+
+    private func readItem(
+        service: String,
+        account: String,
+        dataProtection: Bool
+    ) -> KeychainReadResult {
         var query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
@@ -122,15 +145,21 @@ final class KeychainHelper {
 
         switch status {
         case errSecSuccess:
-            return dataTypeRef as? Data
+            guard let data = dataTypeRef as? Data else {
+                keychainLogger.error(
+                    "Keychain read returned unexpected type service=\(service, privacy: .private) account=\(account, privacy: .private)"
+                )
+                return .failed(errSecDecode)
+            }
+            return .found(data)
         case errSecItemNotFound:
-            // 정상적인 "최초 실행" 케이스 — 로그 남기지 않음.
-            return nil
+            return .notFound
         default:
             keychainLogger.error(
-                "Keychain read failed status=\(status, privacy: .public) service=\(service, privacy: .private)"
+                "Keychain read failed status=\(status, privacy: .public) service=\(service, privacy: .private) account=\(account, privacy: .private)"
             )
-            return nil
+            return .failed(status)
         }
     }
+
 }

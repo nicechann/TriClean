@@ -825,21 +825,31 @@ struct LargeFilesView: View {
         showingDeleteAlert = true
     }
 
-    private func confirmDelete() {
-        let targets = Self.normalizedDeleteTargets(deleteTargets)
-        guard !targets.isEmpty else { return }
-        guard !isDeleting else { return }
+    private struct LargeDeleteOutcome: Sendable {
+        let succeededURLs: Set<URL>
+        let rejectedCount: Int
+    }
 
-        let rootURL = selectedFolderURL?.standardizedFileURL
+    private func confirmDelete() {
+        let candidates = Self.normalizedDeleteTargets(deleteTargets)
+        guard !candidates.isEmpty else { return }
+        guard !isDeleting else { return }
+        guard let rootURL = selectedFolderURL?.standardizedFileURL else {
+            deleteTargets = []
+            scanMessage = "storage.msg.trash_failed".localized
+            return
+        }
+
         isDeleting = true
-        scanMessage = "storage.msg.trash_moving".localized(with: targets.count)
+        scanMessage = "storage.msg.trash_moving".localized(with: candidates.count)
 
         Task {
-            let succeededURLs = await Task.detached(priority: .utility) {
-                await Self.moveToTrash(targets, selectedRootURL: rootURL)
+            let outcome = await Task.detached(priority: .utility) {
+                await Self.moveToTrash(candidates, selectedRootURL: rootURL)
             }.value
-
-            let failedCount = max(0, targets.count - succeededURLs.count)
+            let succeededURLs = outcome.succeededURLs
+            let acceptedCount = max(0, candidates.count - outcome.rejectedCount)
+            let failedCount = outcome.rejectedCount + max(0, acceptedCount - succeededURLs.count)
 
             guard !succeededURLs.isEmpty else {
                 isDeleting = false
@@ -877,22 +887,17 @@ struct LargeFilesView: View {
 
     nonisolated private static func normalizedDeleteTargets(_ items: [FolderInfo]) -> [FolderInfo] {
         let sorted = items.sorted { lhs, rhs in
-            let lhsPath = lhs.url.standardizedFileURL.path
-            let rhsPath = rhs.url.standardizedFileURL.path
+            let lhsPath = DeletionSafety.resolvedPath(for: lhs.url)
+            let rhsPath = DeletionSafety.resolvedPath(for: rhs.url)
             if lhsPath.count == rhsPath.count { return lhsPath < rhsPath }
             return lhsPath.count < rhsPath.count
         }
 
         var result: [FolderInfo] = []
         for item in sorted {
-            let targetPath = item.url.standardizedFileURL.path
             let isCoveredByParent = result.contains { parent in
-                let parentURL = parent.url.standardizedFileURL
-                guard parent.isDirectory else { return false }
-                let parentPath = parentURL.path.hasSuffix("/") ? parentURL.path : parentURL.path + "/"
-                return targetPath.hasPrefix(parentPath)
+                parent.isDirectory && DeletionSafety.isContained(item.url, inScope: parent.url)
             }
-
             if !isCoveredByParent {
                 result.append(item)
             }
@@ -900,15 +905,21 @@ struct LargeFilesView: View {
         return result
     }
 
-    nonisolated private static func moveToTrash(_ items: [FolderInfo], selectedRootURL: URL?) async -> Set<URL> {
+    nonisolated private static func moveToTrash(
+        _ candidates: [FolderInfo],
+        selectedRootURL: URL
+    ) async -> LargeDeleteOutcome {
+        let token = LargeFilesSecurityScopedAccessToken(selectedRootURL)
+        defer { token.stop() }
+
+        // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
+        // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
+        let sanitized = DeletionSafety.sanitize(candidates, scope: selectedRootURL, url: \.url)
         var succeededURLs = Set<URL>()
         let fm = FileManager.default
 
-        for item in items {
+        for item in sanitized.accepted {
             let target = item.url.standardizedFileURL
-            let scopeURL = Self.scopeURL(for: target, selectedRootURL: selectedRootURL)
-            let token = LargeFilesSecurityScopedAccessToken(scopeURL)
-
             do {
                 try fm.trashItem(at: target, resultingItemURL: nil)
                 succeededURLs.insert(target)
@@ -917,14 +928,16 @@ struct LargeFilesView: View {
                 if recycled {
                     succeededURLs.insert(target)
                 } else {
-                    Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles").error("Trash failed: \(error.localizedDescription, privacy: .public)")
+                    Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles")
+                        .error("Trash failed: \(error.localizedDescription, privacy: .public)")
                 }
             }
-
-            token.stop()
         }
 
-        return succeededURLs
+        return LargeDeleteOutcome(
+            succeededURLs: succeededURLs,
+            rejectedCount: sanitized.rejectedCount
+        )
     }
 
     @MainActor
@@ -936,15 +949,4 @@ struct LargeFilesView: View {
         }
     }
 
-    nonisolated private static func scopeURL(for target: URL, selectedRootURL: URL?) -> URL {
-        guard let root = selectedRootURL?.standardizedFileURL else { return target }
-
-        let rootPath = root.path.hasSuffix("/") ? root.path : (root.path + "/")
-        let targetPath = target.path
-
-        if targetPath == root.path || targetPath.hasPrefix(rootPath) {
-            return root
-        }
-        return target
-    }
 }

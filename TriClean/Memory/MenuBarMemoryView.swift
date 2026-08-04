@@ -39,9 +39,8 @@ final class MenuBarMemoryViewModel: ObservableObject {
 
             let mb = 1024.0 * 1024.0
             let totalMB    = Double(stats.totalBytes) / mb
-            let usedBytes  = stats.appBytes + stats.wiredBytes + stats.compressedBytes
-            let usedMB     = Double(usedBytes) / mb
-            let availMB    = Double(stats.cachedBytes + stats.freeBytes) / mb
+            let usedMB     = Double(stats.usedBytes) / mb
+            let availMB    = Double(stats.availableBytes) / mb
 
             DispatchQueue.main.async {
                 self.info = MenuBarMemoryInfo(

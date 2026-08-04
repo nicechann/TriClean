@@ -386,67 +386,49 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     /// 삭제 결과의 단위
+    private struct DeleteGroupSnapshot: Sendable {
+        let keeperURL: URL?
+        let targets: [DeleteTarget]
+    }
+
     private struct DeleteOutcome: Sendable {
         let succeeded: Set<UUID>
         let deletedCount: Int
         let failedCount: Int
         let deletedBytes: Int64
+        let excludedCount: Int
     }
 
-    /// ✅ [수정] Task로 분리 + NSWorkspace.recycle fallback 추가.
-    ///   - 기존: 메인 스레드에서 동기 trashItem 호출 → 다수 파일 시 UI 멈춤.
-    ///   - 변경: 백그라운드 Task에서 처리하고 UI에는 결과만 반영.
-    ///   - Security-Scoped 접근은 Task 라이프타임 동안만 유지.
+    /// 삭제 직전에 보안 스코프 안에서 보존본과 모든 대상 경로를 재검증합니다.
     func deleteDuplicates() {
-        guard let folder = scanFolderURL else { return }
+        guard let folder = scanFolderURL?.standardizedFileURL else { return }
         guard canDeleteSelected else {
             statusMessage = "duplicate.status.nothing_selected".localized
             return
         }
         guard !isDeleting else { return }
 
-        // 1) 삭제 대상을 미리 스냅샷 (Sendable한 값 타입으로)
-        //    ✅ 보존본(isKeep)이 스캔 이후 이동/삭제된 그룹은 통째로 건너뛴다.
-        //       그대로 진행하면 그룹의 모든 사본이 삭제되어 원본까지 잃는다.
-        let fm = FileManager.default
-        var candidates: [DeleteTarget] = []
-        var skippedGroups = 0
-        for group in groups {
-            guard let keeper = group.keptFile,
-                  fm.fileExists(atPath: keeper.url.standardizedFileURL.path) else {
-                skippedGroups += 1
-                continue
-            }
-            for file in group.files where !file.isKeep {
-                candidates.append(DeleteTarget(
-                    fileID: file.id,
-                    url: file.url,
-                    perFileSize: group.fileSize
-                ))
-            }
-        }
-
-        // ✅ 스캔 폴더 스코프 밖의 경로, 이미 사라진 경로도 제외한다.
-        let (targets, rejectedCount) = DeletionSafety.sanitize(candidates, scope: folder, url: \.url)
-        guard !targets.isEmpty else {
-            let skipped = skippedGroups + rejectedCount
-            statusMessage = skipped > 0
-                ? "duplicate.status.revalidate_needed".localized(with: skipped)
-                : "duplicate.status.nothing_selected".localized
-            return
+        let snapshots: [DeleteGroupSnapshot] = groups.map { group in
+            DeleteGroupSnapshot(
+                keeperURL: group.keptFile?.url.standardizedFileURL,
+                targets: group.files.filter { !$0.isKeep }.map {
+                    DeleteTarget(fileID: $0.id, url: $0.url.standardizedFileURL, perFileSize: group.fileSize)
+                }
+            )
         }
 
         isDeleting = true
-        // ✅ [수정] 삭제 진행 중에 "정리 실패" 문구가 노출되던 문제. 진행 중 문구로 교체.
         statusMessage = "duplicate.status.cleanup_running".localized
 
-        Task { @MainActor [weak self, targets, folder] in
+        Task { @MainActor [weak self, snapshots, folder] in
             let outcome = await Task.detached(priority: .userInitiated) {
-                // ✅ Security-Scoped 접근은 백그라운드 Task 안에서 시작/종료 (UI 블로킹 없음)
                 let started = folder.startAccessingSecurityScopedResource()
                 defer { if started { folder.stopAccessingSecurityScopedResource() } }
 
-                return await Self.performDeletion(targets: targets)
+                return await Self.prepareAndPerformDeletion(
+                    snapshots: snapshots,
+                    folder: folder
+                )
             }.value
 
             guard let self else { return }
@@ -455,8 +437,48 @@ final class DuplicateScannerViewModel: ObservableObject {
         }
     }
 
+    nonisolated private static func prepareAndPerformDeletion(
+        snapshots: [DeleteGroupSnapshot],
+        folder: URL
+    ) async -> DeleteOutcome {
+        let fm = FileManager.default
+        var candidates: [DeleteTarget] = []
+        var excludedCount = 0
+
+        for snapshot in snapshots {
+            guard let keeperURL = snapshot.keeperURL,
+                  DeletionSafety.isContained(keeperURL, inScope: folder),
+                  fm.fileExists(atPath: keeperURL.path) else {
+                excludedCount += snapshot.targets.count
+                continue
+            }
+            candidates.append(contentsOf: snapshot.targets)
+        }
+
+        let sanitized = DeletionSafety.sanitize(candidates, scope: folder, url: \.url)
+        excludedCount += sanitized.rejectedCount
+
+        guard !sanitized.accepted.isEmpty else {
+            return DeleteOutcome(
+                succeeded: [],
+                deletedCount: 0,
+                failedCount: 0,
+                deletedBytes: 0,
+                excludedCount: excludedCount
+            )
+        }
+
+        let deletion = await performDeletion(targets: sanitized.accepted)
+        return DeleteOutcome(
+            succeeded: deletion.succeeded,
+            deletedCount: deletion.deletedCount,
+            failedCount: deletion.failedCount,
+            deletedBytes: deletion.deletedBytes,
+            excludedCount: excludedCount
+        )
+    }
+
     private func applyDeleteOutcome(_ outcome: DeleteOutcome) {
-        // 성공한 항목만 UI에서 제거
         for i in groups.indices {
             groups[i].files.removeAll { outcome.succeeded.contains($0.id) }
         }
@@ -468,12 +490,22 @@ final class DuplicateScannerViewModel: ObservableObject {
             failedCount: outcome.failedCount
         )
 
-        if outcome.deletedCount > 0 {
-            statusMessage = outcome.failedCount > 0
-                ? "duplicate.status.cleanup_done_with_failures".localized(with: outcome.deletedCount, ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file), outcome.failedCount)
-                : "duplicate.status.cleanup_done".localized(with: outcome.deletedCount, ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file))
+        if outcome.deletedCount == 0 {
+            statusMessage = outcome.excludedCount > 0
+                ? "duplicate.status.revalidate_needed".localized(with: outcome.excludedCount)
+                : "duplicate.status.cleanup_failed".localized
+        } else if outcome.failedCount > 0 || outcome.excludedCount > 0 {
+            statusMessage = "duplicate.status.cleanup_summary".localized(
+                with: outcome.deletedCount,
+                ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file),
+                outcome.failedCount,
+                outcome.excludedCount
+            )
         } else {
-            statusMessage = "duplicate.status.cleanup_failed".localized
+            statusMessage = "duplicate.status.cleanup_done".localized(
+                with: outcome.deletedCount,
+                ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file)
+            )
         }
     }
 
@@ -509,7 +541,8 @@ final class DuplicateScannerViewModel: ObservableObject {
             succeeded: succeeded,
             deletedCount: deletedCount,
             failedCount: failedCount,
-            deletedBytes: deletedBytes
+            deletedBytes: deletedBytes,
+            excludedCount: 0
         )
     }
 

@@ -109,4 +109,32 @@ final class DeletionSafetyTests: XCTestCase {
         XCTAssertTrue(accepted.isEmpty)
         XCTAssertEqual(rejected, 2)
     }
+    func test_스코프_내부_심볼릭링크가_외부를_가리키면_거부된다() throws {
+        let outside = try makeFile(sibling.appendingPathComponent("outside.log"))
+        let link = scope.appendingPathComponent("escape")
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: sibling)
+        let escaped = link.appendingPathComponent(outside.lastPathComponent)
+
+        XCTAssertFalse(DeletionSafety.isContained(escaped, inScope: scope))
+        let result = DeletionSafety.sanitize([escaped], scope: scope) { $0 }
+        XCTAssertTrue(result.accepted.isEmpty)
+        XCTAssertEqual(result.rejectedCount, 1)
+    }
+
+    func test_직접_선택한_단일_항목은_exact_정책으로만_허용된다() throws {
+        let app = scope.appendingPathComponent("Manual.app")
+        try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
+
+        let descendantResult = DeletionSafety.sanitize([app], scope: app) { $0 }
+        XCTAssertTrue(descendantResult.accepted.isEmpty)
+
+        let exactResult = DeletionSafety.sanitize(
+            [app],
+            scopes: [.exact(app)],
+            url: { $0 }
+        )
+        XCTAssertEqual(exactResult.accepted, [app])
+        XCTAssertEqual(exactResult.rejectedCount, 0)
+    }
+
 }

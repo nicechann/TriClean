@@ -39,10 +39,7 @@ struct MemoryView: View {
         }
     }
 
-    private var availableBytes: Int64 {
-        let s = viewModel.stats
-        return max(s.totalBytes - (s.appBytes + s.wiredBytes + s.compressedBytes), Int64(0))
-    }
+    private var availableBytes: Int64 { viewModel.availableBytes }
 
     private func formatHeaderBytes(_ bytes: Int64) -> String {
         let gb = Double(bytes) / (1024.0 * 1024.0 * 1024.0)

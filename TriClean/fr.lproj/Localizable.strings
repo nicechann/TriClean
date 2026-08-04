@@ -664,3 +664,11 @@
 "apps.failed_names.overflow" = "%1$@ et %2$ld autre(s)";
 "photos.delete.status.invalid" = "Aucune photo ne peut être supprimée. Veuillez resélectionner le dossier et relancer l'analyse.";
 "store.error.product_unavailable" = "Impossible de charger les informations du produit depuis l'App Store. Vérifiez votre connexion et réessayez.";
+
+// Deletion revalidation summaries
+"duplicate.status.cleanup_summary" = "%1$ld fichiers en double ont été placés dans la corbeille et %2$@ ont été libérés. Échecs : %3$ld ; ignorés après vérification : %4$ld.";
+"junk.progress.clean_summary" = "%1$ld éléments ont été placés dans la corbeille. Échecs : %2$ld ; ignorés après vérification : %3$ld.";
+"apps.status.uninstall_invalid" = "Aucune app ne peut être supprimée. %ld app(s) ont changé ou se trouvent hors de l’emplacement autorisé.";
+"apps.status.related_summary" = "%1$ld éléments liés ont été déplacés. Échecs : %2$ld ; ignorés après vérification : %3$ld.";
+"photos.delete.status.revalidate" = "Aucune photo sélectionnée n’a été supprimée. %ld élément(s) ont été ignorés car la photo à conserver ou le chemin a changé. Relancez l’analyse.";
+"photos.delete.status.summary" = "%1$ld photos ont été placées dans la corbeille. Échecs : %2$ld ; ignorées par sécurité : %3$ld.";

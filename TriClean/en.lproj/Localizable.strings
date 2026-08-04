@@ -676,3 +676,11 @@
 "apps.failed_names.overflow" = "%1$@ and %2$ld more";
 "photos.delete.status.invalid" = "No photos can be removed. Please reselect the folder and scan again.";
 "store.error.product_unavailable" = "Could not load product information from the App Store. Check your connection and try again.";
+
+// Deletion revalidation summaries
+"duplicate.status.cleanup_summary" = "Moved %1$ld duplicate files to Trash and recovered %2$@. Failed: %3$ld; skipped after revalidation: %4$ld.";
+"junk.progress.clean_summary" = "Moved %1$ld items to Trash. Failed: %2$ld; skipped after revalidation: %3$ld.";
+"apps.status.uninstall_invalid" = "No apps can be removed. %ld app(s) changed or were outside the allowed location.";
+"apps.status.related_summary" = "Moved %1$ld related items. Failed: %2$ld; skipped after revalidation: %3$ld.";
+"photos.delete.status.revalidate" = "No selected photos were removed. %ld item(s) were skipped because the keeper or path changed. Scan again.";
+"photos.delete.status.summary" = "Moved %1$ld photos to Trash. Failed: %2$ld; skipped for safety: %3$ld.";

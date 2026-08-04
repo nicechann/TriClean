@@ -71,4 +71,52 @@ final class PhotoClusteringTests: XCTestCase {
     func test_빈_입력에서_크래시하지_않는다() {
         XCTAssertTrue(cluster([]).isEmpty)
     }
+    func test_경계_해시도_입력_순서와_무관하게_결정적으로_묶인다() {
+        let items: [(String, UInt64)] = [
+            ("a", 0x000),
+            ("b", 0x03F),
+            ("c", 0xFC0),
+            ("d", 0xFFF)
+        ]
+        let orders = [
+            items,
+            [items[3], items[2], items[1], items[0]],
+            [items[1], items[3], items[0], items[2]],
+            [items[2], items[0], items[3], items[1]]
+        ]
+
+        let results = orders.map { Set(cluster($0)) }
+        XCTAssertTrue(results.dropFirst().allSatisfy { $0 == results.first })
+        let expected: Set<Set<String>> = [["a", "b"], ["c", "d"]]
+        XCTAssertEqual(results.first, expected)
+    }
+
+    func test_가로와_세로_사진은_해시가_같아도_묶이지_않는다() {
+        let landscape = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "landscape", hash: 0x1234, pixelWidth: 4000, pixelHeight: 3000
+        )
+        let portrait = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "portrait", hash: 0x1234, pixelWidth: 3000, pixelHeight: 4000
+        )
+
+        let groups = PhotoScannerViewModel.clusterByHash(
+            [landscape, portrait],
+            threshold: threshold
+        )
+        XCTAssertTrue(groups.isEmpty)
+    }
+
+    func test_비율_차이가_허용범위를_넘으면_묶이지_않는다() {
+        let wide = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "wide", hash: 0x1234, pixelWidth: 1600, pixelHeight: 900
+        )
+        let classic = PhotoScannerViewModel.SimilarHashCandidate(
+            id: "classic", hash: 0x1234, pixelWidth: 4000, pixelHeight: 3000
+        )
+
+        XCTAssertTrue(
+            PhotoScannerViewModel.clusterByHash([wide, classic], threshold: threshold).isEmpty
+        )
+    }
+
 }
