@@ -292,9 +292,12 @@
 "junk.section.found" = "Found: %@";
 "junk.section.selected" = "Selected: %@";
 "junk.section.clean" = "Clean";
+"junk.section.clean_all" = "Clean All Selected";
 "junk.section.last_scan" = "Last scan: %@";
 "junk.section.alert.title" = "Clean Selected Junk Files";
 "junk.section.alert.message" = "Move %@ to Trash.\nYou can restore it from Finder.";
+"junk.category.alert.title" = "Clean %@";
+"junk.category.alert.message" = "Move %1$ld selected items (%2$@) to Trash.\nYou can restore them from Finder.";
 "junk.scope.title" = "Select Home Library (~/Library)";
 "junk.scope.message" = "Select the Home Library folder to scan for junk files.";
 "junk.progress.preparing" = "Preparing scan…";
@@ -388,6 +391,8 @@
 "junk.item.select_all" = "Select All";
 "junk.item.deselect_all" = "Deselect All";
 "junk.item.more" = "and %ld more items…";
+"junk.item.show_more" = "Show %ld more items";
+"junk.item.show_less" = "Show first 30 items";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Selected Folder";

@@ -342,18 +342,19 @@ final class JunkScannerViewModel: ObservableObject {
         results[catIdx].items[itemIdx].isSelected.toggle()
     }
     
+    func toggleAll(in categoryID: String) {
+        guard let index = results.firstIndex(where: { $0.id == categoryID }) else { return }
+        results[index].toggleAllSelection()
+    }
+
     func selectAll(in categoryID: String) {
-        guard let idx = results.firstIndex(where: { $0.id == categoryID }) else { return }
-        for i in 0..<results[idx].items.count {
-            results[idx].items[i].isSelected = true
-        }
+        guard let index = results.firstIndex(where: { $0.id == categoryID }) else { return }
+        results[index].setAllSelected(true)
     }
     
     func deselectAll(in categoryID: String) {
-        guard let idx = results.firstIndex(where: { $0.id == categoryID }) else { return }
-        for i in 0..<results[idx].items.count {
-            results[idx].items[i].isSelected = false
-        }
+        guard let index = results.firstIndex(where: { $0.id == categoryID }) else { return }
+        results[index].setAllSelected(false)
     }
     
     // MARK: - 삭제
@@ -371,13 +372,34 @@ final class JunkScannerViewModel: ObservableObject {
     }
 
     func cleanSelected() {
+        startCleaning(categoryID: nil)
+    }
+
+    func cleanSelected(in categoryID: String) {
+        startCleaning(categoryID: categoryID)
+    }
+
+    nonisolated static func selectedItems(
+        in results: [JunkScanResult],
+        categoryID: String? = nil
+    ) -> [JunkItem] {
+        let scopedResults: [JunkScanResult]
+        if let categoryID {
+            scopedResults = results.filter { $0.id == categoryID }
+        } else {
+            scopedResults = results
+        }
+
+        return scopedResults.flatMap { $0.items.filter(\.isSelected) }
+    }
+
+    private func startCleaning(categoryID: String?) {
         guard StoreManager.shared.isPurchased else {
             scanProgress = "paywall.free_mode.notice".localized
             return
         }
 
-        let candidates = results
-            .flatMap { $0.items.filter(\.isSelected) }
+        let candidates = Self.selectedItems(in: results, categoryID: categoryID)
             .map {
                 CleanTarget(
                     id: $0.id,
@@ -397,8 +419,8 @@ final class JunkScannerViewModel: ObservableObject {
                 await Self.moveTargetsToTrash(candidates, scopedBy: library)
             }.value
 
-            for i in 0..<results.count {
-                results[i].items.removeAll { outcome.succeededIDs.contains($0.id) }
+            for index in results.indices {
+                results[index].items.removeAll { outcome.succeededIDs.contains($0.id) }
             }
             results.removeAll { $0.items.isEmpty }
 

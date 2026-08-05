@@ -117,9 +117,12 @@
 "junk.section.found" = "Gevonden: %@";
 "junk.section.selected" = "Geselecteerd: %@";
 "junk.section.clean" = "Ruim op";
+"junk.section.clean_all" = "Alle geselecteerde items opruimen";
 "junk.section.last_scan" = "Laatste scan: %@";
 "junk.section.alert.title" = "Geselecteerde overbodige bestanden opruimen";
 "junk.section.alert.message" = "Verplaats %@ naar de prullenmand.\nJe kunt dit via de Finder terugzetten.";
+"junk.category.alert.title" = "%@ opruimen";
+"junk.category.alert.message" = "Verplaats de %1$ld geselecteerde items (%2$@) naar de prullenmand.\nJe kunt ze herstellen via Finder.";
 "junk.scope.title" = "Selecteer de persoonlijke bibliotheek (~/Library)";
 "junk.scope.message" = "Selecteer de map met de persoonlijke bibliotheek om te scannen op overbodige bestanden.";
 "junk.progress.preparing" = "Scan voorbereiden…";
@@ -153,6 +156,8 @@
 "junk.item.select_all" = "Selecteer alles";
 "junk.item.deselect_all" = "Deselecteer alles";
 "junk.item.more" = "en nog %ld items…";
+"junk.item.show_more" = "Nog %ld items weergeven";
+"junk.item.show_less" = "Alleen de eerste 30 items weergeven";
 "junk.section.access_title" = "Maptoegang verlopen";
 "junk.section.access_desc" = "TriClean heeft geen toegang meer tot ~/Library. Tik op ‘Wijzig’ en selecteer de map opnieuw.";
 "junk.progress.cleaning" = "Geselecteerde items naar de prullenmand verplaatsen: %ld…";

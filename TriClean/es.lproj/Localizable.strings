@@ -283,9 +283,12 @@
 "junk.section.found" = "Encontrado: %@";
 "junk.section.selected" = "Seleccionado: %@";
 "junk.section.clean" = "Limpiar";
+"junk.section.clean_all" = "Limpiar todo lo seleccionado";
 "junk.section.last_scan" = "Último análisis: %@";
 "junk.section.alert.title" = "Limpiar archivos basura seleccionados";
 "junk.section.alert.message" = "Mover %@ a la Papelera.\nPuedes restaurarlos desde el Finder.";
+"junk.category.alert.title" = "Limpiar %@";
+"junk.category.alert.message" = "Mover los %1$ld elementos seleccionados (%2$@) a la papelera.\nPuedes restaurarlos desde Finder.";
 "junk.scope.title" = "Seleccionar Biblioteca personal (~/Library)";
 "junk.scope.message" = "Selecciona la carpeta Biblioteca personal para analizar archivos basura.";
 "junk.progress.preparing" = "Preparando análisis…";
@@ -379,6 +382,8 @@
 "junk.item.select_all" = "Seleccionar todo";
 "junk.item.deselect_all" = "Anular selección";
 "junk.item.more" = "y %ld elementos más…";
+"junk.item.show_more" = "Mostrar %ld elementos más";
+"junk.item.show_less" = "Mostrar solo los primeros 30 elementos";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Carpeta seleccionada";

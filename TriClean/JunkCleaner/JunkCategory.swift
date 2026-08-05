@@ -108,6 +108,12 @@ struct JunkItem: Identifiable, Hashable {
     static func == (lhs: JunkItem, rhs: JunkItem) -> Bool { lhs.id == rhs.id }
 }
 
+enum JunkSelectionState: Equatable {
+    case none
+    case partial
+    case all
+}
+
 struct JunkScanResult: Identifiable {
     let id: String
     let category: JunkCategory
@@ -115,8 +121,31 @@ struct JunkScanResult: Identifiable {
 
     var totalBytes: Int64 { items.reduce(0) { $0 + $1.sizeBytes } }
     var selectedBytes: Int64 { items.filter(\.isSelected).reduce(0) { $0 + $1.sizeBytes } }
+    var selectedCount: Int { items.filter(\.isSelected).count }
+    var selectionState: JunkSelectionState {
+        guard !items.isEmpty, selectedCount > 0 else { return .none }
+        return selectedCount == items.count ? .all : .partial
+    }
     var totalString: String {
         ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
+    }
+    var selectedString: String {
+        ByteCountFormatter.string(fromByteCount: selectedBytes, countStyle: .file)
+    }
+
+    mutating func setAllSelected(_ isSelected: Bool) {
+        for index in items.indices {
+            items[index].isSelected = isSelected
+        }
+    }
+
+    mutating func toggleAllSelection() {
+        setAllSelected(selectionState != .all)
+    }
+
+    func displayedItems(showAll: Bool, limit: Int = 30) -> [JunkItem] {
+        guard !showAll else { return items }
+        return Array(items.prefix(limit))
     }
 }
 

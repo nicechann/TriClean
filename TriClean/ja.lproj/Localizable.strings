@@ -283,9 +283,12 @@
 "junk.section.found" = "検出: %@";
 "junk.section.selected" = "選択: %@";
 "junk.section.clean" = "クリーン";
+"junk.section.clean_all" = "選択項目をすべて整理";
 "junk.section.last_scan" = "最終スキャン: %@";
 "junk.section.alert.title" = "選択した不要ファイルをクリーン";
 "junk.section.alert.message" = "%@ をゴミ箱に移動します。\nFinderから復元できます。";
+"junk.category.alert.title" = "%@を整理";
+"junk.category.alert.message" = "選択した%1$ld項目（%2$@）をゴミ箱に移動します。\nFinderから復元できます。";
 "junk.scope.title" = "ホームライブラリ (~/Library) を選択";
 "junk.scope.message" = "不要ファイルをスキャンするホームライブラリフォルダを選択してください。";
 "junk.progress.preparing" = "スキャンを準備中…";
@@ -379,6 +382,8 @@
 "junk.item.select_all" = "すべて選択";
 "junk.item.deselect_all" = "選択解除";
 "junk.item.more" = "他 %ld 件…";
+"junk.item.show_more" = "残り%ld項目をすべて表示";
+"junk.item.show_less" = "最初の30項目のみ表示";
 
 /* Duplicates */
 "duplicates.selected_folder" = "選択中のフォルダ";

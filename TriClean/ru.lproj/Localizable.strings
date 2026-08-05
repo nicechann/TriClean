@@ -123,9 +123,12 @@
 "junk.section.found" = "Найдено: %@";
 "junk.section.selected" = "Выбрано: %@";
 "junk.section.clean" = "Очистить";
+"junk.section.clean_all" = "Очистить всё выбранное";
 "junk.section.last_scan" = "Последнее сканирование: %@";
 "junk.section.alert.title" = "Очистить выбранные ненужные файлы";
 "junk.section.alert.message" = "%@ будет перемещено в Корзину.\nВосстановить можно через Finder.";
+"junk.category.alert.title" = "Очистить «%@»";
+"junk.category.alert.message" = "Переместить %1$ld выбранных объектов (%2$@) в Корзину.\nИх можно восстановить через Finder.";
 "junk.scope.title" = "Выберите личную Библиотеку (~/Library)";
 "junk.scope.message" = "Выберите папку личной Библиотеки для поиска ненужных файлов.";
 "junk.progress.preparing" = "Подготовка к сканированию…";
@@ -159,6 +162,8 @@
 "junk.item.select_all" = "Выбрать все";
 "junk.item.deselect_all" = "Снять выбор";
 "junk.item.more" = "и ещё объектов: %ld…";
+"junk.item.show_more" = "Показать ещё %ld объектов";
+"junk.item.show_less" = "Показать только первые 30 объектов";
 "junk.section.access_title" = "Доступ к папке истёк";
 "junk.section.access_desc" = "TriClean больше не имеет доступа к ~/Library. Нажмите «Изменить» и выберите папку заново.";
 "junk.progress.cleaning" = "Перемещение выбранных объектов в Корзину: %ld…";

@@ -283,9 +283,12 @@
 "junk.section.found" = "Gefunden: %@";
 "junk.section.selected" = "Ausgewählt: %@";
 "junk.section.clean" = "Bereinigen";
+"junk.section.clean_all" = "Alle ausgewählten bereinigen";
 "junk.section.last_scan" = "Letzter Scan: %@";
 "junk.section.alert.title" = "Ausgewählte Junk-Dateien bereinigen";
 "junk.section.alert.message" = "%@ in den Papierkorb verschieben.\nSie können sie über den Finder wiederherstellen.";
+"junk.category.alert.title" = "%@ bereinigen";
+"junk.category.alert.message" = "%1$ld ausgewählte Elemente (%2$@) in den Papierkorb bewegen.\nSie können sie im Finder wiederherstellen.";
 "junk.scope.title" = "Privat-Library (~/Library) auswählen";
 "junk.scope.message" = "Wählen Sie den Privat-Library-Ordner zum Scannen nach Junk-Dateien aus.";
 "junk.progress.preparing" = "Scan wird vorbereitet…";
@@ -379,6 +382,8 @@
 "junk.item.select_all" = "Alle auswählen";
 "junk.item.deselect_all" = "Auswahl aufheben";
 "junk.item.more" = "und %ld weitere Elemente…";
+"junk.item.show_more" = "Weitere %ld Elemente anzeigen";
+"junk.item.show_less" = "Nur die ersten 30 Elemente anzeigen";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Ausgewählter Ordner";

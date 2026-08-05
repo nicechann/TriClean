@@ -283,9 +283,12 @@
 "junk.section.found" = "Trouvé : %@";
 "junk.section.selected" = "Sélectionné : %@";
 "junk.section.clean" = "Nettoyer";
+"junk.section.clean_all" = "Nettoyer toute la sélection";
 "junk.section.last_scan" = "Dernière analyse : %@";
 "junk.section.alert.title" = "Nettoyer les fichiers inutiles sélectionnés";
 "junk.section.alert.message" = "Placer %@ dans la corbeille.\nVous pouvez les restaurer depuis le Finder.";
+"junk.category.alert.title" = "Nettoyer %@";
+"junk.category.alert.message" = "Déplacer les %1$ld éléments sélectionnés (%2$@) vers la corbeille.\nVous pouvez les restaurer depuis le Finder.";
 "junk.scope.title" = "Sélectionner Bibliothèque personnelle (~/Library)";
 "junk.scope.message" = "Sélectionnez le dossier Bibliothèque personnelle à analyser pour les fichiers inutiles.";
 "junk.progress.preparing" = "Préparation de l'analyse…";
@@ -379,6 +382,8 @@
 "junk.item.select_all" = "Tout sélectionner";
 "junk.item.deselect_all" = "Tout désélectionner";
 "junk.item.more" = "et %ld éléments de plus…";
+"junk.item.show_more" = "Afficher %ld éléments supplémentaires";
+"junk.item.show_less" = "Afficher uniquement les 30 premiers éléments";
 
 /* Duplicates */
 "duplicates.selected_folder" = "Dossier sélectionné";

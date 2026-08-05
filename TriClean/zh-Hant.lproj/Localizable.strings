@@ -117,9 +117,12 @@
 "junk.section.found" = "已找到：%@";
 "junk.section.selected" = "已選擇：%@";
 "junk.section.clean" = "清理";
+"junk.section.clean_all" = "清理所有已選項目";
 "junk.section.last_scan" = "上次掃描：%@";
 "junk.section.alert.title" = "清理所選的垃圾檔案";
 "junk.section.alert.message" = "將 %@ 移到垃圾桶。\n你可以從 Finder 回復。";
+"junk.category.alert.title" = "清理%@";
+"junk.category.alert.message" = "將選取的 %1$ld 個項目（%2$@）移到垃圾桶。\n你可以在 Finder 中復原。";
 "junk.scope.title" = "選擇個人專屬資料庫（~/Library）";
 "junk.scope.message" = "選擇要掃描垃圾檔案的個人專屬資料庫資料夾。";
 "junk.progress.preparing" = "正在準備掃描…";
@@ -153,6 +156,8 @@
 "junk.item.select_all" = "全選";
 "junk.item.deselect_all" = "取消全選";
 "junk.item.more" = "以及其他 %ld 個項目…";
+"junk.item.show_more" = "顯示其餘 %ld 個項目";
+"junk.item.show_less" = "僅顯示前 30 個項目";
 "junk.section.access_title" = "資料夾存取權限已失效";
 "junk.section.access_desc" = "TriClean 已無法存取 ~/Library。請點按「更改」重新選擇該資料夾。";
 "junk.progress.cleaning" = "正在將 %ld 個所選項目移到垃圾桶…";

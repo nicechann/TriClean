@@ -117,9 +117,12 @@
 "junk.section.found" = "Encontrado: %@";
 "junk.section.selected" = "Selecionado: %@";
 "junk.section.clean" = "Limpar";
+"junk.section.clean_all" = "Limpar todos os selecionados";
 "junk.section.last_scan" = "Último escaneamento: %@";
 "junk.section.alert.title" = "Limpar os arquivos desnecessários selecionados";
 "junk.section.alert.message" = "Mover %@ para o Lixo.\nVocê pode restaurar no Finder.";
+"junk.category.alert.title" = "Limpar %@";
+"junk.category.alert.message" = "Mover os %1$ld itens selecionados (%2$@) para o Lixo.\nVocê pode restaurá-los pelo Finder.";
 "junk.scope.title" = "Selecionar a Biblioteca pessoal (~/Library)";
 "junk.scope.message" = "Selecione a pasta Biblioteca pessoal para escanear arquivos desnecessários.";
 "junk.progress.preparing" = "Preparando o escaneamento…";
@@ -153,6 +156,8 @@
 "junk.item.select_all" = "Selecionar tudo";
 "junk.item.deselect_all" = "Desmarcar tudo";
 "junk.item.more" = "e mais %ld itens…";
+"junk.item.show_more" = "Mostrar mais %ld itens";
+"junk.item.show_less" = "Mostrar apenas os primeiros 30 itens";
 "junk.section.access_title" = "Acesso à pasta expirou";
 "junk.section.access_desc" = "O TriClean não consegue mais acessar ~/Library. Toque em “Alterar” e selecione a pasta novamente.";
 "junk.progress.cleaning" = "Movendo %ld itens selecionados para o Lixo…";

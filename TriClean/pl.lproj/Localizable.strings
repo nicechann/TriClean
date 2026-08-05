@@ -123,9 +123,12 @@
 "junk.section.found" = "Znaleziono: %@";
 "junk.section.selected" = "Wybrano: %@";
 "junk.section.clean" = "Wyczyść";
+"junk.section.clean_all" = "Wyczyść wszystkie zaznaczone";
 "junk.section.last_scan" = "Ostatnie skanowanie: %@";
 "junk.section.alert.title" = "Usuń wybrane zbędne pliki";
 "junk.section.alert.message" = "Przenieś %@ do Kosza.\nMożesz je przywrócić z Findera.";
+"junk.category.alert.title" = "Wyczyść: %@";
+"junk.category.alert.message" = "Przenieś %1$ld zaznaczonych elementów (%2$@) do Kosza.\nMożesz je przywrócić w Finderze.";
 "junk.scope.title" = "Wybierz Bibliotekę użytkownika (~/Library)";
 "junk.scope.message" = "Wybierz folder Biblioteki użytkownika, aby przeskanować go w poszukiwaniu zbędnych plików.";
 "junk.progress.preparing" = "Przygotowywanie skanowania…";
@@ -159,6 +162,8 @@
 "junk.item.select_all" = "Zaznacz wszystko";
 "junk.item.deselect_all" = "Odznacz wszystko";
 "junk.item.more" = "oraz kolejnych elementów: %ld…";
+"junk.item.show_more" = "Pokaż pozostałe elementy: %ld";
+"junk.item.show_less" = "Pokaż tylko pierwsze 30 elementów";
 "junk.section.access_title" = "Dostęp do folderu wygasł";
 "junk.section.access_desc" = "TriClean nie ma już dostępu do ~/Library. Dotknij „Zmień” i wybierz folder ponownie.";
 "junk.progress.cleaning" = "Przenoszenie wybranych elementów do Kosza: %ld…";

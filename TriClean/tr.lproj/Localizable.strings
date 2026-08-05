@@ -121,9 +121,12 @@
 "junk.section.found" = "Bulunan: %@";
 "junk.section.selected" = "Seçilen: %@";
 "junk.section.clean" = "Temizle";
+"junk.section.clean_all" = "Seçilenlerin tümünü temizle";
 "junk.section.last_scan" = "Son tarama: %@";
 "junk.section.alert.title" = "Seçilen gereksiz dosyaları temizle";
 "junk.section.alert.message" = "%@ Çöp Kutusu'na taşınacak.\nFinder'dan geri yükleyebilirsiniz.";
+"junk.category.alert.title" = "%@ öğesini temizle";
+"junk.category.alert.message" = "Seçilen %1$ld öğeyi (%2$@) Çöp Sepeti’ne taşı.\nFinder’dan geri yükleyebilirsiniz.";
 "junk.scope.title" = "Kişisel Kitaplık'ı (~/Library) seç";
 "junk.scope.message" = "Gereksiz dosyaları taramak için Kişisel Kitaplık klasörünü seçin.";
 "junk.progress.preparing" = "Tarama hazırlanıyor…";
@@ -157,6 +160,8 @@
 "junk.item.select_all" = "Tümünü seç";
 "junk.item.deselect_all" = "Seçimi kaldır";
 "junk.item.more" = "ve %ld öğe daha…";
+"junk.item.show_more" = "%ld öğe daha göster";
+"junk.item.show_less" = "Yalnızca ilk 30 öğeyi göster";
 "junk.section.access_title" = "Klasör erişimi sona erdi";
 "junk.section.access_desc" = "TriClean artık ~/Library'ye erişemiyor. “Değiştir”e dokunup klasörü yeniden seçin.";
 "junk.progress.cleaning" = "Seçilen %ld öğe Çöp Kutusu'na taşınıyor…";

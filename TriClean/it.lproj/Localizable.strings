@@ -117,9 +117,12 @@
 "junk.section.found" = "Trovati: %@";
 "junk.section.selected" = "Selezionati: %@";
 "junk.section.clean" = "Pulisci";
+"junk.section.clean_all" = "Pulisci tutti gli elementi selezionati";
 "junk.section.last_scan" = "Ultima scansione: %@";
 "junk.section.alert.title" = "Pulisci i file inutili selezionati";
 "junk.section.alert.message" = "Sposta %@ nel Cestino.\nPuoi ripristinarli dal Finder.";
+"junk.category.alert.title" = "Pulisci %@";
+"junk.category.alert.message" = "Sposta nel Cestino i %1$ld elementi selezionati (%2$@).\nPuoi ripristinarli dal Finder.";
 "junk.scope.title" = "Seleziona la Libreria personale (~/Library)";
 "junk.scope.message" = "Seleziona la cartella Libreria personale in cui cercare i file inutili.";
 "junk.progress.preparing" = "Preparazione della scansione…";
@@ -153,6 +156,8 @@
 "junk.item.select_all" = "Seleziona tutto";
 "junk.item.deselect_all" = "Deseleziona tutto";
 "junk.item.more" = "e altri %ld elementi…";
+"junk.item.show_more" = "Mostra altri %ld elementi";
+"junk.item.show_less" = "Mostra solo i primi 30 elementi";
 "junk.section.access_title" = "Accesso alla cartella scaduto";
 "junk.section.access_desc" = "TriClean non può più accedere a ~/Library. Tocca «Cambia» e seleziona di nuovo la cartella.";
 "junk.progress.cleaning" = "Spostamento di %ld elementi selezionati nel Cestino…";

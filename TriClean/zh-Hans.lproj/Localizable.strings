@@ -117,9 +117,12 @@
 "junk.section.found" = "已找到：%@";
 "junk.section.selected" = "已选择：%@";
 "junk.section.clean" = "清理";
+"junk.section.clean_all" = "清理所有已选项目";
 "junk.section.last_scan" = "上次扫描：%@";
 "junk.section.alert.title" = "清理所选垃圾文件";
 "junk.section.alert.message" = "将 %@ 移到废纸篓。\n你可以从 Finder 中恢复。";
+"junk.category.alert.title" = "清理%@";
+"junk.category.alert.message" = "将选中的 %1$ld 个项目（%2$@）移到废纸篓。\n你可以在“访达”中恢复。";
 "junk.scope.title" = "选择个人资源库（~/Library）";
 "junk.scope.message" = "选择要扫描垃圾文件的个人资源库文件夹。";
 "junk.progress.preparing" = "正在准备扫描…";
@@ -153,6 +156,8 @@
 "junk.item.select_all" = "全选";
 "junk.item.deselect_all" = "取消全选";
 "junk.item.more" = "以及其他 %ld 个项目…";
+"junk.item.show_more" = "显示其余 %ld 个项目";
+"junk.item.show_less" = "仅显示前 30 个项目";
 "junk.section.access_title" = "文件夹访问权限已失效";
 "junk.section.access_desc" = "TriClean 已无法访问 ~/Library。请点击「更改」重新选择该文件夹。";
 "junk.progress.cleaning" = "正在将 %ld 个所选项目移到废纸篓…";
