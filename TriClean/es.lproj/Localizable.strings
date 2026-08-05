@@ -668,3 +668,7 @@
 "upgrade.bottom.desc" = "El análisis y los resultados son gratuitos. El borrado y la limpieza requieren el acceso de por vida.";
 "upgrade.bottom.buy" = "Comprar acceso de por vida";
 "paywall.free_mode.notice" = "El análisis es gratuito. El borrado de archivos y la limpieza están disponibles tras comprar el acceso de por vida.";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";

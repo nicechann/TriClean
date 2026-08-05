@@ -668,3 +668,7 @@
 "upgrade.bottom.desc" = "Scans und Ergebnisse sind kostenlos. Löschen und Bereinigen erfordern die lebenslange Freischaltung.";
 "upgrade.bottom.buy" = "Dauerzugang kaufen";
 "paywall.free_mode.notice" = "Scannen und Analysieren sind kostenlos. Löschen und Bereinigen sind nach dem Kauf der lebenslangen Freischaltung verfügbar.";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";

@@ -668,3 +668,7 @@
 "upgrade.bottom.desc" = "スキャンと結果の確認は無料です。ファイルの削除と整理には買い切り版が必要です。";
 "upgrade.bottom.buy" = "買い切り版を購入";
 "paywall.free_mode.notice" = "スキャンと分析は無料で利用できます。ファイルの削除と整理は買い切り版の購入後に利用できます。";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";

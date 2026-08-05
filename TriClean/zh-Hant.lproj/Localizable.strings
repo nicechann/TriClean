@@ -523,3 +523,7 @@
 "store.error.product_unavailable" = "無法從 App Store 載入產品資訊。請檢查網路連線後重試。";
 "store.error.no_purchase_to_restore" = "找不到此 Apple 帳號的先前購買記錄。";
 "store.btn.retry" = "重試";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";
