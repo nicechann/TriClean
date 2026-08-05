@@ -532,3 +532,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Wacht tot het opruimen is voltooid.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Opschonen voltooid";
+"junk.cleanup.result.partial_title" = "Opschonen gedeeltelijk voltooid";
+"junk.cleanup.result.failed_title" = "Opschonen mislukt";
+"junk.cleanup.result.success_message" = "%ld onderdelen naar de prullenmand verplaatst.";
+"junk.cleanup.result.partial_message" = "%1$ld onderdelen naar de prullenmand verplaatst. Mislukt: %2$ld; overgeslagen na wijzigingen: %3$ld.";
+"junk.cleanup.result.failed_message" = "Er zijn geen onderdelen naar de prullenmand verplaatst. Mislukt: %1$ld; overgeslagen na wijzigingen: %2$ld.";
+"junk.cleanup.result.access_denied" = "De toestemming voor de Library-map kon niet worden geactiveerd. Selecteer de Library-map opnieuw via ‘Wijzig…’ en probeer het opnieuw.";
+"junk.cleanup.result.error_detail" = "Eerste fout: %@";

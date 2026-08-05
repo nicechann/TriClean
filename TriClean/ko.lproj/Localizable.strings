@@ -690,3 +690,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "정리가 완료될 때까지 잠시 기다려 주세요.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "정리 완료";
+"junk.cleanup.result.partial_title" = "일부 정리 완료";
+"junk.cleanup.result.failed_title" = "정리하지 못함";
+"junk.cleanup.result.success_message" = "%ld개 항목을 휴지통으로 이동했습니다.";
+"junk.cleanup.result.partial_message" = "%1$ld개 항목을 휴지통으로 이동했습니다. 실패 %2$ld개, 변경되어 제외 %3$ld개입니다.";
+"junk.cleanup.result.failed_message" = "휴지통으로 이동한 항목이 없습니다. 실패 %1$ld개, 변경되어 제외 %2$ld개입니다.";
+"junk.cleanup.result.access_denied" = "Library 폴더 접근 권한을 사용할 수 없습니다. ‘변경…’에서 Library 폴더를 다시 선택한 후 재시도하세요.";
+"junk.cleanup.result.error_detail" = "첫 번째 오류: %@";

@@ -677,3 +677,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld Ko";
 "common.unit.mb" = "%ld Mo";
+"junk.progress.wait" = "Veuillez patienter jusqu’à la fin du nettoyage.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Nettoyage terminé";
+"junk.cleanup.result.partial_title" = "Nettoyage partiellement terminé";
+"junk.cleanup.result.failed_title" = "Échec du nettoyage";
+"junk.cleanup.result.success_message" = "%ld éléments ont été placés dans la corbeille.";
+"junk.cleanup.result.partial_message" = "%1$ld éléments ont été placés dans la corbeille. Échecs : %2$ld ; ignorés après modification : %3$ld.";
+"junk.cleanup.result.failed_message" = "Aucun élément n’a été placé dans la corbeille. Échecs : %1$ld ; ignorés après modification : %2$ld.";
+"junk.cleanup.result.access_denied" = "L’autorisation du dossier Bibliothèque n’a pas pu être activée. Sélectionnez à nouveau le dossier Bibliothèque via « Modifier… », puis réessayez.";
+"junk.cleanup.result.error_detail" = "Première erreur : %@";

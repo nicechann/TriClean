@@ -532,3 +532,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Aguarde até a limpeza ser concluída.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Limpeza concluída";
+"junk.cleanup.result.partial_title" = "Limpeza parcialmente concluída";
+"junk.cleanup.result.failed_title" = "Falha na limpeza";
+"junk.cleanup.result.success_message" = "%ld itens foram movidos para o Lixo.";
+"junk.cleanup.result.partial_message" = "%1$ld itens foram movidos para o Lixo. Falhas: %2$ld; ignorados após alterações: %3$ld.";
+"junk.cleanup.result.failed_message" = "Nenhum item foi movido para o Lixo. Falhas: %1$ld; ignorados após alterações: %2$ld.";
+"junk.cleanup.result.access_denied" = "Não foi possível ativar a permissão da pasta Library. Selecione novamente a pasta Library em “Alterar…” e tente outra vez.";
+"junk.cleanup.result.error_detail" = "Primeiro erro: %@";

@@ -121,6 +121,39 @@ struct JunkSectionView: View {
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.orange.opacity(0.1)))
             }
 
+            // ── 마지막 정리 결과 ──
+            if let notice = viewModel.cleanupNotice {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: cleanupNoticeIcon(for: notice.kind))
+                        .foregroundStyle(cleanupNoticeColor(for: notice.kind))
+                        .font(.body)
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(notice.title)
+                            .font(.caption.bold())
+                        Text(notice.message)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        viewModel.dismissCleanupNotice()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .buttonStyle(.plain)
+                    .help("common.close".localized)
+                }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(cleanupNoticeColor(for: notice.kind).opacity(0.1))
+                )
+            }
+
             // ── 준비 상태 / 잘못된 경로 안내 ──
             if viewModel.libraryURL != nil && !viewModel.isScanning && !viewModel.hasResults && !viewModel.accessDenied {
                 HStack(spacing: 10) {
@@ -204,24 +237,70 @@ struct JunkSectionView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
         )
+        .overlay {
+            if viewModel.isCleaning {
+                cleaningOverlay
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.15), value: viewModel.isCleaning)
         .alert(item: $cleanRequest) { request in
             Alert(
                 title: Text(cleanAlertTitle(for: request)),
                 message: Text(cleanAlertMessage(for: request)),
                 primaryButton: .destructive(Text("common.move_to_trash".localized)) {
-                    guard storeManager.isPurchased else {
-                        onUpgradeRequired()
-                        return
-                    }
-
-                    if let categoryID = request.categoryID {
-                        viewModel.cleanSelected(in: categoryID)
-                    } else {
-                        viewModel.cleanSelected()
-                    }
+                    beginCleaning(request)
                 },
                 secondaryButton: .cancel(Text("common.cancel".localized))
             )
+        }
+    }
+
+    private var cleaningOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.18)
+
+            VStack(spacing: 12) {
+                ProgressView()
+                    .controlSize(.large)
+
+                Text(viewModel.scanProgress)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+
+                Text("junk.progress.wait".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 22)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+            .shadow(radius: 16, y: 8)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(viewModel.scanProgress))
+    }
+
+    private func beginCleaning(_ request: CleanRequest) {
+        guard storeManager.isPurchased else {
+            cleanRequest = nil
+            onUpgradeRequired()
+            return
+        }
+
+        let categoryID = request.categoryID
+        cleanRequest = nil
+
+        // macOS 확인창이 먼저 닫힌 다음 진행 오버레이가 나타나도록 한 번 양보합니다.
+        Task { @MainActor in
+            await Task.yield()
+            if let categoryID {
+                viewModel.cleanSelected(in: categoryID)
+            } else {
+                viewModel.cleanSelected()
+            }
         }
     }
 
@@ -365,6 +444,22 @@ struct JunkSectionView: View {
                 .fill(Color(nsColor: .controlBackgroundColor))
         )
         .help(result.category.description)
+    }
+
+    private func cleanupNoticeColor(for kind: JunkCleanupNotice.Kind) -> Color {
+        switch kind {
+        case .success: return .green
+        case .warning: return .orange
+        case .error: return .red
+        }
+    }
+
+    private func cleanupNoticeIcon(for kind: JunkCleanupNotice.Kind) -> String {
+        switch kind {
+        case .success: return "checkmark.circle.fill"
+        case .warning: return "exclamationmark.triangle.fill"
+        case .error: return "xmark.octagon.fill"
+        }
     }
 
     private func toggleExpanded(_ categoryID: String) {

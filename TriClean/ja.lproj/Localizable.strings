@@ -677,3 +677,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "整理が完了するまでお待ちください。";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "クリーンアップ完了";
+"junk.cleanup.result.partial_title" = "一部のクリーンアップが完了";
+"junk.cleanup.result.failed_title" = "クリーンアップ失敗";
+"junk.cleanup.result.success_message" = "%ld項目をゴミ箱に移動しました。";
+"junk.cleanup.result.partial_message" = "%1$ld項目をゴミ箱に移動しました。失敗: %2$ld、変更により除外: %3$ld。";
+"junk.cleanup.result.failed_message" = "ゴミ箱に移動された項目はありません。失敗: %1$ld、変更により除外: %2$ld。";
+"junk.cleanup.result.access_denied" = "Libraryフォルダのアクセス権を有効にできませんでした。「変更…」からLibraryフォルダを再選択して、もう一度お試しください。";
+"junk.cleanup.result.error_detail" = "最初のエラー: %@";

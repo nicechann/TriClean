@@ -532,3 +532,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Attendi il completamento della pulizia.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Pulizia completata";
+"junk.cleanup.result.partial_title" = "Pulizia completata parzialmente";
+"junk.cleanup.result.failed_title" = "Pulizia non riuscita";
+"junk.cleanup.result.success_message" = "%ld elementi spostati nel Cestino.";
+"junk.cleanup.result.partial_message" = "%1$ld elementi spostati nel Cestino. Non riusciti: %2$ld; ignorati dopo modifiche: %3$ld.";
+"junk.cleanup.result.failed_message" = "Nessun elemento è stato spostato nel Cestino. Non riusciti: %1$ld; ignorati dopo modifiche: %2$ld.";
+"junk.cleanup.result.access_denied" = "Non è stato possibile attivare il permesso per la cartella Libreria. Seleziona di nuovo la cartella Libreria con “Modifica…” e riprova.";
+"junk.cleanup.result.error_detail" = "Primo errore: %@";

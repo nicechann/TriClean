@@ -98,6 +98,26 @@ struct FileIdentitySnapshot: Hashable, Sendable {
     }
 
     nonisolated func matchesCurrentItem(at url: URL) -> Bool {
-        Self.captureItem(url.standardizedFileURL) == self
+        matchesCurrentItem(at: url, allowDirectoryContentChanges: false)
+    }
+
+    /// 캐시·로그 디렉터리는 내부 파일이 생성·변경되면 크기와 수정 시각이 달라질 수 있습니다.
+    /// 이 옵션을 켜도 device·inode·항목 유형은 반드시 같아야 하므로, 같은 경로가 다른
+    /// 디렉터리로 교체된 경우에는 계속 삭제를 거부합니다. 일반 파일은 항상 엄격 비교합니다.
+    nonisolated func matchesCurrentItem(
+        at url: URL,
+        allowDirectoryContentChanges: Bool
+    ) -> Bool {
+        guard let current = Self.captureItem(url.standardizedFileURL) else { return false }
+        guard device == current.device,
+              inode == current.inode,
+              itemType == current.itemType
+        else { return false }
+
+        if itemType == .directory && allowDirectoryContentChanges {
+            return true
+        }
+
+        return current == self
     }
 }

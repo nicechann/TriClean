@@ -534,3 +534,14 @@
 "store.error.product_unavailable" = "Не удалось загрузить сведения о продукте из App Store. Проверьте подключение и повторите попытку.";
 "store.error.no_purchase_to_restore" = "Для этой учётной записи Apple предыдущих покупок не найдено.";
 "store.btn.retry" = "Повторить";
+"junk.progress.wait" = "Дождитесь завершения очистки.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Очистка завершена";
+"junk.cleanup.result.partial_title" = "Очистка завершена частично";
+"junk.cleanup.result.failed_title" = "Не удалось выполнить очистку";
+"junk.cleanup.result.success_message" = "В Корзину перемещено объектов: %ld.";
+"junk.cleanup.result.partial_message" = "В Корзину перемещено: %1$ld. Ошибок: %2$ld; пропущено после изменений: %3$ld.";
+"junk.cleanup.result.failed_message" = "Ни один объект не был перемещён в Корзину. Ошибок: %1$ld; пропущено после изменений: %2$ld.";
+"junk.cleanup.result.access_denied" = "Не удалось активировать доступ к папке Library. Снова выберите папку Library через «Изменить…» и повторите попытку.";
+"junk.cleanup.result.error_detail" = "Первая ошибка: %@";

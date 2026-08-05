@@ -14,6 +14,26 @@ import Foundation
 import Combine
 import SwiftUI
 import AppKit
+import os.log
+
+
+private let junkCleanupLogger = Logger(
+    subsystem: "com.nicechann.TriClean",
+    category: "JunkCleanup"
+)
+
+struct JunkCleanupNotice: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case success
+        case warning
+        case error
+    }
+
+    let id = UUID()
+    let kind: Kind
+    let title: String
+    let message: String
+}
 
 @MainActor
 final class JunkScannerViewModel: ObservableObject {
@@ -26,6 +46,7 @@ final class JunkScannerViewModel: ObservableObject {
     @Published var libraryURL: URL? = nil
     @Published var lastScanDate: Date? = nil
     @Published var isCleaning: Bool = false
+    @Published var cleanupNotice: JunkCleanupNotice? = nil
     /// 스캔 시 폴더 접근 권한이 만료/무효인 경우 true. (조용한 빈 결과 방지용)
     @Published var accessDenied: Bool = false
     
@@ -138,6 +159,7 @@ final class JunkScannerViewModel: ObservableObject {
             saveBookmark(url: url)
             libraryURL = url
             accessDenied = false
+            cleanupNotice = nil
         }
     }
     
@@ -149,6 +171,7 @@ final class JunkScannerViewModel: ObservableObject {
         
         isScanning = true
         accessDenied = false
+        cleanupNotice = nil
         results = []
         scanProgress = "junk.progress.preparing".localized
         
@@ -156,10 +179,11 @@ final class JunkScannerViewModel: ObservableObject {
         let libraryStd = library.standardizedFileURL
         
         Task {
-            // Security-Scoped 접근 시작
-            let started = libraryStd.startAccessingSecurityScopedResource()
+            // Security-Scoped 접근은 북마크에서 복원한 원본 URL로 시작하고,
+            // standardized URL은 경로 계산과 검증에만 사용합니다.
+            let started = library.startAccessingSecurityScopedResource()
             defer {
-                if started { libraryStd.stopAccessingSecurityScopedResource() }
+                if started { library.stopAccessingSecurityScopedResource() }
             }
             
             // ✅ 접근 권한 검증: 스코프 접근 실패 + 디렉터리 읽기 불가면
@@ -358,17 +382,35 @@ final class JunkScannerViewModel: ObservableObject {
     }
     
     // MARK: - 삭제
-    
+
     private struct CleanTarget: Sendable {
         let id: UUID
         let url: URL
         let fileIdentity: FileIdentitySnapshot?
+        let identityValidationPolicy: JunkCategory.IdentityValidationPolicy
+    }
+
+    private struct CleanFailure: Sendable {
+        let path: String
+        let domain: String
+        let code: Int
+        let message: String
+
+        init(url: URL, error: Error) {
+            let nsError = error as NSError
+            self.path = url.path
+            self.domain = nsError.domain
+            self.code = nsError.code
+            self.message = nsError.localizedDescription
+        }
     }
 
     private struct CleanOutcome: Sendable {
         let succeededIDs: Set<UUID>
         let failedCount: Int
         let excludedCount: Int
+        let accessDenied: Bool
+        let firstFailure: CleanFailure?
     }
 
     func cleanSelected() {
@@ -377,6 +419,10 @@ final class JunkScannerViewModel: ObservableObject {
 
     func cleanSelected(in categoryID: String) {
         startCleaning(categoryID: categoryID)
+    }
+
+    func dismissCleanupNotice() {
+        cleanupNotice = nil
     }
 
     nonisolated static func selectedItems(
@@ -393,30 +439,72 @@ final class JunkScannerViewModel: ObservableObject {
         return scopedResults.flatMap { $0.items.filter(\.isSelected) }
     }
 
+    /// 삭제 직전에는 저장된 북마크에서 security-scoped URL을 다시 복원합니다.
+    /// `standardizedFileURL`은 경로 검증에만 사용하고, 권한 활성화에는 복원 원본을 사용합니다.
+    private func resolveLibraryURLForCleaning() -> URL? {
+        if let url = resolveBookmark(forKey: bookmarkKey), isLibraryLike(url) {
+            libraryURL = url
+            return url
+        }
+
+        if let url = resolveBookmark(forKey: appsLibraryBookmarkKey), isLibraryLike(url) {
+            saveBookmark(url: url)
+            libraryURL = url
+            return url
+        }
+
+        return nil
+    }
+
     private func startCleaning(categoryID: String?) {
         guard StoreManager.shared.isPurchased else {
             scanProgress = "paywall.free_mode.notice".localized
             return
         }
-
-        let candidates = Self.selectedItems(in: results, categoryID: categoryID)
-            .map {
-                CleanTarget(
-                    id: $0.id,
-                    url: $0.url.standardizedFileURL,
-                    fileIdentity: $0.fileIdentity
-                )
-            }
-        guard !candidates.isEmpty else { return }
-        guard let library = libraryURL?.standardizedFileURL else { return }
         guard !isCleaning else { return }
 
+        let scopedResults: [JunkScanResult]
+        if let categoryID {
+            scopedResults = results.filter { $0.id == categoryID }
+        } else {
+            scopedResults = results
+        }
+
+        let candidates = scopedResults.flatMap { result in
+            result.items.filter(\.isSelected).map { item in
+                CleanTarget(
+                    id: item.id,
+                    url: item.url.standardizedFileURL,
+                    fileIdentity: item.fileIdentity,
+                    identityValidationPolicy: result.category.identityValidationPolicy
+                )
+            }
+        }
+        guard !candidates.isEmpty else { return }
+
+        cleanupNotice = nil
+
+        guard let securityScopedLibrary = resolveLibraryURLForCleaning() else {
+            accessDenied = true
+            cleanupNotice = JunkCleanupNotice(
+                kind: .error,
+                title: "common.permission_needed".localized,
+                message: "junk.cleanup.result.access_denied".localized
+            )
+            return
+        }
+
+        let validationScope = securityScopedLibrary.standardizedFileURL
         isCleaning = true
         scanProgress = "junk.progress.cleaning".localized(with: candidates.count)
 
         Task {
             let outcome = await Task.detached(priority: .utility) {
-                await Self.moveTargetsToTrash(candidates, scopedBy: library)
+                await Self.moveTargetsToTrash(
+                    candidates,
+                    securityScopedBy: securityScopedLibrary,
+                    validationScope: validationScope
+                )
             }.value
 
             for index in results.indices {
@@ -425,49 +513,133 @@ final class JunkScannerViewModel: ObservableObject {
             results.removeAll { $0.items.isEmpty }
 
             isCleaning = false
-            if outcome.succeededIDs.isEmpty {
-                scanProgress = outcome.excludedCount > 0
-                    ? "junk.progress.clean_invalid".localized(with: outcome.excludedCount)
-                    : "junk.progress.clean_failed".localized
-            } else if outcome.failedCount > 0 || outcome.excludedCount > 0 {
-                scanProgress = "junk.progress.clean_summary".localized(
-                    with: outcome.succeededIDs.count,
-                    outcome.failedCount,
-                    outcome.excludedCount
-                )
+            publishCleanupOutcome(outcome, requestedCount: candidates.count)
+        }
+    }
+
+    private func publishCleanupOutcome(_ outcome: CleanOutcome, requestedCount: Int) {
+        if outcome.accessDenied {
+            accessDenied = true
+            scanProgress = ""
+            cleanupNotice = JunkCleanupNotice(
+                kind: .error,
+                title: "common.permission_needed".localized,
+                message: "junk.cleanup.result.access_denied".localized
+            )
+            return
+        }
+
+        accessDenied = false
+        let succeeded = outcome.succeededIDs.count
+        let baseMessage: String
+        let kind: JunkCleanupNotice.Kind
+        let title: String
+
+        if succeeded == requestedCount && outcome.failedCount == 0 && outcome.excludedCount == 0 {
+            kind = .success
+            title = "junk.cleanup.result.success_title".localized
+            baseMessage = "junk.cleanup.result.success_message".localized(with: succeeded)
+            scanProgress = "junk.progress.clean_done".localized(with: succeeded)
+        } else if succeeded > 0 {
+            kind = .warning
+            title = "junk.cleanup.result.partial_title".localized
+            baseMessage = "junk.cleanup.result.partial_message".localized(
+                with: succeeded,
+                outcome.failedCount,
+                outcome.excludedCount
+            )
+            scanProgress = "junk.progress.clean_summary".localized(
+                with: succeeded,
+                outcome.failedCount,
+                outcome.excludedCount
+            )
+        } else {
+            kind = .error
+            title = "junk.cleanup.result.failed_title".localized
+            baseMessage = "junk.cleanup.result.failed_message".localized(
+                with: outcome.failedCount,
+                outcome.excludedCount
+            )
+            scanProgress = outcome.excludedCount > 0
+                ? "junk.progress.clean_invalid".localized(with: outcome.excludedCount)
+                : "junk.progress.clean_failed".localized
+        }
+
+        let message: String
+        if let failure = outcome.firstFailure {
+            message = baseMessage + "\n"
+                + "junk.cleanup.result.error_detail".localized(with: failure.message)
+        } else {
+            message = baseMessage
+        }
+
+        cleanupNotice = JunkCleanupNotice(kind: kind, title: title, message: message)
+    }
+
+    nonisolated private static func isIdentityCurrent(_ target: CleanTarget) -> Bool {
+        guard let snapshot = target.fileIdentity else { return false }
+        let allowDirectoryContentChanges =
+            target.identityValidationPolicy == .allowDirectoryContentChanges
+        return snapshot.matchesCurrentItem(
+            at: target.url,
+            allowDirectoryContentChanges: allowDirectoryContentChanges
+        )
+    }
+
+    nonisolated private static func revalidateTargets(
+        _ candidates: [CleanTarget]
+    ) -> (accepted: [CleanTarget], rejectedCount: Int) {
+        var accepted: [CleanTarget] = []
+        var rejectedCount = 0
+
+        for target in candidates {
+            if isIdentityCurrent(target) {
+                accepted.append(target)
             } else {
-                scanProgress = "junk.progress.clean_done".localized(with: outcome.succeededIDs.count)
+                rejectedCount += 1
             }
         }
+
+        return (accepted, rejectedCount)
     }
 
     nonisolated private static func moveTargetsToTrash(
         _ candidates: [CleanTarget],
-        scopedBy scopeURL: URL
+        securityScopedBy securityScopedURL: URL,
+        validationScope: URL
     ) async -> CleanOutcome {
-        let started = scopeURL.startAccessingSecurityScopedResource()
-        defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
+        let started = securityScopedURL.startAccessingSecurityScopedResource()
+        guard started else {
+            junkCleanupLogger.error(
+                "Security-scoped access failed for \(securityScopedURL.path, privacy: .public)"
+            )
+            return CleanOutcome(
+                succeededIDs: [],
+                failedCount: candidates.count,
+                excludedCount: 0,
+                accessDenied: true,
+                firstFailure: nil
+            )
+        }
+        defer { securityScopedURL.stopAccessingSecurityScopedResource() }
 
-        // 보안 스코프가 열린 상태에서 경로 경계와 존재 여부를 삭제 직전에 검사합니다.
-        let sanitized = DeletionSafety.sanitize(candidates, scope: scopeURL, url: \.url)
-        let identityValidated = DeletionSafety.revalidateIdentity(
-            sanitized.accepted,
-            url: \.url,
-            identity: \.fileIdentity
+        // 권한이 활성화된 상태에서 경로 경계와 존재 여부를 삭제 직전에 검사합니다.
+        let sanitized = DeletionSafety.sanitize(
+            candidates,
+            scope: validationScope,
+            url: \.url
         )
+        let identityValidated = revalidateTargets(sanitized.accepted)
         let fm = FileManager.default
         var succeededIDs = Set<UUID>()
         var failedCount = 0
         var runtimeRejectedCount = 0
+        var firstFailure: CleanFailure?
 
         for target in identityValidated.accepted {
             // 앞선 항목을 처리하는 동안 실행 중인 앱이 같은 경로를 다시 만들 수 있으므로
             // 실제 휴지통 이동 직전에 항목 정체성을 한 번 더 확인합니다.
-            guard DeletionSafety.isIdentityCurrent(
-                target,
-                url: \.url,
-                identity: \.fileIdentity
-            ) else {
+            guard isIdentityCurrent(target) else {
                 runtimeRejectedCount += 1
                 continue
             }
@@ -476,20 +648,27 @@ final class JunkScannerViewModel: ObservableObject {
                 try fm.trashItem(at: target.url, resultingItemURL: nil)
                 succeededIDs.insert(target.id)
             } catch {
+                let fileManagerFailure = CleanFailure(url: target.url, error: error)
+                junkCleanupLogger.warning(
+                    "FileManager trash failed path=\(fileManagerFailure.path, privacy: .public) domain=\(fileManagerFailure.domain, privacy: .public) code=\(fileManagerFailure.code) message=\(fileManagerFailure.message, privacy: .public)"
+                )
+
                 // trashItem 실패 후 NSWorkspace 폴백을 실행하기 직전에도 다시 검증합니다.
-                guard DeletionSafety.isIdentityCurrent(
-                    target,
-                    url: \.url,
-                    identity: \.fileIdentity
-                ) else {
+                guard isIdentityCurrent(target) else {
                     runtimeRejectedCount += 1
                     continue
                 }
-                let ok = await recycleUsingWorkspace(target.url)
-                if ok {
-                    succeededIDs.insert(target.id)
-                } else {
+
+                if let workspaceFailure = await recycleUsingWorkspace(target.url) {
+                    junkCleanupLogger.error(
+                        "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .public) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .public)"
+                    )
                     failedCount += 1
+                    if firstFailure == nil {
+                        firstFailure = workspaceFailure
+                    }
+                } else {
+                    succeededIDs.insert(target.id)
                 }
             }
         }
@@ -499,16 +678,24 @@ final class JunkScannerViewModel: ObservableObject {
             failedCount: failedCount,
             excludedCount: sanitized.rejectedCount
                 + identityValidated.rejectedCount
-                + runtimeRejectedCount
+                + runtimeRejectedCount,
+            accessDenied: false,
+            firstFailure: firstFailure
         )
     }
 
+    /// 성공 시 nil, 실패 시 사용자 표시와 로그에 사용할 오류 정보를 반환합니다.
     @MainActor
-    private static func recycleUsingWorkspace(_ url: URL) async -> Bool {
+    private static func recycleUsingWorkspace(_ url: URL) async -> CleanFailure? {
         await withCheckedContinuation { continuation in
             NSWorkspace.shared.recycle([url]) { _, error in
-                continuation.resume(returning: error == nil)
+                if let error {
+                    continuation.resume(returning: CleanFailure(url: url, error: error))
+                } else {
+                    continuation.resume(returning: nil)
+                }
             }
         }
     }
+
 }

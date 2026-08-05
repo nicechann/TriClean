@@ -534,3 +534,14 @@
 "store.error.product_unavailable" = "Nie udało się wczytać informacji o produkcie z App Store. Sprawdź połączenie i spróbuj ponownie.";
 "store.error.no_purchase_to_restore" = "Nie znaleziono wcześniejszego zakupu dla tego konta Apple.";
 "store.btn.retry" = "Spróbuj ponownie";
+"junk.progress.wait" = "Poczekaj na zakończenie czyszczenia.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Czyszczenie zakończone";
+"junk.cleanup.result.partial_title" = "Czyszczenie częściowo zakończone";
+"junk.cleanup.result.failed_title" = "Czyszczenie nie powiodło się";
+"junk.cleanup.result.success_message" = "Przeniesiono %ld elementów do Kosza.";
+"junk.cleanup.result.partial_message" = "Przeniesiono %1$ld elementów do Kosza. Niepowodzenia: %2$ld; pominięto po zmianach: %3$ld.";
+"junk.cleanup.result.failed_message" = "Nie przeniesiono żadnych elementów do Kosza. Niepowodzenia: %1$ld; pominięto po zmianach: %2$ld.";
+"junk.cleanup.result.access_denied" = "Nie udało się aktywować uprawnienia do folderu Library. Wybierz ponownie folder Library za pomocą „Zmień…” i spróbuj jeszcze raz.";
+"junk.cleanup.result.error_detail" = "Pierwszy błąd: %@";

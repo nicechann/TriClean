@@ -689,3 +689,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Please wait until the cleanup is complete.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Cleanup Complete";
+"junk.cleanup.result.partial_title" = "Cleanup Partially Complete";
+"junk.cleanup.result.failed_title" = "Cleanup Failed";
+"junk.cleanup.result.success_message" = "Moved %ld items to Trash.";
+"junk.cleanup.result.partial_message" = "Moved %1$ld items to Trash. Failed: %2$ld; skipped after changes: %3$ld.";
+"junk.cleanup.result.failed_message" = "No items were moved to Trash. Failed: %1$ld; skipped after changes: %2$ld.";
+"junk.cleanup.result.access_denied" = "The Library folder permission could not be activated. Select the Library folder again using “Change…” and retry.";
+"junk.cleanup.result.error_detail" = "First error: %@";

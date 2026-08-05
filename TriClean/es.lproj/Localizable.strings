@@ -677,3 +677,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Espera hasta que termine la limpieza.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Limpieza completada";
+"junk.cleanup.result.partial_title" = "Limpieza completada parcialmente";
+"junk.cleanup.result.failed_title" = "Error de limpieza";
+"junk.cleanup.result.success_message" = "Se movieron %ld elementos a la papelera.";
+"junk.cleanup.result.partial_message" = "Se movieron %1$ld elementos a la papelera. Fallidos: %2$ld; omitidos tras cambios: %3$ld.";
+"junk.cleanup.result.failed_message" = "No se movió ningún elemento a la papelera. Fallidos: %1$ld; omitidos tras cambios: %2$ld.";
+"junk.cleanup.result.access_denied" = "No se pudo activar el permiso de la carpeta Library. Selecciona de nuevo la carpeta Library mediante “Cambiar…” y vuelve a intentarlo.";
+"junk.cleanup.result.error_detail" = "Primer error: %@";

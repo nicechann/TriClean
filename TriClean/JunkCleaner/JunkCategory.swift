@@ -19,6 +19,8 @@ struct JunkCategory: Identifiable, Hashable {
     let relativePaths: [String]
     /// 상위 경로를 스캔할 때 별도 카테고리로 제공하는 직계 하위 항목은 제외한다.
     let excludedChildNames: Set<String>
+    /// 삭제 직전 파일 시스템 정체성을 비교하는 정책.
+    let identityValidationPolicy: IdentityValidationPolicy
     let riskLevel: RiskLevel
 
     init(
@@ -28,6 +30,7 @@ struct JunkCategory: Identifiable, Hashable {
         description: String,
         relativePaths: [String],
         excludedChildNames: Set<String> = [],
+        identityValidationPolicy: IdentityValidationPolicy = .strict,
         riskLevel: RiskLevel
     ) {
         self.id = id
@@ -36,7 +39,16 @@ struct JunkCategory: Identifiable, Hashable {
         self.description = description
         self.relativePaths = relativePaths
         self.excludedChildNames = excludedChildNames
+        self.identityValidationPolicy = identityValidationPolicy
         self.riskLevel = riskLevel
+    }
+
+    enum IdentityValidationPolicy: Hashable, Sendable {
+        /// 파일과 디렉터리 모두 크기·수정 시각까지 동일해야 합니다.
+        case strict
+        /// 캐시·로그처럼 내용이 바뀔 수 있는 디렉터리는 device·inode·유형만 비교합니다.
+        /// 일반 파일은 이 정책에서도 크기와 수정 시각까지 엄격하게 확인합니다.
+        case allowDirectoryContentChanges
     }
 
     enum RiskLevel: String, CaseIterable {
@@ -161,6 +173,7 @@ extension JunkCategory {
                 "com.apple.Safari",
                 "com.apple.Safari.SafeBrowsing"
             ],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .safe
         ),
         JunkCategory(
@@ -173,6 +186,7 @@ extension JunkCategory {
                 "DiagnosticReports",
                 "CrashReporter"
             ],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .safe
         ),
         JunkCategory(
@@ -181,6 +195,7 @@ extension JunkCategory {
             icon: "hammer",
             description: "junk.category.xcode_derived.desc".localized,
             relativePaths: ["Developer/Xcode/DerivedData"],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .safe
         ),
         JunkCategory(
@@ -200,6 +215,7 @@ extension JunkCategory {
                 "Caches/com.apple.Safari",
                 "Caches/com.apple.Safari.SafeBrowsing"
             ],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .safe
         ),
         JunkCategory(
@@ -229,6 +245,7 @@ extension JunkCategory {
                 "Logs/DiagnosticReports",
                 "Logs/CrashReporter"
             ],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .safe
         ),
         JunkCategory(
@@ -237,6 +254,7 @@ extension JunkCategory {
             icon: "network",
             description: "junk.category.http_storage.desc".localized,
             relativePaths: ["HTTPStorages"],
+            identityValidationPolicy: .allowDirectoryContentChanges,
             riskLevel: .moderate
         ),
     ]

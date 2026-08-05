@@ -677,3 +677,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "Bitte warten Sie, bis der Vorgang abgeschlossen ist.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Bereinigung abgeschlossen";
+"junk.cleanup.result.partial_title" = "Bereinigung teilweise abgeschlossen";
+"junk.cleanup.result.failed_title" = "Bereinigung fehlgeschlagen";
+"junk.cleanup.result.success_message" = "%ld Elemente wurden in den Papierkorb verschoben.";
+"junk.cleanup.result.partial_message" = "%1$ld Elemente wurden in den Papierkorb verschoben. Fehlgeschlagen: %2$ld; nach Änderungen übersprungen: %3$ld.";
+"junk.cleanup.result.failed_message" = "Es wurden keine Elemente in den Papierkorb verschoben. Fehlgeschlagen: %1$ld; nach Änderungen übersprungen: %2$ld.";
+"junk.cleanup.result.access_denied" = "Der Zugriff auf den Library-Ordner konnte nicht aktiviert werden. Wählen Sie den Library-Ordner über „Ändern…“ erneut aus und versuchen Sie es noch einmal.";
+"junk.cleanup.result.error_detail" = "Erster Fehler: %@";

@@ -532,3 +532,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "請等待清理完成。";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "清理完成";
+"junk.cleanup.result.partial_title" = "部分清理完成";
+"junk.cleanup.result.failed_title" = "清理失敗";
+"junk.cleanup.result.success_message" = "已將 %ld 個項目移到垃圾桶。";
+"junk.cleanup.result.partial_message" = "已將 %1$ld 個項目移到垃圾桶。失敗：%2$ld；因發生變更而略過：%3$ld。";
+"junk.cleanup.result.failed_message" = "沒有項目被移到垃圾桶。失敗：%1$ld；因發生變更而略過：%2$ld。";
+"junk.cleanup.result.access_denied" = "無法啟用 Library 資料夾權限。請透過「更改…」重新選取 Library 資料夾，然後再試一次。";
+"junk.cleanup.result.error_detail" = "第一個錯誤：%@";

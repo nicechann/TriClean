@@ -532,3 +532,14 @@
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
 "common.unit.mb" = "%ld MB";
+"junk.progress.wait" = "请等待清理完成。";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "清理完成";
+"junk.cleanup.result.partial_title" = "部分清理完成";
+"junk.cleanup.result.failed_title" = "清理失败";
+"junk.cleanup.result.success_message" = "已将 %ld 个项目移到废纸篓。";
+"junk.cleanup.result.partial_message" = "已将 %1$ld 个项目移到废纸篓。失败：%2$ld；因发生变化而跳过：%3$ld。";
+"junk.cleanup.result.failed_message" = "没有项目被移到废纸篓。失败：%1$ld；因发生变化而跳过：%2$ld。";
+"junk.cleanup.result.access_denied" = "无法启用 Library 文件夹权限。请通过“更改…”重新选择 Library 文件夹，然后重试。";
+"junk.cleanup.result.error_detail" = "第一个错误：%@";

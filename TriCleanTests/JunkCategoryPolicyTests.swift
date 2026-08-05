@@ -59,6 +59,37 @@ final class JunkCategoryPolicyTests: XCTestCase {
         )
     }
 
+    func test_동적캐시와로그카테고리는_디렉터리내용변경을_허용한다() throws {
+        let dynamicIDs: Set<String> = [
+            "system_caches",
+            "system_logs",
+            "xcode_derived",
+            "safari_cache",
+            "crash_reports",
+            "http_storage"
+        ]
+
+        for category in JunkCategory.defaultCategories where dynamicIDs.contains(category.id) {
+            XCTAssertEqual(
+                category.identityValidationPolicy,
+                .allowDirectoryContentChanges,
+                "\(category.id)는 실행 중 내용이 바뀔 수 있는 디렉터리를 포함합니다."
+            )
+        }
+    }
+
+    func test_사용자보관데이터카테고리는_엄격검증을_유지한다() throws {
+        let strictIDs: Set<String> = [
+            "xcode_archives",
+            "mail_downloads",
+            "saved_app_state"
+        ]
+
+        for category in JunkCategory.defaultCategories where strictIDs.contains(category.id) {
+            XCTAssertEqual(category.identityValidationPolicy, .strict)
+        }
+    }
+
     func test_정크카테고리끼리_상위하위경로가_중복되지_않는다() {
         let categories = JunkCategory.defaultCategories
 

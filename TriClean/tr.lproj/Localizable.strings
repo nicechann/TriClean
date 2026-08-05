@@ -532,3 +532,14 @@
 "store.error.product_unavailable" = "Ürün bilgileri App Store'dan yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.";
 "store.error.no_purchase_to_restore" = "Bu Apple Hesabı için önceki bir satın alma bulunamadı.";
 "store.btn.retry" = "Yeniden dene";
+"junk.progress.wait" = "Temizleme tamamlanana kadar bekleyin.";
+
+// MARK: - Junk cleanup result
+"junk.cleanup.result.success_title" = "Temizleme tamamlandı";
+"junk.cleanup.result.partial_title" = "Temizleme kısmen tamamlandı";
+"junk.cleanup.result.failed_title" = "Temizleme başarısız";
+"junk.cleanup.result.success_message" = "%ld öğe Çöp Sepeti’ne taşındı.";
+"junk.cleanup.result.partial_message" = "%1$ld öğe Çöp Sepeti’ne taşındı. Başarısız: %2$ld; değişiklik sonrası atlanan: %3$ld.";
+"junk.cleanup.result.failed_message" = "Hiçbir öğe Çöp Sepeti’ne taşınmadı. Başarısız: %1$ld; değişiklik sonrası atlanan: %2$ld.";
+"junk.cleanup.result.access_denied" = "Library klasörü izni etkinleştirilemedi. “Değiştir…” ile Library klasörünü yeniden seçip tekrar deneyin.";
+"junk.cleanup.result.error_detail" = "İlk hata: %@";
