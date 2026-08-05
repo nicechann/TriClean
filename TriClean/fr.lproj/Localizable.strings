@@ -668,3 +668,7 @@
 "upgrade.bottom.desc" = "L’analyse et les résultats sont gratuits. La suppression et le nettoyage nécessitent le déverrouillage à vie.";
 "upgrade.bottom.buy" = "Acheter l’accès à vie";
 "paywall.free_mode.notice" = "L’analyse est gratuite. La suppression de fichiers et le nettoyage sont disponibles après l’achat du déverrouillage à vie.";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld Ko";
+"common.unit.mb" = "%ld Mo";

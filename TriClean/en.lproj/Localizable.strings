@@ -680,3 +680,7 @@
 "upgrade.bottom.desc" = "Scanning and results are free. File deletion and cleanup require the lifetime unlock.";
 "upgrade.bottom.buy" = "Get Lifetime Access";
 "paywall.free_mode.notice" = "Scanning and analysis are free. File deletion and cleanup are available after purchasing the lifetime unlock.";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";

@@ -255,7 +255,8 @@ struct LargeFilesView: View {
                     .controlSize(.small)
                     .frame(maxWidth: 260)
 
-                Text("\(Int(minFolderSizeMB)) MB+")
+                // ✅ 이미 존재하는 storage.min_size.display 키로 통일
+                Text("storage.min_size.display".localized(with: Int(minFolderSizeMB)))
                     .font(.subheadline.monospacedDigit())
                     .frame(width: 90, alignment: .trailing)
 

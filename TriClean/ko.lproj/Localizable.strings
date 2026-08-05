@@ -681,3 +681,7 @@
 "upgrade.bottom.desc" = "스캔과 결과 확인은 무료입니다. 파일 삭제와 정리 기능은 평생 이용권에서 사용할 수 있습니다.";
 "upgrade.bottom.buy" = "평생 이용권 구매";
 "paywall.free_mode.notice" = "스캔과 분석은 무료로 이용할 수 있습니다. 파일 삭제와 정리 기능은 평생 이용권 구매 후 사용할 수 있습니다.";
+
+/* MARK: - 크기 단위 */
+"common.unit.kb" = "%ld KB";
+"common.unit.mb" = "%ld MB";

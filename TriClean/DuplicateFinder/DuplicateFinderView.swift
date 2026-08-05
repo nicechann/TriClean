@@ -84,10 +84,11 @@ struct DuplicateFinderView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Picker("", selection: $viewModel.minFileSizeKB) {
-                            Text("10 KB").tag(10)
-                            Text("100 KB").tag(100)
-                            Text("1 MB").tag(1024)
-                            Text("10 MB").tag(10240)
+                            // ✅ 단위 표기를 로컬라이즈 키로 분리 (러시아어는 КБ/МБ)
+                            Text("common.unit.kb".localized(with: 10)).tag(10)
+                            Text("common.unit.kb".localized(with: 100)).tag(100)
+                            Text("common.unit.mb".localized(with: 1)).tag(1024)
+                            Text("common.unit.mb".localized(with: 10)).tag(10240)
                         }
                         .pickerStyle(.segmented)
                         .frame(width: 260)
