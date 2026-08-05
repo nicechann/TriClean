@@ -17,10 +17,6 @@ import AppKit
 import os.log
 
 
-private let junkCleanupLogger = Logger(
-    subsystem: "com.nicechann.TriClean",
-    category: "JunkCleanup"
-)
 
 struct JunkCleanupNotice: Identifiable, Equatable {
     enum Kind: Equatable {
@@ -396,7 +392,7 @@ final class JunkScannerViewModel: ObservableObject {
         let code: Int
         let message: String
 
-        init(url: URL, error: Error) {
+        nonisolated init(url: URL, error: Error) {
             let nsError = error as NSError
             self.path = url.path
             self.domain = nsError.domain
@@ -608,9 +604,13 @@ final class JunkScannerViewModel: ObservableObject {
         securityScopedBy securityScopedURL: URL,
         validationScope: URL
     ) async -> CleanOutcome {
+        let logger = Logger(
+            subsystem: "com.nicechann.TriClean",
+            category: "JunkCleanup"
+        )
         let started = securityScopedURL.startAccessingSecurityScopedResource()
         guard started else {
-            junkCleanupLogger.error(
+            logger.error(
                 "Security-scoped access failed for \(securityScopedURL.path, privacy: .public)"
             )
             return CleanOutcome(
@@ -649,7 +649,7 @@ final class JunkScannerViewModel: ObservableObject {
                 succeededIDs.insert(target.id)
             } catch {
                 let fileManagerFailure = CleanFailure(url: target.url, error: error)
-                junkCleanupLogger.warning(
+                logger.warning(
                     "FileManager trash failed path=\(fileManagerFailure.path, privacy: .public) domain=\(fileManagerFailure.domain, privacy: .public) code=\(fileManagerFailure.code) message=\(fileManagerFailure.message, privacy: .public)"
                 )
 
@@ -660,7 +660,7 @@ final class JunkScannerViewModel: ObservableObject {
                 }
 
                 if let workspaceFailure = await recycleUsingWorkspace(target.url) {
-                    junkCleanupLogger.error(
+                    logger.error(
                         "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .public) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .public)"
                     )
                     failedCount += 1

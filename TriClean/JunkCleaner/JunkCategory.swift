@@ -43,7 +43,7 @@ struct JunkCategory: Identifiable, Hashable {
         self.riskLevel = riskLevel
     }
 
-    enum IdentityValidationPolicy: Hashable, Sendable {
+    nonisolated enum IdentityValidationPolicy: Hashable, Sendable {
         /// 파일과 디렉터리 모두 크기·수정 시각까지 동일해야 합니다.
         case strict
         /// 캐시·로그처럼 내용이 바뀔 수 있는 디렉터리는 device·inode·유형만 비교합니다.
