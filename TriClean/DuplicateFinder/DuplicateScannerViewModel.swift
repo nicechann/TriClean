@@ -167,9 +167,15 @@ final class DuplicateScannerViewModel: ObservableObject {
             phase = .collectingFiles
             statusMessage = "duplicate.status.collecting".localized
 
-            let allFiles = await Task.detached(priority: .utility) {
+            let collectWorker = Task.detached(priority: .utility) {
                 Self.collectFiles(in: rootURL, minBytes: minBytes)
-            }.value
+            }
+            let allFiles = await withTaskCancellationHandler {
+                await collectWorker.value
+            } onCancel: {
+                // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
+                collectWorker.cancel()
+            }
 
             guard generation == scanGeneration, !Task.isCancelled else { return }
             totalFilesScanned = allFiles.count
@@ -197,9 +203,14 @@ final class DuplicateScannerViewModel: ObservableObject {
 
             // Phase 3: 부분 해시 (처음 4KB)
             phase = .hashingPartial
-            let partialGroups = await Task.detached(priority: .utility) {
+            let partialHashWorker = Task.detached(priority: .utility) {
                 Self.groupByPartialHash(sizeGroups: sizeGroups)
-            }.value
+            }
+            let partialGroups = await withTaskCancellationHandler {
+                await partialHashWorker.value
+            } onCancel: {
+                partialHashWorker.cancel()
+            }
 
             guard generation == scanGeneration, !Task.isCancelled else { return }
             let partialCandidates = partialGroups.values.filter { $0.count >= 2 }
@@ -262,11 +273,18 @@ final class DuplicateScannerViewModel: ObservableObject {
                 }
             }
 
+            guard generation == scanGeneration, !Task.isCancelled else { return }
+
             // 그룹 구성은 파일마다 lstat을 수행하므로(하드링크 판별·정체성 스냅샷)
             // 메인 액터가 아니라 백그라운드에서 처리한다.
-            let finalGroups = await Task.detached(priority: .utility) { [fullHashMap, rootURL] in
+            let groupWorker = Task.detached(priority: .utility) { [fullHashMap, rootURL] in
                 Self.buildDuplicateGroups(from: fullHashMap, rootURL: rootURL)
-            }.value
+            }
+            let finalGroups = await withTaskCancellationHandler {
+                await groupWorker.value
+            } onCancel: {
+                groupWorker.cancel()
+            }
 
             guard generation == scanGeneration else { return }
             guard !Task.isCancelled else {
@@ -591,6 +609,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         var pending: [PendingDuplicateGroup] = []
 
         for hash in fullHashMap.keys.sorted() {
+            guard !Task.isCancelled else { break }
             guard let files = fullHashMap[hash], files.count >= 2 else { continue }
 
             let ordered = files.sorted { $0.url.path < $1.url.path }
@@ -611,13 +630,17 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         pending.sort { $0.reclaimableBytes > $1.reclaimableBytes }
 
-        return pending.map { entry in
-            DuplicateGroup(
+        var groups: [DuplicateGroup] = []
+        groups.reserveCapacity(pending.count)
+        for entry in pending {
+            guard !Task.isCancelled else { break }
+            groups.append(DuplicateGroup(
                 hash: entry.hash,
                 fileSize: entry.files[0].size,
                 files: makeDuplicateFiles(from: entry.files, rootURL: rootURL)
-            )
+            ))
         }
+        return groups
     }
 
     /// 디렉터리 읽기 가능 여부 프로브. 나열이 성공하면 true(빈 폴더 포함),
@@ -653,6 +676,10 @@ final class DuplicateScannerViewModel: ObservableObject {
         files.reserveCapacity(1000)
 
         for case let url as URL in enumerator {
+            guard !Task.isCancelled else {
+                enumerator.skipDescendants()
+                break
+            }
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
 
@@ -677,7 +704,9 @@ final class DuplicateScannerViewModel: ObservableObject {
         var hashMap: [String: [FileCandidate]] = [:]
 
         for (_, group) in sizeGroups where group.count >= 2 {
+            guard !Task.isCancelled else { break }
             for file in group {
+                guard !Task.isCancelled else { break }
                 guard let hash = partialHash(of: file.url) else { continue }
                 let key = "\(file.size)_\(hash)"
                 hashMap[key, default: []].append(file)
@@ -696,6 +725,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         uniqueFiles.reserveCapacity(files.count)
 
         for file in files {
+            guard !Task.isCancelled else { break }
             if let identityKey = fileIdentityKey(of: file.url) {
                 if seenIdentityKeys.insert(identityKey).inserted {
                     uniqueFiles.append(file)
@@ -808,11 +838,12 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     /// 파일 처음 4KB의 SHA-256 해시
     nonisolated private static func partialHash(of url: URL, bytes: Int = 4096) -> String? {
+        guard !Task.isCancelled else { return nil }
         guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
         defer { try? handle.close() }
 
         let data = handle.readData(ofLength: bytes)
-        guard !data.isEmpty else { return nil }
+        guard !Task.isCancelled, !data.isEmpty else { return nil }
 
         let digest = SHA256.hash(data: data)
         return digest.map { String(format: "%02x", $0) }.joined()
@@ -820,19 +851,23 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     /// 파일 전체의 SHA-256 해시 (스트리밍)
     nonisolated private static func fullHash(of url: URL) -> String? {
+        guard !Task.isCancelled else { return nil }
         guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
         defer { try? handle.close() }
 
         var hasher = SHA256()
         let bufferSize = 64 * 1024
 
-        while autoreleasepool(invoking: {
-            let chunk = handle.readData(ofLength: bufferSize)
-            guard !chunk.isEmpty else { return false }
+        while true {
+            guard !Task.isCancelled else { return nil }
+            let chunk = autoreleasepool {
+                handle.readData(ofLength: bufferSize)
+            }
+            guard !chunk.isEmpty else { break }
             hasher.update(data: chunk)
-            return true
-        }) {}
+        }
 
+        guard !Task.isCancelled else { return nil }
         let digest = hasher.finalize()
         return digest.map { String(format: "%02x", $0) }.joined()
     }

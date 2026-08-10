@@ -211,15 +211,22 @@ final class JunkScannerViewModel: ObservableObject {
                     let categoryID = category.id
                     let defaultSelected = category.riskLevel.defaultSelected
                     let excludedChildNames = category.excludedChildNames
-                    let items = await Task.detached(priority: .utility) {
+                    let worker = Task.detached(priority: .utility) {
                         Self.scanJunkItems(
                             at: targetURL,
                             categoryID: categoryID,
                             excludedChildNames: excludedChildNames,
                             defaultSelected: defaultSelected
                         )
-                    }.value
-                    
+                    }
+                    let items = await withTaskCancellationHandler {
+                        await worker.value
+                    } onCancel: {
+                        // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
+                        worker.cancel()
+                    }
+
+                    guard !Task.isCancelled else { break }
                     categoryItems.append(contentsOf: items)
                 }
                 
@@ -285,6 +292,7 @@ final class JunkScannerViewModel: ObservableObject {
         excludedChildNames: Set<String>,
         defaultSelected: Bool
     ) -> [JunkItem] {
+        guard !Task.isCancelled else { return [] }
         let fm = FileManager.default
         
         // 단일 파일인 경우
@@ -308,11 +316,13 @@ final class JunkScannerViewModel: ObservableObject {
         items.reserveCapacity(contents.count)
         
         for itemURL in contents {
+            guard !Task.isCancelled else { break }
             guard !excludedChildNames.contains(itemURL.lastPathComponent) else {
                 continue
             }
 
             let itemSize = folderSize(at: itemURL)
+            guard !Task.isCancelled else { break }
             guard itemSize > 1024 else { continue } // 1KB 미만 스킵
             
             items.append(JunkItem(
@@ -328,6 +338,7 @@ final class JunkScannerViewModel: ObservableObject {
     
     /// 폴더 전체 크기 (재귀)
     nonisolated private static func folderSize(at url: URL) -> Int64 {
+        guard !Task.isCancelled else { return 0 }
         let fm = FileManager.default
         var isDir: ObjCBool = false
         guard fm.fileExists(atPath: url.path, isDirectory: &isDir) else { return 0 }
@@ -345,6 +356,10 @@ final class JunkScannerViewModel: ObservableObject {
         ) else { return 0 }
         
         for case let fileURL as URL in enumerator {
+            guard !Task.isCancelled else {
+                enumerator.skipDescendants()
+                break
+            }
             guard let values = try? fileURL.resourceValues(
                 forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey]
             ) else { continue }
