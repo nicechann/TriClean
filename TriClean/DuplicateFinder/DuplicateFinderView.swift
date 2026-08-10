@@ -174,6 +174,12 @@ struct DuplicateFinderView: View {
             Text(viewModel.statusMessage)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Button("common.cancel".localized, role: .cancel) {
+                viewModel.cancelScan()
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)

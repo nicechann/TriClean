@@ -52,6 +52,8 @@ final class DuplicateScannerViewModel: ObservableObject {
     @Published var lastCleanupResult: DuplicateCleanupResult? = nil
 
     private var scanTask: Task<Void, Never>? = nil
+    /// 뒤늦게 끝난 이전 스캔이 새 스캔의 상태를 덮어쓰지 않도록 하는 세대 번호.
+    private var scanGeneration: UInt = 0
 
     // MARK: - Computed
 
@@ -151,6 +153,9 @@ final class DuplicateScannerViewModel: ObservableObject {
         guard !isScanning else { return }
 
         scanTask?.cancel()
+        scanGeneration &+= 1
+        let generation = scanGeneration
+
         isScanning = true
         groups = []
         progress = 0
@@ -172,6 +177,8 @@ final class DuplicateScannerViewModel: ObservableObject {
                 Self.isDirectoryReadable(rootURL)
             }.value
             if !readable {
+                guard generation == scanGeneration else { return }
+                scanTask = nil
                 phase = .accessDenied
                 isScanning = false
                 progress = 0
@@ -180,6 +187,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             }
 
             // Phase 1: 파일 수집
+            guard generation == scanGeneration else { return }
             phase = .collectingFiles
             statusMessage = "duplicate.status.collecting".localized
 
@@ -187,11 +195,12 @@ final class DuplicateScannerViewModel: ObservableObject {
                 Self.collectFiles(in: rootURL, minBytes: minBytes)
             }.value
 
+            guard generation == scanGeneration, !Task.isCancelled else { return }
             totalFilesScanned = allFiles.count
             statusMessage = "duplicate.status.found_files".localized(with: allFiles.count)
 
             guard !allFiles.isEmpty else {
-                finishScan()
+                finishScan(generation: generation)
                 return
             }
 
@@ -206,7 +215,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             statusMessage = "duplicate.status.same_size_candidates".localized(with: candidates.count)
 
             guard !candidates.isEmpty else {
-                finishScan()
+                finishScan(generation: generation)
                 return
             }
 
@@ -216,11 +225,12 @@ final class DuplicateScannerViewModel: ObservableObject {
                 Self.groupByPartialHash(sizeGroups: sizeGroups)
             }.value
 
+            guard generation == scanGeneration, !Task.isCancelled else { return }
             let partialCandidates = partialGroups.values.filter { $0.count >= 2 }
             statusMessage = "duplicate.status.partial_hash_matches".localized(with: partialCandidates.count)
 
             guard !partialCandidates.isEmpty else {
-                finishScan()
+                finishScan(generation: generation)
                 return
             }
 
@@ -269,16 +279,43 @@ final class DuplicateScannerViewModel: ObservableObject {
             // 크기순 정렬
             finalGroups.sort { $0.reclaimableBytes > $1.reclaimableBytes }
 
-            await MainActor.run {
-                self.groups = finalGroups
+            guard generation == scanGeneration else { return }
+            guard !Task.isCancelled else {
+                finishScan(generation: generation, cancelled: true)
+                return
             }
 
-            finishScan()
+            groups = finalGroups
+            finishScan(generation: generation)
         }
     }
 
-    private func finishScan() {
+    /// 진행 중인 스캔을 중지한다.
+    func cancelScan() {
+        guard isScanning else { return }
+        scanTask?.cancel()
+        scanTask = nil
+        scanGeneration &+= 1
         isScanning = false
+        phase = .idle
+        progress = 0
+        statusMessage = "storage.msg.canceled".localized
+    }
+
+    /// 스캔 종료 처리. 이미 새 스캔이 시작된 뒤라면(세대 불일치) 아무것도 하지 않는다.
+    /// 취소된 스캔을 "완료"로 표시하던 문제도 함께 정리한다.
+    private func finishScan(generation: UInt, cancelled: Bool = false) {
+        guard generation == scanGeneration else { return }
+        scanTask = nil
+        isScanning = false
+
+        guard !cancelled else {
+            phase = .idle
+            progress = 0
+            statusMessage = "storage.msg.canceled".localized
+            return
+        }
+
         phase = .done
         progress = 1.0
         statusMessage = groups.isEmpty

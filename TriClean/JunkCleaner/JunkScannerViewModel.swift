@@ -79,6 +79,14 @@ final class JunkScannerViewModel: ObservableObject {
         return false
     }
     
+    // MARK: - 스캔 작업 핸들
+    
+    /// 스캔 Task를 보관해 사용자가 중간에 중지할 수 있게 한다.
+    /// (기존에는 Task.isCancelled 검사만 있고 핸들을 버려서 취소가 불가능했다.)
+    private var scanTask: Task<Void, Never>? = nil
+    /// 뒤늦게 끝난 이전 스캔이 새 스캔의 상태를 덮어쓰지 않도록 하는 세대 번호.
+    private var scanGeneration: UInt = 0
+    
     // MARK: - Bookmark 관리
     
     private let bookmarkKey = "TriClean.JunkCleaner.LibraryBookmark"
@@ -165,6 +173,10 @@ final class JunkScannerViewModel: ObservableObject {
         guard let library = libraryURL else { return }
         guard !isScanning else { return }
         
+        scanTask?.cancel()
+        scanGeneration &+= 1
+        let generation = scanGeneration
+        
         isScanning = true
         accessDenied = false
         cleanupNotice = nil
@@ -174,7 +186,7 @@ final class JunkScannerViewModel: ObservableObject {
         let categories = JunkCategory.defaultCategories
         let libraryStd = library.standardizedFileURL
         
-        Task {
+        scanTask = Task {
             // Security-Scoped 접근은 북마크에서 복원한 원본 URL로 시작하고,
             // standardized URL은 경로 계산과 검증에만 사용합니다.
             let started = library.startAccessingSecurityScopedResource()
@@ -192,6 +204,8 @@ final class JunkScannerViewModel: ObservableObject {
             //    보여줬다. 읽기 가능 여부만으로 판정한다.
             if !readable {
                 await MainActor.run {
+                    guard generation == self.scanGeneration else { return }
+                    self.scanTask = nil
                     self.isScanning = false
                     self.accessDenied = true
                     self.scanProgress = ""
@@ -205,7 +219,8 @@ final class JunkScannerViewModel: ObservableObject {
                 if Task.isCancelled { break }
                 
                 await MainActor.run {
-                    scanProgress = "junk.progress.scanning_format".localized(with: category.name)
+                    guard generation == self.scanGeneration else { return }
+                    self.scanProgress = "junk.progress.scanning_format".localized(with: category.name)
                 }
                 
                 var categoryItems: [JunkItem] = []
@@ -245,13 +260,32 @@ final class JunkScannerViewModel: ObservableObject {
             // 결과를 크기순으로 정렬
             scanResults.sort { $0.totalBytes > $1.totalBytes }
             
+            let wasCancelled = Task.isCancelled
             await MainActor.run {
-                self.results = scanResults
+                guard generation == self.scanGeneration else { return }
+                self.scanTask = nil
                 self.isScanning = false
+
+                guard !wasCancelled else {
+                    self.scanProgress = "storage.msg.canceled".localized
+                    return
+                }
+
+                self.results = scanResults
                 self.lastScanDate = Date()
                 self.scanProgress = ""
             }
         }
+    }
+
+    /// 진행 중인 스캔을 중지한다.
+    func cancelScan() {
+        guard isScanning else { return }
+        scanTask?.cancel()
+        scanTask = nil
+        scanGeneration &+= 1
+        isScanning = false
+        scanProgress = "storage.msg.canceled".localized
     }
     
     // MARK: - 정크 아이템 스캔 (백그라운드)

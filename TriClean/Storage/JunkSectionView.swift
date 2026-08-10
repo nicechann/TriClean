@@ -47,6 +47,14 @@ struct JunkSectionView: View {
                     Text(viewModel.scanProgress)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    if viewModel.isScanning {
+                        Button("common.cancel".localized, role: .cancel) {
+                            viewModel.cancelScan()
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 } else if viewModel.libraryURL != nil {
                     Button {
                         viewModel.scan()
