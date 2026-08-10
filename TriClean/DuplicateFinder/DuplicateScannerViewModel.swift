@@ -164,13 +164,14 @@ final class DuplicateScannerViewModel: ObservableObject {
             let started = rootURL.startAccessingSecurityScopedResource()
             defer { if started { rootURL.stopAccessingSecurityScopedResource() } }
 
-            // ✅ 접근 권한 검증: 보안 스코프 접근이 실패하고(코드 서명 변경 등으로 북마크가
-            //    무효화된 경우) 실제 디렉터리 읽기도 불가하면, 조용히 "중복 없음"으로 끝내지 않고
-            //    사용자에게 폴더 재선택을 안내한다.
+            // ✅ 접근 권한 검증: 조용히 "중복 없음"으로 끝내지 않고 폴더 재선택을 안내한다.
+            //    [수정] 기존 `!started && !readable`은 스코프는 열렸지만 북마크가 stale해서
+            //    실제로는 읽을 수 없는 경우를 통과시켜, 빈 결과를 정상 결과처럼 보여줬다.
+            //    JunkScannerViewModel과 동일하게 읽기 가능 여부만으로 판정한다.
             let readable = await Task.detached(priority: .utility) {
                 Self.isDirectoryReadable(rootURL)
             }.value
-            if !started && !readable {
+            if !readable {
                 phase = .accessDenied
                 isScanning = false
                 progress = 0
