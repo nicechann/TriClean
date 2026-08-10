@@ -923,11 +923,16 @@ struct LargeFilesView: View {
 
         // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
         // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
+        // 폴더는 스캔~삭제 사이에 내부 파일이 바뀌면 크기·수정 시각이 달라진다.
+        // 대용량 폴더 스캔은 수 분이 걸리므로 엄격 비교를 유지하면 활성 폴더가
+        // 이유 없이 제외된다. device·inode·항목 유형은 여전히 일치해야 하므로
+        // 같은 경로가 다른 폴더로 교체된 경우는 계속 거부된다.
         let outcome = await TrashService.sanitizeAndMoveToTrash(
             candidates,
             scopes: [.descendants(of: selectedRootURL)],
             url: \.url,
             identity: \.fileIdentity,
+            allowsDirectoryContentChanges: { $0.isDirectory },
             logCategory: "LargeFiles"
         )
 
