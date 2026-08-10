@@ -235,49 +235,62 @@ final class DuplicateScannerViewModel: ObservableObject {
             }
 
             // Phase 4: 전체 해시
+            // ✅ [수정] 파일 하나당 Task.detached를 만들어 순차 await 하던 구조를
+            //    코어 수만큼의 워커로 병렬 처리하도록 변경했다. 진행률도 파일마다
+            //    MainActor로 넘기지 않고 워커 청크 단위로만 갱신한다.
             phase = .hashingFull
-            let totalToHash = partialCandidates.flatMap { $0 }.count
-            var hashed = 0
+            let hashTargets = partialCandidates.flatMap { $0 }
+            let totalToHash = hashTargets.count
+            let workerCount = max(2, min(ProcessInfo.processInfo.activeProcessorCount, 8))
+            let chunkSize = max(1, (totalToHash + workerCount - 1) / workerCount)
 
-            var finalGroups: [DuplicateGroup] = []
+            var hashSlices: [[FileCandidate]] = []
+            var sliceStart = 0
+            while sliceStart < totalToHash {
+                let sliceEnd = min(sliceStart + chunkSize, totalToHash)
+                hashSlices.append(Array(hashTargets[sliceStart..<sliceEnd]))
+                sliceStart = sliceEnd
+            }
 
-            for partialGroup in partialCandidates {
-                if Task.isCancelled { break }
+            var fullHashMap: [String: [FileCandidate]] = [:]
+            var hashedCount = 0
 
-                var fullHashMap: [String: [FileCandidate]] = [:]
+            await withTaskGroup(of: FullHashChunk.self) { group in
+                for slice in hashSlices {
+                    group.addTask {
+                        var hashed: [HashedFile] = []
+                        hashed.reserveCapacity(slice.count)
+                        var processed = 0
 
-                for file in partialGroup {
-                    let hash = await Task.detached(priority: .utility) {
-                        Self.fullHash(of: file.url)
-                    }.value
+                        for file in slice {
+                            if Task.isCancelled { break }
+                            processed += 1
+                            if let hash = Self.fullHash(of: file.url) {
+                                hashed.append(HashedFile(hash: hash, file: file))
+                            }
+                        }
 
-                    guard let hash else { continue }
-                    fullHashMap[hash, default: []].append(file)
-
-                    hashed += 1
-                    await MainActor.run {
-                        progress = totalToHash > 0 ? Double(hashed) / Double(totalToHash) : 0
-                        statusMessage = "duplicate.status.hashing_full_progress".localized(with: hashed, totalToHash)
+                        return FullHashChunk(hashed: hashed, processedCount: processed)
                     }
                 }
 
-                // 실제 중복 그룹 생성
-                for (hash, files) in fullHashMap where files.count >= 2 {
-                    let uniqueFiles = Self.removeHardlinkedFiles(from: files)
-                    guard uniqueFiles.count >= 2 else { continue }
+                for await chunk in group {
+                    for entry in chunk.hashed {
+                        fullHashMap[entry.hash, default: []].append(entry.file)
+                    }
+                    hashedCount += chunk.processedCount
 
-                    let dupFiles = Self.makeDuplicateFiles(from: uniqueFiles, rootURL: rootURL)
-
-                    finalGroups.append(DuplicateGroup(
-                        hash: hash,
-                        fileSize: uniqueFiles[0].size,
-                        files: dupFiles
-                    ))
+                    guard generation == scanGeneration else { continue }
+                    progress = totalToHash > 0 ? Double(hashedCount) / Double(totalToHash) : 0
+                    statusMessage = "duplicate.status.hashing_full_progress".localized(with: hashedCount, totalToHash)
                 }
             }
 
-            // 크기순 정렬
-            finalGroups.sort { $0.reclaimableBytes > $1.reclaimableBytes }
+            // 그룹 구성은 파일마다 lstat을 수행하므로(하드링크 판별·정체성 스냅샷)
+            // 메인 액터가 아니라 백그라운드에서 처리한다.
+            let finalGroups = await Task.detached(priority: .utility) { [fullHashMap, rootURL] in
+                Self.buildDuplicateGroups(from: fullHashMap, rootURL: rootURL)
+            }.value
 
             guard generation == scanGeneration else { return }
             guard !Task.isCancelled else {
@@ -631,6 +644,43 @@ final class DuplicateScannerViewModel: ObservableObject {
         /// for sparse/compressed files and would split identical files before hashing.
         let size: Int64
         let modDate: Date?
+    }
+
+    /// 전체 해시 병렬 계산 결과 단위.
+    private struct HashedFile: Sendable {
+        let hash: String
+        let file: FileCandidate
+    }
+
+    private struct FullHashChunk: Sendable {
+        let hashed: [HashedFile]
+        /// 진행률 계산용. 해시에 실패한 파일도 처리한 것으로 센다.
+        let processedCount: Int
+    }
+
+    /// 전체 해시가 같은 파일들을 중복 그룹으로 묶는다.
+    /// 병렬 해시 결과의 도착 순서와 무관하게 같은 결과가 나오도록 경로순으로 정렬한다.
+    nonisolated private static func buildDuplicateGroups(
+        from fullHashMap: [String: [FileCandidate]],
+        rootURL: URL
+    ) -> [DuplicateGroup] {
+        var groups: [DuplicateGroup] = []
+
+        for hash in fullHashMap.keys.sorted() {
+            guard let files = fullHashMap[hash], files.count >= 2 else { continue }
+
+            let ordered = files.sorted { $0.url.path < $1.url.path }
+            let uniqueFiles = removeHardlinkedFiles(from: ordered)
+            guard uniqueFiles.count >= 2 else { continue }
+
+            groups.append(DuplicateGroup(
+                hash: hash,
+                fileSize: uniqueFiles[0].size,
+                files: makeDuplicateFiles(from: uniqueFiles, rootURL: rootURL)
+            ))
+        }
+
+        return groups.sorted { $0.reclaimableBytes > $1.reclaimableBytes }
     }
 
     /// 디렉터리 읽기 가능 여부 프로브. 나열이 성공하면 true(빈 폴더 포함),
