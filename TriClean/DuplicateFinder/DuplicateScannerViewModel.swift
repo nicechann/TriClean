@@ -573,13 +573,22 @@ final class DuplicateScannerViewModel: ObservableObject {
         let processedCount: Int
     }
 
+    /// 정렬을 위한 중간 표현.
+    /// DuplicateGroup은 기본 액터 격리(MainActor)를 따르므로 nonisolated 컨텍스트에서
+    /// reclaimableBytes 같은 계산 프로퍼티를 읽을 수 없다. 정렬 키를 여기서 미리 구한다.
+    nonisolated private struct PendingDuplicateGroup: Sendable {
+        let reclaimableBytes: Int64
+        let hash: String
+        let files: [FileCandidate]
+    }
+
     /// 전체 해시가 같은 파일들을 중복 그룹으로 묶는다.
     /// 병렬 해시 결과의 도착 순서와 무관하게 같은 결과가 나오도록 경로순으로 정렬한다.
     nonisolated private static func buildDuplicateGroups(
         from fullHashMap: [String: [FileCandidate]],
         rootURL: URL
     ) -> [DuplicateGroup] {
-        var groups: [DuplicateGroup] = []
+        var pending: [PendingDuplicateGroup] = []
 
         for hash in fullHashMap.keys.sorted() {
             guard let files = fullHashMap[hash], files.count >= 2 else { continue }
@@ -588,14 +597,27 @@ final class DuplicateScannerViewModel: ObservableObject {
             let uniqueFiles = removeHardlinkedFiles(from: ordered)
             guard uniqueFiles.count >= 2 else { continue }
 
-            groups.append(DuplicateGroup(
+            // DuplicateGroup.reclaimableBytes와 동일한 계산식:
+            // (파일 수 - 1) × 개별 파일 크기
+            let perFileSize = uniqueFiles[0].size
+            let reclaimableBytes = Int64(max(0, uniqueFiles.count - 1)) * perFileSize
+
+            pending.append(PendingDuplicateGroup(
+                reclaimableBytes: reclaimableBytes,
                 hash: hash,
-                fileSize: uniqueFiles[0].size,
-                files: makeDuplicateFiles(from: uniqueFiles, rootURL: rootURL)
+                files: uniqueFiles
             ))
         }
 
-        return groups.sorted { $0.reclaimableBytes > $1.reclaimableBytes }
+        pending.sort { $0.reclaimableBytes > $1.reclaimableBytes }
+
+        return pending.map { entry in
+            DuplicateGroup(
+                hash: entry.hash,
+                fileSize: entry.files[0].size,
+                files: makeDuplicateFiles(from: entry.files, rootURL: rootURL)
+            )
+        }
     }
 
     /// 디렉터리 읽기 가능 여부 프로브. 나열이 성공하면 true(빈 폴더 포함),
