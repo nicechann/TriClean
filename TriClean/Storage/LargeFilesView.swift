@@ -8,7 +8,6 @@
 import SwiftUI
 import AppKit
 import StoreKit
-import os.log
 
 private struct LargeFilesSecurityScopedAccessToken {
     private let url: URL
@@ -924,68 +923,18 @@ struct LargeFilesView: View {
 
         // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
         // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
-        let sanitized = DeletionSafety.sanitize(candidates, scope: selectedRootURL, url: \.url)
-        let identityValidated = DeletionSafety.revalidateIdentity(
-            sanitized.accepted,
+        let outcome = await TrashService.sanitizeAndMoveToTrash(
+            candidates,
+            scopes: [.descendants(of: selectedRootURL)],
             url: \.url,
-            identity: \.fileIdentity
+            identity: \.fileIdentity,
+            logCategory: "LargeFiles"
         )
-        var succeededURLs = Set<URL>()
-        let fm = FileManager.default
-        var runtimeRejectedCount = 0
-
-        for item in identityValidated.accepted {
-            let target = item.url.standardizedFileURL
-
-            // 여러 항목을 순차 처리하는 동안 같은 경로의 파일이나 폴더가 교체될 수 있으므로
-            // 실제 휴지통 이동 직전에 스캔 당시 항목과 동일한지 다시 확인합니다.
-            guard DeletionSafety.isIdentityCurrent(
-                item,
-                url: \.url,
-                identity: \.fileIdentity
-            ) else {
-                runtimeRejectedCount += 1
-                continue
-            }
-
-            do {
-                try fm.trashItem(at: target, resultingItemURL: nil)
-                succeededURLs.insert(target)
-            } catch {
-                // trashItem 실패 후 NSWorkspace 폴백 직전에도 교체 여부를 재검증합니다.
-                guard DeletionSafety.isIdentityCurrent(
-                    item,
-                    url: \.url,
-                    identity: \.fileIdentity
-                ) else {
-                    runtimeRejectedCount += 1
-                    continue
-                }
-                let recycled = await recycleWithWorkspace(target)
-                if recycled {
-                    succeededURLs.insert(target)
-                } else {
-                    Logger(subsystem: "com.nicechann.TriClean", category: "LargeFiles")
-                        .error("Trash failed: \(error.localizedDescription, privacy: .public)")
-                }
-            }
-        }
 
         return LargeDeleteOutcome(
-            succeededURLs: succeededURLs,
-            rejectedCount: sanitized.rejectedCount
-                + identityValidated.rejectedCount
-                + runtimeRejectedCount
+            succeededURLs: Set(outcome.succeeded.map { $0.url.standardizedFileURL }),
+            rejectedCount: outcome.excludedCount
         )
-    }
-
-    @MainActor
-    private static func recycleWithWorkspace(_ url: URL) async -> Bool {
-        await withCheckedContinuation { continuation in
-            NSWorkspace.shared.recycle([url]) { _, error in
-                continuation.resume(returning: error == nil)
-            }
-        }
     }
 
 }

@@ -10,10 +10,6 @@ import Combine
 import AppKit
 import UniformTypeIdentifiers
 import CoreServices
-import os.log
-
-// ✅ os.Logger 사용 — print() 대비 Console.app/log show에서 조회 가능, privacy 마커 지원
-private let appsLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Apps")
 
 // MARK: - AppsView 전용 Security-Scoped Bookmark 유틸
 
@@ -949,46 +945,15 @@ final class AppsViewModel: ObservableObject {
     nonisolated private static func performUninstall(
         targets: [AppsInstalledApp]
     ) async -> ([AppsInstalledApp], [AppsInstalledApp]) {
-        let fm = FileManager.default
-        var succeeded: [AppsInstalledApp] = []
-        var failed: [AppsInstalledApp] = []
+        let outcome = await TrashService.moveToTrash(
+            targets,
+            url: \.url,
+            identity: \.fileIdentity,
+            logCategory: "AppsUninstall"
+        )
 
-        for app in targets {
-            guard app.fileIdentity?.matchesCurrentItem(at: app.url) == true else {
-                failed.append(app)
-                continue
-            }
-
-            do {
-                try fm.trashItem(at: app.url, resultingItemURL: nil)
-                succeeded.append(app)
-            } catch {
-                guard app.fileIdentity?.matchesCurrentItem(at: app.url) == true else {
-                    failed.append(app)
-                    continue
-                }
-                let ok = await moveItemToTrashUsingWorkspace(url: app.url)
-                if ok { succeeded.append(app) }
-                else { failed.append(app) }
-            }
-        }
-
-        return (succeeded, failed)
-    }
-
-    nonisolated private static func moveItemToTrashUsingWorkspace(url: URL) async -> Bool {
-        return await withCheckedContinuation { continuation in
-            DispatchQueue.main.async {
-                NSWorkspace.shared.recycle([url]) { _, error in
-                    if let error = error {
-                        appsLogger.error("NSWorkspace 삭제 실패: \(error.localizedDescription, privacy: .public)")
-                        continuation.resume(returning: false)
-                    } else {
-                        continuation.resume(returning: true)
-                    }
-                }
-            }
-        }
+        // 정체성 재검증에서 제외된 앱도 사용자에게는 "실패"로 알려 이름을 노출한다.
+        return (outcome.succeeded, outcome.failed + outcome.excluded)
     }
 
     func removeSelectedRelatedItems() {
@@ -1057,31 +1022,14 @@ final class AppsViewModel: ObservableObject {
     nonisolated private static func performRelatedRemoval(
         targets: [AppsRelatedItem]
     ) async -> ([AppsRelatedItem], [AppsRelatedItem]) {
-        let fm = FileManager.default
-        var succeeded: [AppsRelatedItem] = []
-        var failed: [AppsRelatedItem] = []
+        let outcome = await TrashService.moveToTrash(
+            targets,
+            url: \.url,
+            identity: \.fileIdentity,
+            logCategory: "AppsRelatedRemoval"
+        )
 
-        for item in targets {
-            guard item.fileIdentity?.matchesCurrentItem(at: item.url) == true else {
-                failed.append(item)
-                continue
-            }
-
-            do {
-                try fm.trashItem(at: item.url, resultingItemURL: nil)
-                succeeded.append(item)
-            } catch {
-                guard item.fileIdentity?.matchesCurrentItem(at: item.url) == true else {
-                    failed.append(item)
-                    continue
-                }
-                let ok = await moveItemToTrashUsingWorkspace(url: item.url)
-                if ok { succeeded.append(item) }
-                else { failed.append(item) }
-            }
-        }
-
-        return (succeeded, failed)
+        return (outcome.succeeded, outcome.failed + outcome.excluded)
     }
 
     func failedAppNamesForAlert(maxCount: Int = 6) -> String {

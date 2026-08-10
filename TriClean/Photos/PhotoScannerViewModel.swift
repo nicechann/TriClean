@@ -623,15 +623,16 @@ final class PhotoScannerViewModel: ObservableObject {
                 scope: scopeURL
             )
 
-            var trashed = Set<String>()
-            for item in preparation.targets {
-                if Task.isCancelled { break }
-                if await Self.moveToTrash(item) { trashed.insert(item.id) }
-            }
+            let outcome = await TrashService.moveToTrash(
+                preparation.targets,
+                url: \.url,
+                identity: \.fileIdentity,
+                logCategory: "PhotoCleanup"
+            )
 
-            let result = trashed
-            let failedCount = preparation.targets.count - result.count
-            let excludedCount = preparation.excludedItemCount
+            let result = Set(outcome.succeeded.map(\.id))
+            let failedCount = outcome.failedCount
+            let excludedCount = preparation.excludedItemCount + outcome.excludedCount
 
             await MainActor.run {
                 self.removeItems(result)
@@ -705,27 +706,6 @@ final class PhotoScannerViewModel: ObservableObject {
             return PhotoGroup(id: g.id, items: remaining)
         }
         selectedIDs.subtract(ids)
-    }
-
-    nonisolated private static func moveToTrash(_ item: PhotoItem) async -> Bool {
-        guard item.fileIdentity?.matchesCurrentFile(at: item.url) == true else { return false }
-        do {
-            try FileManager.default.trashItem(at: item.url, resultingItemURL: nil)
-            return true
-        } catch {
-            guard item.fileIdentity?.matchesCurrentFile(at: item.url) == true else { return false }
-            // ✅ trashItem 실패 시 NSWorkspace.recycle로 폴백(다른 스캐너와 동일 패턴).
-            return await recycleUsingWorkspace(item.url)
-        }
-    }
-
-    @MainActor
-    private static func recycleUsingWorkspace(_ url: URL) async -> Bool {
-        await withCheckedContinuation { continuation in
-            NSWorkspace.shared.recycle([url]) { _, error in
-                continuation.resume(returning: error == nil)
-            }
-        }
     }
 
     private func finishScan(cancelled: Bool) {

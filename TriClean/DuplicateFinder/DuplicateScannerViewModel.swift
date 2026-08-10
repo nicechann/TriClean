@@ -527,26 +527,20 @@ final class DuplicateScannerViewModel: ObservableObject {
             candidates.append(contentsOf: currentTargets)
         }
 
-        let sanitized = DeletionSafety.sanitize(candidates, scope: folder, url: \.url)
-        excludedCount += sanitized.rejectedCount
+        let trashed = await TrashService.sanitizeAndMoveToTrash(
+            candidates,
+            scopes: [.descendants(of: folder)],
+            url: \.url,
+            identity: \.fileIdentity,
+            logCategory: "DuplicateCleanup"
+        )
 
-        guard !sanitized.accepted.isEmpty else {
-            return DeleteOutcome(
-                succeeded: [],
-                deletedCount: 0,
-                failedCount: 0,
-                deletedBytes: 0,
-                excludedCount: excludedCount
-            )
-        }
-
-        let deletion = await performDeletion(targets: sanitized.accepted)
         return DeleteOutcome(
-            succeeded: deletion.succeeded,
-            deletedCount: deletion.deletedCount,
-            failedCount: deletion.failedCount,
-            deletedBytes: deletion.deletedBytes,
-            excludedCount: excludedCount
+            succeeded: Set(trashed.succeeded.map(\.fileID)),
+            deletedCount: trashed.succeededCount,
+            failedCount: trashed.failedCount,
+            deletedBytes: trashed.succeeded.reduce(0) { $0 + $1.perFileSize },
+            excludedCount: excludedCount + trashed.excludedCount
         )
     }
 
@@ -578,61 +572,6 @@ final class DuplicateScannerViewModel: ObservableObject {
                 with: outcome.deletedCount,
                 ByteCountFormatter.string(fromByteCount: outcome.deletedBytes, countStyle: .file)
             )
-        }
-    }
-
-    /// 백그라운드에서 trashItem + (실패 시) NSWorkspace.recycle fallback.
-    private nonisolated static func performDeletion(targets: [DeleteTarget]) async -> DeleteOutcome {
-        let fm = FileManager.default
-        var succeeded = Set<UUID>()
-        var deletedCount = 0
-        var deletedBytes: Int64 = 0
-        var failedCount = 0
-
-        for target in targets {
-            guard target.fileIdentity?.matchesCurrentFile(at: target.url) == true else {
-                failedCount += 1
-                continue
-            }
-
-            var didSucceed = false
-
-            do {
-                try fm.trashItem(at: target.url, resultingItemURL: nil)
-                didSucceed = true
-            } catch {
-                guard target.fileIdentity?.matchesCurrentFile(at: target.url) == true else {
-                    failedCount += 1
-                    continue
-                }
-                // Fallback: NSWorkspace.recycle (AppKit 접근은 MainActor에서 수행)
-                didSucceed = await recycleWithWorkspace(target.url)
-            }
-
-            if didSucceed {
-                succeeded.insert(target.fileID)
-                deletedCount += 1
-                deletedBytes += target.perFileSize
-            } else {
-                failedCount += 1
-            }
-        }
-
-        return DeleteOutcome(
-            succeeded: succeeded,
-            deletedCount: deletedCount,
-            failedCount: failedCount,
-            deletedBytes: deletedBytes,
-            excludedCount: 0
-        )
-    }
-
-    @MainActor
-    private static func recycleWithWorkspace(_ url: URL) async -> Bool {
-        await withCheckedContinuation { continuation in
-            NSWorkspace.shared.recycle([url]) { _, error in
-                continuation.resume(returning: error == nil)
-            }
         }
     }
 

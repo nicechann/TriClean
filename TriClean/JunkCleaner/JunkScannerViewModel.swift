@@ -420,27 +420,12 @@ final class JunkScannerViewModel: ObservableObject {
         let identityValidationPolicy: JunkCategory.IdentityValidationPolicy
     }
 
-    private struct CleanFailure: Sendable {
-        let path: String
-        let domain: String
-        let code: Int
-        let message: String
-
-        nonisolated init(url: URL, error: Error) {
-            let nsError = error as NSError
-            self.path = url.path
-            self.domain = nsError.domain
-            self.code = nsError.code
-            self.message = nsError.localizedDescription
-        }
-    }
-
     private struct CleanOutcome: Sendable {
         let succeededIDs: Set<UUID>
         let failedCount: Int
         let excludedCount: Int
         let accessDenied: Bool
-        let firstFailure: CleanFailure?
+        let firstFailure: TrashService.Failure?
     }
 
     func cleanSelected() {
@@ -606,45 +591,14 @@ final class JunkScannerViewModel: ObservableObject {
         cleanupNotice = JunkCleanupNotice(kind: kind, title: title, message: message)
     }
 
-    nonisolated private static func isIdentityCurrent(_ target: CleanTarget) -> Bool {
-        guard let snapshot = target.fileIdentity else { return false }
-        let allowDirectoryContentChanges =
-            target.identityValidationPolicy == .allowDirectoryContentChanges
-        return snapshot.matchesCurrentItem(
-            at: target.url,
-            allowDirectoryContentChanges: allowDirectoryContentChanges
-        )
-    }
-
-    nonisolated private static func revalidateTargets(
-        _ candidates: [CleanTarget]
-    ) -> (accepted: [CleanTarget], rejectedCount: Int) {
-        var accepted: [CleanTarget] = []
-        var rejectedCount = 0
-
-        for target in candidates {
-            if isIdentityCurrent(target) {
-                accepted.append(target)
-            } else {
-                rejectedCount += 1
-            }
-        }
-
-        return (accepted, rejectedCount)
-    }
-
     nonisolated private static func moveTargetsToTrash(
         _ candidates: [CleanTarget],
         securityScopedBy securityScopedURL: URL,
         validationScope: URL
     ) async -> CleanOutcome {
-        let logger = Logger(
-            subsystem: "com.nicechann.TriClean",
-            category: "JunkCleanup"
-        )
         let started = securityScopedURL.startAccessingSecurityScopedResource()
         guard started else {
-            logger.error(
+            Logger(subsystem: "com.nicechann.TriClean", category: "JunkCleanup").error(
                 "Security-scoped access failed for \(securityScopedURL.path, privacy: .public)"
             )
             return CleanOutcome(
@@ -657,79 +611,25 @@ final class JunkScannerViewModel: ObservableObject {
         }
         defer { securityScopedURL.stopAccessingSecurityScopedResource() }
 
-        // 권한이 활성화된 상태에서 경로 경계와 존재 여부를 삭제 직전에 검사합니다.
-        let sanitized = DeletionSafety.sanitize(
+        // 권한이 활성화된 상태에서 경로 경계·존재 여부·항목 정체성을 삭제 직전에 검사합니다.
+        let outcome = await TrashService.sanitizeAndMoveToTrash(
             candidates,
-            scope: validationScope,
-            url: \.url
+            scopes: [.descendants(of: validationScope)],
+            url: \.url,
+            identity: \.fileIdentity,
+            allowsDirectoryContentChanges: {
+                $0.identityValidationPolicy == .allowDirectoryContentChanges
+            },
+            logCategory: "JunkCleanup"
         )
-        let identityValidated = revalidateTargets(sanitized.accepted)
-        let fm = FileManager.default
-        var succeededIDs = Set<UUID>()
-        var failedCount = 0
-        var runtimeRejectedCount = 0
-        var firstFailure: CleanFailure?
-
-        for target in identityValidated.accepted {
-            // 앞선 항목을 처리하는 동안 실행 중인 앱이 같은 경로를 다시 만들 수 있으므로
-            // 실제 휴지통 이동 직전에 항목 정체성을 한 번 더 확인합니다.
-            guard isIdentityCurrent(target) else {
-                runtimeRejectedCount += 1
-                continue
-            }
-
-            do {
-                try fm.trashItem(at: target.url, resultingItemURL: nil)
-                succeededIDs.insert(target.id)
-            } catch {
-                let fileManagerFailure = CleanFailure(url: target.url, error: error)
-                logger.warning(
-                    "FileManager trash failed path=\(fileManagerFailure.path, privacy: .public) domain=\(fileManagerFailure.domain, privacy: .public) code=\(fileManagerFailure.code) message=\(fileManagerFailure.message, privacy: .public)"
-                )
-
-                // trashItem 실패 후 NSWorkspace 폴백을 실행하기 직전에도 다시 검증합니다.
-                guard isIdentityCurrent(target) else {
-                    runtimeRejectedCount += 1
-                    continue
-                }
-
-                if let workspaceFailure = await recycleUsingWorkspace(target.url) {
-                    logger.error(
-                        "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .public) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .public)"
-                    )
-                    failedCount += 1
-                    if firstFailure == nil {
-                        firstFailure = workspaceFailure
-                    }
-                } else {
-                    succeededIDs.insert(target.id)
-                }
-            }
-        }
 
         return CleanOutcome(
-            succeededIDs: succeededIDs,
-            failedCount: failedCount,
-            excludedCount: sanitized.rejectedCount
-                + identityValidated.rejectedCount
-                + runtimeRejectedCount,
+            succeededIDs: Set(outcome.succeeded.map(\.id)),
+            failedCount: outcome.failedCount,
+            excludedCount: outcome.excludedCount,
             accessDenied: false,
-            firstFailure: firstFailure
+            firstFailure: outcome.firstFailure
         )
-    }
-
-    /// 성공 시 nil, 실패 시 사용자 표시와 로그에 사용할 오류 정보를 반환합니다.
-    @MainActor
-    private static func recycleUsingWorkspace(_ url: URL) async -> CleanFailure? {
-        await withCheckedContinuation { continuation in
-            NSWorkspace.shared.recycle([url]) { _, error in
-                if let error {
-                    continuation.resume(returning: CleanFailure(url: url, error: error))
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
     }
 
 }

@@ -92,20 +92,31 @@ nonisolated enum DeletionSafety {
         scopes: [Scope],
         url: (T) -> URL
     ) -> (accepted: [T], rejectedCount: Int) {
-        guard !scopes.isEmpty else { return ([], candidates.count) }
+        let result = partition(candidates, scopes: scopes, url: url)
+        return (result.accepted, result.rejected.count)
+    }
+
+    /// `sanitize`와 같은 검증을 수행하되, 걸러진 대상 자체를 함께 돌려준다.
+    /// 사용자에게 "제외된 항목"을 이름까지 보여줘야 하는 호출부에서 사용합니다.
+    nonisolated static func partition<T>(
+        _ candidates: [T],
+        scopes: [Scope],
+        url: (T) -> URL
+    ) -> (accepted: [T], rejected: [T]) {
+        guard !scopes.isEmpty else { return ([], candidates) }
 
         let fm = FileManager.default
         var seen = Set<String>()
         var accepted: [T] = []
-        var rejected = 0
+        var rejected: [T] = []
 
         for candidate in candidates {
             let target = url(candidate).standardizedFileURL
-            guard isAllowed(target, in: scopes) else { rejected += 1; continue }
-            guard fm.fileExists(atPath: target.path) else { rejected += 1; continue }
+            guard isAllowed(target, in: scopes) else { rejected.append(candidate); continue }
+            guard fm.fileExists(atPath: target.path) else { rejected.append(candidate); continue }
 
             let resolved = resolvedPath(for: target)
-            guard seen.insert(resolved).inserted else { rejected += 1; continue }
+            guard seen.insert(resolved).inserted else { rejected.append(candidate); continue }
             accepted.append(candidate)
         }
 
