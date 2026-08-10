@@ -48,11 +48,32 @@ private struct SignificantMemoryAppSnapshot: Sendable {
     let residentBytes: Int64
 }
 
+/// 메뉴바/메모리 화면의 표시 단위 저장 키. 값은 MemoryDisplayUnit.rawValue.
+private let memoryDisplayUnitKey = "memory.displayUnit"
+
+/// 저장된 표시 단위를 읽는다. 저장값이 없거나 알 수 없는 값이면 기존 기본값(%)을 사용한다.
+private func loadStoredMemoryDisplayUnit() -> MemoryDisplayUnit {
+    guard let raw = UserDefaults.standard.string(forKey: memoryDisplayUnitKey),
+          let unit = MemoryDisplayUnit(rawValue: raw) else {
+        return .percent
+    }
+    return unit
+}
+
 @MainActor
 final class MemoryViewModel: ObservableObject {
 
     @Published var stats: MemoryStats = .empty
-    @Published var displayUnit: MemoryDisplayUnit = .percent
+
+    /// 사용자가 고른 표시 단위(% / MB).
+    /// ✅ [수정] 기존에는 메모리에만 있는 값이라 앱을 재시작할 때마다 %로 돌아갔다.
+    ///   변경 즉시 UserDefaults에 저장하고, 초기값도 저장값에서 복원한다.
+    @Published var displayUnit: MemoryDisplayUnit = loadStoredMemoryDisplayUnit() {
+        didSet {
+            guard oldValue != displayUnit else { return }
+            UserDefaults.standard.set(displayUnit.rawValue, forKey: memoryDisplayUnitKey)
+        }
+    }
 
     // ✅ CPU 사용률(%). 누적 카운터 델타로 계산하므로 첫 샘플은 기준선만 잡고,
     //    두 번째 갱신(다음 5초)부터 값이 채워집니다. 그전에는 nil.
