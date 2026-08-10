@@ -11,71 +11,6 @@ import AppKit
 import UniformTypeIdentifiers
 import CoreServices
 
-// MARK: - AppsView 전용 Security-Scoped Bookmark 유틸
-
-private enum AppsBookmarkKey: String {
-    case applicationsFolder = "TriClean.Apps.Bookmark.ApplicationsFolder"
-    case userLibraryFolder  = "TriClean.Apps.Bookmark.UserLibraryFolder"
-    case manualAppBundle    = "TriClean.Apps.Bookmark.ManualAppBundle"
-}
-
-private enum AppsSecurityScopedBookmarks {
-    static func save(url: URL, key: AppsBookmarkKey) throws {
-        let data = try url.bookmarkData(
-            options: [.withSecurityScope],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
-        UserDefaults.standard.set(data, forKey: key.rawValue)
-    }
-
-    static func load(key: AppsBookmarkKey) -> URL? {
-        guard let data = UserDefaults.standard.data(forKey: key.rawValue) else { return nil }
-        var stale = false
-        do {
-            let url = try URL(
-                resolvingBookmarkData: data,
-                options: [.withSecurityScope, .withoutUI],
-                relativeTo: nil,
-                bookmarkDataIsStale: &stale
-            )
-            if stale { try? save(url: url, key: key) }
-            return url
-        } catch {
-            return nil
-        }
-    }
-
-    static func clear(key: AppsBookmarkKey) {
-        UserDefaults.standard.removeObject(forKey: key.rawValue)
-    }
-}
-
-private final class AppsScopedAccessToken: @unchecked Sendable {
-    private let url: URL
-    private let started: Bool
-
-    private let lock = NSLock()
-    private var didStop = false
-
-    init?(url: URL) {
-        self.url = url
-        self.started = url.startAccessingSecurityScopedResource()
-        if !started { return nil }
-    }
-
-    func stop() {
-        lock.lock()
-        defer { lock.unlock() }
-
-        guard started, !didStop else { return }
-        didStop = true
-        url.stopAccessingSecurityScopedResource()
-    }
-
-    deinit { stop() }
-}
-
 // MARK: - Models
 
 enum AppsListFilter: String, CaseIterable, Identifiable {
@@ -242,9 +177,9 @@ final class AppsViewModel: ObservableObject {
     private var lastFailedApps: [AppsInstalledApp] = []
 
     init() {
-        applicationsFolderURL = AppsSecurityScopedBookmarks.load(key: .applicationsFolder)
-        userLibraryFolderURL  = AppsSecurityScopedBookmarks.load(key: .userLibraryFolder)
-        manualAppBundleURL    = AppsSecurityScopedBookmarks.load(key: .manualAppBundle)
+        applicationsFolderURL = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder)
+        userLibraryFolderURL  = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsUserLibraryFolder)
+        manualAppBundleURL    = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsManualAppBundle)
     }
 
     // MARK: - Derived
@@ -342,7 +277,7 @@ final class AppsViewModel: ObservableObject {
 
         if panel.runModal() == .OK, let url = panel.url {
             do {
-                try AppsSecurityScopedBookmarks.save(url: url, key: .applicationsFolder)
+                try SecurityScopedBookmarkStore.shared.save(url: url, for: .appsApplicationsFolder)
                 applicationsFolderURL = url
                 lastStatusIsError = false
                 lastStatusMessage = "apps.status.folder_selected".localized(with: url.path)
@@ -365,7 +300,7 @@ final class AppsViewModel: ObservableObject {
 
         if panel.runModal() == .OK, let url = panel.url {
             do {
-                try AppsSecurityScopedBookmarks.save(url: url, key: .userLibraryFolder)
+                try SecurityScopedBookmarkStore.shared.save(url: url, for: .appsUserLibraryFolder)
                 userLibraryFolderURL = url
                 lastStatusIsError = false
                 lastStatusMessage = "apps.status.library_selected".localized(with: url.path)
@@ -382,9 +317,9 @@ final class AppsViewModel: ObservableObject {
         loadInstalledAppsTask = nil
         relatedScanTask = nil
 
-        AppsSecurityScopedBookmarks.clear(key: .applicationsFolder)
-        AppsSecurityScopedBookmarks.clear(key: .userLibraryFolder)
-        AppsSecurityScopedBookmarks.clear(key: .manualAppBundle)
+        SecurityScopedBookmarkStore.shared.clear(.appsApplicationsFolder)
+        SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
+        SecurityScopedBookmarkStore.shared.clear(.appsManualAppBundle)
 
         applicationsFolderURL = nil
         userLibraryFolderURL = nil
@@ -416,7 +351,7 @@ final class AppsViewModel: ObservableObject {
 
         if panel.runModal() == .OK, let url = panel.url {
             do {
-                try AppsSecurityScopedBookmarks.save(url: url, key: .manualAppBundle)
+                try SecurityScopedBookmarkStore.shared.save(url: url, for: .appsManualAppBundle)
                 manualAppBundleURL = url
                 handleManuallySelectedApp(at: url)
             } catch {
@@ -427,7 +362,7 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
-        guard let token = AppsScopedAccessToken(url: appURL) else {
+        guard let token = SecurityScopedAccessToken(url: appURL) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.no_permission".localized
             return
@@ -482,8 +417,8 @@ final class AppsViewModel: ObservableObject {
             lastStatusMessage = "apps.status.folder_needed".localized
             return
         }
-        guard let token = AppsScopedAccessToken(url: root) else {
-            AppsSecurityScopedBookmarks.clear(key: .applicationsFolder)
+        guard let token = SecurityScopedAccessToken(url: root) else {
+            SecurityScopedBookmarkStore.shared.clear(.appsApplicationsFolder)
             applicationsFolderURL = nil
             installedApps = []
             selectedInstalledAppIDs.removeAll()
@@ -632,8 +567,8 @@ final class AppsViewModel: ObservableObject {
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
-        guard let token = AppsScopedAccessToken(url: library) else {
-            AppsSecurityScopedBookmarks.clear(key: .userLibraryFolder)
+        guard let token = SecurityScopedAccessToken(url: library) else {
+            SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
             userLibraryFolderURL = nil
             relatedItems = []
             isScanning = false
@@ -878,15 +813,15 @@ final class AppsViewModel: ObservableObject {
 
         // 앱 목록 폴더의 하위 앱과 사용자가 직접 선택한 단일 앱 번들만 허용합니다.
         // 보안 스코프를 먼저 연 뒤 경로 경계·존재 여부를 삭제 직전에 재검증합니다.
-        var scopeTokens: [AppsScopedAccessToken] = []
+        var scopeTokens: [SecurityScopedAccessToken] = []
         var deletionScopes: [DeletionSafety.Scope] = []
         if let url = applicationsFolderURL?.standardizedFileURL,
-           let token = AppsScopedAccessToken(url: url) {
+           let token = SecurityScopedAccessToken(url: url) {
             scopeTokens.append(token)
             deletionScopes.append(.descendants(of: url))
         }
         if let url = manualAppBundleURL?.standardizedFileURL,
-           let token = AppsScopedAccessToken(url: url) {
+           let token = SecurityScopedAccessToken(url: url) {
             scopeTokens.append(token)
             deletionScopes.append(.exact(url))
         }
@@ -970,7 +905,7 @@ final class AppsViewModel: ObservableObject {
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
-        guard let scopeToken = AppsScopedAccessToken(url: libraryRoot) else {
+        guard let scopeToken = SecurityScopedAccessToken(url: libraryRoot) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
             return

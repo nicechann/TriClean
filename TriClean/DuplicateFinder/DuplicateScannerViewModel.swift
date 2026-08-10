@@ -96,34 +96,10 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     // MARK: - Bookmark
 
-    private let bookmarkKey = "TriClean.DuplicateFinder.FolderBookmark"
+    private let bookmarks = SecurityScopedBookmarkStore.shared
 
     init() {
-        loadBookmark()
-    }
-
-    private func loadBookmark() {
-        guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
-        var stale = false
-        if let url = try? URL(
-            resolvingBookmarkData: data,
-            options: [.withSecurityScope, .withoutUI],
-            relativeTo: nil,
-            bookmarkDataIsStale: &stale
-        ) {
-            scanFolderURL = url
-            if stale { saveBookmark(url: url) }
-        }
-    }
-
-    private func saveBookmark(url: URL) {
-        if let data = try? url.bookmarkData(
-            options: [.withSecurityScope],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        ) {
-            UserDefaults.standard.set(data, forKey: bookmarkKey)
-        }
+        scanFolderURL = bookmarks.resolveURL(for: .duplicateScanFolder)
     }
 
     // MARK: - 폴더 선택
@@ -138,7 +114,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
 
         if panel.runModal() == .OK, let url = panel.url {
-            saveBookmark(url: url)
+            bookmarks.trySave(url: url, for: .duplicateScanFolder)
             scanFolderURL = url
             lastCleanupResult = nil
             phase = .idle

@@ -127,34 +127,10 @@ final class PhotoScannerViewModel: ObservableObject {
 
     // MARK: - Bookmark
 
-    private let bookmarkKey = "TriClean.PhotoManager.FolderBookmark"
+    private let bookmarks = SecurityScopedBookmarkStore.shared
 
     init() {
-        loadBookmark()
-    }
-
-    private func loadBookmark() {
-        guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
-        var stale = false
-        if let url = try? URL(
-            resolvingBookmarkData: data,
-            options: [.withSecurityScope, .withoutUI],
-            relativeTo: nil,
-            bookmarkDataIsStale: &stale
-        ) {
-            scanFolderURL = url
-            if stale { saveBookmark(url: url) }
-        }
-    }
-
-    private func saveBookmark(url: URL) {
-        if let data = try? url.bookmarkData(
-            options: [.withSecurityScope],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        ) {
-            UserDefaults.standard.set(data, forKey: bookmarkKey)
-        }
+        scanFolderURL = bookmarks.resolveURL(for: .photoScanFolder)
     }
 
     // MARK: - 폴더 선택
@@ -178,7 +154,7 @@ final class PhotoScannerViewModel: ObservableObject {
             similarTask?.cancel()
             releaseFolderAccess()
 
-            saveBookmark(url: url)
+            bookmarks.trySave(url: url, for: .photoScanFolder)
             scanFolderURL = url
             items = []
             selectedIDs = []

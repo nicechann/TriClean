@@ -89,9 +89,7 @@ final class JunkScannerViewModel: ObservableObject {
     
     // MARK: - Bookmark 관리
     
-    private let bookmarkKey = "TriClean.JunkCleaner.LibraryBookmark"
-    /// Apps 탭에서 이미 ~/Library 권한을 받았을 수 있음 — 해당 북마크 키
-    private let appsLibraryBookmarkKey = "TriClean.Apps.Bookmark.UserLibraryFolder"
+    private let bookmarks = SecurityScopedBookmarkStore.shared
     
     init() {
         loadBookmark()
@@ -99,15 +97,15 @@ final class JunkScannerViewModel: ObservableObject {
     
     private func loadBookmark() {
         // 1) Junk 전용 북마크 시도 — 유효한 Library 경로인 경우에만 사용
-        if let url = resolveBookmark(forKey: bookmarkKey), isLibraryLike(url) {
+        if let url = bookmarks.resolveURL(for: .junkLibraryFolder), isLibraryLike(url) {
             libraryURL = url
             return
         }
         
         // 2) Apps 탭에서 이미 ~/Library를 선택한 적이 있으면 재사용
-        if let url = resolveBookmark(forKey: appsLibraryBookmarkKey), isLibraryLike(url) {
+        if let url = bookmarks.resolveURL(for: .appsUserLibraryFolder), isLibraryLike(url) {
             libraryURL = url
-            saveBookmark(url: url)
+            bookmarks.trySave(url: url, for: .junkLibraryFolder)
             return
         }
         
@@ -118,29 +116,6 @@ final class JunkScannerViewModel: ObservableObject {
     private func isLibraryLike(_ url: URL) -> Bool {
         let path = url.path
         return path.hasSuffix("/Library") || path.hasSuffix("/Library/")
-    }
-    
-    private func resolveBookmark(forKey key: String) -> URL? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
-        var stale = false
-        guard let url = try? URL(
-            resolvingBookmarkData: data,
-            options: [.withSecurityScope, .withoutUI],
-            relativeTo: nil,
-            bookmarkDataIsStale: &stale
-        ) else { return nil }
-        if stale { saveBookmark(url: url) }
-        return url
-    }
-    
-    private func saveBookmark(url: URL) {
-        if let data = try? url.bookmarkData(
-            options: [.withSecurityScope],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        ) {
-            UserDefaults.standard.set(data, forKey: bookmarkKey)
-        }
     }
     
     // MARK: - 폴더 선택
@@ -160,7 +135,7 @@ final class JunkScannerViewModel: ObservableObject {
         panel.nameFieldStringValue = "Library"
         
         if panel.runModal() == .OK, let url = panel.url {
-            saveBookmark(url: url)
+            bookmarks.trySave(url: url, for: .junkLibraryFolder)
             libraryURL = url
             accessDenied = false
             cleanupNotice = nil
@@ -457,13 +432,13 @@ final class JunkScannerViewModel: ObservableObject {
     /// 삭제 직전에는 저장된 북마크에서 security-scoped URL을 다시 복원합니다.
     /// `standardizedFileURL`은 경로 검증에만 사용하고, 권한 활성화에는 복원 원본을 사용합니다.
     private func resolveLibraryURLForCleaning() -> URL? {
-        if let url = resolveBookmark(forKey: bookmarkKey), isLibraryLike(url) {
+        if let url = bookmarks.resolveURL(for: .junkLibraryFolder), isLibraryLike(url) {
             libraryURL = url
             return url
         }
 
-        if let url = resolveBookmark(forKey: appsLibraryBookmarkKey), isLibraryLike(url) {
-            saveBookmark(url: url)
+        if let url = bookmarks.resolveURL(for: .appsUserLibraryFolder), isLibraryLike(url) {
+            bookmarks.trySave(url: url, for: .junkLibraryFolder)
             libraryURL = url
             return url
         }
