@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "沒有項目被移到垃圾桶。失敗：%1$ld；因發生變更而略過：%2$ld。";
 "junk.cleanup.result.access_denied" = "無法啟用 Library 資料夾權限。請透過「更改…」重新選取 Library 資料夾，然後再試一次。";
 "junk.cleanup.result.error_detail" = "第一個錯誤：%@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "文字大小";
+"settings.typography.size_desc" = "調整整個應用程式的文字大小。";
+"settings.typography.scale.small" = "小";
+"settings.typography.scale.standard" = "預設";
+"settings.typography.scale.large" = "大";
+"settings.typography.scale.extraLarge" = "特大";
+"settings.typography.design" = "字體";
+"settings.typography.design_desc" = "所有選項皆使用系統字體，各語言顯示均不受影響。";
+"settings.typography.design.standard" = "預設";
+"settings.typography.design.rounded" = "圓體";
+"settings.typography.design.monospaced" = "等寬";
+"settings.typography.design.serif" = "襯線";

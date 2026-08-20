@@ -125,16 +125,16 @@ struct OnboardingView: View {
                     .fill(s.iconColor.opacity(0.12))
                     .frame(width: 88, height: 88)
                 Image(systemName: s.icon)
-                    .font(.system(size: 38, weight: .semibold))
+                    .appIconFont(38, weight: .semibold)
                     .foregroundStyle(s.iconColor)
             }
 
             Text(s.titleKey.localized)
-                .font(.title2.bold())
+                .appFont(.title2, weight: .bold)
                 .multilineTextAlignment(.center)
 
             Text(s.descKey.localized)
-                .font(.body)
+                .appFont(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 380)

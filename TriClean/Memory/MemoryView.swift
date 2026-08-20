@@ -54,18 +54,18 @@ struct MemoryView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
                 Text("memory.in_use".localized(with: viewModel.usageText))
-                    .font(.headline)
+                    .appFont(.headline)
 
                 Text("memory.total".localized(with: viewModel.totalMemoryText))
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundColor(.secondary)
 
                 Text("memory.used".localized(with: viewModel.usedMemoryText))
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundColor(.secondary)
 
                 Text("memory.available".localized(with: formatHeaderBytes(availableBytes)))
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundColor(.secondary)
             }
 
@@ -91,9 +91,9 @@ struct MemoryView: View {
         HStack(spacing: 8) {
             Image(systemName: "info.circle")
                 .foregroundStyle(.secondary)
-                .font(.caption)
+                .appFont(.caption)
             Text("memory.disclaimer".localized)
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 10)
@@ -121,7 +121,7 @@ struct MemoryView: View {
             viewModel.displayUnit = unit
         } label: {
             Text(unit.title)
-                .font(.caption)
+                .appFont(.caption)
                 .frame(width: 40, height: 22)
                 .background(isSelected ? Color.accentColor.opacity(0.85) : Color.clear)
                 .foregroundColor(isSelected ? .white : .primary)
@@ -135,7 +135,7 @@ struct MemoryView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 8) {
                 Text("memory.composition".localized)
-                    .font(.headline)
+                    .appFont(.headline)
 
                 HStack(alignment: .center, spacing: 32) {
                     Spacer(minLength: 100)
@@ -149,7 +149,7 @@ struct MemoryView: View {
                 .padding(.bottom, 30)
 
                 Text("memory.composition_note".localized)
-                    .font(.caption2)
+                    .appFont(.caption2)
                     .foregroundColor(.secondary)
                     .padding(.top, 4)
             }
@@ -163,7 +163,7 @@ struct MemoryView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 12) {
                     Text("memory.significant_usage".localized)
-                        .font(.headline)
+                        .appFont(.headline)
                     Spacer()
                     if viewModel.isLoadingSignificantApps {
                         ProgressView().controlSize(.small)
@@ -181,7 +181,7 @@ struct MemoryView: View {
 
                 if viewModel.significantApps.isEmpty {
                     Text("memory.significant_empty".localized)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundColor(.secondary)
                 } else {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -207,7 +207,7 @@ struct MemoryView: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                                         Text(formatBytes(app.residentBytes))
-                                            .font(.caption2)
+                                            .appFont(.caption2)
                                             .foregroundColor(.secondary)
                                     }
                                     .frame(width: 60)
@@ -222,7 +222,7 @@ struct MemoryView: View {
 
                 if let updated = viewModel.significantAppsUpdatedAt {
                     Text("common.updated".localized(with: updated.formatted(date: .abbreviated, time: .shortened)))
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundColor(.secondary)
                 }
             }
@@ -250,7 +250,7 @@ struct MemoryView: View {
             Spacer()
             Text(valueText(for: bytes)).frame(width: 80, alignment: .trailing)
         }
-        .font(.caption)
+        .appFont(.caption)
     }
 
     private func valueText(for bytes: Int64) -> String {
@@ -301,7 +301,7 @@ struct MemoryDonutView: View {
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                     Text(centerLabelText)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundColor(.secondary)
                 }
                 .frame(width: size * 0.7)
@@ -385,7 +385,7 @@ private struct TrayView: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill").imageScale(.medium)
-            Text(message).font(.caption)
+            Text(message).appFont(.caption)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)

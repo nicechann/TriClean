@@ -107,16 +107,16 @@ struct SmartScanView: View {
                 RoundedRectangle(cornerRadius: 18)
                     .fill(Color.accentColor.opacity(0.14))
                 Image(systemName: "speedometer")
-                    .font(.system(size: 30, weight: .semibold))
+                    .appIconFont(30, weight: .semibold)
                     .foregroundStyle(Color.accentColor)
             }
             .frame(width: 64, height: 64)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("smartscan.title".localized)
-                    .font(.largeTitle.bold())
+                    .appFont(.largeTitle, weight: .bold)
                 Text("smartscan.subtitle".localized)
-                    .font(.callout)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -124,7 +124,7 @@ struct SmartScanView: View {
                     Image(systemName: "clock")
                         .foregroundStyle(.secondary)
                     Text(lastUpdatedText)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.top, 2)
@@ -243,10 +243,10 @@ struct SmartScanView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("smartscan.actions.title".localized)
-                    .font(.title3.bold())
+                    .appFont(.title3, weight: .bold)
                 Spacer()
                 Text(viewModel.statusMessage)
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -280,7 +280,7 @@ struct SmartScanView: View {
     private var detailCards: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("smartscan.details.title".localized)
-                .font(.title3.bold())
+                .appFont(.title3, weight: .bold)
 
             VStack(spacing: 10) {
                 detailRow(
@@ -334,13 +334,13 @@ struct SmartScanView: View {
     private var safetyNote: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "checkmark.shield")
-                .font(.title3)
+                .appFont(.title3)
                 .foregroundStyle(.green)
             VStack(alignment: .leading, spacing: 4) {
                 Text("smartscan.safety.title".localized)
-                    .font(.headline)
+                    .appFont(.headline)
                 Text("smartscan.safety.body".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -354,26 +354,26 @@ struct SmartScanView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: systemImage)
-                    .font(.title3)
+                    .appFont(.title3)
                     .foregroundStyle(Color.accentColor)
                 Spacer()
                 if let progress {
                     Text("\(Int(progress * 100))%")
-                        .font(.caption.monospacedDigit())
+                        .appFont(.caption, monospacedDigit: true)
                         .foregroundStyle(.secondary)
                 }
             }
 
             Text(value)
-                .font(.title2.bold())
+                .appFont(.title2, weight: .bold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
 
             Text(title)
-                .font(.headline)
+                .appFont(.headline)
 
             Text(caption)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
@@ -409,23 +409,23 @@ struct SmartScanView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title3)
+                .appFont(.title3)
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 8) {
                     Text(title)
-                        .font(.headline)
+                        .appFont(.headline)
                     Text(status)
-                        .font(.caption2.bold())
+                        .appFont(.caption2, weight: .bold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(Capsule().fill(Color.secondary.opacity(0.12)))
                         .foregroundStyle(.secondary)
                 }
                 Text(message)
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)

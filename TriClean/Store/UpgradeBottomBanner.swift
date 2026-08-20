@@ -13,14 +13,14 @@ struct UpgradeBottomBanner: View {
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: "lock.shield.fill")
-                .font(.title2)
+                .appFont(.title2)
                 .foregroundStyle(.blue)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("upgrade.bottom.title".localized)
-                    .font(.subheadline.bold())
+                    .appFont(.subheadline, weight: .bold)
                 Text("upgrade.bottom.desc".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

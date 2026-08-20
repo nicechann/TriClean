@@ -62,7 +62,7 @@ struct MenuBarMemoryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("menubar.memory.title".localized)
-                .font(.headline)
+                .appFont(.headline)
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -75,7 +75,7 @@ struct MenuBarMemoryView: View {
                 Spacer()
 
                 Text("\(viewModel.info.usagePercent)%")
-                    .font(.title3)
+                    .appFont(.title3)
                     .bold()
             }
 
@@ -87,7 +87,7 @@ struct MenuBarMemoryView: View {
 
             // ✅ 면책 문구 추가 (Apple 심사 대응)
             Text("memory.menubar_disclaimer".localized)
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.secondary)
                 .padding(.top, 2)
 

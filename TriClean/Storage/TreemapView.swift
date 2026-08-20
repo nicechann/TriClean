@@ -46,21 +46,21 @@ struct TreemapView: View {
                     .foregroundStyle(.secondary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("storage.treemap.title".localized)
-                        .font(.headline)
+                        .appFont(.headline)
                     Text("storage.treemap.subtitle".localized)
-                        .font(.caption2)
+                        .appFont(.callout)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
                 if let item = selectedItem {
                     HStack(spacing: 6) {
                         Image(systemName: item.isDirectory ? "folder.fill" : "doc.fill")
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                         Text(item.name)
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                         Text(item.sizeString)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 8)
@@ -103,7 +103,7 @@ struct TreemapView: View {
 
             if selectedItem == nil {
                 Text("storage.treemap.hint".localized)
-                    .font(.caption2)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
             }
         }
@@ -192,7 +192,7 @@ struct TreemapView: View {
                         Text(item.sizeString)
                             .foregroundStyle(.secondary)
                     }
-                    .font(.caption2)
+                    .appFont(.caption2)
                 }
             }
         }

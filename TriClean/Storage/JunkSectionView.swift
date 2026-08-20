@@ -33,9 +33,9 @@ struct JunkSectionView: View {
                     .foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("junk.section.title".localized)
-                        .font(.title3.bold())
+                        .appFont(.title3, weight: .bold)
                     Text("junk.section.subtitle".localized)
-                        .font(.caption)
+                        .appFont(.callout)
                         .foregroundStyle(.secondary)
                 }
 
@@ -45,7 +45,7 @@ struct JunkSectionView: View {
                     ProgressView()
                         .controlSize(.small)
                     Text(viewModel.scanProgress)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
 
                     if viewModel.isScanning {
@@ -81,19 +81,19 @@ struct JunkSectionView: View {
                 if let url = viewModel.libraryURL {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(url.path)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
                         if !viewModel.isValidLibraryPath {
                             Text("junk.section.wrong_path_warning".localized)
-                                .font(.caption2)
+                                .appFont(.callout)
                                 .foregroundStyle(.orange)
                         }
                     }
                 } else {
                     Text("junk.section.select_library_hint".localized)
-                        .font(.caption)
+                        .appFont(.callout)
                         .foregroundStyle(.secondary)
                 }
 
@@ -113,9 +113,9 @@ struct JunkSectionView: View {
                         .foregroundStyle(.orange)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("junk.section.access_title".localized)
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                         Text("junk.section.access_desc".localized)
-                            .font(.caption2)
+                            .appFont(.callout)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -134,13 +134,13 @@ struct JunkSectionView: View {
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: cleanupNoticeIcon(for: notice.kind))
                         .foregroundStyle(cleanupNoticeColor(for: notice.kind))
-                        .font(.body)
+                        .appFont(.body)
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(notice.title)
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                         Text(notice.message)
-                            .font(.caption2)
+                            .appFont(.caption2)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -171,11 +171,11 @@ struct JunkSectionView: View {
                         Text(viewModel.isValidLibraryPath
                              ? "junk.section.ready_title".localized
                              : "junk.section.wrong_path_title".localized)
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                         Text(viewModel.isValidLibraryPath
                              ? "junk.section.ready_desc".localized
                              : "junk.section.wrong_path_desc".localized)
-                            .font(.caption2)
+                            .appFont(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -193,7 +193,7 @@ struct JunkSectionView: View {
                 HStack(spacing: 16) {
                     Label {
                         Text("junk.section.found".localized(with: viewModel.totalJunkString))
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                     } icon: {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
@@ -201,7 +201,7 @@ struct JunkSectionView: View {
 
                     Label {
                         Text("junk.section.selected".localized(with: viewModel.selectedJunkString))
-                            .font(.caption.bold())
+                            .appFont(.caption, weight: .bold)
                     } icon: {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.blue)
@@ -230,7 +230,7 @@ struct JunkSectionView: View {
 
                 if let date = viewModel.lastScanDate {
                     Text("junk.section.last_scan".localized(with: date.formatted(date: .abbreviated, time: .shortened)))
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -273,11 +273,11 @@ struct JunkSectionView: View {
                     .controlSize(.large)
 
                 Text(viewModel.scanProgress)
-                    .font(.headline)
+                    .appFont(.headline)
                     .multilineTextAlignment(.center)
 
                 Text("junk.progress.wait".localized)
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 28)
@@ -349,27 +349,27 @@ struct JunkSectionView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: result.category.icon)
-                            .font(.body)
+                            .appFont(.body)
                             .foregroundStyle(result.category.riskLevel.color)
                             .frame(width: 22)
 
                         VStack(alignment: .leading, spacing: 1) {
                             HStack(spacing: 6) {
                                 Text(result.category.name)
-                                    .font(.caption.bold())
+                                    .appFont(.caption, weight: .bold)
                                 Text("\(result.selectedCount)/\(result.items.count)")
-                                    .font(.caption2)
+                                    .appFont(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                             Text(result.totalString)
-                                .font(.caption2.monospacedDigit())
+                                .appFont(.caption2, monospacedDigit: true)
                                 .foregroundStyle(.secondary)
                         }
 
                         Spacer()
 
                         Text(result.category.riskLevel.label)
-                            .font(.system(size: 9, weight: .bold))
+                            .appIconFont(9, weight: .bold)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
                             .background(
@@ -378,7 +378,7 @@ struct JunkSectionView: View {
                             .foregroundStyle(result.category.riskLevel.color)
 
                         Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                            .font(.caption2)
+                            .appFont(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     .contentShape(Rectangle())
@@ -405,11 +405,11 @@ struct JunkSectionView: View {
                     Button("junk.item.deselect_all".localized) { viewModel.deselectAll(in: result.id) }
                     Spacer()
                     Text(result.category.description)
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
-                .font(.caption2)
+                .appFont(.caption2)
                 .buttonStyle(.bordered)
                 .controlSize(.mini)
                 .padding(.horizontal, 12)
@@ -435,7 +435,7 @@ struct JunkSectionView: View {
                                     ? "junk.item.show_less".localized
                                     : "junk.item.show_more".localized(with: result.items.count - 30)
                             )
-                                .font(.caption2)
+                                .appFont(.caption2)
                                 .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 6)
@@ -555,18 +555,18 @@ struct JunkSectionView: View {
             .controlSize(.small)
 
             Image(systemName: "doc")
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.tertiary)
 
             Text(item.name)
-                .font(.caption)
+                .appFont(.caption)
                 .lineLimit(1)
                 .truncationMode(.middle)
 
             Spacer()
 
             Text(item.sizeString)
-                .font(.caption.monospacedDigit())
+                .appFont(.caption, monospacedDigit: true)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)

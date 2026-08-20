@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "Hiçbir öğe Çöp Sepeti’ne taşınmadı. Başarısız: %1$ld; değişiklik sonrası atlanan: %2$ld.";
 "junk.cleanup.result.access_denied" = "Library klasörü izni etkinleştirilemedi. “Değiştir…” ile Library klasörünü yeniden seçip tekrar deneyin.";
 "junk.cleanup.result.error_detail" = "İlk hata: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Metin Boyutu";
+"settings.typography.size_desc" = "Uygulama genelindeki metin boyutunu ayarlar.";
+"settings.typography.scale.small" = "Küçük";
+"settings.typography.scale.standard" = "Varsayılan";
+"settings.typography.scale.large" = "Büyük";
+"settings.typography.scale.extraLarge" = "Çok Büyük";
+"settings.typography.design" = "Yazı Tipi";
+"settings.typography.design_desc" = "Tüm seçenekler sistem yazı tipini kullanır; böylece tüm diller okunaklı kalır.";
+"settings.typography.design.standard" = "Varsayılan";
+"settings.typography.design.rounded" = "Yuvarlak";
+"settings.typography.design.monospaced" = "Eş Aralıklı";
+"settings.typography.design.serif" = "Tırnaklı";

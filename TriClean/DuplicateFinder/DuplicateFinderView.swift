@@ -70,9 +70,9 @@ struct DuplicateFinderView: View {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("duplicate.header.title".localized)
-                        .font(.title2.bold())
+                        .appFont(.title2, weight: .bold)
                     Text("duplicate.header.subtitle".localized)
-                        .font(.caption)
+                        .appFont(.callout)
                         .foregroundStyle(.secondary)
                 }
 
@@ -81,7 +81,7 @@ struct DuplicateFinderView: View {
                 if viewModel.scanFolderURL != nil {
                     HStack(spacing: 4) {
                         Text("duplicate.header.min_size".localized)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                         Picker("", selection: $viewModel.minFileSizeKB) {
                             // ✅ 단위 표기를 로컬라이즈 키로 분리 (러시아어는 КБ/МБ)
@@ -118,7 +118,7 @@ struct DuplicateFinderView: View {
                     Image(systemName: "folder")
                         .foregroundStyle(.secondary)
                     Text(viewModel.selectedFolderPath)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -139,14 +139,14 @@ struct DuplicateFinderView: View {
         GroupBox {
             VStack(spacing: 12) {
                 Image(systemName: "doc.on.doc")
-                    .font(.largeTitle)
+                    .appFont(.largeTitle)
                     .foregroundStyle(.secondary)
 
                 Text("duplicate.empty.select_title".localized)
-                    .font(.headline)
+                    .appFont(.headline)
 
                 Text("duplicate.empty.select_body".localized)
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
 
@@ -166,13 +166,13 @@ struct DuplicateFinderView: View {
         VStack(spacing: 16) {
             ProgressView(value: viewModel.progress) {
                 Text(viewModel.phase.displayText)
-                    .font(.subheadline.bold())
+                    .appFont(.subheadline, weight: .bold)
             }
             .progressViewStyle(.linear)
             .frame(maxWidth: 420)
 
             Text(viewModel.statusMessage)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
 
             Button("common.cancel".localized, role: .cancel) {
@@ -241,7 +241,7 @@ struct DuplicateFinderView: View {
                 Spacer()
 
                 Text(viewModel.statusMessage)
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -261,7 +261,7 @@ struct DuplicateFinderView: View {
                         viewModel.selectedReclaimableString
                     )
                 )
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
 
                 Spacer()
@@ -290,12 +290,12 @@ struct DuplicateFinderView: View {
     private var emptySection: some View {
         VStack(spacing: 12) {
             Image(systemName: emptyIconName)
-                .font(.largeTitle)
+                .appFont(.largeTitle)
                 .foregroundStyle(emptyIconColor)
             Text(emptyTitle)
-                .font(.headline)
+                .appFont(.headline)
             Text(emptyBody)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -340,9 +340,9 @@ struct DuplicateFinderView: View {
     private var selectionGuideCard: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("duplicate.selection.card_title".localized)
-                .font(.subheadline.bold())
+                .appFont(.subheadline, weight: .bold)
             Text("duplicate.selection.card_body".localized)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -361,9 +361,9 @@ struct DuplicateFinderView: View {
                 Text(title)
                     .foregroundStyle(.secondary)
             }
-            .font(.caption)
+            .appFont(.caption)
             Text(value)
-                .font(.title3.bold())
+                .appFont(.title3, weight: .bold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
@@ -393,16 +393,16 @@ struct DuplicateFinderView: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text("duplicate.group.header".localized(with: group.files.count, group.fileSizeString))
-                                .font(.subheadline.bold())
+                                .appFont(.subheadline, weight: .bold)
                             Text("duplicate.group.subheader".localized(with: group.selectedDeleteCount, group.selectedDeleteBytesString))
-                                .font(.caption)
+                                .appFont(.caption)
                                 .foregroundStyle(.secondary)
                         }
 
                         Spacer()
 
                         Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -427,7 +427,7 @@ struct DuplicateFinderView: View {
                         Spacer()
 
                         Text("duplicate.group.keep_hint".localized)
-                            .font(.caption2)
+                            .appFont(.caption2)
                             .foregroundStyle(.secondary)
                     }
 
@@ -447,17 +447,17 @@ struct DuplicateFinderView: View {
                             )
 
                             Image(systemName: "doc")
-                                .font(.caption)
+                                .appFont(.caption)
                                 .foregroundStyle(.secondary)
 
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(file.name)
-                                    .font(.caption)
+                                    .appFont(.caption)
                                     .foregroundStyle(file.isKeep ? .primary : .secondary)
                                     .strikethrough(!file.isKeep)
                                     .lineLimit(1)
                                 Text(file.path)
-                                    .font(.caption2)
+                                    .appFont(.caption2)
                                     .foregroundStyle(.tertiary)
                                     .lineLimit(1)
                                     .truncationMode(.middle)
@@ -467,7 +467,7 @@ struct DuplicateFinderView: View {
 
                             if let date = file.modificationDate {
                                 Text(date.formatted(date: .abbreviated, time: .omitted))
-                                    .font(.caption2)
+                                    .appFont(.caption2)
                                     .foregroundStyle(.secondary)
                             }
 
@@ -480,7 +480,7 @@ struct DuplicateFinderView: View {
                             .help("duplicate.file.reveal".localized)
 
                             Text(file.isKeep ? "duplicate.file.keep".localized : "duplicate.file.delete".localized)
-                                .font(.caption2.bold())
+                                .appFont(.caption2, weight: .bold)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(

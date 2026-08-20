@@ -119,14 +119,14 @@ struct PhotosView: View {
                 ProgressView()
                     .controlSize(.small)
                 Text(viewModel.deleteStatusMessage ?? "photos.delete.status.moving".localized(with: viewModel.selectedCount))
-                    .font(.callout.weight(.medium))
+                    .appFont(.callout, weight: .medium)
             } else {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(Color.accentColor)
                 Text("photos.select.count".localized(with: viewModel.selectedCount))
-                    .font(.callout.weight(.medium))
+                    .appFont(.callout, weight: .medium)
                 Text("· \(viewModel.selectedSizeString)")
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -160,16 +160,16 @@ struct PhotosView: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.accentColor.opacity(0.14))
                 Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 26, weight: .semibold))
+                    .appIconFont(26, weight: .semibold)
                     .foregroundStyle(Color.accentColor)
             }
             .frame(width: 56, height: 56)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("photos.title".localized)
-                    .font(.largeTitle.bold())
+                    .appFont(.largeTitle, weight: .bold)
                 Text("photos.subtitle".localized)
-                    .font(.callout)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -205,11 +205,11 @@ struct PhotosView: View {
     private var folderSelectionSection: some View {
         VStack(spacing: 14) {
             Image(systemName: "folder.badge.questionmark")
-                .font(.system(size: 40))
+                .appIconFont(40)
                 .foregroundStyle(.secondary)
 
             Text("photos.scope.select_hint".localized)
-                .font(.body)
+                .appFont(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
@@ -231,7 +231,7 @@ struct PhotosView: View {
             Image(systemName: "checkmark.circle")
                 .foregroundStyle(.green)
             Text(viewModel.selectedFolderPath)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -258,9 +258,9 @@ struct PhotosView: View {
                     .controlSize(.small)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.phase.displayText)
-                        .font(.headline)
+                        .appFont(.headline)
                     Text(viewModel.statusMessage)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -288,14 +288,14 @@ struct PhotosView: View {
             HStack(spacing: 16) {
                 Label {
                     Text("photos.summary.count".localized(with: viewModel.totalCount))
-                        .font(.caption.bold())
+                        .appFont(.caption, weight: .bold)
                 } icon: {
                     Image(systemName: "photo.stack")
                         .foregroundStyle(.blue)
                 }
                 Label {
                     Text("photos.summary.size".localized(with: viewModel.totalSizeString))
-                        .font(.caption.bold())
+                        .appFont(.caption, weight: .bold)
                 } icon: {
                     Image(systemName: "internaldrive")
                         .foregroundStyle(.secondary)
@@ -303,7 +303,7 @@ struct PhotosView: View {
                 Spacer()
                 if let date = viewModel.lastScanDate {
                     Text(date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -318,7 +318,7 @@ struct PhotosView: View {
                 Image(systemName: "info.circle")
                     .foregroundStyle(.secondary)
                 Text("photos.note.detection_coming".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -331,7 +331,7 @@ struct PhotosView: View {
                     Image(systemName: "trash.circle")
                         .foregroundStyle(.secondary)
                     Text(deleteStatusMessage)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -348,10 +348,10 @@ struct PhotosView: View {
             } else if viewModel.filteredItems.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "tray")
-                        .font(.system(size: 28))
+                        .appIconFont(28)
                         .foregroundStyle(.secondary)
                     Text("photos.filter.empty".localized)
-                        .font(.caption)
+                        .appFont(.callout)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -376,7 +376,7 @@ struct PhotosView: View {
                 ProgressView(value: viewModel.blurProgress)
                     .frame(maxWidth: 280)
                 Text("photos.blur.analyzing".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                 Button(role: .cancel) {
                     viewModel.cancelBlurAnalysis()
@@ -391,12 +391,12 @@ struct PhotosView: View {
         } else {
             VStack(spacing: 12) {
                 Image(systemName: "drop.fill")
-                    .font(.system(size: 36))
+                    .appIconFont(36)
                     .foregroundStyle(.secondary)
                 Text("photos.blur.prompt.title".localized)
-                    .font(.headline)
+                    .appFont(.headline)
                 Text("photos.blur.prompt.desc".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -424,7 +424,7 @@ struct PhotosView: View {
                 ProgressView(value: viewModel.similarProgress)
                     .frame(maxWidth: 280)
                 Text("photos.similar.analyzing".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                 Button(role: .cancel) {
                     viewModel.cancelSimilarAnalysis()
@@ -438,12 +438,12 @@ struct PhotosView: View {
         } else if !viewModel.isSimilarAnalyzed {
             VStack(spacing: 12) {
                 Image(systemName: "square.on.square")
-                    .font(.system(size: 36))
+                    .appIconFont(36)
                     .foregroundStyle(.secondary)
                 Text("photos.similar.prompt.title".localized)
-                    .font(.headline)
+                    .appFont(.headline)
                 Text("photos.similar.prompt.desc".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -462,10 +462,10 @@ struct PhotosView: View {
         } else if viewModel.similarGroups.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "checkmark.circle")
-                    .font(.system(size: 28))
+                    .appIconFont(28)
                     .foregroundStyle(.secondary)
                 Text("photos.similar.empty".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
@@ -476,12 +476,12 @@ struct PhotosView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
                             Image(systemName: "square.on.square")
-                                .font(.caption)
+                                .appFont(.caption)
                                 .foregroundStyle(.secondary)
                             Text("photos.similar.group.count".localized(with: group.count))
-                                .font(.subheadline.weight(.semibold))
+                                .appFont(.subheadline, weight: .semibold)
                             Text("· \(group.totalSizeString)")
-                                .font(.caption)
+                                .appFont(.caption)
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Button("photos.similar.select_extras".localized) {
@@ -517,7 +517,7 @@ struct PhotosView: View {
 
             if viewModel.selectedCount > 0, !viewModel.isDeleting {
                 Text("photos.select.count".localized(with: viewModel.selectedCount))
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -548,23 +548,23 @@ struct PhotosView: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: category.icon)
-                    .font(.caption)
+                    .appFont(.caption)
                 Text(category.title)
-                    .font(.caption.weight(.medium))
+                    .appFont(.caption, weight: .medium)
                 if (category == .blurry && !viewModel.isBlurAnalyzed)
                     || (category == .similar && !viewModel.isSimilarAnalyzed) {
                     Image(systemName: "wand.and.stars")
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.tertiary)
                 } else if isReady {
                     Text("\(viewModel.count(for: category))")
-                        .font(.caption2.monospacedDigit())
+                        .appFont(.caption2, monospacedDigit: true)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1)
                         .background(Capsule().fill(Color.secondary.opacity(0.18)))
                 } else {
                     Text("photos.category.soon".localized)
-                        .font(.caption2)
+                        .appFont(.callout)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -593,12 +593,12 @@ struct PhotosView: View {
 
             VStack(spacing: 10) {
                 Image(systemName: "photo")
-                    .font(.system(size: 36))
+                    .appIconFont(36)
                     .foregroundStyle(.secondary)
                 Text("photos.empty.title".localized)
-                    .font(.headline)
+                    .appFont(.headline)
                 Text("photos.empty.desc".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -627,7 +627,7 @@ private struct PhotoThumbnailCell: View {
             thumbnailView
 
             Text(item.sizeString)
-                .font(.caption2.monospacedDigit())
+                .appFont(.caption2, monospacedDigit: true)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .frame(width: thumbnailSize)
@@ -666,7 +666,7 @@ private struct PhotoThumbnailCell: View {
             } else if didFinishLoading {
                 // ✅ 로드 실패 → 무한 스피너 대신 명확한 실패 표시
                 Image(systemName: "photo.badge.exclamationmark")
-                    .font(.title3)
+                    .appFont(.title3)
                     .foregroundStyle(.secondary)
             } else {
                 ProgressView()
@@ -683,7 +683,7 @@ private struct PhotoThumbnailCell: View {
         .overlay(alignment: .topLeading) {
             if item.isScreenshot {
                 Image(systemName: "camera.viewfinder")
-                    .font(.caption2)
+                    .appFont(.caption2)
                     .foregroundStyle(.white)
                     .padding(4)
                     .background(Circle().fill(Color.accentColor))
@@ -693,7 +693,7 @@ private struct PhotoThumbnailCell: View {
         }
         .overlay(alignment: .topTrailing) {
             Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .font(.body)
+                .appFont(.body)
                 .symbolRenderingMode(.palette)
                 .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.9),
                                  isSelected ? Color.accentColor : Color.black.opacity(0.3))

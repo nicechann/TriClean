@@ -688,3 +688,17 @@
 "junk.cleanup.result.failed_message" = "Es wurden keine Elemente in den Papierkorb verschoben. Fehlgeschlagen: %1$ld; nach Änderungen übersprungen: %2$ld.";
 "junk.cleanup.result.access_denied" = "Der Zugriff auf den Library-Ordner konnte nicht aktiviert werden. Wählen Sie den Library-Ordner über „Ändern…“ erneut aus und versuchen Sie es noch einmal.";
 "junk.cleanup.result.error_detail" = "Erster Fehler: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Textgröße";
+"settings.typography.size_desc" = "Passt die Textgröße in der gesamten App an.";
+"settings.typography.scale.small" = "Klein";
+"settings.typography.scale.standard" = "Standard";
+"settings.typography.scale.large" = "Groß";
+"settings.typography.scale.extraLarge" = "Sehr groß";
+"settings.typography.design" = "Schriftart";
+"settings.typography.design_desc" = "Alle Optionen nutzen die Systemschrift, sodass alle Sprachen lesbar bleiben.";
+"settings.typography.design.standard" = "Standard";
+"settings.typography.design.rounded" = "Abgerundet";
+"settings.typography.design.monospaced" = "Dicktengleich";
+"settings.typography.design.serif" = "Serifen";

@@ -158,10 +158,10 @@ struct LargeFilesView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("largefiles.title".localized)
-                .font(.title2.bold())
+                .appFont(.title2, weight: .bold)
 
             Text("largefiles.subtitle".localized)
-                .font(.subheadline)
+                .appFont(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -171,10 +171,10 @@ struct LargeFilesView: View {
     private func infoCard(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.headline)
+                .appFont(.headline)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -192,7 +192,7 @@ struct LargeFilesView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("storage.scan.header".localized)
-                    .font(.title3.bold())
+                    .appFont(.title3, weight: .bold)
 
                 Spacer()
 
@@ -242,12 +242,12 @@ struct LargeFilesView: View {
             }
 
             Text("storage.scan.tip".localized)
-                .font(.caption)
+                .appFont(.callout)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 12) {
                 Text("storage.scan.min_size".localized)
-                    .font(.subheadline)
+                    .appFont(.subheadline)
                     .frame(width: 120, alignment: .leading)
 
                 Slider(value: $minFolderSizeMB, in: 10...2000, step: 10)
@@ -256,7 +256,7 @@ struct LargeFilesView: View {
 
                 // ✅ 이미 존재하는 storage.min_size.display 키로 통일
                 Text("storage.min_size.display".localized(with: Int(minFolderSizeMB)))
-                    .font(.subheadline.monospacedDigit())
+                    .appFont(.subheadline, monospacedDigit: true)
                     .frame(width: 90, alignment: .trailing)
 
                 Spacer()
@@ -264,7 +264,7 @@ struct LargeFilesView: View {
 
             HStack(spacing: 12) {
                 Text("storage.scan.sort".localized)
-                    .font(.subheadline)
+                    .appFont(.subheadline)
                     .frame(width: 120, alignment: .leading)
                 Picker("", selection: $topFolderSort) {
                     ForEach(TopFolderSort.allCases) { mode in
@@ -274,7 +274,7 @@ struct LargeFilesView: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .controlSize(.small)
-                .font(.subheadline)
+                .appFont(.subheadline)
                 .frame(maxWidth: 270)
 
                 Spacer()
@@ -286,12 +286,12 @@ struct LargeFilesView: View {
 
             if isScanning && topFolderSort != .discovered {
                 Text("storage.scan.sort.note".localized)
-                    .font(.caption2)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
             }
 
             Text(scanMessage)
-                .font(.subheadline)
+                .appFont(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)
@@ -301,7 +301,7 @@ struct LargeFilesView: View {
     private var storageStatusSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("storage.status.header".localized)
-                .font(.title3.bold())
+                .appFont(.title3, weight: .bold)
 
             HStack(spacing: 10) {
                 infoCard(title: "storage.status.folder".localized, value: selectedFolderDisplayName)
@@ -313,7 +313,7 @@ struct LargeFilesView: View {
             }
 
             Text(isScanning ? scanButtonBusyText : scanMessage)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)
@@ -324,7 +324,7 @@ struct LargeFilesView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("storage.results.header".localized)
-                    .font(.title3.bold())
+                    .appFont(.title3, weight: .bold)
 
                 Spacer()
 
@@ -346,7 +346,7 @@ struct LargeFilesView: View {
 
                     TableColumn("storage.table.size".localized) { item in
                         Text(item.sizeString)
-                            .font(.body.monospacedDigit())
+                            .appFont(.body, monospacedDigit: true)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                     .width(min: 90, ideal: 110, max: 130)
@@ -359,7 +359,7 @@ struct LargeFilesView: View {
 
                     TableColumn("storage.table.size".localized) { item in
                         Text(item.sizeString)
-                            .font(.body.monospacedDigit())
+                            .appFont(.body, monospacedDigit: true)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                     .width(min: 90, ideal: 110, max: 130)
@@ -383,7 +383,7 @@ struct LargeFilesView: View {
                             requestDelete(item)
                         } label: {
                             Image(systemName: "trash")
-                                .font(.system(size: 13, weight: .semibold))
+                                .appIconFont(13, weight: .semibold)
                                 .foregroundStyle(.red)
                                 .padding(6)
                                 .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
@@ -434,13 +434,13 @@ struct LargeFilesView: View {
                 Image(systemName: item.isDirectory ? "folder" : "doc")
                     .foregroundStyle(.secondary)
                 Text(item.name)
-                    .font(item.depth > 0 ? .subheadline : .body)
+                    .appFont(item.depth > 0 ? .subheadline : .body)
                     .foregroundStyle(item.depth > 0 ? .secondary : .primary)
             }
             .padding(.leading, indent)
 
             Text(pathText)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }

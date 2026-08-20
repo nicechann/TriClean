@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "Er zijn geen onderdelen naar de prullenmand verplaatst. Mislukt: %1$ld; overgeslagen na wijzigingen: %2$ld.";
 "junk.cleanup.result.access_denied" = "De toestemming voor de Library-map kon niet worden geactiveerd. Selecteer de Library-map opnieuw via ‘Wijzig…’ en probeer het opnieuw.";
 "junk.cleanup.result.error_detail" = "Eerste fout: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Tekstgrootte";
+"settings.typography.size_desc" = "Past de tekstgrootte in de hele app aan.";
+"settings.typography.scale.small" = "Klein";
+"settings.typography.scale.standard" = "Standaard";
+"settings.typography.scale.large" = "Groot";
+"settings.typography.scale.extraLarge" = "Zeer groot";
+"settings.typography.design" = "Lettertype";
+"settings.typography.design_desc" = "Alle opties gebruiken het systeemlettertype, zodat alle talen leesbaar blijven.";
+"settings.typography.design.standard" = "Standaard";
+"settings.typography.design.rounded" = "Afgerond";
+"settings.typography.design.monospaced" = "Vaste breedte";
+"settings.typography.design.serif" = "Schreef";

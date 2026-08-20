@@ -688,3 +688,17 @@
 "junk.cleanup.result.failed_message" = "ゴミ箱に移動された項目はありません。失敗: %1$ld、変更により除外: %2$ld。";
 "junk.cleanup.result.access_denied" = "Libraryフォルダのアクセス権を有効にできませんでした。「変更…」からLibraryフォルダを再選択して、もう一度お試しください。";
 "junk.cleanup.result.error_detail" = "最初のエラー: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "文字サイズ";
+"settings.typography.size_desc" = "アプリ全体の文字サイズを調整します。";
+"settings.typography.scale.small" = "小";
+"settings.typography.scale.standard" = "標準";
+"settings.typography.scale.large" = "大";
+"settings.typography.scale.extraLarge" = "特大";
+"settings.typography.design" = "書体";
+"settings.typography.design_desc" = "すべてシステム書体のため、対応するすべての言語で表示が維持されます。";
+"settings.typography.design.standard" = "標準";
+"settings.typography.design.rounded" = "丸ゴシック";
+"settings.typography.design.monospaced" = "等幅";
+"settings.typography.design.serif" = "セリフ";
