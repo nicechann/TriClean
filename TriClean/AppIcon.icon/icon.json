@@ -1,0 +1,18 @@
+{
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.31373,0.73725,0.99608,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "TriClean.png",
+          "name" : "TriClean"
+        }
+      ]
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}
