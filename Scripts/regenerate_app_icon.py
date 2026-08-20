@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-AppIcon.appiconset 재생성 — macOS 버전 간 시각 크기 균형 조정.
+AppIcon.appiconset 재생성 — 레거시 macOS 아이콘셋 유지용.
 
 배경
-  TriClean 아트워크는 자체 둥근 사각형 실루엣을 가진 레거시 macOS 아이콘이다.
-  기존 824px 본체는 macOS 26에서 시스템이 제공하는 아이콘 배경/마스크 안에서
-  한 단계 더 작게 보이는 문제가 확인됐다. 반대로 캔버스를 거의 가득 채우면
-  구형 macOS에서 상대적으로 크게 보일 수 있어, 기본 본체 크기를 920px(89.84%)로
-  조정해 두 환경의 시각 크기 차이를 완화한다.
+  Xcode 26 이상에서는 프로젝트의 AppIcon.icon(Icon Composer)을 주 아이콘으로
+  사용한다. 이 스크립트는 기존 AppIcon.appiconset을 유지하거나 비교할 때 쓰는
+  레거시 생성 도구다. 현재 레거시 아이콘은 1024pt 캔버스 안에 본체를
+  824x824로 두고 사방에 여백을 남기는 기존 규격을 유지한다.
 
-  --body-size 옵션으로 필요 시 본체 크기를 미세 조정할 수 있다.
+  최신 아이콘의 크기/마스킹 조정은 이 스크립트가 아니라
+  TriClean/AppIcon.icon에서 관리한다.
 
 사용법
   python3 Scripts/regenerate_app_icon.py <마스터.png>
@@ -33,10 +33,9 @@ try:
 except ImportError:
     sys.exit("Pillow가 필요합니다:  pip3 install pillow")
 
-# 1024 캔버스 기준 기본 본체 크기.
-# 824px은 macOS 26에서 과도하게 작게 보였고, 920px은 구형 macOS 여백도 남기는 절충값이다.
+# Apple macOS App Icon 그리드 (1024 캔버스 기준)
 CANVAS = 1024
-DEFAULT_BODY = 920              # 본체 긴 변 (캔버스의 89.84%)
+BODY = 824                      # 본체 한 변
 OPAQUE_THRESHOLD = 250          # 이 값 초과를 '본체'로 간주(그림자·안티에일리어싱 제외)
 
 # Contents.json과 대응하는 산출물: (파일명, 픽셀 크기)
@@ -67,16 +66,16 @@ def body_bbox(image):
     return box
 
 
-def build_master(source_path, with_shadow, body_size):
-    """마스터를 지정한 본체 크기에 맞춰 1024 캔버스에 재배치한다."""
+def build_master(source_path, with_shadow):
+    """마스터를 그리드에 맞춰 1024 캔버스에 재배치한다."""
     source = Image.open(source_path).convert("RGBA")
 
     left, top, right, bottom = body_bbox(source)
     art = source.crop((left, top, right, bottom))
     width, height = art.size
 
-    # 긴 변을 body_size에 맞춘다. 어떤 축도 지정 크기를 넘지 않는다.
-    scale = body_size / max(width, height)
+    # 긴 변을 BODY에 맞춰 축소 — 어떤 축도 그리드를 넘지 않게 한다.
+    scale = BODY / max(width, height)
     target = (max(1, round(width * scale)), max(1, round(height * scale)))
     art = art.resize(target, Image.LANCZOS)
 
@@ -111,18 +110,10 @@ def main():
     parser.add_argument(
         "--shadow", action="store_true", help="드롭섀도를 합성한다"
     )
-    parser.add_argument(
-        "--body-size",
-        type=int,
-        default=DEFAULT_BODY,
-        help=f"1024 캔버스에서 본체 긴 변 크기 (기본: {DEFAULT_BODY})",
-    )
     args = parser.parse_args()
 
     if not os.path.isfile(args.master):
         sys.exit(f"마스터 파일을 찾을 수 없습니다: {args.master}")
-    if not 1 <= args.body_size <= CANVAS:
-        sys.exit(f"--body-size는 1~{CANVAS} 범위여야 합니다.")
 
     source_size = Image.open(args.master).size
     if min(source_size) < CANVAS:
@@ -131,16 +122,13 @@ def main():
             "확대 보간이 발생해 품질이 떨어집니다."
         )
 
-    master, box, scale = build_master(args.master, args.shadow, args.body_size)
+    master, box, scale = build_master(args.master, args.shadow)
 
     body_w = box[2] - box[0]
     body_h = box[3] - box[1]
     print(f"마스터: {args.master} ({source_size[0]}x{source_size[1]})")
     print(f"  감지된 본체: {body_w}x{body_h}  (원본 점유율 {body_w / source_size[0] * 100:.1f}%)")
-    print(
-        f"  적용 배율: {scale:.4f}  →  본체 긴 변 {args.body_size}px "
-        f"({args.body_size / CANVAS * 100:.2f}%)"
-    )
+    print(f"  적용 배율: {scale:.4f}  →  그리드 점유율 {BODY / CANVAS * 100:.2f}%")
     print(f"  드롭섀도: {'합성' if args.shadow else '없음'}")
     print()
 
@@ -152,7 +140,8 @@ def main():
         print(f"  ✓ {filename:24} {size}x{size}")
 
     print(f"\n완료 — {args.out}")
-    print("Xcode에서 Product ▸ Clean Build Folder 후 다시 빌드하세요.")
+    print("참고: Xcode 26+의 주 아이콘은 TriClean/AppIcon.icon입니다.")
+    print("레거시 아이콘셋 확인 후 Product ▸ Clean Build Folder로 다시 빌드하세요.")
     print("Dock 아이콘 캐시가 남으면:  killall Dock")
 
 
