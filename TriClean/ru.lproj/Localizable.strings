@@ -559,3 +559,7 @@
 "settings.typography.design.rounded" = "Скруглённый";
 "settings.typography.design.monospaced" = "Моноширинный";
 "settings.typography.design.serif" = "С засечками";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "Показывать в строке меню";
+"settings.menubar_show_desc" = "Показывает использование памяти в строке меню. Вы можете снова включить это здесь в любое время.";

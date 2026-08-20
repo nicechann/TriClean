@@ -559,3 +559,7 @@
 "settings.typography.design.rounded" = "Zaokrąglony";
 "settings.typography.design.monospaced" = "Stała szerokość";
 "settings.typography.design.serif" = "Szeryfowy";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "Pokaż na pasku menu";
+"settings.menubar_show_desc" = "Wyświetla użycie pamięci na pasku menu. Możesz ponownie włączyć tę opcję tutaj w dowolnym momencie.";

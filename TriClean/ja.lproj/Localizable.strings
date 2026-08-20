@@ -702,3 +702,7 @@
 "settings.typography.design.rounded" = "丸ゴシック";
 "settings.typography.design.monospaced" = "等幅";
 "settings.typography.design.serif" = "セリフ";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "メニューバーに表示";
+"settings.menubar_show_desc" = "メニューバーにメモリ使用量を表示します。オフにしても、いつでもこの設定から再度オンにできます。";

@@ -557,3 +557,7 @@
 "settings.typography.design.rounded" = "圓體";
 "settings.typography.design.monospaced" = "等寬";
 "settings.typography.design.serif" = "襯線";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "在選單列中顯示";
+"settings.menubar_show_desc" = "在選單列顯示記憶體使用量。關閉後可隨時在此設定中重新開啟。";

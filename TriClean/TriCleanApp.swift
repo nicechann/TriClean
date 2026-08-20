@@ -69,6 +69,11 @@ struct TriCleanApp: App {
     @AppStorage(AppTypography.StorageKey.design)
     private var fontDesignRawValue: String = AppFontDesign.standard.rawValue
 
+    // ✅ 메뉴 막대 표시 여부.
+    //    꺼도 Dock 아이콘이 남아 있어(LSUIElement 미설정)
+    //    앱에 접근할 경로가 사라지지 않는다.
+    @AppStorage("showMenuBarExtra") private var showMenuBarExtra: Bool = true
+
     private var typography: AppTypography {
         AppTypography.resolve(
             scaleRawValue: fontScaleRawValue,
@@ -162,7 +167,8 @@ struct TriCleanApp: App {
         }
         
         // 메뉴바 (상태 표시줄 아이콘)
-        MenuBarExtra {
+        // ✅ 설정 ▸ 표시에서 끄면 isInserted가 false가 되어 항목이 제거된다.
+        MenuBarExtra(isInserted: $showMenuBarExtra) {
             // 메뉴바 팝업 내용
             MenuMemoryView()
                 .environmentObject(memoryViewModel)

@@ -557,3 +557,7 @@
 "settings.typography.design.rounded" = "Yuvarlak";
 "settings.typography.design.monospaced" = "Eş Aralıklı";
 "settings.typography.design.serif" = "Tırnaklı";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "Menü Çubuğunda Göster";
+"settings.menubar_show_desc" = "Bellek kullanımını menü çubuğunda gösterir. Buradan istediğiniz zaman yeniden açabilirsiniz.";

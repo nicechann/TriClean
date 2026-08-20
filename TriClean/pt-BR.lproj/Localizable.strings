@@ -557,3 +557,7 @@
 "settings.typography.design.rounded" = "Arredondada";
 "settings.typography.design.monospaced" = "Monoespaçada";
 "settings.typography.design.serif" = "Serifada";
+
+/* MARK: - Menu Bar 표시 토글 */
+"settings.menubar_show" = "Mostrar na barra de menus";
+"settings.menubar_show_desc" = "Mostra o uso de memória na barra de menus. Você pode reativar aqui a qualquer momento.";

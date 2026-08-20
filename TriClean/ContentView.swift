@@ -104,6 +104,9 @@ struct SettingsView: View {
     @AppStorage(AppTypography.StorageKey.design)
     private var fontDesignRawValue: String = AppFontDesign.standard.rawValue
 
+    // ✅ 메뉴 막대 표시 여부. TriCleanApp이 같은 키로 MenuBarExtra를 삽입·제거한다.
+    @AppStorage("showMenuBarExtra") private var showMenuBarExtra: Bool = true
+
     // ✅ 리마인더 시/분(Int) ↔ DatePicker(Date) 브리지
     private var reminderTimeBinding: Binding<Date> {
         Binding(
@@ -144,6 +147,24 @@ struct SettingsView: View {
                     // Display
                     GroupBox {
                         Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                            // ✅ 메뉴 막대 표시 ON/OFF
+                            GridRow(alignment: .top) {
+                                Text("settings.menubar_show".localized)
+                                    .frame(width: 120, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Toggle("", isOn: $showMenuBarExtra)
+                                        .toggleStyle(.switch)
+                                        .labelsHidden()
+                                        .controlSize(.small)
+                                    Text("settings.menubar_show_desc".localized)
+                                        .appFont(.callout)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+
                             GridRow(alignment: .top) {
                                 Text("settings.menubar_unit".localized)
                                     .frame(width: 120, alignment: .leading)
