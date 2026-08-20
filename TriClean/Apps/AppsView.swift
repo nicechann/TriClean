@@ -1174,6 +1174,8 @@ struct AppsView: View {
                         Text("apps.header.desc".localized)
                             .appFont(.callout)
                             .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .layoutPriority(1)
                     }
 
                     HStack {
@@ -1181,23 +1183,27 @@ struct AppsView: View {
                         Button("apps.btn.manual_select".localized) {
                             viewModel.selectAppBundleManually()
                         }
+                        .fixedSize()
                     }
                 }
             } else {
-                HStack(alignment: .center) {
+                HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("apps.header.uninstall".localized)
                             .appFont(.title).bold()
                         Text("apps.header.desc".localized)
                             .appFont(.callout)
                             .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .layoutPriority(1)
                     }
 
-                    Spacer()
+                    Spacer(minLength: 16)
 
                     Button("apps.btn.manual_select".localized) {
                         viewModel.selectAppBundleManually()
                     }
+                    .fixedSize()
                 }
             }
         }
