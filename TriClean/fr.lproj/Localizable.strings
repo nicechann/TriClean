@@ -688,3 +688,17 @@
 "junk.cleanup.result.failed_message" = "Aucun élément n’a été placé dans la corbeille. Échecs : %1$ld ; ignorés après modification : %2$ld.";
 "junk.cleanup.result.access_denied" = "L’autorisation du dossier Bibliothèque n’a pas pu être activée. Sélectionnez à nouveau le dossier Bibliothèque via « Modifier… », puis réessayez.";
 "junk.cleanup.result.error_detail" = "Première erreur : %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Taille du texte";
+"settings.typography.size_desc" = "Ajuste la taille du texte dans toute l’application.";
+"settings.typography.scale.small" = "Petit";
+"settings.typography.scale.standard" = "Par défaut";
+"settings.typography.scale.large" = "Grand";
+"settings.typography.scale.extraLarge" = "Très grand";
+"settings.typography.design" = "Police";
+"settings.typography.design_desc" = "Toutes les options utilisent la police système, garantissant la lisibilité dans toutes les langues.";
+"settings.typography.design.standard" = "Par défaut";
+"settings.typography.design.rounded" = "Arrondie";
+"settings.typography.design.monospaced" = "Chasse fixe";
+"settings.typography.design.serif" = "Serif";

@@ -61,6 +61,20 @@ struct TriCleanApp: App {
     @Environment(\.scenePhase) private var scenePhase
     
     private let minWindowContentSize = NSSize(width: 1180, height: 840)
+
+    // ✅ 사용자 서체 설정. SettingsView와 같은 키를 공유하며,
+    //    두 Scene(메인 창·메뉴바 팝오버)에 동일하게 주입한다.
+    @AppStorage(AppTypography.StorageKey.scale)
+    private var fontScaleRawValue: String = AppFontScale.standard.rawValue
+    @AppStorage(AppTypography.StorageKey.design)
+    private var fontDesignRawValue: String = AppFontDesign.standard.rawValue
+
+    private var typography: AppTypography {
+        AppTypography.resolve(
+            scaleRawValue: fontScaleRawValue,
+            designRawValue: fontDesignRawValue
+        )
+    }
     
     init() {
         NSWindow.allowsAutomaticWindowTabbing = false
@@ -106,14 +120,18 @@ struct TriCleanApp: App {
             .environmentObject(appsViewModel)
             .environmentObject(photoViewModel)
             .environmentObject(reminderManager)
+            // ✅ 사용자 서체 설정 주입 — .appFont(...)이 이 값을 읽는다.
+            .environment(\.appTypography, typography)
             // 결제창 표시
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView()
                     .environmentObject(storeManager)
+                    .environment(\.appTypography, typography)
             }
             // ✅ 첫 실행 온보딩
             .sheet(isPresented: $showOnboarding) {
                 OnboardingView(isPresented: $showOnboarding)
+                    .environment(\.appTypography, typography)
             }
             .onChange(of: scenePhase) { newPhase in
                 if newPhase == .active {
@@ -148,7 +166,10 @@ struct TriCleanApp: App {
             // 메뉴바 팝업 내용
             MenuMemoryView()
                 .environmentObject(memoryViewModel)
+                .environment(\.appTypography, typography)
         } label: {
+            // ⚠️ label은 시스템 메뉴바 안이라 높이가 고정이다.
+            //    배율을 적용하면 글자가 잘리므로 고정 크기를 유지한다.
             // ✅ 고정된 "%" 대신 ViewModel의 설정된 단위(%, MB)를 따라감
             Text(memoryViewModel.formattedCurrentUsage)
                 .font(.system(size: 11, weight: .medium, design: .monospaced))

@@ -545,3 +545,17 @@
 "junk.cleanup.result.failed_message" = "Ни один объект не был перемещён в Корзину. Ошибок: %1$ld; пропущено после изменений: %2$ld.";
 "junk.cleanup.result.access_denied" = "Не удалось активировать доступ к папке Library. Снова выберите папку Library через «Изменить…» и повторите попытку.";
 "junk.cleanup.result.error_detail" = "Первая ошибка: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Размер текста";
+"settings.typography.size_desc" = "Изменяет размер текста во всём приложении.";
+"settings.typography.scale.small" = "Мелкий";
+"settings.typography.scale.standard" = "Стандартный";
+"settings.typography.scale.large" = "Крупный";
+"settings.typography.scale.extraLarge" = "Очень крупный";
+"settings.typography.design" = "Шрифт";
+"settings.typography.design_desc" = "Все варианты используют системный шрифт, поэтому все языки остаются читаемыми.";
+"settings.typography.design.standard" = "Стандартный";
+"settings.typography.design.rounded" = "Скруглённый";
+"settings.typography.design.monospaced" = "Моноширинный";
+"settings.typography.design.serif" = "С засечками";

@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "没有项目被移到废纸篓。失败：%1$ld；因发生变化而跳过：%2$ld。";
 "junk.cleanup.result.access_denied" = "无法启用 Library 文件夹权限。请通过“更改…”重新选择 Library 文件夹，然后重试。";
 "junk.cleanup.result.error_detail" = "第一个错误：%@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "文字大小";
+"settings.typography.size_desc" = "调整整个应用的文字大小。";
+"settings.typography.scale.small" = "小";
+"settings.typography.scale.standard" = "默认";
+"settings.typography.scale.large" = "大";
+"settings.typography.scale.extraLarge" = "特大";
+"settings.typography.design" = "字体";
+"settings.typography.design_desc" = "所有选项均使用系统字体，各语言显示均不受影响。";
+"settings.typography.design.standard" = "默认";
+"settings.typography.design.rounded" = "圆体";
+"settings.typography.design.monospaced" = "等宽";
+"settings.typography.design.serif" = "衬线";

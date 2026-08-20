@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "Nenhum item foi movido para o Lixo. Falhas: %1$ld; ignorados após alterações: %2$ld.";
 "junk.cleanup.result.access_denied" = "Não foi possível ativar a permissão da pasta Library. Selecione novamente a pasta Library em “Alterar…” e tente outra vez.";
 "junk.cleanup.result.error_detail" = "Primeiro erro: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Tamanho do texto";
+"settings.typography.size_desc" = "Ajusta o tamanho do texto em todo o app.";
+"settings.typography.scale.small" = "Pequeno";
+"settings.typography.scale.standard" = "Padrão";
+"settings.typography.scale.large" = "Grande";
+"settings.typography.scale.extraLarge" = "Muito grande";
+"settings.typography.design" = "Tipografia";
+"settings.typography.design_desc" = "Todas as opções usam a fonte do sistema, mantendo todos os idiomas legíveis.";
+"settings.typography.design.standard" = "Padrão";
+"settings.typography.design.rounded" = "Arredondada";
+"settings.typography.design.monospaced" = "Monoespaçada";
+"settings.typography.design.serif" = "Serifada";

@@ -700,3 +700,17 @@
 "junk.cleanup.result.failed_message" = "No items were moved to Trash. Failed: %1$ld; skipped after changes: %2$ld.";
 "junk.cleanup.result.access_denied" = "The Library folder permission could not be activated. Select the Library folder again using “Change…” and retry.";
 "junk.cleanup.result.error_detail" = "First error: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Text Size";
+"settings.typography.size_desc" = "Adjusts the text size throughout the app.";
+"settings.typography.scale.small" = "Small";
+"settings.typography.scale.standard" = "Default";
+"settings.typography.scale.large" = "Large";
+"settings.typography.scale.extraLarge" = "Extra Large";
+"settings.typography.design" = "Typeface";
+"settings.typography.design_desc" = "All options use the system font family, so every supported language stays readable.";
+"settings.typography.design.standard" = "Default";
+"settings.typography.design.rounded" = "Rounded";
+"settings.typography.design.monospaced" = "Monospaced";
+"settings.typography.design.serif" = "Serif";

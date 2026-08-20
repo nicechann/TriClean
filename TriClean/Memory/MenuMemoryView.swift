@@ -14,25 +14,25 @@ struct MenuMemoryView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("sidebar.memory".localized)
-                    .font(.headline)
+                    .appFont(.headline)
                 Spacer()
                 Text("memory.in_use".localized(with: viewModel.formattedCurrentUsage))
-                    .font(.headline)
+                    .appFont(.headline)
             }
 
             Text("memory.total".localized(with: viewModel.totalMemoryText))
-                .font(.caption)
+                .appFont(.caption)
             Text("memory.used".localized(with: viewModel.usedMemoryText))
-                .font(.caption)
+                .appFont(.caption)
             Text("memory.available".localized(with: viewModel.availableMemoryText))
-                .font(.caption)
+                .appFont(.caption)
 
             Text("cpu.usage".localized(with: viewModel.cpuUsageText))
-                .font(.caption)
+                .appFont(.caption)
 
             // ✅ 면책 문구 추가 — 수치가 추정값임을 명시 (Apple 심사 대응)
             Text("memory.menubar_disclaimer".localized)
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.secondary)
                 .padding(.top, 2)
 

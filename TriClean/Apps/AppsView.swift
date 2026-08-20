@@ -1030,7 +1030,7 @@ struct AppsView: View {
 
                     if let status = viewModel.lastStatusMessage {
                         Text(status)
-                            .font(.footnote)
+                            .appFont(.footnote)
                             .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
                     }
                 }
@@ -1054,7 +1054,7 @@ struct AppsView: View {
 
             if let status = viewModel.lastStatusMessage {
                 Text(status)
-                    .font(.footnote)
+                    .appFont(.footnote)
                     .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
             }
 
@@ -1095,15 +1095,15 @@ struct AppsView: View {
             VStack(spacing: 10) {
                 HStack(spacing: 12) {
                     Image(systemName: viewModel.applicationsFolderURL == nil ? "xmark.circle" : "checkmark.circle")
-                        .font(.title2)
+                        .appFont(.title2)
                         .foregroundStyle(viewModel.applicationsFolderURL == nil ? Color.secondary : Color.green)
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("apps.list.title".localized)
-                            .font(.subheadline).bold()
+                            .appFont(.subheadline).bold()
                         Text(viewModel.applicationsFolderURL?.path ?? "apps.scope.apps_folder".localized)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
@@ -1120,15 +1120,15 @@ struct AppsView: View {
 
                 HStack(spacing: 12) {
                     Image(systemName: viewModel.userLibraryFolderURL == nil ? "xmark.circle" : "checkmark.circle")
-                        .font(.title2)
+                        .appFont(.title2)
                         .foregroundStyle(viewModel.userLibraryFolderURL == nil ? Color.secondary : Color.green)
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("apps.scope.library_analysis".localized)
-                            .font(.subheadline).bold()
+                            .appFont(.subheadline).bold()
                         Text(viewModel.userLibraryFolderURL?.path ?? "apps.status.library_needed".localized)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
@@ -1170,9 +1170,9 @@ struct AppsView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("apps.header.uninstall".localized)
-                            .font(.title).bold()
+                            .appFont(.title).bold()
                         Text("apps.header.desc".localized)
-                            .font(.caption)
+                            .appFont(.callout)
                             .foregroundStyle(.secondary)
                     }
 
@@ -1187,9 +1187,9 @@ struct AppsView: View {
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("apps.header.uninstall".localized)
-                            .font(.title).bold()
+                            .appFont(.title).bold()
                         Text("apps.header.desc".localized)
-                            .font(.caption)
+                            .appFont(.callout)
                             .foregroundStyle(.secondary)
                     }
 
@@ -1227,9 +1227,9 @@ struct AppsView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 6) {
                 Label("apps.safety.title".localized, systemImage: "shield.checkered")
-                    .font(.subheadline.bold())
+                    .appFont(.subheadline, weight: .bold)
                 Text("apps.safety.desc".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -1319,7 +1319,7 @@ struct AppsView: View {
             }
 
             Text(viewModel.selectionSummaryText)
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.secondary)
         }
     }
@@ -1345,7 +1345,7 @@ struct AppsView: View {
             .frame(maxWidth: .infinity, minHeight: 220, maxHeight: .infinity, alignment: .topLeading)
             .padding(8)
         } label: {
-            Text("apps.list.title".localized).font(.headline)
+            Text("apps.list.title".localized).appFont(.headline)
         }
     }
 
@@ -1492,17 +1492,17 @@ struct AppsView: View {
         Group {
             if let selected = viewModel.selectedApp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("apps.details.selected".localized).font(.headline)
+                    Text("apps.details.selected".localized).appFont(.headline)
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .firstTextBaseline, spacing: 10) {
                             Text(selected.name)
-                                .font(.subheadline)
+                                .appFont(.subheadline)
                                 .bold()
 
                             if let bid = selected.bundleID {
                                 Text(bid)
-                                    .font(.caption)
+                                    .appFont(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                                     .truncationMode(.middle)
@@ -1512,13 +1512,13 @@ struct AppsView: View {
 
                             if let modifiedDate = selected.modifiedDate {
                                 Text("apps.details.modified".localized(with: modifiedDate.formatted(date: .abbreviated, time: .omitted)))
-                                    .font(.caption)
+                                    .appFont(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
 
                         Text(selected.appPath)
-                            .font(.caption)
+                            .appFont(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
@@ -1536,23 +1536,23 @@ struct AppsView: View {
 
                     if let current = viewModel.installedApps.first(where: { $0.id == selected.appPath }), current.isAppStoreApp {
                         Label("apps.details.appstore_note".localized, systemImage: "info.circle")
-                            .font(.footnote)
+                            .appFont(.footnote)
                             .foregroundStyle(.secondary)
                     }
 
                     if viewModel.userLibraryFolderURL == nil {
                         Text("apps.details.library_guide".localized)
-                            .font(.footnote)
+                            .appFont(.footnote)
                             .foregroundStyle(.secondary)
                     } else if viewModel.isScanning {
                         HStack { ProgressView(); Text("apps.details.scanning".localized); Spacer() }
                     } else if viewModel.relatedItems.isEmpty {
                         Text("apps.details.no_related".localized)
-                            .font(.footnote)
+                            .appFont(.footnote)
                             .foregroundStyle(.secondary)
                     } else {
                         Text("apps.details.found_count".localized(with: viewModel.relatedItems.count))
-                            .font(.headline)
+                            .appFont(.headline)
 
                         Table(viewModel.relatedItems) {
                             TableColumn("") { item in
@@ -1580,7 +1580,7 @@ struct AppsView: View {
 
                         HStack {
                             Text("apps.related.footer".localized(with: viewModel.selectedRelatedCount, viewModel.selectedRelatedSizeText))
-                                .font(.caption)
+                                .appFont(.caption)
                                 .foregroundStyle(.secondary)
 
                             Spacer()
@@ -1594,9 +1594,9 @@ struct AppsView: View {
                 }
             } else {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("apps.details.selected".localized).font(.headline)
+                    Text("apps.details.selected".localized).appFont(.headline)
                     Text("apps.details.guide".localized)
-                        .font(.footnote)
+                        .appFont(.footnote)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -1708,10 +1708,10 @@ struct AppsView: View {
                     .foregroundStyle(Color.accentColor)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(titleKey.localized)
-                        .font(.caption)
+                        .appFont(.caption)
                         .foregroundStyle(.secondary)
                     Text(value)
-                        .font(.headline)
+                        .appFont(.headline)
                 }
                 Spacer(minLength: 0)
             }
@@ -1722,10 +1722,10 @@ struct AppsView: View {
     private func relatedSummaryChip(titleKey: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(titleKey.localized)
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.bold())
+                .appFont(.subheadline, weight: .bold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)

@@ -543,3 +543,17 @@
 "junk.cleanup.result.failed_message" = "Nessun elemento è stato spostato nel Cestino. Non riusciti: %1$ld; ignorati dopo modifiche: %2$ld.";
 "junk.cleanup.result.access_denied" = "Non è stato possibile attivare il permesso per la cartella Libreria. Seleziona di nuovo la cartella Libreria con “Modifica…” e riprova.";
 "junk.cleanup.result.error_detail" = "Primo errore: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Dimensione del testo";
+"settings.typography.size_desc" = "Regola la dimensione del testo in tutta l’app.";
+"settings.typography.scale.small" = "Piccolo";
+"settings.typography.scale.standard" = "Predefinito";
+"settings.typography.scale.large" = "Grande";
+"settings.typography.scale.extraLarge" = "Molto grande";
+"settings.typography.design" = "Carattere";
+"settings.typography.design_desc" = "Tutte le opzioni usano il carattere di sistema, così ogni lingua resta leggibile.";
+"settings.typography.design.standard" = "Predefinito";
+"settings.typography.design.rounded" = "Arrotondato";
+"settings.typography.design.monospaced" = "Monospaziato";
+"settings.typography.design.serif" = "Serif";

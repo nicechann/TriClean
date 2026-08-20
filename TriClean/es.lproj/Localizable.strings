@@ -688,3 +688,17 @@
 "junk.cleanup.result.failed_message" = "No se movió ningún elemento a la papelera. Fallidos: %1$ld; omitidos tras cambios: %2$ld.";
 "junk.cleanup.result.access_denied" = "No se pudo activar el permiso de la carpeta Library. Selecciona de nuevo la carpeta Library mediante “Cambiar…” y vuelve a intentarlo.";
 "junk.cleanup.result.error_detail" = "Primer error: %@";
+
+/* MARK: - Typography (글자 크기 · 서체) */
+"settings.typography.size" = "Tamaño del texto";
+"settings.typography.size_desc" = "Ajusta el tamaño del texto en toda la aplicación.";
+"settings.typography.scale.small" = "Pequeño";
+"settings.typography.scale.standard" = "Predeterminado";
+"settings.typography.scale.large" = "Grande";
+"settings.typography.scale.extraLarge" = "Muy grande";
+"settings.typography.design" = "Tipografía";
+"settings.typography.design_desc" = "Todas las opciones usan la tipografía del sistema, por lo que todos los idiomas siguen siendo legibles.";
+"settings.typography.design.standard" = "Predeterminada";
+"settings.typography.design.rounded" = "Redondeada";
+"settings.typography.design.monospaced" = "Monoespaciada";
+"settings.typography.design.serif" = "Serif";

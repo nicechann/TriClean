@@ -43,7 +43,7 @@ struct ContentView: View {
                             Label("sidebar.memory".localized, systemImage: "memorychip")
                             Spacer()
                             Text(memoryViewModel.formattedCurrentUsage)
-                                .font(.caption)
+                                .appFont(.caption)
                         }
                     }
                     NavigationLink(value: SidebarItem.apps) {
@@ -97,6 +97,12 @@ struct SettingsView: View {
     @EnvironmentObject var memoryViewModel: MemoryViewModel
     @EnvironmentObject var reminderManager: CleanupReminderManager
     @AppStorage("significantAppActivationMode") private var significantAppActivationMode: String = "single"
+
+    // ✅ 사용자 서체 설정. TriCleanApp이 같은 키를 읽어 환경에 주입한다.
+    @AppStorage(AppTypography.StorageKey.scale)
+    private var fontScaleRawValue: String = AppFontScale.standard.rawValue
+    @AppStorage(AppTypography.StorageKey.design)
+    private var fontDesignRawValue: String = AppFontDesign.standard.rawValue
 
     // ✅ 리마인더 시/분(Int) ↔ DatePicker(Date) 브리지
     private var reminderTimeBinding: Binding<Date> {
@@ -152,7 +158,7 @@ struct SettingsView: View {
                                     .controlSize(.small)
                                     .frame(width: 180, alignment: .leading)
                                     Text("settings.menubar_unit_desc".localized)
-                                        .font(.caption)
+                                        .appFont(.callout)
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.leading)
                                         .fixedSize(horizontal: false, vertical: true)
@@ -173,7 +179,53 @@ struct SettingsView: View {
                                     .controlSize(.small)
                                     .frame(width: 180, alignment: .leading)
                                     Text("settings.app_activation_desc".localized)
-                                        .font(.caption)
+                                        .appFont(.callout)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+
+                            // ✅ 글자 크기
+                            GridRow(alignment: .top) {
+                                Text("settings.typography.size".localized)
+                                    .frame(width: 120, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $fontScaleRawValue) {
+                                        ForEach(AppFontScale.allCases) { scale in
+                                            Text(scale.localizationKey.localized).tag(scale.rawValue)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 300, alignment: .leading)
+                                    Text("settings.typography.size_desc".localized)
+                                        .appFont(.callout)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+
+                            // ✅ 서체
+                            GridRow(alignment: .top) {
+                                Text("settings.typography.design".localized)
+                                    .frame(width: 120, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Picker("", selection: $fontDesignRawValue) {
+                                        ForEach(AppFontDesign.allCases) { design in
+                                            Text(design.localizationKey.localized).tag(design.rawValue)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .controlSize(.small)
+                                    .frame(width: 180, alignment: .leading)
+                                    Text("settings.typography.design_desc".localized)
+                                        .appFont(.callout)
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.leading)
                                         .fixedSize(horizontal: false, vertical: true)
@@ -194,7 +246,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("settings.reminder.toggle".localized)
                                     Text("settings.reminder.toggle_desc".localized)
-                                        .font(.caption)
+                                        .appFont(.callout)
                                         .foregroundColor(.secondary)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
@@ -228,7 +280,7 @@ struct SettingsView: View {
                                         Image(systemName: "exclamationmark.triangle.fill")
                                             .foregroundColor(.orange)
                                         Text("settings.reminder.denied".localized)
-                                            .font(.caption)
+                                            .appFont(.callout)
                                             .foregroundColor(.secondary)
                                             .fixedSize(horizontal: false, vertical: true)
                                         Button("settings.reminder.open_settings".localized) {
@@ -304,11 +356,11 @@ struct SettingsView: View {
                                     Text("settings.help.clean_desc".localized)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
-                                .font(.caption)
+                                .appFont(.callout)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 6)
                             } label: {
-                                Text("settings.help.clean_title".localized).font(.callout)
+                                Text("settings.help.clean_title".localized).appFont(.callout)
                             }
 
                             DisclosureGroup {
@@ -316,11 +368,11 @@ struct SettingsView: View {
                                     Text("settings.help.search_desc".localized)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
-                                .font(.caption)
+                                .appFont(.callout)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 6)
                             } label: {
-                                Text("settings.help.search_title".localized).font(.callout)
+                                Text("settings.help.search_title".localized).appFont(.callout)
                             }
                         }
                         .padding(10)
@@ -341,7 +393,7 @@ struct SettingsView: View {
                                     .toggleStyle(.switch)
                                     .labelsHidden()
                                 Text(storeManager.debugPurchaseOverride ? "settings.debug.purchase_on".localized : "settings.debug.purchase_off".localized)
-                                    .font(.caption)
+                                    .appFont(.caption)
                                     .foregroundStyle(storeManager.debugPurchaseOverride ? Color.green : Color.secondary)
                             }
 

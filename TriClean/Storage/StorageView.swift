@@ -291,10 +291,10 @@ private struct DiskUsageSummaryView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(info.name)
-                    .font(.headline)
+                    .appFont(.headline)
                 Spacer()
                 Text("storage.usage.format".localized(with: info.usedString, info.totalString))
-                    .font(.caption)
+                    .appFont(.caption)
                     .foregroundStyle(.secondary)
             }
             
@@ -321,7 +321,7 @@ private struct DiskUsageSummaryView: View {
                     HStack {
                         Spacer()
                         Text(info.freeString)
-                            .font(.caption2.monospacedDigit())
+                            .appFont(.caption2, monospacedDigit: true)
                             .foregroundColor(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
@@ -338,7 +338,7 @@ private struct DiskUsageSummaryView: View {
                     ProgressView()
                         .scaleEffect(0.6)
                     Text("storage.msg.analyzing_home_apps".localized)
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -362,7 +362,7 @@ private struct DiskUsageSummaryView: View {
                     }
                 }
             }
-            .font(.caption)
+            .appFont(.caption)
         }
     }
 }
@@ -449,7 +449,7 @@ struct StorageView: View {
     private var diskHeaderSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("storage.header".localized)
-                .font(.title2.bold())
+                .appFont(.title2, weight: .bold)
 
             if let diskInfo {
                 DiskUsageSummaryView(
@@ -464,7 +464,7 @@ struct StorageView: View {
                 diskUsageScopeControls
             } else {
                 Text("storage.loading".localized)
-                    .font(.subheadline)
+                    .appFont(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
@@ -487,9 +487,9 @@ struct StorageView: View {
                     .foregroundStyle(homeScopeURL == nil ? Color.secondary : Color.green)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("storage.legend.home".localized)
-                        .font(.caption.bold())
+                        .appFont(.caption, weight: .bold)
                     Text(homeScopeURL?.path ?? "storage.scope.home_needed".localized)
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -513,9 +513,9 @@ struct StorageView: View {
                     .foregroundStyle(appsScopeURLs.isEmpty ? Color.secondary : Color.green)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("storage.legend.apps".localized)
-                        .font(.caption.bold())
+                        .appFont(.caption, weight: .bold)
                     Text(appsScopeURLs.isEmpty ? "storage.scope.apps_needed".localized : appsScopeURLs.map { $0.path }.joined(separator: " · "))
-                        .font(.caption2)
+                        .appFont(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -535,7 +535,7 @@ struct StorageView: View {
             }
 
             Text("storage.scope.guide".localized)
-                .font(.caption2)
+                .appFont(.caption2)
                 .foregroundStyle(.secondary)
         }
         .padding(.top, 6)

@@ -20,19 +20,19 @@ struct PaywallView: View {
             // 1. 상단 아이콘 및 타이틀
             VStack(spacing: 12) {
                 Image(systemName: "star.fill")
-                    .font(.system(size: 64))
+                    .appIconFont(64)
                     .foregroundStyle(.yellow)
                     .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
 
                 Text("paywall.title".localized)
-                    .font(.system(size: 28, weight: .bold))
+                    .appIconFont(28, weight: .bold)
 
                 Text("paywall.subtitle".localized)
-                    .font(.body)
+                    .appFont(.body)
                     .foregroundStyle(.secondary)
 
                 Text("paywall.free_mode.notice".localized)
-                    .font(.caption)
+                    .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -66,7 +66,7 @@ struct PaywallView: View {
                 } else if storeManager.products.first == nil {
                     VStack(spacing: 8) {
                         Text(storeManager.productsErrorMessage ?? "store.error.load_failed".localized)
-                            .font(.subheadline)
+                            .appFont(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 8)
@@ -94,7 +94,7 @@ struct PaywallView: View {
                                     ProgressView().controlSize(.small)
                                 }
                                 Text("paywall.btn.buy_format".localized(with: product.displayPrice))
-                                    .font(.headline)
+                                    .appFont(.headline)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
@@ -118,7 +118,7 @@ struct PaywallView: View {
                     }
                 } label: {
                     Text("paywall.btn.restore".localized)
-                        .font(.subheadline)
+                        .appFont(.subheadline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                 }
@@ -128,7 +128,7 @@ struct PaywallView: View {
 
                 Button { dismiss() } label: {
                     Text("paywall.btn.later".localized)
-                        .font(.subheadline)
+                        .appFont(.subheadline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                 }
@@ -144,7 +144,7 @@ struct PaywallView: View {
                         Link("paywall.link.terms".localized, destination: termsURL)
                     }
                 }
-                .font(.caption)
+                .appFont(.caption)
                 .foregroundStyle(.blue)
                 .padding(.top, 4)
             }
@@ -183,12 +183,12 @@ private struct FeatureRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             Image(systemName: icon)
-                .font(.title3)
+                .appFont(.title3)
                 .foregroundStyle(.blue)
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.headline)
-                Text(desc).font(.caption).foregroundStyle(.secondary)
+                Text(title).appFont(.headline)
+                Text(desc).appFont(.caption).foregroundStyle(.secondary)
             }
         }
     }
