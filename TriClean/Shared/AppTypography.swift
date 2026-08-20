@@ -197,10 +197,58 @@ extension View {
     }
 }
 
+// MARK: - 고정 크기 텍스트
+
+struct AppFixedFontModifier: ViewModifier {
+    @Environment(\.appTypography) private var typography
+
+    let size: CGFloat
+    let weight: Font.Weight
+    let monospacedDigit: Bool
+    let italic: Bool
+
+    func body(content: Content) -> some View {
+        var font = Font.system(
+            size: resolvedSize,
+            weight: weight,
+            design: typography.design.design
+        )
+        if monospacedDigit { font = font.monospacedDigit() }
+        if italic { font = font.italic() }
+        return content.font(font)
+    }
+
+    private var resolvedSize: CGFloat {
+        let raw = size * typography.scale.multiplier
+        return (raw * 2).rounded() / 2
+    }
+}
+
+extension View {
+    /// 타이틀·배지처럼 시맨틱 스타일 대신 포인트 크기를 직접 써야 하는 텍스트용.
+    /// 크기 배율과 사용자가 고른 서체 디자인을 모두 반영한다.
+    func appFont(
+        size: CGFloat,
+        weight: Font.Weight = .regular,
+        monospacedDigit: Bool = false,
+        italic: Bool = false
+    ) -> some View {
+        modifier(
+            AppFixedFontModifier(
+                size: size,
+                weight: weight,
+                monospacedDigit: monospacedDigit,
+                italic: italic
+            )
+        )
+    }
+}
+
 // MARK: - 아이콘·고정 크기 보정
 
 extension View {
-    /// SF Symbol 등 포인트 크기를 직접 지정하는 곳에서 배율만 반영한다.
+    /// SF Symbol 등 포인트 크기를 직접 지정하는 아이콘에서 배율만 반영한다.
+    /// 일반 Text/Label에는 `appFont(size:weight:)`를 사용해야 서체 설정도 반영된다.
     ///
     /// 글자 크기를 키웠는데 옆의 아이콘만 그대로면 균형이 무너지므로,
     /// `.font(.system(size: 36))` 같은 자리를 `.appIconFont(36)`으로 바꾼다.

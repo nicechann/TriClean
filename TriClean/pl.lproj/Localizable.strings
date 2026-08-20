@@ -562,4 +562,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Pokaż na pasku menu";
-"settings.menubar_show_desc" = "Wyświetla użycie pamięci na pasku menu. Możesz ponownie włączyć tę opcję tutaj w dowolnym momencie.";
+"settings.menubar_show_desc" = "Wyświetla użycie pamięci na pasku menu. Jeśli wyłączysz tę opcję, otwórz TriClean z Docka, aby włączyć ją ponownie w Ustawieniach.";

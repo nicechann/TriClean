@@ -705,4 +705,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "メニューバーに表示";
-"settings.menubar_show_desc" = "メニューバーにメモリ使用量を表示します。オフにしても、いつでもこの設定から再度オンにできます。";
+"settings.menubar_show_desc" = "メニューバーにメモリ使用量を表示します。オフにした場合は、DockからTriCleanを開き、設定で再度オンにできます。";

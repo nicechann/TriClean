@@ -25,7 +25,7 @@ struct PaywallView: View {
                     .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
 
                 Text("paywall.title".localized)
-                    .appIconFont(28, weight: .bold)
+                    .appFont(size: 28, weight: .bold)
 
                 Text("paywall.subtitle".localized)
                     .appFont(.body)

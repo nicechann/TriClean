@@ -369,7 +369,7 @@ struct JunkSectionView: View {
                         Spacer()
 
                         Text(result.category.riskLevel.label)
-                            .appIconFont(9, weight: .bold)
+                            .appFont(size: 9, weight: .bold)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
                             .background(

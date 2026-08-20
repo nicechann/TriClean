@@ -125,17 +125,22 @@ struct TriCleanApp: App {
             .environmentObject(appsViewModel)
             .environmentObject(photoViewModel)
             .environmentObject(reminderManager)
-            // ✅ 사용자 서체 설정 주입 — .appFont(...)이 이 값을 읽는다.
+            // ✅ 별도 폰트 지정이 없는 기본 Text/Label도 사용자 설정을 따르도록
+            //    앱 전역의 기본 본문 폰트를 먼저 지정한다. 개별 .appFont(...)는 이를 덮어쓴다.
+            .appFont(.body)
+            // ✅ 사용자 서체 설정 주입 — 위 기본 폰트와 개별 .appFont(...)이 이 값을 읽는다.
             .environment(\.appTypography, typography)
             // 결제창 표시
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView()
                     .environmentObject(storeManager)
+                    .appFont(.body)
                     .environment(\.appTypography, typography)
             }
             // ✅ 첫 실행 온보딩
             .sheet(isPresented: $showOnboarding) {
                 OnboardingView(isPresented: $showOnboarding)
+                    .appFont(.body)
                     .environment(\.appTypography, typography)
             }
             .onChange(of: scenePhase) { newPhase in
@@ -172,6 +177,7 @@ struct TriCleanApp: App {
             // 메뉴바 팝업 내용
             MenuMemoryView()
                 .environmentObject(memoryViewModel)
+                .appFont(.body)
                 .environment(\.appTypography, typography)
         } label: {
             // ⚠️ label은 시스템 메뉴바 안이라 높이가 고정이다.

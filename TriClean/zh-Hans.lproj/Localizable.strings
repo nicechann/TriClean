@@ -560,4 +560,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "在菜单栏中显示";
-"settings.menubar_show_desc" = "在菜单栏显示内存使用量。关闭后可随时在此设置中重新开启。";
+"settings.menubar_show_desc" = "在菜单栏中显示内存使用情况。关闭后，可从 Dock 打开 TriClean，并在设置中重新开启。";

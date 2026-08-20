@@ -705,4 +705,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "In der Menüleiste anzeigen";
-"settings.menubar_show_desc" = "Zeigt die Speicherauslastung in der Menüleiste an. Sie können die Anzeige jederzeit hier wieder aktivieren.";
+"settings.menubar_show_desc" = "Zeigt die Speicherauslastung in der Menüleiste an. Wenn Sie dies deaktivieren, öffnen Sie TriClean über das Dock, um die Anzeige in den Einstellungen wieder einzuschalten.";

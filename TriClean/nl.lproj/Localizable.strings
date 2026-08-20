@@ -560,4 +560,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Toon in menubalk";
-"settings.menubar_show_desc" = "Toont het geheugengebruik in de menubalk. Je kunt dit hier altijd weer inschakelen.";
+"settings.menubar_show_desc" = "Toont het geheugengebruik in de menubalk. Als je dit uitschakelt, open je TriClean vanuit het Dock om het in Instellingen weer in te schakelen.";

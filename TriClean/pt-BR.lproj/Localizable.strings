@@ -560,4 +560,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Mostrar na barra de menus";
-"settings.menubar_show_desc" = "Mostra o uso de memória na barra de menus. Você pode reativar aqui a qualquer momento.";
+"settings.menubar_show_desc" = "Mostra o uso de memória na barra de menus. Se você desativar esta opção, abra o TriClean pelo Dock para ativá-la novamente nos Ajustes.";

@@ -15,7 +15,10 @@
 
 동작
   1) .font(.<style>[.수식어…]) 를 .appFont(.<style>, …) 로 변환
-  2) .font(.system(size: N[, weight: .w])) 를 .appIconFont(N[, weight: .w]) 로 변환
+  2) .font(.system(size: N[, weight: .w])) 는 대상 View를 확인해 변환
+     - Text/Label → .appFont(size: N[, weight: .w])
+     - Image      → .appIconFont(N[, weight: .w])
+     - 대상 불명   → 자동 변환하지 않고 수동 확인 목록에 남김
   3) 승격 대상 로컬라이제이션 키를 쓰는 caption 자리를 callout으로 승격
 
   변환하지 않는 것 — 계산된 크기(.system(size: 함수호출)), design이 명시된
@@ -65,6 +68,7 @@ PROMOTE_SUFFIXES = {
 }
 
 TEXT_CALL = re.compile(r"\b(?:Text|Label)\s*\(")
+VIEW_CALL = re.compile(r"\b(Text|Label|Image)\s*\(")
 LOC_KEY = re.compile(r'"([a-z0-9_]+(?:\.[a-z0-9_]+)+)"')
 
 
@@ -94,6 +98,18 @@ def promotion_target(lines, index):
             if not match:
                 return None
             return match.group(1).split(".")[-1]
+    return None
+
+
+def fixed_size_target(lines, index):
+    """고정 크기 font가 Text/Label인지 Image인지 가까운 View 생성자에서 판별한다."""
+    for j in range(index, max(-1, index - 8), -1):
+        match = VIEW_CALL.search(lines[j])
+        if match:
+            return match.group(1)
+        # 체인이 끝난 뒤 다른 문장으로 넘어가면 엉뚱한 View를 잡지 않는다.
+        if j < index and lines[j].strip() == "":
+            break
     return None
 
 
@@ -132,10 +148,24 @@ def process(path, promote, report):
             nonlocal changed
             size = match.group(1)
             weight = match.group(2)
-            changed += 1
-            if weight:
-                return f".appIconFont({size}, weight: .{weight})"
-            return f".appIconFont({size})"
+            target = fixed_size_target(lines, index)
+
+            if target in ("Text", "Label"):
+                changed += 1
+                if weight:
+                    return f".appFont(size: {size}, weight: .{weight})"
+                return f".appFont(size: {size})"
+
+            if target == "Image":
+                changed += 1
+                if weight:
+                    return f".appIconFont({size}, weight: .{weight})"
+                return f".appIconFont({size})"
+
+            report["manual"].append(
+                f"{path}:{index + 1}  고정 크기 폰트 대상 View를 판별하지 못함 — 수동 확인"
+            )
+            return match.group(0)
 
         new_line = FONT_CALL.sub(replace_font, new_line)
         new_line = SYSTEM_CALL.sub(replace_system, new_line)

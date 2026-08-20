@@ -152,7 +152,7 @@ struct SettingsView: View {
                                 Text("settings.menubar_show".localized)
                                     .frame(width: 120, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Toggle("", isOn: $showMenuBarExtra)
+                                    Toggle("settings.menubar_show".localized, isOn: $showMenuBarExtra)
                                         .toggleStyle(.switch)
                                         .labelsHidden()
                                         .controlSize(.small)
@@ -213,7 +213,7 @@ struct SettingsView: View {
                                 Text("settings.typography.size".localized)
                                     .frame(width: 120, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Picker("", selection: $fontScaleRawValue) {
+                                    Picker("settings.typography.size".localized, selection: $fontScaleRawValue) {
                                         ForEach(AppFontScale.allCases) { scale in
                                             Text(scale.localizationKey.localized).tag(scale.rawValue)
                                         }
@@ -236,7 +236,7 @@ struct SettingsView: View {
                                 Text("settings.typography.design".localized)
                                     .frame(width: 120, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Picker("", selection: $fontDesignRawValue) {
+                                    Picker("settings.typography.design".localized, selection: $fontDesignRawValue) {
                                         ForEach(AppFontDesign.allCases) { design in
                                             Text(design.localizationKey.localized).tag(design.rawValue)
                                         }
