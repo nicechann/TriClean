@@ -466,8 +466,8 @@
 "settings.help.search_desc" = "• 如果 Spotlight 索引已停用，搜尋結果可能為空。\n• 在沙箱環境下，只會搜尋可存取的路徑。";
 "settings.debug" = "除錯";
 "settings.debug.purchase_status" = "購買狀態";
-"settings.debug.purchase_on" = "已購買";
-"settings.debug.purchase_off" = "未購買";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "免費";
 "settings.support_link" = "支援";
 "settings.legal" = "支援與法律資訊";
 "settings.reminder" = "清理提醒";

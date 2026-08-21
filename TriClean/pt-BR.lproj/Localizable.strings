@@ -466,8 +466,8 @@
 "settings.help.search_desc" = "• Os resultados da busca podem ficar vazios se a indexação do Spotlight estiver desativada.\n• No sandbox, apenas os caminhos acessíveis são pesquisados.";
 "settings.debug" = "Depuração";
 "settings.debug.purchase_status" = "Estado da compra";
-"settings.debug.purchase_on" = "Comprado";
-"settings.debug.purchase_off" = "Não comprado";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Grátis";
 "settings.support_link" = "Suporte";
 "settings.legal" = "Suporte e informações legais";
 "settings.reminder" = "Lembrete de limpeza";

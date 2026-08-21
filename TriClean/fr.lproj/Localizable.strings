@@ -390,8 +390,8 @@
 
 /* Settings Debug */
 "settings.debug.purchase_status" = "Statut d'achat";
-"settings.debug.purchase_on" = "Acheté";
-"settings.debug.purchase_off" = "Non acheté";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Gratuit";
 
 
 /* Apps View — Stage 3 */

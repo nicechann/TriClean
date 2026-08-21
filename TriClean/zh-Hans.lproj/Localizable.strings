@@ -466,8 +466,8 @@
 "settings.help.search_desc" = "• 如果 Spotlight 索引已停用，搜索结果可能为空。\n• 在沙盒环境下，只会搜索可访问的路径。";
 "settings.debug" = "调试";
 "settings.debug.purchase_status" = "购买状态";
-"settings.debug.purchase_on" = "已购买";
-"settings.debug.purchase_off" = "未购买";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "免费";
 "settings.support_link" = "支持";
 "settings.legal" = "支持与法律信息";
 "settings.reminder" = "清理提醒";

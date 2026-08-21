@@ -470,8 +470,8 @@
 "settings.help.search_desc" = "• Spotlight dizinlemesi kapalıysa arama sonuçları boş olabilir.\n• Sandbox içinde yalnızca erişilebilir yollar aranır.";
 "settings.debug" = "Hata ayıklama";
 "settings.debug.purchase_status" = "Satın alma durumu";
-"settings.debug.purchase_on" = "Satın alındı";
-"settings.debug.purchase_off" = "Satın alınmadı";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Ücretsiz";
 "settings.support_link" = "Destek";
 "settings.legal" = "Destek ve yasal bilgiler";
 "settings.reminder" = "Temizlik hatırlatıcısı";

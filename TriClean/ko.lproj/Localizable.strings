@@ -400,8 +400,8 @@
 
 /* Settings Debug */
 "settings.debug.purchase_status" = "구매 상태";
-"settings.debug.purchase_on" = "구매 완료";
-"settings.debug.purchase_off" = "미구매";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "무료";
 
 
 /* Apps View — Stage 3 */

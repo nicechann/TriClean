@@ -406,16 +406,21 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 14) {
                             // ✅ [삭제됨] Cache Fill Mode
 
-                            // 구매 상태 오버라이드
+                            // DEBUG 전용: Free / Pro 상태를 명시적으로 강제합니다.
                             HStack(spacing: 12) {
                                 Text("settings.debug.purchase_status".localized)
                                     .frame(width: 140, alignment: .leading)
-                                Toggle("", isOn: $storeManager.debugPurchaseOverride)
-                                    .toggleStyle(.switch)
-                                    .labelsHidden()
-                                Text(storeManager.debugPurchaseOverride ? "settings.debug.purchase_on".localized : "settings.debug.purchase_off".localized)
-                                    .appFont(.caption)
-                                    .foregroundStyle(storeManager.debugPurchaseOverride ? Color.green : Color.secondary)
+
+                                Picker(
+                                    "settings.debug.purchase_status".localized,
+                                    selection: $storeManager.debugPurchaseOverride
+                                ) {
+                                    Text("settings.debug.purchase_off".localized).tag(false)
+                                    Text("settings.debug.purchase_on".localized).tag(true)
+                                }
+                                .pickerStyle(.segmented)
+                                .labelsHidden()
+                                .frame(width: 160)
                             }
 
                         }

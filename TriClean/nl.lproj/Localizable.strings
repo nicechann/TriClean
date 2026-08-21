@@ -466,8 +466,8 @@
 "settings.help.search_desc" = "• De zoekresultaten kunnen leeg zijn als de Spotlight-indexering is uitgeschakeld.\n• In de sandbox worden alleen toegankelijke paden doorzocht.";
 "settings.debug" = "Foutopsporing";
 "settings.debug.purchase_status" = "Aankoopstatus";
-"settings.debug.purchase_on" = "Gekocht";
-"settings.debug.purchase_off" = "Niet gekocht";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Gratis";
 "settings.support_link" = "Ondersteuning";
 "settings.legal" = "Ondersteuning en juridische informatie";
 "settings.reminder" = "Opruimherinnering";

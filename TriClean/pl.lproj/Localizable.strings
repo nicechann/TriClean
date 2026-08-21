@@ -472,8 +472,8 @@
 "settings.help.search_desc" = "• Wyniki wyszukiwania mogą być puste, jeśli indeksowanie Spotlight jest wyłączone.\n• W piaskownicy przeszukiwane są tylko dostępne ścieżki.";
 "settings.debug" = "Debugowanie";
 "settings.debug.purchase_status" = "Stan zakupu";
-"settings.debug.purchase_on" = "Zakupiono";
-"settings.debug.purchase_off" = "Nie zakupiono";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Bezpłatny";
 "settings.support_link" = "Wsparcie";
 "settings.legal" = "Wsparcie i informacje prawne";
 "settings.reminder" = "Przypomnienie o porządkowaniu";

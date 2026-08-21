@@ -472,8 +472,8 @@
 "settings.help.search_desc" = "• Результаты поиска могут быть пустыми, если индексирование Spotlight отключено.\n• В песочнице выполняется поиск только по доступным путям.";
 "settings.debug" = "Отладка";
 "settings.debug.purchase_status" = "Состояние покупки";
-"settings.debug.purchase_on" = "Куплено";
-"settings.debug.purchase_off" = "Не куплено";
+"settings.debug.purchase_on" = "Pro";
+"settings.debug.purchase_off" = "Бесплатно";
 "settings.support_link" = "Поддержка";
 "settings.legal" = "Поддержка и правовая информация";
 "settings.reminder" = "Напоминание об очистке";

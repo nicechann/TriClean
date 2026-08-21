@@ -37,18 +37,14 @@ final class StoreManager: ObservableObject {
     @Published private(set) var productsErrorMessage: String? = nil
 
     #if DEBUG
-    /// DEBUG 전용: 실제 StoreKit 없이 구매 상태를 강제 설정합니다.
+    /// DEBUG 전용: 실제 StoreKit 상태와 관계없이 Free(false) / Pro(true)를 강제합니다.
     /// UserDefaults에 저장되어 앱 재시작 후에도 유지됩니다.
     @Published var debugPurchaseOverride: Bool = UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
         didSet {
             UserDefaults.standard.set(debugPurchaseOverride, forKey: "debug.purchaseOverride")
             purchaseStateGeneration &+= 1
-            if debugPurchaseOverride {
-                isPurchased = true
-                hasLoadedPurchaseState = true
-            } else {
-                Task { await updatePurchasedStatus() }
-            }
+            isPurchased = debugPurchaseOverride
+            hasLoadedPurchaseState = true
         }
     }
     #endif
@@ -188,11 +184,9 @@ final class StoreManager: ObservableObject {
 
     private func resolvePurchasedStatus() async -> Bool {
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
-            return true
-        }
-        #endif
-
+        // DEBUG에서는 설정에서 선택한 Free / Pro 상태가 실제 StoreKit entitlement보다 우선합니다.
+        return UserDefaults.standard.bool(forKey: "debug.purchaseOverride")
+        #else
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try verified(result)
@@ -215,6 +209,7 @@ final class StoreManager: ObservableObject {
         }
 
         return false
+        #endif
     }
 
     nonisolated private func verified<T>(_ result: VerificationResult<T>) throws -> T {
