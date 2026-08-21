@@ -519,6 +519,8 @@
 "paywall.free_mode.notice" = "掃描、摘要和部分結果預覽免費。購買永久使用權後可查看完整詳細結果並使用清理功能。";
 "upgrade.bottom.title" = "免費預覽";
 "upgrade.bottom.desc" = "掃描、摘要和部分結果預覽免費。完整詳細結果和清理功能需要永久使用權。";
+"upgrade.bottom.preview.items" = "免費預覽顯示全部 %1$@ 項中的 %2$@ 項。完整詳細結果和清理功能需要永久使用權。";
+"upgrade.bottom.preview.groups" = "免費預覽顯示全部 %1$@ 個群組中的 %2$@ 個群組。完整詳細結果和清理功能需要永久使用權。";
 "upgrade.preview.count" = "預覽 %1$ld 項中的 %2$ld 項";
 "upgrade.bottom.buy" = "取得永久使用權";
 "store.status.checking" = "正在檢查購買狀態…";

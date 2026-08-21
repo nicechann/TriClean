@@ -523,6 +523,8 @@
 "paywall.free_mode.notice" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik ömür boyu erişimle kullanılabilir.";
 "upgrade.bottom.title" = "Ücretsiz önizleme";
 "upgrade.bottom.desc" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik için ömür boyu erişim gerekir.";
+"upgrade.bottom.preview.items" = "Ücretsiz önizlemede toplam %1$@ öğenin %2$@ tanesi gösterilir. Tüm ayrıntılı sonuçlar ve temizlik için ömür boyu erişim gerekir.";
+"upgrade.bottom.preview.groups" = "Ücretsiz önizlemede toplam %1$@ grubun %2$@ tanesi gösterilir. Tüm ayrıntılı sonuçlar ve temizlik için ömür boyu erişim gerekir.";
 "upgrade.preview.count" = "%1$ld sonucun %2$ld tanesi";
 "upgrade.bottom.buy" = "Ömür boyu erişim al";
 "store.status.checking" = "Satın alma durumu kontrol ediliyor…";

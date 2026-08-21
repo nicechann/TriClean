@@ -8,7 +8,13 @@
 import SwiftUI
 
 struct UpgradeBottomBanner: View {
+    let description: String?
     let onBuyTap: () -> Void
+
+    init(description: String? = nil, onBuyTap: @escaping () -> Void) {
+        self.description = description
+        self.onBuyTap = onBuyTap
+    }
 
     var body: some View {
         HStack(spacing: 14) {
@@ -19,7 +25,7 @@ struct UpgradeBottomBanner: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("upgrade.bottom.title".localized)
                     .appFont(.subheadline, weight: .bold)
-                Text("upgrade.bottom.desc".localized)
+                Text(description ?? "upgrade.bottom.desc".localized)
                     .appFont(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

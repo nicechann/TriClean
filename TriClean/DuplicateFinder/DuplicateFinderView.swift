@@ -288,7 +288,10 @@ struct DuplicateFinderView: View {
             }
 
             if !storeManager.isPurchased {
-                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
+                UpgradeBottomBanner(
+                    description: duplicateFreePreviewDescription,
+                    onBuyTap: { showPaywall = true }
+                )
             }
 
             HStack {
@@ -321,6 +324,14 @@ struct DuplicateFinderView: View {
                 .disabled(!viewModel.canDeleteSelected)
             }
         }
+    }
+
+    private var duplicateFreePreviewDescription: String? {
+        guard viewModel.groups.count > displayedGroups.count else { return nil }
+        return "upgrade.bottom.preview.groups".localized(
+            with: viewModel.groups.count.formatted(),
+            displayedGroups.count.formatted()
+        )
     }
 
     // MARK: - 빈 상태

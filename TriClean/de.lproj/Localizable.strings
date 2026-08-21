@@ -671,6 +671,8 @@
 "settings.legal" = "Support & Rechtliches";
 "upgrade.bottom.title" = "Kostenlose Vorschau";
 "upgrade.bottom.desc" = "Scans, Zusammenfassungen und eine begrenzte Vorschau sind kostenlos. Vollständige Detailergebnisse und Bereinigung erfordern den Dauerzugang.";
+"upgrade.bottom.preview.items" = "In der kostenlosen Vorschau werden %2$@ von insgesamt %1$@ Ergebnissen angezeigt. Vollständige Detailergebnisse und Bereinigung erfordern den Dauerzugang.";
+"upgrade.bottom.preview.groups" = "In der kostenlosen Vorschau werden %2$@ von insgesamt %1$@ Gruppen angezeigt. Vollständige Detailergebnisse und Bereinigung erfordern den Dauerzugang.";
 "upgrade.preview.count" = "%2$ld von %1$ld Ergebnissen";
 "upgrade.bottom.buy" = "Dauerzugang kaufen";
 "paywall.free_mode.notice" = "Scans, Zusammenfassungen und eine begrenzte Vorschau sind kostenlos. Vollständige Detailergebnisse und Bereinigung sind mit dem Dauerzugang verfügbar.";

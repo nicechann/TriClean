@@ -671,6 +671,8 @@
 "settings.legal" = "Soporte y avisos legales";
 "upgrade.bottom.title" = "Vista previa gratuita";
 "upgrade.bottom.desc" = "El análisis, los resúmenes y una vista previa limitada son gratuitos. Los resultados detallados completos y la limpieza requieren acceso de por vida.";
+"upgrade.bottom.preview.items" = "La vista previa gratuita muestra %2$@ de %1$@ elementos en total. Los resultados detallados completos y la limpieza requieren acceso de por vida.";
+"upgrade.bottom.preview.groups" = "La vista previa gratuita muestra %2$@ de %1$@ grupos en total. Los resultados detallados completos y la limpieza requieren acceso de por vida.";
 "upgrade.preview.count" = "%2$ld de %1$ld resultados";
 "upgrade.bottom.buy" = "Comprar acceso de por vida";
 "paywall.free_mode.notice" = "El análisis, los resúmenes y una vista previa limitada son gratuitos. Los resultados detallados completos y la limpieza están disponibles con acceso de por vida.";

@@ -671,6 +671,8 @@
 "settings.legal" = "Assistance et mentions légales";
 "upgrade.bottom.title" = "Aperçu gratuit";
 "upgrade.bottom.desc" = "L’analyse, les résumés et un aperçu limité sont gratuits. Les résultats détaillés complets et le nettoyage nécessitent l’accès à vie.";
+"upgrade.bottom.preview.items" = "L’aperçu gratuit affiche %2$@ éléments sur %1$@ au total. Les résultats détaillés complets et le nettoyage nécessitent l’accès à vie.";
+"upgrade.bottom.preview.groups" = "L’aperçu gratuit affiche %2$@ groupes sur %1$@ au total. Les résultats détaillés complets et le nettoyage nécessitent l’accès à vie.";
 "upgrade.preview.count" = "%2$ld résultats sur %1$ld";
 "upgrade.bottom.buy" = "Acheter l’accès à vie";
 "paywall.free_mode.notice" = "L’analyse, les résumés et un aperçu limité sont gratuits. Les résultats détaillés complets et le nettoyage sont disponibles avec l’accès à vie.";

@@ -146,7 +146,10 @@ struct LargeFilesView: View {
         .safeAreaInset(edge: .bottom) {
             if !storeManager.isPurchased {
                 Divider()
-                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
+                UpgradeBottomBanner(
+                    description: largeFilesFreePreviewDescription,
+                    onBuyTap: { showPaywall = true }
+                )
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, outerPadding + sectionInset)
                 .padding(.vertical, 10)
@@ -168,6 +171,14 @@ struct LargeFilesView: View {
                 runScan(for: url, minSizeMB: minFolderSizeMB, trigger: .auto)
             }
         }
+    }
+
+    private var largeFilesFreePreviewDescription: String? {
+        guard folderResults.count > displayedFolderResults.count else { return nil }
+        return "upgrade.bottom.preview.items".localized(
+            with: folderResults.count.formatted(),
+            displayedFolderResults.count.formatted()
+        )
     }
 
     private var headerSection: some View {

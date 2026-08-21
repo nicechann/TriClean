@@ -683,6 +683,8 @@
 "settings.legal" = "Support & Legal";
 "upgrade.bottom.title" = "Free Preview";
 "upgrade.bottom.desc" = "Scanning, summaries, and limited previews are free. Full detailed results and cleanup require Lifetime Access.";
+"upgrade.bottom.preview.items" = "The free preview shows %2$@ of %1$@ total items. Full detailed results and cleanup require Lifetime Access.";
+"upgrade.bottom.preview.groups" = "The free preview shows %2$@ of %1$@ total groups. Full detailed results and cleanup require Lifetime Access.";
 "upgrade.preview.count" = "%2$ld of %1$ld results";
 "upgrade.bottom.buy" = "Get Lifetime Access";
 "paywall.free_mode.notice" = "Scanning, summaries, and limited previews are free. Full detailed results and cleanup are available with Lifetime Access.";

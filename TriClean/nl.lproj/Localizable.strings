@@ -519,6 +519,8 @@
 "paywall.free_mode.notice" = "Scannen, samenvattingen en beperkte voorbeelden zijn gratis. Volledige detailresultaten en opruimen zijn beschikbaar met levenslange toegang.";
 "upgrade.bottom.title" = "Gratis voorbeeld";
 "upgrade.bottom.desc" = "Scannen, samenvattingen en beperkte voorbeelden zijn gratis. Volledige detailresultaten en opruimen vereisen levenslange toegang.";
+"upgrade.bottom.preview.items" = "De gratis preview toont %2$@ van de %1$@ items. Volledige detailresultaten en opruimen vereisen levenslange toegang.";
+"upgrade.bottom.preview.groups" = "De gratis preview toont %2$@ van de %1$@ groepen. Volledige detailresultaten en opruimen vereisen levenslange toegang.";
 "upgrade.preview.count" = "%2$ld van %1$ld resultaten";
 "upgrade.bottom.buy" = "Koop levenslange toegang";
 "store.status.checking" = "Aankoopstatus controleren…";

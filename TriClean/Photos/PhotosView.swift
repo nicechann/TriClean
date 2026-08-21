@@ -91,6 +91,23 @@ struct PhotosView: View {
             : Array(group.items.prefix(freeSimilarItemPreviewLimit))
     }
 
+    private var photoFreePreviewDescription: String? {
+        if viewModel.selectedCategory == .similar {
+            guard viewModel.isSimilarAnalyzed,
+                  viewModel.similarGroups.count > displayedSimilarGroups.count else { return nil }
+            return "upgrade.bottom.preview.groups".localized(
+                with: viewModel.similarGroups.count.formatted(),
+                displayedSimilarGroups.count.formatted()
+            )
+        }
+
+        guard viewModel.filteredItems.count > displayedFilteredItems.count else { return nil }
+        return "upgrade.bottom.preview.items".localized(
+            with: viewModel.filteredItems.count.formatted(),
+            displayedFilteredItems.count.formatted()
+        )
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -387,7 +404,10 @@ struct PhotosView: View {
             }
 
             if !storeManager.isPurchased {
-                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
+                UpgradeBottomBanner(
+                    description: photoFreePreviewDescription,
+                    onBuyTap: { showPaywall = true }
+                )
                     .padding(.top, 4)
             }
         }
