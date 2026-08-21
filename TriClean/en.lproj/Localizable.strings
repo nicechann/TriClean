@@ -539,6 +539,7 @@
 "smartscan.duplicates.caption_permission" = "Choose a scan folder in Duplicates first.";
 "smartscan.duplicates.caption_found" = "%ld duplicate groups found.";
 "smartscan.duplicates.caption_ready" = "Folder is ready. Start a scan.";
+"smartscan.reclaimable.storage_ratio" = "%@ of storage";
 "smartscan.apps.caption_permission" = "Allow Applications folder access in Apps first.";
 "smartscan.apps.caption_scanning" = "Loading app list.";
 "smartscan.apps.caption_found" = "%ld apps checked · %ld removable";

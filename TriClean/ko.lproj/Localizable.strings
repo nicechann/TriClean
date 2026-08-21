@@ -540,6 +540,7 @@
 "smartscan.duplicates.caption_permission" = "Duplicates 화면에서 스캔할 폴더를 먼저 선택하세요.";
 "smartscan.duplicates.caption_found" = "%ld개 중복 그룹을 찾았습니다.";
 "smartscan.duplicates.caption_ready" = "폴더가 준비되었습니다. 스캔을 시작하세요.";
+"smartscan.reclaimable.storage_ratio" = "저장공간의 %@";
 "smartscan.apps.caption_permission" = "Apps 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
 "smartscan.apps.caption_scanning" = "앱 목록을 불러오는 중입니다.";
 "smartscan.apps.caption_found" = "%ld개 앱 확인 · 제거 가능 %ld개";

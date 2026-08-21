@@ -379,6 +379,7 @@
 "smartscan.duplicates.caption_permission" = "Önce Kopyalar bölümünde bir tarama klasörü seçin.";
 "smartscan.duplicates.caption_found" = "%ld kopya grubu bulundu.";
 "smartscan.duplicates.caption_ready" = "Klasör hazır. Bir tarama başlatın.";
+"smartscan.reclaimable.storage_ratio" = "Depolamanın %@";
 "smartscan.apps.caption_permission" = "Önce Uygulamalar bölümünde Uygulamalar klasörü erişimine izin verin.";
 "smartscan.apps.caption_scanning" = "Uygulama listesi yükleniyor.";
 "smartscan.apps.caption_found" = "%ld uygulama kontrol edildi · %ld kaldırılabilir";

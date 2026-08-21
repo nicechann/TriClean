@@ -375,6 +375,7 @@
 "smartscan.duplicates.caption_permission" = "請先在「重複檔案」中選擇掃描資料夾。";
 "smartscan.duplicates.caption_found" = "找到 %ld 個重複檔案群組。";
 "smartscan.duplicates.caption_ready" = "資料夾已就緒，可以開始掃描。";
+"smartscan.reclaimable.storage_ratio" = "儲存空間的%@";
 "smartscan.apps.caption_permission" = "請先在「應用程式」中授予「應用程式」資料夾存取權限。";
 "smartscan.apps.caption_scanning" = "正在載入應用程式列表。";
 "smartscan.apps.caption_found" = "已檢查 %ld 個應用程式 · 其中 %ld 個可移除";

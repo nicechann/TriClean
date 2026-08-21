@@ -375,6 +375,7 @@
 "smartscan.duplicates.caption_permission" = "请先在「重复文件」中选择扫描文件夹。";
 "smartscan.duplicates.caption_found" = "找到 %ld 个重复文件组。";
 "smartscan.duplicates.caption_ready" = "文件夹已就绪，可以开始扫描。";
+"smartscan.reclaimable.storage_ratio" = "存储空间的%@";
 "smartscan.apps.caption_permission" = "请先在「应用」中授予应用程序文件夹访问权限。";
 "smartscan.apps.caption_scanning" = "正在载入应用列表。";
 "smartscan.apps.caption_found" = "已检查 %ld 个应用 · 其中 %ld 个可移除";

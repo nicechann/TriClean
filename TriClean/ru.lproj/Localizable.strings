@@ -381,6 +381,7 @@
 "smartscan.duplicates.caption_permission" = "Сначала выберите папку для сканирования в разделе «Дубликаты».";
 "smartscan.duplicates.caption_found" = "Найдено групп дубликатов: %ld.";
 "smartscan.duplicates.caption_ready" = "Папка готова. Начните сканирование.";
+"smartscan.reclaimable.storage_ratio" = "%@ хранилища";
 "smartscan.apps.caption_permission" = "Сначала разрешите доступ к папке «Программы» в разделе «Программы».";
 "smartscan.apps.caption_scanning" = "Загрузка списка программ.";
 "smartscan.apps.caption_found" = "Проверено программ: %ld · удаляемых: %ld";

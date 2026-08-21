@@ -527,6 +527,7 @@
 "smartscan.duplicates.caption_permission" = "Elige primero una carpeta de análisis en Duplicados.";
 "smartscan.duplicates.caption_found" = "Se encontraron %ld grupos de duplicados.";
 "smartscan.duplicates.caption_ready" = "La carpeta está lista. Inicia un análisis.";
+"smartscan.reclaimable.storage_ratio" = "%@ del almacenamiento";
 "smartscan.apps.caption_permission" = "Permite primero el acceso a la carpeta Applications en Apps.";
 "smartscan.apps.caption_scanning" = "Cargando lista de apps.";
 "smartscan.apps.caption_found" = "%ld apps comprobadas · %ld eliminables";

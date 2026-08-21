@@ -375,6 +375,7 @@
 "smartscan.duplicates.caption_permission" = "Escolha primeiro uma pasta em Duplicados.";
 "smartscan.duplicates.caption_found" = "%ld grupos de duplicados encontrados.";
 "smartscan.duplicates.caption_ready" = "Pasta pronta. Inicie um escaneamento.";
+"smartscan.reclaimable.storage_ratio" = "%@ do armazenamento";
 "smartscan.apps.caption_permission" = "Permita primeiro o acesso à pasta Aplicativos em Apps.";
 "smartscan.apps.caption_scanning" = "Carregando a lista de apps.";
 "smartscan.apps.caption_found" = "%ld apps verificados · %ld removíveis";

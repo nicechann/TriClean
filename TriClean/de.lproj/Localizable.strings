@@ -527,6 +527,7 @@
 "smartscan.duplicates.caption_permission" = "Wähle zuerst im Bereich Duplikate einen Scanordner aus.";
 "smartscan.duplicates.caption_found" = "%ld Duplikat-Gruppen gefunden.";
 "smartscan.duplicates.caption_ready" = "Ordner ist bereit. Starte einen Scan.";
+"smartscan.reclaimable.storage_ratio" = "%@ des Speichers";
 "smartscan.apps.caption_permission" = "Erlaube zuerst im Apps-Bereich den Zugriff auf den Applications-Ordner.";
 "smartscan.apps.caption_scanning" = "App-Liste wird geladen.";
 "smartscan.apps.caption_found" = "%ld Apps geprüft · %ld entfernbar";

@@ -375,6 +375,7 @@
 "smartscan.duplicates.caption_permission" = "Scegli prima una cartella da analizzare in Duplicati.";
 "smartscan.duplicates.caption_found" = "%ld gruppi di duplicati trovati.";
 "smartscan.duplicates.caption_ready" = "Cartella pronta. Avvia una scansione.";
+"smartscan.reclaimable.storage_ratio" = "%@ dello spazio";
 "smartscan.apps.caption_permission" = "Consenti prima l'accesso alla cartella Applicazioni in App.";
 "smartscan.apps.caption_scanning" = "Caricamento dell'elenco delle app.";
 "smartscan.apps.caption_found" = "%ld app controllate · %ld rimovibili";

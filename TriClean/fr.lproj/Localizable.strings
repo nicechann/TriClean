@@ -527,6 +527,7 @@
 "smartscan.duplicates.caption_permission" = "Choisissez d’abord un dossier à analyser dans Doublons.";
 "smartscan.duplicates.caption_found" = "%ld groupes de doublons trouvés.";
 "smartscan.duplicates.caption_ready" = "Le dossier est prêt. Lancez une analyse.";
+"smartscan.reclaimable.storage_ratio" = "%@ du stockage";
 "smartscan.apps.caption_permission" = "Autorisez d’abord l’accès au dossier Applications dans Apps.";
 "smartscan.apps.caption_scanning" = "Chargement de la liste des apps.";
 "smartscan.apps.caption_found" = "%ld apps vérifiées · %ld supprimables";

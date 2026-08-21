@@ -381,6 +381,7 @@
 "smartscan.duplicates.caption_permission" = "Najpierw wybierz folder do skanowania w sekcji Duplikaty.";
 "smartscan.duplicates.caption_found" = "Znaleziono grup duplikatów: %ld.";
 "smartscan.duplicates.caption_ready" = "Folder gotowy. Rozpocznij skanowanie.";
+"smartscan.reclaimable.storage_ratio" = "%@ pamięci dysku";
 "smartscan.apps.caption_permission" = "Najpierw zezwól na dostęp do folderu Aplikacje w sekcji Aplikacje.";
 "smartscan.apps.caption_scanning" = "Wczytywanie listy aplikacji.";
 "smartscan.apps.caption_found" = "Sprawdzonych aplikacji: %ld · do usunięcia: %ld";

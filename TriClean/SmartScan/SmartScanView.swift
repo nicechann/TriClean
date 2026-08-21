@@ -189,7 +189,8 @@ struct SmartScanView: View {
                 value: junkValueText,
                 caption: junkCaptionText,
                 systemImage: "trash.circle",
-                progress: nil
+                progress: junkReclaimableRatio,
+                progressLabel: reclaimableProgressLabel(for: junkReclaimableRatio)
             )
 
             overviewCard(
@@ -197,7 +198,8 @@ struct SmartScanView: View {
                 value: duplicateValueText,
                 caption: duplicateCaptionText,
                 systemImage: "doc.on.doc",
-                progress: nil
+                progress: duplicateReclaimableRatio,
+                progressLabel: reclaimableProgressLabel(for: duplicateReclaimableRatio)
             )
         }
     }
@@ -205,6 +207,32 @@ struct SmartScanView: View {
     private var storageUsageRatio: Double? {
         guard let diskInfo = viewModel.diskInfo else { return nil }
         return min(max(diskInfo.usedRatio, 0), 1)
+    }
+
+    /// 정리 가능 용량을 전체 디스크 용량 대비 비율로 표시합니다.
+    /// 임의 스케일을 사용하지 않아 진행바와 실제 확보 가능 용량의 의미가 일치합니다.
+    private func reclaimableRatio(bytes: Int64) -> Double? {
+        guard let totalBytes = viewModel.diskInfo?.totalBytes,
+              totalBytes > 0,
+              bytes > 0 else { return nil }
+
+        return min(max(Double(bytes) / Double(totalBytes), 0), 1)
+    }
+
+    private var junkReclaimableRatio: Double? {
+        guard junkViewModel.hasResults else { return nil }
+        return reclaimableRatio(bytes: junkViewModel.totalJunkBytes)
+    }
+
+    private var duplicateReclaimableRatio: Double? {
+        guard !duplicateViewModel.groups.isEmpty else { return nil }
+        return reclaimableRatio(bytes: duplicateViewModel.totalReclaimableBytes)
+    }
+
+    private func reclaimableProgressLabel(for ratio: Double?) -> String? {
+        guard let ratio else { return nil }
+        let percent = ratio.formatted(.percent.precision(.fractionLength(1)))
+        return "smartscan.reclaimable.storage_ratio".localized(with: percent)
     }
 
     private var junkValueText: String {
@@ -350,7 +378,14 @@ struct SmartScanView: View {
         .background(RoundedRectangle(cornerRadius: 14).fill(Color.green.opacity(0.08)))
     }
 
-    private func overviewCard(title: String, value: String, caption: String, systemImage: String, progress: Double?) -> some View {
+    private func overviewCard(
+        title: String,
+        value: String,
+        caption: String,
+        systemImage: String,
+        progress: Double?,
+        progressLabel: String? = nil
+    ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: systemImage)
@@ -358,7 +393,7 @@ struct SmartScanView: View {
                     .foregroundStyle(Color.accentColor)
                 Spacer()
                 if let progress {
-                    Text("\(Int(progress * 100))%")
+                    Text(progressLabel ?? "\(Int(progress * 100))%")
                         .appFont(.caption, monospacedDigit: true)
                         .foregroundStyle(.secondary)
                 }

@@ -527,6 +527,7 @@
 "smartscan.duplicates.caption_permission" = "まず重複ファイル画面でスキャンするフォルダを選択してください。";
 "smartscan.duplicates.caption_found" = "%ld 個の重複グループが見つかりました。";
 "smartscan.duplicates.caption_ready" = "フォルダの準備ができました。スキャンを開始してください。";
+"smartscan.reclaimable.storage_ratio" = "ストレージの%@";
 "smartscan.apps.caption_permission" = "まずアプリ画面でApplicationsフォルダへのアクセスを許可してください。";
 "smartscan.apps.caption_scanning" = "アプリ一覧を読み込んでいます。";
 "smartscan.apps.caption_found" = "%ld 個のアプリを確認 · 削除可能 %ld 個";

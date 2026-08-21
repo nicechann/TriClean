@@ -375,6 +375,7 @@
 "smartscan.duplicates.caption_permission" = "Kies eerst een scanmap bij Duplicaten.";
 "smartscan.duplicates.caption_found" = "Gevonden: %ld duplicaatgroepen.";
 "smartscan.duplicates.caption_ready" = "Map is gereed. Start een scan.";
+"smartscan.reclaimable.storage_ratio" = "%@ van opslag";
 "smartscan.apps.caption_permission" = "Geef eerst toegang tot de map Programma's bij Apps.";
 "smartscan.apps.caption_scanning" = "App-lijst laden.";
 "smartscan.apps.caption_found" = "%ld apps gecontroleerd · %ld verwijderbaar";
