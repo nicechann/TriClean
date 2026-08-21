@@ -500,7 +500,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean, accesso a vita";
-"paywall.subtitle" = "Sblocca l'eliminazione dei file e la pulizia";
+"paywall.subtitle" = "Sblocca risultati completi e pulizia";
 "paywall.feat.memory" = "Spostamento sicuro nel Cestino";
 "paywall.feat.memory_desc" = "Riverifica percorsi e stato dei file prima di spostare gli elementi nel Cestino, da cui è possibile ripristinarli";
 "paywall.feat.disk" = "Pulizia di file grandi e inutili";
@@ -516,9 +516,9 @@
 "paywall.link.terms" = "Condizioni d'uso";
 "paywall.error.title" = "Errore di acquisto";
 "paywall.error.unknown" = "Si è verificato un errore sconosciuto.";
-"paywall.free_mode.notice" = "La scansione e l'analisi sono gratuite. L'eliminazione dei file e la pulizia sono disponibili dopo l'acquisto dello sblocco a vita.";
-"upgrade.bottom.title" = "Modalità di analisi gratuita";
-"upgrade.bottom.desc" = "Scansione e risultati sono gratuiti. L'eliminazione dei file e la pulizia richiedono lo sblocco a vita.";
+"paywall.free_mode.notice" = "Scansione, riepiloghi e anteprime limitate sono gratuiti. I risultati dettagliati completi e la pulizia sono disponibili con l’accesso a vita.";
+"upgrade.bottom.title" = "Anteprima gratuita";
+"upgrade.bottom.desc" = "Scansione, riepiloghi e anteprime limitate sono gratuiti. I risultati dettagliati completi e la pulizia richiedono l’accesso a vita.";
 "upgrade.bottom.buy" = "Ottieni l'accesso a vita";
 "store.status.checking" = "Verifica dello stato dell'acquisto…";
 "store.status.loading_products" = "Caricamento dei prodotti…";

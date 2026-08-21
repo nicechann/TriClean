@@ -66,9 +66,30 @@ struct PhotosView: View {
     @EnvironmentObject private var storeManager: StoreManager
 
     private let columns = [GridItem(.adaptive(minimum: 120, maximum: 120), spacing: 12)]
+    private let freePhotoPreviewLimit = 8
+    private let freeSimilarGroupPreviewLimit = 2
+    private let freeSimilarItemPreviewLimit = 4
 
     @State private var showDeleteConfirm = false
     @State private var showPaywall = false
+
+    private var displayedFilteredItems: [PhotoItem] {
+        storeManager.isPurchased
+            ? viewModel.filteredItems
+            : Array(viewModel.filteredItems.prefix(freePhotoPreviewLimit))
+    }
+
+    private var displayedSimilarGroups: [PhotoGroup] {
+        storeManager.isPurchased
+            ? viewModel.similarGroups
+            : Array(viewModel.similarGroups.prefix(freeSimilarGroupPreviewLimit))
+    }
+
+    private func displayedItems(in group: PhotoGroup) -> [PhotoItem] {
+        storeManager.isPurchased
+            ? group.items
+            : Array(group.items.prefix(freeSimilarItemPreviewLimit))
+    }
 
     var body: some View {
         ScrollView {
@@ -358,11 +379,16 @@ struct PhotosView: View {
                 .padding(32)
             } else {
                 LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.filteredItems) { item in
+                    ForEach(displayedFilteredItems) { item in
                         PhotoThumbnailCell(item: item)
                     }
                 }
                 .padding(.vertical, 4)
+            }
+
+            if !storeManager.isPurchased {
+                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
+                    .padding(.top, 4)
             }
         }
     }
@@ -472,7 +498,7 @@ struct PhotosView: View {
             .padding(32)
         } else {
             VStack(alignment: .leading, spacing: 22) {
-                ForEach(viewModel.similarGroups) { group in
+                ForEach(displayedSimilarGroups) { group in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
                             Image(systemName: "square.on.square")
@@ -485,14 +511,18 @@ struct PhotosView: View {
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Button("photos.similar.select_extras".localized) {
-                                viewModel.selectExtras(in: group)
+                                if storeManager.isPurchased {
+                                    viewModel.selectExtras(in: group)
+                                } else {
+                                    showPaywall = true
+                                }
                             }
                             .buttonStyle(.borderless)
                             .controlSize(.small)
                             .disabled(viewModel.isDeleting)
                         }
                         LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                            ForEach(group.items) { item in
+                            ForEach(displayedItems(in: group)) { item in
                                 PhotoThumbnailCell(item: item)
                             }
                         }
@@ -507,7 +537,11 @@ struct PhotosView: View {
     private var selectionToolbar: some View {
         HStack(spacing: 8) {
             Button {
-                viewModel.selectVisibleItems()
+                if storeManager.isPurchased {
+                    viewModel.selectVisibleItems()
+                } else {
+                    showPaywall = true
+                }
             } label: {
                 Label("photos.select.all".localized, systemImage: "checkmark.circle")
             }

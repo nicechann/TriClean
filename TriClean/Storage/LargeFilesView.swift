@@ -48,6 +48,13 @@ struct LargeFilesView: View {
     @State private var topFolderSort: TopFolderSort = .discovered
     @State private var discoveredResults: [FolderInfo] = []
 
+    // Free users can verify scan quality with a small preview; Lifetime Access reveals the full result list.
+    private let freePreviewItemLimit = 5
+
+    private var displayedFolderResults: [FolderInfo] {
+        storeManager.isPurchased ? folderResults : Array(folderResults.prefix(freePreviewItemLimit))
+    }
+
     private var rootResultCount: Int {
         folderResults.filter { $0.depth == 0 }.count
     }
@@ -103,7 +110,7 @@ struct LargeFilesView: View {
 
                 if !folderResults.isEmpty {
                     TreemapView(
-                        items: folderResults,
+                        items: displayedFolderResults,
                         onItemTapped: { item in openInFinder(item) }
                     )
                     .padding(.horizontal, sectionInset)
@@ -339,7 +346,7 @@ struct LargeFilesView: View {
             }
 
             if folderResults.isEmpty {
-                Table(folderResults, selection: $tableSelection) {
+                Table(displayedFolderResults, selection: $tableSelection) {
                     TableColumn("storage.table.item".localized) { item in
                         itemNameCell(item)
                     }
@@ -352,7 +359,7 @@ struct LargeFilesView: View {
                     .width(min: 90, ideal: 110, max: 130)
                 }
             } else {
-                Table(folderResults, selection: $tableSelection) {
+                Table(displayedFolderResults, selection: $tableSelection) {
                     TableColumn("storage.table.item".localized) { item in
                         itemNameCell(item)
                     }

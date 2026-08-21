@@ -500,7 +500,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean levenslange toegang";
-"paywall.subtitle" = "Ontgrendel het verwijderen van bestanden en opruimen";
+"paywall.subtitle" = "Ontgrendel volledige resultaten en opruimen";
 "paywall.feat.memory" = "Veilig naar de prullenmand";
 "paywall.feat.memory_desc" = "Controleert paden en bestandsstatus opnieuw voordat items naar de prullenmand gaan, waar ze kunnen worden teruggezet";
 "paywall.feat.disk" = "Grote en overbodige bestanden opruimen";
@@ -516,9 +516,9 @@
 "paywall.link.terms" = "Gebruiksvoorwaarden";
 "paywall.error.title" = "Aankoopfout";
 "paywall.error.unknown" = "Er is een onbekende fout opgetreden.";
-"paywall.free_mode.notice" = "Scannen en analyseren is gratis. Bestanden verwijderen en opruimen is beschikbaar na aankoop van de levenslange ontgrendeling.";
-"upgrade.bottom.title" = "Gratis analysemodus";
-"upgrade.bottom.desc" = "Scannen en resultaten bekijken is gratis. Voor het verwijderen van bestanden en opruimen is levenslange toegang nodig.";
+"paywall.free_mode.notice" = "Scannen, samenvattingen en beperkte voorbeelden zijn gratis. Volledige detailresultaten en opruimen zijn beschikbaar met levenslange toegang.";
+"upgrade.bottom.title" = "Gratis voorbeeld";
+"upgrade.bottom.desc" = "Scannen, samenvattingen en beperkte voorbeelden zijn gratis. Volledige detailresultaten en opruimen vereisen levenslange toegang.";
 "upgrade.bottom.buy" = "Koop levenslange toegang";
 "store.status.checking" = "Aankoopstatus controleren…";
 "store.status.loading_products" = "Producten laden…";

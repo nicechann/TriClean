@@ -500,7 +500,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean 永久使用權";
-"paywall.subtitle" = "解鎖檔案刪除與清理功能";
+"paywall.subtitle" = "解鎖完整結果與清理功能";
 "paywall.feat.memory" = "安全移到垃圾桶";
 "paywall.feat.memory_desc" = "移動項目前重新驗證路徑和檔案狀態，移入可回復的垃圾桶";
 "paywall.feat.disk" = "大型檔案與垃圾檔案清理";
@@ -516,9 +516,9 @@
 "paywall.link.terms" = "使用條款";
 "paywall.error.title" = "購買時發生錯誤";
 "paywall.error.unknown" = "發生未知的錯誤。";
-"paywall.free_mode.notice" = "掃描和分析免費。購買永久使用權後即可使用檔案刪除與清理功能。";
-"upgrade.bottom.title" = "免費分析模式";
-"upgrade.bottom.desc" = "掃描和檢視結果免費。檔案刪除與清理需要購買永久使用權。";
+"paywall.free_mode.notice" = "掃描、摘要和部分結果預覽免費。購買永久使用權後可查看完整詳細結果並使用清理功能。";
+"upgrade.bottom.title" = "免費預覽";
+"upgrade.bottom.desc" = "掃描、摘要和部分結果預覽免費。完整詳細結果和清理功能需要永久使用權。";
 "upgrade.bottom.buy" = "取得永久使用權";
 "store.status.checking" = "正在檢查購買狀態…";
 "store.status.loading_products" = "正在載入產品…";

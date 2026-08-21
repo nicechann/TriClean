@@ -504,7 +504,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean ömür boyu erişim";
-"paywall.subtitle" = "Dosya silme ve temizlik özelliklerinin kilidini açın";
+"paywall.subtitle" = "Tüm sonuçların ve temizliğin kilidini açın";
 "paywall.feat.memory" = "Güvenli şekilde Çöp Kutusu'na taşıma";
 "paywall.feat.memory_desc" = "Öğeleri geri yüklenebilir Çöp Kutusu'na taşımadan önce yolları ve dosya durumunu yeniden doğrular";
 "paywall.feat.disk" = "Büyük ve gereksiz dosya temizliği";
@@ -520,9 +520,9 @@
 "paywall.link.terms" = "Kullanım Koşulları";
 "paywall.error.title" = "Satın alma hatası";
 "paywall.error.unknown" = "Bilinmeyen bir hata oluştu.";
-"paywall.free_mode.notice" = "Tarama ve inceleme ücretsizdir. Dosya silme ve temizlik, ömür boyu kilit açma satın alındıktan sonra kullanılabilir.";
-"upgrade.bottom.title" = "Ücretsiz inceleme modu";
-"upgrade.bottom.desc" = "Tarama ve sonuçlar ücretsizdir. Dosya silme ve temizlik için ömür boyu kilit açma gerekir.";
+"paywall.free_mode.notice" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik ömür boyu erişimle kullanılabilir.";
+"upgrade.bottom.title" = "Ücretsiz önizleme";
+"upgrade.bottom.desc" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik için ömür boyu erişim gerekir.";
 "upgrade.bottom.buy" = "Ömür boyu erişim al";
 "store.status.checking" = "Satın alma durumu kontrol ediliyor…";
 "store.status.loading_products" = "Ürünler yükleniyor…";

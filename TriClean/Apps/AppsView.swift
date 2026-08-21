@@ -340,6 +340,8 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Manual app selection (.app)
 
     func selectAppBundleManually() {
+        guard StoreManager.shared.isPurchased else { return }
+
         let panel = NSOpenPanel()
         panel.title = "apps.manual.title".localized
         panel.message = "apps.manual.msg".localized
@@ -538,6 +540,12 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
+        guard StoreManager.shared.isPurchased else {
+            selectedApp = nil
+            relatedItems = []
+            return
+        }
+
         selectedApp = AppsSelectedAppInfo(
             name: app.name,
             bundleID: app.bundleID,
@@ -1068,6 +1076,9 @@ struct AppsView: View {
             headerSection(compact: compact)
             summaryCards(compact: compact)
             safetyNoticeCard
+            if !storeManager.isPurchased {
+                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
+            }
             filterAndActionBar(compact: compact)
         }
     }
@@ -1137,7 +1148,11 @@ struct AppsView: View {
                     Spacer()
 
                     Button("apps.scope.library_folder".localized) {
-                        viewModel.selectUserLibraryFolder()
+                        if storeManager.isPurchased {
+                            viewModel.selectUserLibraryFolder()
+                        } else {
+                            showPaywall = true
+                        }
                     }
                 }
 
@@ -1181,7 +1196,11 @@ struct AppsView: View {
                     HStack {
                         Spacer()
                         Button("apps.btn.manual_select".localized) {
-                            viewModel.selectAppBundleManually()
+                            if storeManager.isPurchased {
+                                viewModel.selectAppBundleManually()
+                            } else {
+                                showPaywall = true
+                            }
                         }
                         .fixedSize()
                     }
@@ -1201,7 +1220,11 @@ struct AppsView: View {
                     Spacer(minLength: 16)
 
                     Button("apps.btn.manual_select".localized) {
-                        viewModel.selectAppBundleManually()
+                        if storeManager.isPurchased {
+                            viewModel.selectAppBundleManually()
+                        } else {
+                            showPaywall = true
+                        }
                     }
                     .fixedSize()
                 }
@@ -1610,6 +1633,10 @@ struct AppsView: View {
     }
 
     private func openDetails(for app: AppsInstalledApp, useInspector: Bool) {
+        guard storeManager.isPurchased else {
+            showPaywall = true
+            return
+        }
         viewModel.analyzeInstalledApp(app: app)
         if !useInspector {
             showCompactDetailsSheet = true

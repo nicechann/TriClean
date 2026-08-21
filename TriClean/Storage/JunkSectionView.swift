@@ -199,12 +199,14 @@ struct JunkSectionView: View {
                             .foregroundStyle(.orange)
                     }
 
-                    Label {
-                        Text("junk.section.selected".localized(with: viewModel.selectedJunkString))
-                            .appFont(.caption, weight: .bold)
-                    } icon: {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.blue)
+                    if storeManager.isPurchased {
+                        Label {
+                            Text("junk.section.selected".localized(with: viewModel.selectedJunkString))
+                                .appFont(.caption, weight: .bold)
+                        } icon: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
                     }
 
                     Spacer()
@@ -315,17 +317,21 @@ struct JunkSectionView: View {
     // MARK: - 카테고리 행 (펼침/접힘)
 
     private func junkCategoryRow(_ result: JunkScanResult) -> some View {
-        let isExpanded = expandedCategories.contains(result.id)
+        let isExpanded = storeManager.isPurchased && expandedCategories.contains(result.id)
         let isShowingAll = showAllItems.contains(result.id)
         let visibleItems = result.displayedItems(showAll: isShowingAll)
 
         return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
                 Button {
-                    viewModel.toggleAll(in: result.id)
+                    if storeManager.isPurchased {
+                        viewModel.toggleAll(in: result.id)
+                    } else {
+                        onUpgradeRequired()
+                    }
                 } label: {
-                    Image(systemName: selectionIcon(for: result.selectionState))
-                        .foregroundStyle(selectionColor(for: result.selectionState))
+                    Image(systemName: storeManager.isPurchased ? selectionIcon(for: result.selectionState) : "lock.fill")
+                        .foregroundStyle(storeManager.isPurchased ? selectionColor(for: result.selectionState) : Color.secondary)
                         .frame(width: 18)
                 }
                 .buttonStyle(.plain)
@@ -345,7 +351,11 @@ struct JunkSectionView: View {
                 .disabled(viewModel.isScanning || viewModel.isCleaning)
 
                 Button {
-                    toggleExpanded(result.id)
+                    if storeManager.isPurchased {
+                        toggleExpanded(result.id)
+                    } else {
+                        onUpgradeRequired()
+                    }
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: result.category.icon)
@@ -357,7 +367,9 @@ struct JunkSectionView: View {
                             HStack(spacing: 6) {
                                 Text(result.category.name)
                                     .appFont(.caption, weight: .bold)
-                                Text("\(result.selectedCount)/\(result.items.count)")
+                                Text(storeManager.isPurchased
+                                     ? "\(result.selectedCount)/\(result.items.count)"
+                                     : "\(result.items.count)")
                                     .appFont(.caption2)
                                     .foregroundStyle(.secondary)
                             }
@@ -377,7 +389,9 @@ struct JunkSectionView: View {
                             )
                             .foregroundStyle(result.category.riskLevel.color)
 
-                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        Image(systemName: storeManager.isPurchased
+                              ? (isExpanded ? "chevron.down" : "chevron.right")
+                              : "lock.fill")
                             .appFont(.caption2)
                             .foregroundStyle(.secondary)
                     }

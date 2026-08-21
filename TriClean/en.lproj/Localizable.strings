@@ -223,7 +223,7 @@
 
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean Lifetime Access";
-"paywall.subtitle" = "Unlock file deletion and cleanup";
+"paywall.subtitle" = "Unlock full results and cleanup";
 "paywall.feat.disk" = "Large File & Junk Cleanup";
 "paywall.feat.disk_desc" = "Clean selected large files and unnecessary files from analysis results";
 "paywall.feat.apps" = "App & Related File Cleanup";
@@ -681,10 +681,10 @@
 
 // Free analysis / legal access
 "settings.legal" = "Support & Legal";
-"upgrade.bottom.title" = "Free Analysis Mode";
-"upgrade.bottom.desc" = "Scanning and results are free. File deletion and cleanup require the lifetime unlock.";
+"upgrade.bottom.title" = "Free Preview";
+"upgrade.bottom.desc" = "Scanning, summaries, and limited previews are free. Full detailed results and cleanup require Lifetime Access.";
 "upgrade.bottom.buy" = "Get Lifetime Access";
-"paywall.free_mode.notice" = "Scanning and analysis are free. File deletion and cleanup are available after purchasing the lifetime unlock.";
+"paywall.free_mode.notice" = "Scanning, summaries, and limited previews are free. Full detailed results and cleanup are available with Lifetime Access.";
 
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";

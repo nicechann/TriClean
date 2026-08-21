@@ -219,7 +219,7 @@
 
 // MARK: - Paywall (Features)
 "paywall.title" = "TriClean 평생 이용권";
-"paywall.subtitle" = "파일 삭제와 정리 기능을 잠금 해제하세요";
+"paywall.subtitle" = "전체 결과와 정리 기능을 잠금 해제하세요";
 /* ✅ [수정 v2] Paywall 기능 설명 — "모니터링" 중심 */
 "paywall.feat.memory" = "안전한 휴지통 이동";
 "paywall.feat.memory_desc" = "삭제 전 경로와 파일 상태를 다시 확인하고 복구 가능한 휴지통으로 이동합니다";
@@ -682,10 +682,10 @@
 
 // Free analysis / legal access
 "settings.legal" = "지원 및 법적 고지";
-"upgrade.bottom.title" = "무료 분석 모드";
-"upgrade.bottom.desc" = "스캔과 결과 확인은 무료입니다. 파일 삭제와 정리 기능은 평생 이용권에서 사용할 수 있습니다.";
+"upgrade.bottom.title" = "무료 미리보기";
+"upgrade.bottom.desc" = "스캔과 요약, 일부 결과 미리보기는 무료입니다. 전체 상세 결과와 정리 기능은 평생 이용권에서 사용할 수 있습니다.";
 "upgrade.bottom.buy" = "평생 이용권 구매";
-"paywall.free_mode.notice" = "스캔과 분석은 무료로 이용할 수 있습니다. 파일 삭제와 정리 기능은 평생 이용권 구매 후 사용할 수 있습니다.";
+"paywall.free_mode.notice" = "스캔과 요약, 일부 결과 미리보기는 무료입니다. 전체 상세 결과와 정리 기능은 평생 이용권 구매 후 사용할 수 있습니다.";
 
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";

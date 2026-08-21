@@ -217,7 +217,7 @@
 
 /* Paywall (Features) */
 "paywall.title" = "TriClean 買い切り版";
-"paywall.subtitle" = "ファイルの削除と整理機能を解除";
+"paywall.subtitle" = "すべての結果と整理機能を解除";
 "paywall.feat.disk" = "大容量・不要ファイルの整理";
 "paywall.feat.disk_desc" = "分析結果から選択した大容量ファイルと不要ファイルを整理します";
 "paywall.feat.apps" = "Appと関連ファイルの整理";
@@ -669,10 +669,10 @@
 
 // Free analysis / legal access
 "settings.legal" = "サポートと法的情報";
-"upgrade.bottom.title" = "無料分析モード";
-"upgrade.bottom.desc" = "スキャンと結果の確認は無料です。ファイルの削除と整理には買い切り版が必要です。";
+"upgrade.bottom.title" = "無料プレビュー";
+"upgrade.bottom.desc" = "スキャン、概要、一部の結果プレビューは無料です。すべての詳細結果と整理機能には買い切り版が必要です。";
 "upgrade.bottom.buy" = "買い切り版を購入";
-"paywall.free_mode.notice" = "スキャンと分析は無料で利用できます。ファイルの削除と整理は買い切り版の購入後に利用できます。";
+"paywall.free_mode.notice" = "スキャン、概要、一部の結果プレビューは無料です。すべての詳細結果と整理機能は買い切り版で利用できます。";
 
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";

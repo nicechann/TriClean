@@ -506,7 +506,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean — dostęp dożywotni";
-"paywall.subtitle" = "Odblokuj usuwanie plików i porządkowanie";
+"paywall.subtitle" = "Odblokuj pełne wyniki i porządkowanie";
 "paywall.feat.memory" = "Bezpieczne przenoszenie do Kosza";
 "paywall.feat.memory_desc" = "Ponownie weryfikuje ścieżki i stan plików przed przeniesieniem elementów do Kosza, z którego można je przywrócić";
 "paywall.feat.disk" = "Porządkowanie dużych i zbędnych plików";
@@ -522,9 +522,9 @@
 "paywall.link.terms" = "Warunki korzystania";
 "paywall.error.title" = "Błąd zakupu";
 "paywall.error.unknown" = "Wystąpił nieznany błąd.";
-"paywall.free_mode.notice" = "Skanowanie i analiza są bezpłatne. Usuwanie plików i porządkowanie są dostępne po zakupie dożywotniego odblokowania.";
-"upgrade.bottom.title" = "Bezpłatny tryb analizy";
-"upgrade.bottom.desc" = "Skanowanie i wyniki są bezpłatne. Usuwanie plików i porządkowanie wymagają dożywotniego odblokowania.";
+"paywall.free_mode.notice" = "Skanowanie, podsumowania i ograniczony podgląd są bezpłatne. Pełne szczegółowe wyniki i porządkowanie są dostępne z dożywotnim dostępem.";
+"upgrade.bottom.title" = "Bezpłatny podgląd";
+"upgrade.bottom.desc" = "Skanowanie, podsumowania i ograniczony podgląd są bezpłatne. Pełne szczegółowe wyniki i porządkowanie wymagają dożywotniego dostępu.";
 "upgrade.bottom.buy" = "Uzyskaj dostęp dożywotni";
 "store.status.checking" = "Sprawdzanie stanu zakupu…";
 "store.status.loading_products" = "Wczytywanie produktów…";

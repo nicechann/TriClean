@@ -217,7 +217,7 @@
 
 /* Paywall (Features) */
 "paywall.title" = "TriClean Dauerzugang";
-"paywall.subtitle" = "Löschen und Bereinigen freischalten";
+"paywall.subtitle" = "Vollständige Ergebnisse und Bereinigung freischalten";
 "paywall.feat.disk" = "Große Dateien und Datenmüll";
 "paywall.feat.disk_desc" = "Ausgewählte große und unnötige Dateien aus den Analyseergebnissen bereinigen";
 "paywall.feat.apps" = "Apps und zugehörige Dateien";
@@ -669,10 +669,10 @@
 
 // Free analysis / legal access
 "settings.legal" = "Support & Rechtliches";
-"upgrade.bottom.title" = "Kostenloser Analysemodus";
-"upgrade.bottom.desc" = "Scans und Ergebnisse sind kostenlos. Löschen und Bereinigen erfordern die lebenslange Freischaltung.";
+"upgrade.bottom.title" = "Kostenlose Vorschau";
+"upgrade.bottom.desc" = "Scans, Zusammenfassungen und eine begrenzte Vorschau sind kostenlos. Vollständige Detailergebnisse und Bereinigung erfordern den Dauerzugang.";
 "upgrade.bottom.buy" = "Dauerzugang kaufen";
-"paywall.free_mode.notice" = "Scannen und Analysieren sind kostenlos. Löschen und Bereinigen sind nach dem Kauf der lebenslangen Freischaltung verfügbar.";
+"paywall.free_mode.notice" = "Scans, Zusammenfassungen und eine begrenzte Vorschau sind kostenlos. Vollständige Detailergebnisse und Bereinigung sind mit dem Dauerzugang verfügbar.";
 
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";

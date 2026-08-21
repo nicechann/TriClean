@@ -16,6 +16,12 @@ struct DuplicateFinderView: View {
     @State private var showPaywall = false
     @State private var expandedGroupIDs: Set<UUID> = []
 
+    private let freePreviewGroupLimit = 3
+
+    private var displayedGroups: [DuplicateGroup] {
+        storeManager.isPurchased ? viewModel.groups : Array(viewModel.groups.prefix(freePreviewGroupLimit))
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             headerSection
@@ -220,7 +226,11 @@ struct DuplicateFinderView: View {
 
             HStack(spacing: 8) {
                 Button {
-                    viewModel.applyRecommendedSelection()
+                    if storeManager.isPurchased {
+                        viewModel.applyRecommendedSelection()
+                    } else {
+                        showPaywall = true
+                    }
                 } label: {
                     Label("duplicate.action.apply_recommended".localized, systemImage: "wand.and.stars")
                 }
@@ -247,10 +257,14 @@ struct DuplicateFinderView: View {
 
             ScrollView {
                 LazyVStack(spacing: 8) {
-                    ForEach(viewModel.groups) { group in
+                    ForEach(displayedGroups) { group in
                         duplicateGroupRow(group)
                     }
                 }
+            }
+
+            if !storeManager.isPurchased {
+                UpgradeBottomBanner(onBuyTap: { showPaywall = true })
             }
 
             HStack {
@@ -413,13 +427,21 @@ struct DuplicateFinderView: View {
 
                     HStack(spacing: 8) {
                         Button("duplicate.group.keep_oldest".localized) {
-                            viewModel.keepOldest(in: group.id)
+                            if storeManager.isPurchased {
+                                viewModel.keepOldest(in: group.id)
+                            } else {
+                                showPaywall = true
+                            }
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
 
                         Button("duplicate.group.keep_newest".localized) {
-                            viewModel.keepNewest(in: group.id)
+                            if storeManager.isPurchased {
+                                viewModel.keepNewest(in: group.id)
+                            } else {
+                                showPaywall = true
+                            }
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)

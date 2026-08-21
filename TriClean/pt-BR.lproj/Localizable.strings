@@ -500,7 +500,7 @@
 
 /* MARK: - 결제 */
 "paywall.title" = "TriClean: acesso vitalício";
-"paywall.subtitle" = "Libere a exclusão de arquivos e a limpeza";
+"paywall.subtitle" = "Libere resultados completos e limpeza";
 "paywall.feat.memory" = "Envio seguro para o Lixo";
 "paywall.feat.memory_desc" = "Revalida caminhos e o estado dos arquivos antes de mover os itens para o Lixo, de onde podem ser restaurados";
 "paywall.feat.disk" = "Limpeza de arquivos grandes e desnecessários";
@@ -516,9 +516,9 @@
 "paywall.link.terms" = "Termos de Uso";
 "paywall.error.title" = "Erro na compra";
 "paywall.error.unknown" = "Ocorreu um erro desconhecido.";
-"paywall.free_mode.notice" = "Escaneamento e análise são gratuitos. A exclusão de arquivos e a limpeza ficam disponíveis após a compra do acesso vitalício.";
-"upgrade.bottom.title" = "Modo de análise gratuito";
-"upgrade.bottom.desc" = "Escanear e ver os resultados é gratuito. A exclusão de arquivos e a limpeza exigem o acesso vitalício.";
+"paywall.free_mode.notice" = "Escaneamento, resumos e prévias limitadas são gratuitos. Resultados detalhados completos e limpeza estão disponíveis com acesso vitalício.";
+"upgrade.bottom.title" = "Prévia gratuita";
+"upgrade.bottom.desc" = "Escaneamento, resumos e prévias limitadas são gratuitos. Resultados detalhados completos e limpeza exigem acesso vitalício.";
 "upgrade.bottom.buy" = "Obter acesso vitalício";
 "store.status.checking" = "Verificando o estado da compra…";
 "store.status.loading_products" = "Carregando produtos…";
