@@ -23,22 +23,23 @@ struct DuplicateFinderView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            headerSection
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 16) {
+                headerSection
 
-            if viewModel.scanFolderURL == nil {
-                folderSelectionSection
-            } else if viewModel.isScanning {
-                scanningSection
-            } else if !viewModel.groups.isEmpty {
-                resultsSection
-            } else {
-                emptySection
+                if viewModel.scanFolderURL == nil {
+                    folderSelectionSection
+                } else if viewModel.isScanning {
+                    scanningSection
+                } else if !viewModel.groups.isEmpty {
+                    resultsSection
+                } else {
+                    emptySection
+                }
             }
-
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding()
         }
-        .padding()
         .alert("duplicate.delete_confirm.title".localized, isPresented: $showDeleteConfirm) {
             Button("common.move_to_trash".localized, role: .destructive) {
                 guard storeManager.isPurchased else {
@@ -255,11 +256,23 @@ struct DuplicateFinderView: View {
                     .foregroundStyle(.secondary)
             }
 
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(displayedGroups) { group in
-                        duplicateGroupRow(group)
-                    }
+            if !storeManager.isPurchased && viewModel.groups.count > displayedGroups.count {
+                HStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                    Text(
+                        "upgrade.preview.count".localized(
+                            with: viewModel.groups.count,
+                            displayedGroups.count
+                        )
+                    )
+                }
+                .appFont(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            LazyVStack(spacing: 8) {
+                ForEach(displayedGroups) { group in
+                    duplicateGroupRow(group)
                 }
             }
 

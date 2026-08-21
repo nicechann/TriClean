@@ -110,8 +110,16 @@ struct LargeFilesView: View {
 
                 if !folderResults.isEmpty {
                     TreemapView(
-                        items: displayedFolderResults,
-                        onItemTapped: { item in openInFinder(item) }
+                        // Keep the visualization truthful: it represents the full scan result.
+                        // Free users only get a limited list preview below.
+                        items: folderResults,
+                        onItemTapped: { item in
+                            if storeManager.isPurchased {
+                                openInFinder(item)
+                            } else {
+                                showPaywall = true
+                            }
+                        }
                     )
                     .padding(.horizontal, sectionInset)
 
@@ -343,6 +351,20 @@ struct LargeFilesView: View {
                 .controlSize(.small)
                 .buttonStyle(.bordered)
                 .disabled(isScanning || isDeleting || tableSelection.isEmpty)
+            }
+
+            if !storeManager.isPurchased && folderResults.count > displayedFolderResults.count {
+                HStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                    Text(
+                        "upgrade.preview.count".localized(
+                            with: folderResults.count,
+                            displayedFolderResults.count
+                        )
+                    )
+                }
+                .appFont(.caption)
+                .foregroundStyle(.secondary)
             }
 
             if folderResults.isEmpty {

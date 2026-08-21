@@ -519,6 +519,7 @@
 "paywall.free_mode.notice" = "Scansione, riepiloghi e anteprime limitate sono gratuiti. I risultati dettagliati completi e la pulizia sono disponibili con l’accesso a vita.";
 "upgrade.bottom.title" = "Anteprima gratuita";
 "upgrade.bottom.desc" = "Scansione, riepiloghi e anteprime limitate sono gratuiti. I risultati dettagliati completi e la pulizia richiedono l’accesso a vita.";
+"upgrade.preview.count" = "Anteprima di %2$ld risultati su %1$ld.";
 "upgrade.bottom.buy" = "Ottieni l'accesso a vita";
 "store.status.checking" = "Verifica dello stato dell'acquisto…";
 "store.status.loading_products" = "Caricamento dei prodotti…";

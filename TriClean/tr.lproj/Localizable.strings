@@ -523,6 +523,7 @@
 "paywall.free_mode.notice" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik ömür boyu erişimle kullanılabilir.";
 "upgrade.bottom.title" = "Ücretsiz önizleme";
 "upgrade.bottom.desc" = "Tarama, özetler ve sınırlı önizlemeler ücretsizdir. Tüm ayrıntılı sonuçlar ve temizlik için ömür boyu erişim gerekir.";
+"upgrade.preview.count" = "%1$ld sonucun %2$ld tanesi önizleniyor.";
 "upgrade.bottom.buy" = "Ömür boyu erişim al";
 "store.status.checking" = "Satın alma durumu kontrol ediliyor…";
 "store.status.loading_products" = "Ürünler yükleniyor…";

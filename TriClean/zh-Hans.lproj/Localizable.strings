@@ -519,6 +519,7 @@
 "paywall.free_mode.notice" = "扫描、摘要和部分结果预览免费。购买永久使用权后可查看完整详细结果并使用清理功能。";
 "upgrade.bottom.title" = "免费预览";
 "upgrade.bottom.desc" = "扫描、摘要和部分结果预览免费。完整详细结果和清理功能需要永久使用权。";
+"upgrade.preview.count" = "正在预览全部 %1$ld 项结果中的 %2$ld 项。";
 "upgrade.bottom.buy" = "获取永久使用权";
 "store.status.checking" = "正在检查购买状态…";
 "store.status.loading_products" = "正在载入商品…";

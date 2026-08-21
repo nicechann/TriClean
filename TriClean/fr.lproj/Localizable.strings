@@ -671,6 +671,7 @@
 "settings.legal" = "Assistance et mentions légales";
 "upgrade.bottom.title" = "Aperçu gratuit";
 "upgrade.bottom.desc" = "L’analyse, les résumés et un aperçu limité sont gratuits. Les résultats détaillés complets et le nettoyage nécessitent l’accès à vie.";
+"upgrade.preview.count" = "Aperçu de %2$ld résultats sur %1$ld.";
 "upgrade.bottom.buy" = "Acheter l’accès à vie";
 "paywall.free_mode.notice" = "L’analyse, les résumés et un aperçu limité sont gratuits. Les résultats détaillés complets et le nettoyage sont disponibles avec l’accès à vie.";
 
