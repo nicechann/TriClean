@@ -200,6 +200,7 @@
 "apps.alert.uninstall.msg" = "Vuoi spostare nel Cestino %1$ld bundle rimovibili sulle %2$ld app selezionate? Le app dell'App Store sono escluse e gli elementi spostati possono essere ripristinati dal Cestino del Finder.";
 "apps.alert.fail.title" = "Spostamento non riuscito (autorizzazione)";
 "apps.alert.fail.msg" = "Non è stato possibile spostare automaticamente %ld app a causa delle policy di sicurezza di macOS (sono richiesti i permessi di amministratore).%@\nUsa «Mostra nel Finder» ed elimina manualmente.";
+"apps.alert.fail.list" = "\n\nNon riuscite: %@";
 "apps.alert.related.title" = "Controlla i file correlati";
 "apps.alert.related.msg" = "Vuoi spostare nel Cestino %1$ld file/cartelle correlati selezionati (%2$@)?";
 "apps.alert.reset.title" = "Reimposta autorizzazioni";

@@ -200,6 +200,7 @@
 "apps.alert.uninstall.msg" = "已選擇 %2$ld 個應用程式，其中 %1$ld 個可移到垃圾桶，是否繼續？App Store 應用程式會被排除，移動後的項目可從 Finder 垃圾桶回復。";
 "apps.alert.fail.title" = "移動失敗（權限不足）";
 "apps.alert.fail.msg" = "由於 macOS 安全性政策（需要管理者權限），有 %ld 個應用程式無法自動移動。%@\n請使用「在 Finder 中顯示」手動刪除。";
+"apps.alert.fail.list" = "\n\n失敗：%@";
 "apps.alert.related.title" = "確認關聯檔案";
 "apps.alert.related.msg" = "是否將所選的 %1$ld 個關聯檔案／資料夾（%2$@）移到垃圾桶？";
 "apps.alert.reset.title" = "重置存取權限";

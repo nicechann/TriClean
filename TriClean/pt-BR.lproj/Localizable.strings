@@ -200,6 +200,7 @@
 "apps.alert.uninstall.msg" = "Mover %1$ld pacotes removíveis dos %2$ld apps selecionados para o Lixo? Apps da App Store são excluídos, e os itens movidos podem ser restaurados no Lixo do Finder.";
 "apps.alert.fail.title" = "Falha ao mover (permissão)";
 "apps.alert.fail.msg" = "Não foi possível mover automaticamente %ld apps devido às políticas de segurança do macOS (é necessário ser administrador).%@\nUse “Mostrar no Finder” e exclua manualmente.";
+"apps.alert.fail.list" = "\n\nFalhas: %@";
 "apps.alert.related.title" = "Revisar arquivos relacionados";
 "apps.alert.related.msg" = "Mover %1$ld arquivos/pastas relacionados selecionados (%2$@) para o Lixo?";
 "apps.alert.reset.title" = "Redefinir permissões";

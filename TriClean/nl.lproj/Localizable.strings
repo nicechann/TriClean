@@ -200,6 +200,7 @@
 "apps.alert.uninstall.msg" = "Wil je %1$ld verwijderbare bundels van de %2$ld geselecteerde apps naar de prullenmand verplaatsen? App Store-apps worden uitgesloten en verplaatste items kunnen via de prullenmand in de Finder worden teruggezet.";
 "apps.alert.fail.title" = "Verplaatsen mislukt (toegang)";
 "apps.alert.fail.msg" = "Vanwege het beveiligingsbeleid van macOS (beheerdersrechten vereist) konden %ld apps niet automatisch worden verplaatst.%@\nGebruik ‘Toon in Finder’ en verwijder ze handmatig.";
+"apps.alert.fail.list" = "\n\nMislukt: %@";
 "apps.alert.related.title" = "Gerelateerde bestanden controleren";
 "apps.alert.related.msg" = "Wil je %1$ld geselecteerde gerelateerde bestanden/mappen (%2$@) naar de prullenmand verplaatsen?";
 "apps.alert.reset.title" = "Toegangsrechten herstellen";

@@ -161,7 +161,7 @@
 "apps.status.app_added" = "App añadida: %@";
 "apps.details.appstore_note" = "Las apps del App Store no se pueden eliminar desde esta pantalla. Elimínalas directamente desde el Launchpad (mantén pulsado) o desde el Finder.";
 "apps.status.folder_needed" = "Permiso requerido: selecciona una carpeta.";
-"apps.alert.fail.list" = "\\n\\nFallidas: %@";
+"apps.alert.fail.list" = "\n\nFallidas: %@";
 "apps.help.select_first" = "Selecciona al menos un paquete de app elegible.";
 "apps.help.all_protected" = "Los elementos seleccionados son apps protegidas, del sistema o del App Store y no se pueden eliminar aquí.";
 "apps.help.partial_protected" = "Algunos elementos seleccionados son apps protegidas, del sistema o del App Store y se omitirán.";

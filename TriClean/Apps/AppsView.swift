@@ -176,6 +176,15 @@ final class AppsViewModel: ObservableObject {
     private var relatedScanTask: Task<Void, Never>?
     private var lastFailedApps: [AppsInstalledApp] = []
 
+    /// 뒤늦게 끝난 이전 작업이 새 작업의 상태를 덮어쓰지 않도록 하는 세대 번호.
+    /// (JunkScannerViewModel·DuplicateScannerViewModel의 scanGeneration과 같은 역할)
+    ///
+    /// `Task.cancel()`은 즉시 종료시키지 않고, `Task.detached`는 부모 취소를 상속하지 않는다.
+    /// 따라서 취소된 이전 Task가 detached 작업 종료 후에야 `defer`에 도달해
+    /// 이미 시작된 새 작업의 `isLoading…`/Task 핸들을 초기화하던 문제가 있었다.
+    private var loadGeneration: UInt = 0
+    private var relatedScanGeneration: UInt = 0
+
     init() {
         applicationsFolderURL = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder)
         userLibraryFolderURL  = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsUserLibraryFolder)
@@ -435,6 +444,9 @@ final class AppsViewModel: ObservableObject {
         let rootStd = root.standardizedFileURL
 
         loadInstalledAppsTask?.cancel()
+        loadGeneration &+= 1
+        let generation = loadGeneration
+
         isLoadingInstalledApps = true
         lastStatusIsError = false
         lastStatusMessage = "apps.list.loading".localized
@@ -442,15 +454,24 @@ final class AppsViewModel: ObservableObject {
         loadInstalledAppsTask = Task { [self] in
             defer {
                 token.stop()
-                isLoadingInstalledApps = false
-                loadInstalledAppsTask = nil
+                // 이미 새 스캔이 시작됐다면 그쪽 상태를 건드리지 않는다.
+                if generation == loadGeneration {
+                    isLoadingInstalledApps = false
+                    loadInstalledAppsTask = nil
+                }
             }
 
-            let scanned = await Task.detached(priority: .userInitiated) {
+            // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
+            let worker = Task.detached(priority: .userInitiated) {
                 AppsViewModel.scanApps(in: rootStd, maxDepth: 2)
-            }.value
+            }
+            let scanned = await withTaskCancellationHandler {
+                await worker.value
+            } onCancel: {
+                worker.cancel()
+            }
 
-            guard !Task.isCancelled else { return }
+            guard generation == loadGeneration, !Task.isCancelled else { return }
 
             let sorted = scanned.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
@@ -589,6 +610,9 @@ final class AppsViewModel: ObservableObject {
         let currentAppPath = selectedApp?.appPath
 
         relatedScanTask?.cancel()
+        relatedScanGeneration &+= 1
+        let generation = relatedScanGeneration
+
         isScanning = true
         lastStatusIsError = false
         lastStatusMessage = "apps.status.scanning".localized
@@ -596,15 +620,24 @@ final class AppsViewModel: ObservableObject {
         relatedScanTask = Task { [self] in
             defer {
                 token.stop()
-                isScanning = false
-                relatedScanTask = nil
+                // 이미 새 스캔이 시작됐다면 그쪽 상태를 건드리지 않는다.
+                if generation == relatedScanGeneration {
+                    isScanning = false
+                    relatedScanTask = nil
+                }
             }
 
-            let found = await Task.detached(priority: .userInitiated) {
+            // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
+            let worker = Task.detached(priority: .userInitiated) {
                 AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
-            }.value
+            }
+            let found = await withTaskCancellationHandler {
+                await worker.value
+            } onCancel: {
+                worker.cancel()
+            }
 
-            guard !Task.isCancelled else { return }
+            guard generation == relatedScanGeneration, !Task.isCancelled else { return }
             guard userLibraryFolderURL?.standardizedFileURL == libraryStd else { return }
             guard selectedApp?.appPath == currentAppPath else { return }
 
@@ -816,6 +849,9 @@ final class AppsViewModel: ObservableObject {
         guard !candidates.isEmpty else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.nothing_to_trash".localized
+            // @escaping completion은 모든 경로에서 호출해야 한다.
+            // 호출부가 이 콜백으로만 alert 상태를 갱신하므로, 빠뜨리면 UI가 멈춘 것처럼 보인다.
+            completion(nil)
             return
         }
 
@@ -840,8 +876,12 @@ final class AppsViewModel: ObservableObject {
 
         guard !sanitized.accepted.isEmpty else {
             scopeTokens.forEach { $0.stop() }
+            lastFailedApps = rejectedApps
             lastStatusIsError = true
             lastStatusMessage = "apps.status.uninstall_invalid".localized(with: rejectedApps.count)
+            // 스캔 이후 앱이 이동·삭제됐거나 북마크가 만료된 경우로, 실제로 발생한다.
+            // 사용자에게 실패 앱 이름과 Finder 열기를 제공하기 위해 알림까지 띄운다.
+            completion(.uninstallPartialFail(successCount: 0, failedCount: rejectedApps.count))
             return
         }
 
@@ -965,10 +1005,16 @@ final class AppsViewModel: ObservableObject {
     nonisolated private static func performRelatedRemoval(
         targets: [AppsRelatedItem]
     ) async -> ([AppsRelatedItem], [AppsRelatedItem]) {
+        // ~/Library/Caches/<bundleID> 같은 관련 폴더는 사용자가 목록에서 항목을 고르는 사이에도
+        // 해당 앱이 파일을 쓰면서 크기·수정 시각이 달라진다. 엄격 비교를 유지하면 정상 대상이
+        // 이유 없이 "제외됨"으로 빠지므로, 디렉터리에 한해 내용 변경을 허용한다.
+        // device·inode·항목 유형은 여전히 일치해야 하므로 같은 경로가 다른 폴더로 교체된
+        // 경우에는 계속 삭제를 거부한다. (JunkCategory·LargeFilesView와 동일한 정책)
         let outcome = await TrashService.moveToTrash(
             targets,
             url: \.url,
             identity: \.fileIdentity,
+            allowsDirectoryContentChanges: { $0.isDirectory },
             logCategory: "AppsRelatedRemoval"
         )
 

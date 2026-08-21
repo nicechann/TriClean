@@ -94,10 +94,16 @@ def main():
     problems = 0
 
     # 소스에서 키 참조 수집 (모든 문자열 리터럴 대조)
+    # 빈 문자열 리터럴("")이 있으면 따옴표 페어링이 어긋나 뒤따르는 키를 통째로 놓친다.
+    #   예) names.isEmpty ? "" : "apps.alert.fail.list".localized(with: names)
+    #       → 잘못된 패턴 `"([^"\\\n]+)"` 은 `" : "` 만 잡고 키를 놓쳐
+    #         실제 사용 중인 키를 "미참조"로 오판한다.
+    # 빈 문자열과 이스케이프 시퀀스를 모두 허용하도록 수정.
+    LITERAL = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
     literals = set()
     swift = glob.glob(os.path.join(SRC_DIR, "**", "*.swift"), recursive=True)
     for f in swift:
-        literals |= set(re.findall(r'"([^"\\\n]+)"', open(f, encoding="utf-8").read()))
+        literals |= set(LITERAL.findall(open(f, encoding="utf-8").read()))
     referenced = set(base) & literals
 
     print(f"언어 {len(langs)}개: {', '.join(langs)}")

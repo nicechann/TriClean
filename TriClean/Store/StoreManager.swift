@@ -184,9 +184,16 @@ final class StoreManager: ObservableObject {
 
     private func resolvePurchasedStatus() async -> Bool {
         #if DEBUG
-        // DEBUG에서는 설정에서 선택한 Free / Pro 상태가 실제 StoreKit entitlement보다 우선합니다.
-        return UserDefaults.standard.bool(forKey: "debug.purchaseOverride")
-        #else
+        // ✅ [수정] 기존에는 DEBUG에서 Transaction.currentEntitlements를 아예 조회하지 않아
+        //   StoreKit 구성 파일로 구매/복원 플로우를 검증할 수 없었다.
+        //   (restore()가 항상 noPurchaseToRestore를 던짐)
+        //   override가 **명시적으로 설정된 경우에만** 우선하도록 바꾸고,
+        //   그 외에는 릴리스와 동일한 경로를 타게 한다.
+        if UserDefaults.standard.object(forKey: "debug.purchaseOverride") != nil {
+            return UserDefaults.standard.bool(forKey: "debug.purchaseOverride")
+        }
+        #endif
+
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try verified(result)
@@ -209,7 +216,6 @@ final class StoreManager: ObservableObject {
         }
 
         return false
-        #endif
     }
 
     nonisolated private func verified<T>(_ result: VerificationResult<T>) throws -> T {

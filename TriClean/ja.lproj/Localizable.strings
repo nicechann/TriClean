@@ -161,7 +161,7 @@
 "apps.status.app_added" = "Appを追加しました: %@";
 "apps.details.appstore_note" = "App Store Appはこの画面から削除できません。Launchpad (長押し) または Finder から直接削除してください。";
 "apps.status.folder_needed" = "アクセス権が必要: フォルダを選択してください。";
-"apps.alert.fail.list" = "\\n\\n失敗: %@";
+"apps.alert.fail.list" = "\n\n失敗: %@";
 "apps.help.select_first" = "対象となるAppバンドルを1つ以上選択してください。";
 "apps.help.all_protected" = "選択した項目は保護、システム、または App Store Appのため、ここでは削除できません。";
 "apps.help.partial_protected" = "選択した項目の一部は保護、システム、またはApp Store Appのためスキップされます。";

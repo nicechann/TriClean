@@ -204,6 +204,7 @@
 "apps.alert.uninstall.msg" = "Seçilen %2$ld uygulamadan kaldırılabilir olan %1$ld paket Çöp Kutusu'na taşınsın mı? App Store uygulamaları hariç tutulur ve taşınan öğeler Finder Çöp Kutusu'ndan geri yüklenebilir.";
 "apps.alert.fail.title" = "Taşıma başarısız (izin)";
 "apps.alert.fail.msg" = "macOS güvenlik ilkeleri nedeniyle (yönetici gerekir) %ld uygulama otomatik olarak taşınamadı.%@\nLütfen “Finder'da Göster”i kullanıp elle silin.";
+"apps.alert.fail.list" = "\n\nBaşarısız: %@";
 "apps.alert.related.title" = "İlgili dosyaları incele";
 "apps.alert.related.msg" = "Seçilen %1$ld ilgili dosya/klasör (%2$@) Çöp Kutusu'na taşınsın mı?";
 "apps.alert.reset.title" = "İzinleri sıfırla";

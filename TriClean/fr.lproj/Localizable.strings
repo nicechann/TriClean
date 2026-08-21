@@ -161,7 +161,7 @@
 "apps.status.app_added" = "App ajoutée : %@";
 "apps.details.appstore_note" = "Les apps de l'App Store ne peuvent pas être supprimées depuis cet écran. Veuillez les supprimer directement depuis le Launchpad (appui prolongé) ou le Finder.";
 "apps.status.folder_needed" = "Autorisation requise : veuillez sélectionner un dossier.";
-"apps.alert.fail.list" = "\\n\\nÉchec : %@";
+"apps.alert.fail.list" = "\n\nÉchec : %@";
 "apps.help.select_first" = "Sélectionnez au moins un bundle d'app éligible.";
 "apps.help.all_protected" = "Les éléments sélectionnés sont des apps protégées, système ou App Store et ne peuvent pas être supprimés ici.";
 "apps.help.partial_protected" = "Certains éléments sélectionnés sont des apps protégées, système ou App Store et seront ignorés.";

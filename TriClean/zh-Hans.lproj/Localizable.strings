@@ -200,6 +200,7 @@
 "apps.alert.uninstall.msg" = "已选择 %2$ld 个应用，其中 %1$ld 个可移到废纸篓，是否继续？App Store 应用会被排除，移动后的项目可从 Finder 废纸篓恢复。";
 "apps.alert.fail.title" = "移动失败（权限不足）";
 "apps.alert.fail.msg" = "由于 macOS 安全策略（需要管理员权限），有 %ld 个应用无法自动移动。%@\n请使用「在 Finder 中显示」手动删除。";
+"apps.alert.fail.list" = "\n\n失败：%@";
 "apps.alert.related.title" = "确认关联文件";
 "apps.alert.related.msg" = "是否将所选的 %1$ld 个关联文件／文件夹（%2$@）移到废纸篓？";
 "apps.alert.reset.title" = "重置访问权限";

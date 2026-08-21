@@ -166,7 +166,7 @@
 /* ✅ [v2] Enhanced App Store app notice */
 "apps.details.appstore_note" = "App Store apps cannot be removed from this screen. Please delete them directly from Launchpad (long-press) or Finder.";
 "apps.status.folder_needed" = "Permission required: Please select a folder.";
-"apps.alert.fail.list" = "\\n\\nFailed: %@";
+"apps.alert.fail.list" = "\n\nFailed: %@";
 "apps.help.select_first" = "Select at least one eligible app bundle.";
 "apps.help.all_protected" = "Selected items are protected, system, or App Store apps and cannot be removed here.";
 "apps.help.partial_protected" = "Some selected items are protected, system, or App Store apps and will be skipped.";

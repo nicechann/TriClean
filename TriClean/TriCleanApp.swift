@@ -60,7 +60,12 @@ struct TriCleanApp: App {
     // ✅ [추가] scenePhase 감지를 위해 환경 변수 선언 (에러 해결)
     @Environment(\.scenePhase) private var scenePhase
     
-    private let minWindowContentSize = NSSize(width: 1180, height: 840)
+    /// ⚠️ 이 값은 NSWindow.minSize로 **강제**되므로 사용자가 더 줄일 수 없다.
+    ///   배포 타깃(macOS 13.5)에는 1280×800 해상도의 13인치 MacBook이 포함된다.
+    ///   기존 840은 타이틀바(약 28pt)와 메뉴 막대(25pt)를 더하면 화면 높이 800을 넘어
+    ///   창 하단(업그레이드 배너를 붙인 safeAreaInset)이 잘렸다.
+    ///   1280×800에서도 여백이 남도록 낮춘다.
+    private let minWindowContentSize = NSSize(width: 1000, height: 700)
 
     // ✅ 사용자 서체 설정. SettingsView와 같은 키를 공유하며,
     //    두 Scene(메인 창·메뉴바 팝오버)에 동일하게 주입한다.

@@ -206,6 +206,7 @@
 "apps.alert.uninstall.msg" = "Czy przenieść do Kosza pakiety możliwe do usunięcia (%1$ld) spośród wybranych aplikacji (%2$ld)? Aplikacje z App Store są wykluczone, a przeniesione elementy można przywrócić z Kosza w Finderze.";
 "apps.alert.fail.title" = "Przeniesienie nie powiodło się (uprawnienia)";
 "apps.alert.fail.msg" = "Ze względu na zasady bezpieczeństwa systemu macOS (wymagane uprawnienia administratora) nie udało się automatycznie przenieść aplikacji: %ld.%@\nUżyj opcji „Pokaż w Finderze” i usuń je ręcznie.";
+"apps.alert.fail.list" = "\n\nNie powiodło się: %@";
 "apps.alert.related.title" = "Sprawdź pliki powiązane";
 "apps.alert.related.msg" = "Czy przenieść do Kosza wybrane pliki/foldery powiązane (%1$ld, %2$@)?";
 "apps.alert.reset.title" = "Zresetuj uprawnienia";

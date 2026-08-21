@@ -161,7 +161,7 @@
 "apps.status.app_added" = "App hinzugefügt: %@";
 "apps.details.appstore_note" = "App-Store-Apps können hier nicht entfernt werden. Bitte löschen Sie sie direkt über das Launchpad (lange drücken) oder den Finder.";
 "apps.status.folder_needed" = "Berechtigung erforderlich: Bitte einen Ordner auswählen.";
-"apps.alert.fail.list" = "\\n\\nFehlgeschlagen: %@";
+"apps.alert.fail.list" = "\n\nFehlgeschlagen: %@";
 "apps.help.select_first" = "Wählen Sie mindestens ein geeignetes App-Bundle aus.";
 "apps.help.all_protected" = "Die ausgewählten Elemente sind geschützte, System- oder App-Store-Apps und können hier nicht entfernt werden.";
 "apps.help.partial_protected" = "Einige ausgewählte Elemente sind geschützte, System- oder App-Store-Apps und werden übersprungen.";

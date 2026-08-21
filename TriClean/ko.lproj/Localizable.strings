@@ -166,7 +166,7 @@
 /* ✅ [수정 v2] App Store 앱 제거 불가 안내 강화 */
 "apps.details.appstore_note" = "App Store에서 설치된 앱은 이 화면에서 제거할 수 없습니다. Launchpad에서 길게 누르거나 Finder에서 직접 삭제해야 합니다.";
 "apps.status.folder_needed" = "권한 필요: 폴더를 선택해 주세요.";
-"apps.alert.fail.list" = "\\n\\n실패: %@";
+"apps.alert.fail.list" = "\n\n실패: %@";
 "apps.help.select_first" = "이동 가능한 앱 번들을 1개 이상 선택해 주세요.";
 "apps.help.all_protected" = "선택한 항목은 시스템 앱, 보호 앱 또는 App Store 앱이라 여기서 제거할 수 없습니다.";
 "apps.help.partial_protected" = "선택한 항목 중 일부는 시스템 앱, 보호 앱 또는 App Store 앱이라 건너뜁니다.";
