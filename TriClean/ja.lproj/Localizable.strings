@@ -671,7 +671,7 @@
 "settings.legal" = "サポートと法的情報";
 "upgrade.bottom.title" = "無料プレビュー";
 "upgrade.bottom.desc" = "スキャン、概要、一部の結果プレビューは無料です。すべての詳細結果と整理機能には買い切り版が必要です。";
-"upgrade.preview.count" = "全%1$ld件のうち%2$ld件をプレビューしています。";
+"upgrade.preview.count" = "全%1$ld件中%2$ld件をプレビュー";
 "upgrade.bottom.buy" = "買い切り版を購入";
 "paywall.free_mode.notice" = "スキャン、概要、一部の結果プレビューは無料です。すべての詳細結果と整理機能は買い切り版で利用できます。";
 

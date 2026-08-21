@@ -256,18 +256,29 @@ struct DuplicateFinderView: View {
                     .foregroundStyle(.secondary)
             }
 
-            if !storeManager.isPurchased && viewModel.groups.count > displayedGroups.count {
-                HStack(spacing: 6) {
-                    Image(systemName: "lock.fill")
-                    Text(
-                        "upgrade.preview.count".localized(
-                            with: viewModel.groups.count,
-                            displayedGroups.count
+            HStack(spacing: 10) {
+                Text("storage.results.header".localized)
+                    .appFont(.title3, weight: .bold)
+
+                if !storeManager.isPurchased && viewModel.groups.count > displayedGroups.count {
+                    Label {
+                        Text(
+                            "upgrade.preview.count".localized(
+                                with: viewModel.groups.count,
+                                displayedGroups.count
+                            )
                         )
-                    )
+                    } icon: {
+                        Image(systemName: "lock.fill")
+                    }
+                    .appFont(.callout, weight: .semibold)
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.accentColor.opacity(0.12), in: Capsule())
                 }
-                .appFont(.caption)
-                .foregroundStyle(.secondary)
+
+                Spacer()
             }
 
             LazyVStack(spacing: 8) {

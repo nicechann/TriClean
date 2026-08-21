@@ -684,7 +684,7 @@
 "settings.legal" = "지원 및 법적 고지";
 "upgrade.bottom.title" = "무료 미리보기";
 "upgrade.bottom.desc" = "스캔과 요약, 일부 결과 미리보기는 무료입니다. 전체 상세 결과와 정리 기능은 평생 이용권에서 사용할 수 있습니다.";
-"upgrade.preview.count" = "전체 %1$ld개 중 %2$ld개를 미리 보여드립니다.";
+"upgrade.preview.count" = "전체 %1$ld개 중 %2$ld개 미리보기";
 "upgrade.bottom.buy" = "평생 이용권 구매";
 "paywall.free_mode.notice" = "스캔과 요약, 일부 결과 미리보기는 무료입니다. 전체 상세 결과와 정리 기능은 평생 이용권 구매 후 사용할 수 있습니다.";
 

@@ -519,7 +519,7 @@
 "paywall.free_mode.notice" = "Escaneamento, resumos e prévias limitadas são gratuitos. Resultados detalhados completos e limpeza estão disponíveis com acesso vitalício.";
 "upgrade.bottom.title" = "Prévia gratuita";
 "upgrade.bottom.desc" = "Escaneamento, resumos e prévias limitadas são gratuitos. Resultados detalhados completos e limpeza exigem acesso vitalício.";
-"upgrade.preview.count" = "Prévia de %2$ld de %1$ld resultados.";
+"upgrade.preview.count" = "%2$ld de %1$ld resultados";
 "upgrade.bottom.buy" = "Obter acesso vitalício";
 "store.status.checking" = "Verificando o estado da compra…";
 "store.status.loading_products" = "Carregando produtos…";

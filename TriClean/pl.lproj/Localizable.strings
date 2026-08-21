@@ -525,7 +525,7 @@
 "paywall.free_mode.notice" = "Skanowanie, podsumowania i ograniczony podgląd są bezpłatne. Pełne szczegółowe wyniki i porządkowanie są dostępne z dożywotnim dostępem.";
 "upgrade.bottom.title" = "Bezpłatny podgląd";
 "upgrade.bottom.desc" = "Skanowanie, podsumowania i ograniczony podgląd są bezpłatne. Pełne szczegółowe wyniki i porządkowanie wymagają dożywotniego dostępu.";
-"upgrade.preview.count" = "Podgląd %2$ld z %1$ld wyników.";
+"upgrade.preview.count" = "%2$ld z %1$ld wyników";
 "upgrade.bottom.buy" = "Uzyskaj dostęp dożywotni";
 "store.status.checking" = "Sprawdzanie stanu zakupu…";
 "store.status.loading_products" = "Wczytywanie produktów…";

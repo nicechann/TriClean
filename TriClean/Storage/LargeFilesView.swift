@@ -337,9 +337,27 @@ struct LargeFilesView: View {
 
     private var resultsTableSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
+            HStack(spacing: 10) {
                 Text("storage.results.header".localized)
                     .appFont(.title3, weight: .bold)
+
+                if !storeManager.isPurchased && folderResults.count > displayedFolderResults.count {
+                    Label {
+                        Text(
+                            "upgrade.preview.count".localized(
+                                with: folderResults.count,
+                                displayedFolderResults.count
+                            )
+                        )
+                    } icon: {
+                        Image(systemName: "lock.fill")
+                    }
+                    .appFont(.callout, weight: .semibold)
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.accentColor.opacity(0.12), in: Capsule())
+                }
 
                 Spacer()
 
@@ -351,20 +369,6 @@ struct LargeFilesView: View {
                 .controlSize(.small)
                 .buttonStyle(.bordered)
                 .disabled(isScanning || isDeleting || tableSelection.isEmpty)
-            }
-
-            if !storeManager.isPurchased && folderResults.count > displayedFolderResults.count {
-                HStack(spacing: 6) {
-                    Image(systemName: "lock.fill")
-                    Text(
-                        "upgrade.preview.count".localized(
-                            with: folderResults.count,
-                            displayedFolderResults.count
-                        )
-                    )
-                }
-                .appFont(.caption)
-                .foregroundStyle(.secondary)
             }
 
             if folderResults.isEmpty {
