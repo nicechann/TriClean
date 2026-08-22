@@ -70,6 +70,9 @@ struct ContentView: View {
                 }
             }
             .listStyle(.sidebar)
+            // ✅ macOS 26: 사이드바 스크롤 시 항목이 트래픽 라이트/타이틀바와 겹치지 않도록
+            //    상단 가장자리를 불투명 처리 (Guideline 4 리뷰 스크린샷의 겹침 지점)
+            .hardTopScrollEdge()
             .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320)
 
         } detail: {
@@ -436,6 +439,8 @@ struct SettingsView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
+        // ✅ macOS 26: 스크롤 콘텐츠가 타이틀바와 겹치지 않도록 상단 가장자리 불투명 처리
+        .hardTopScrollEdge()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationTitle("sidebar.settings".localized)
     }

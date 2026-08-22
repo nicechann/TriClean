@@ -40,6 +40,8 @@ struct DuplicateFinderView: View {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding()
         }
+        // ✅ macOS 26: 스크롤 콘텐츠가 타이틀바와 겹치지 않도록 상단 가장자리 불투명 처리
+        .hardTopScrollEdge()
         .alert("duplicate.delete_confirm.title".localized, isPresented: $showDeleteConfirm) {
             Button("common.move_to_trash".localized, role: .destructive) {
                 guard storeManager.isPurchased else {

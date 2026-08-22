@@ -410,6 +410,9 @@ struct StorageView: View {
             // 배너가 있을 때 본문이 배너에 가리지 않도록 충분한 하단 여백 확보
             .padding(.bottom, storeManager.isPurchased ? outerPadding : 110)
         }
+        // ✅ macOS 26: 스크롤된 안내 문구가 윈도우 제목과 겹치지 않도록 상단 가장자리 불투명 처리
+        //    (Guideline 4 리뷰 스크린샷의 겹침 지점)
+        .hardTopScrollEdge()
         .background(Color(nsColor: .windowBackgroundColor))
         .safeAreaInset(edge: .bottom) {
             if !storeManager.isPurchased {

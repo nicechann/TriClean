@@ -126,6 +126,8 @@ struct PhotosView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
+        // ✅ macOS 26: 스크롤 콘텐츠가 타이틀바와 겹치지 않도록 상단 가장자리 불투명 처리
+        .hardTopScrollEdge()
         .safeAreaInset(edge: .bottom) {
             if viewModel.selectedCount > 0 {
                 selectionBar

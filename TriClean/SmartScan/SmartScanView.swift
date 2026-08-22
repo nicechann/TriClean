@@ -94,6 +94,8 @@ struct SmartScanView: View {
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
+        // ✅ macOS 26: 스크롤 콘텐츠가 타이틀바와 겹치지 않도록 상단 가장자리 불투명 처리
+        .hardTopScrollEdge()
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             memoryViewModel.refresh()
