@@ -346,6 +346,26 @@ final class AppsViewModel: ObservableObject {
         lastStatusMessage = "apps.status.reset_success".localized
     }
 
+    // MARK: - Task cancellation
+
+    private func cancelInstalledAppsLoadIfNeeded() {
+        guard loadInstalledAppsTask != nil || isLoadingInstalledApps else { return }
+
+        loadInstalledAppsTask?.cancel()
+        loadInstalledAppsTask = nil
+        loadGeneration &+= 1
+        isLoadingInstalledApps = false
+    }
+
+    private func cancelRelatedScanIfNeeded() {
+        guard relatedScanTask != nil || isScanning else { return }
+
+        relatedScanTask?.cancel()
+        relatedScanTask = nil
+        relatedScanGeneration &+= 1
+        isScanning = false
+    }
+
     // MARK: - Manual app selection (.app)
 
     func selectAppBundleManually() {
@@ -373,6 +393,10 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
+        // 수동 선택 결과가 뒤늦게 끝난 앱 목록 스캔에 의해 덮어써지지 않도록
+        // 진행 중인 목록 스캔을 먼저 무효화한다.
+        cancelInstalledAppsLoadIfNeeded()
+
         guard let token = SecurityScopedAccessToken(url: appURL) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.no_permission".localized
@@ -486,6 +510,12 @@ final class AppsViewModel: ObservableObject {
         }
     }
 
+    nonisolated private static func isCurrentTaskCancelled() -> Bool {
+        withUnsafeCurrentTask { task in
+            task?.isCancelled ?? false
+        }
+    }
+
     nonisolated private static func scanApps(in dir: URL, maxDepth: Int = 2) -> [AppsInstalledApp] {
         let fm = FileManager.default
         guard fm.fileExists(atPath: dir.path) else { return [] }
@@ -503,6 +533,8 @@ final class AppsViewModel: ObservableObject {
         var apps: [AppsInstalledApp] = []
 
         for case let url as URL in enumerator {
+            if isCurrentTaskCancelled() { return [] }
+
             if enumerator.level > maxDepth {
                 enumerator.skipDescendants()
                 continue
@@ -561,6 +593,10 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Details Scan
 
     func analyzeInstalledApp(app: AppsInstalledApp) {
+        // 새 앱을 선택했거나 조기 return 되는 경우에도 이전 관련 파일 스캔이
+        // isScanning 상태를 유지하거나 디스크 작업을 계속하지 않도록 먼저 무효화한다.
+        cancelRelatedScanIfNeeded()
+
         guard StoreManager.shared.isPurchased else {
             selectedApp = nil
             relatedItems = []
@@ -650,6 +686,8 @@ final class AppsViewModel: ObservableObject {
     }
 
     nonisolated private static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
+        guard !isCurrentTaskCancelled() else { return [] }
+
         var dict: [String: AppsRelatedItem] = [:]
         let fm = FileManager.default
 
@@ -672,6 +710,8 @@ final class AppsViewModel: ObservableObject {
         if let bundleID, !bundleID.isEmpty {
             // ✅ Spotlight 결과: 경로/유형이 사전에 분류되지 않으므로 안전하게 기본 선택 해제
             for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
+                if isCurrentTaskCancelled() { return [] }
+
                 let safe = AppsRelatedItem(
                     url: item.url,
                     selected: false,
@@ -692,6 +732,8 @@ final class AppsViewModel: ObservableObject {
             ]
 
             for (sub, suffix) in strictPaths {
+                if isCurrentTaskCancelled() { return [] }
+
                 let dir = libraryRoot.appendingPathComponent(sub)
                 var targetName = bundleID
                 if let s = suffix { targetName += s }
@@ -714,6 +756,8 @@ final class AppsViewModel: ObservableObject {
         if !appName.isEmpty {
             let namePaths = ["Application Support", "Caches"]
             for sub in namePaths {
+                if isCurrentTaskCancelled() { return [] }
+
                 let dir = libraryRoot.appendingPathComponent(sub)
                 let targetURL = dir.appendingPathComponent(appName)
                 var isDir: ObjCBool = false
@@ -747,7 +791,7 @@ final class AppsViewModel: ObservableObject {
         MDQuerySetSearchScope(query, [searchScope.path] as CFArray, 0)
 
         let ok = MDQueryExecute(query, CFOptionFlags(kMDQuerySynchronous.rawValue))
-        guard ok else { return [] }
+        guard ok, !isCurrentTaskCancelled() else { return [] }
 
         let count = Int(MDQueryGetResultCount(query))
         guard count > 0 else { return [] }
@@ -756,6 +800,8 @@ final class AppsViewModel: ObservableObject {
         found.reserveCapacity(min(count, 512))
 
         for i in 0..<count {
+            if isCurrentTaskCancelled() { return [] }
+
             guard let rawPtr = MDQueryGetResultAtIndex(query, i) else { continue }
             let item = Unmanaged<MDItem>.fromOpaque(rawPtr).takeUnretainedValue()
 
@@ -774,6 +820,8 @@ final class AppsViewModel: ObservableObject {
     }
 
     nonisolated private static func fileSize(at url: URL) -> Int64 {
+        guard !isCurrentTaskCancelled() else { return 0 }
+
         let keys: Set<URLResourceKey> = [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]
 
         if let values = try? url.resourceValues(forKeys: keys) {
@@ -800,6 +848,8 @@ final class AppsViewModel: ObservableObject {
 
         var total: Int64 = 0
         for case let fileURL as URL in enumerator {
+            if isCurrentTaskCancelled() { return 0 }
+
             if let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]) {
                 if values.isDirectory == true { continue }
                 if let allocated = values.totalFileAllocatedSize {
