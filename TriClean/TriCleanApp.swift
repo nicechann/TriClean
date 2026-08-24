@@ -27,6 +27,13 @@ private struct WindowMinSizeSetter: NSViewRepresentable {
     private func apply(to view: NSView) {
         guard let window = view.window else { return }
 
+        // App Store 심사 환경처럼 NavigationSplitView/ScrollView의 콘텐츠가
+        // 타이틀바 아래까지 그려지는 경우, 스크롤된 텍스트가 윈도우 제목과
+        // 트래픽 라이트 영역에 겹칠 수 있다. 전체 크기 콘텐츠 모드를 해제해
+        // SwiftUI 콘텐츠의 실제 레이아웃 영역을 타이틀바 아래로 제한한다.
+        window.styleMask.remove(.fullSizeContentView)
+        window.titlebarAppearsTransparent = false
+
         // 콘텐츠 기준 최소 크기
         window.contentMinSize = minContentSize
 
