@@ -84,11 +84,6 @@ struct ContentView: View {
             case .settings:     SettingsView()
             }
         }
-        // macOS의 NavigationSplitView는 스크롤 콘텐츠를 window toolbar 아래까지
-        // 렌더링할 수 있다. 툴바 배경을 항상 불투명하게 유지해 스크롤된 제목/버튼이
-        // 타이틀바와 트래픽 라이트 영역 뒤로 비쳐 보이거나 잘리는 현상을 막는다.
-        .toolbarBackground(Color(nsColor: .windowBackgroundColor), for: .windowToolbar)
-        .toolbarBackground(.visible, for: .windowToolbar)
         .onAppear {
             if selection == nil { selection = .smartScan }
             memoryViewModel.refresh()
