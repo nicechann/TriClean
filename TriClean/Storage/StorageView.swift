@@ -8,112 +8,6 @@
 import SwiftUI
 import AppKit
 import StoreKit // ✅ 결제 기능을 위해 추가
-import os.log
-
-private let storageLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Storage")
-
-// MARK: - Disk Usage (사용자 선택 기반) : Security-scoped bookmarks
-
-private enum StorageDiskScopeBookmarkKey: String {
-    case homeFolder = "TriClean.Storage.DiskUsage.HomeFolderBookmark"
-    case applicationsFolders = "TriClean.Storage.DiskUsage.ApplicationsFolderBookmarks"
-}
-
-private struct StorageDiskScopeBookmarks {
-    static func save(url: URL, for key: StorageDiskScopeBookmarkKey) {
-        do {
-            let data = try url.bookmarkData(options: [.withSecurityScope],
-                                            includingResourceValuesForKeys: nil,
-                                            relativeTo: nil)
-            UserDefaults.standard.set(data, forKey: key.rawValue)
-        } catch {
-            storageLogger.error("Bookmark save failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
-        }
-    }
-    
-    static func loadURL(for key: StorageDiskScopeBookmarkKey) -> URL? {
-        guard let data = UserDefaults.standard.data(forKey: key.rawValue) else { return nil }
-        var isStale = false
-        do {
-            let url = try URL(resolvingBookmarkData: data,
-                              options: [.withSecurityScope, .withoutUI],
-                              relativeTo: nil,
-                              bookmarkDataIsStale: &isStale)
-            if isStale { save(url: url, for: key) }
-            return url
-        } catch {
-            storageLogger.error("Bookmark load failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
-            return nil
-        }
-    }
-    
-    static func clear(_ key: StorageDiskScopeBookmarkKey) {
-        UserDefaults.standard.removeObject(forKey: key.rawValue)
-    }
-    
-    // 복수 폴더 (/Applications + ~/Applications 등) 저장/복원
-    static func save(urls: [URL], for key: StorageDiskScopeBookmarkKey) {
-        do {
-            let normalized = Array(Set(urls.map { $0.standardizedFileURL }))
-                .sorted { $0.path < $1.path }
-            
-            let datas = try normalized.map { url in
-                try url.bookmarkData(options: [.withSecurityScope],
-                                     includingResourceValuesForKeys: nil,
-                                     relativeTo: nil)
-            }
-            
-            let blob = try PropertyListEncoder().encode(datas)
-            UserDefaults.standard.set(blob, forKey: key.rawValue)
-        } catch {
-            storageLogger.error("Bookmarks save(many) failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
-        }
-    }
-    
-    static func loadURLs(for key: StorageDiskScopeBookmarkKey) -> [URL] {
-        guard let blob = UserDefaults.standard.data(forKey: key.rawValue) else { return [] }
-        do {
-            let datas = try PropertyListDecoder().decode([Data].self, from: blob)
-            var urls: [URL] = []
-            var hasStaleBookmark = false
-            urls.reserveCapacity(datas.count)
-            
-            for data in datas {
-                var isStale = false
-                if let url = try? URL(resolvingBookmarkData: data,
-                                      options: [.withSecurityScope, .withoutUI],
-                                      relativeTo: nil,
-                                      bookmarkDataIsStale: &isStale) {
-                    urls.append(url.standardizedFileURL)
-                    hasStaleBookmark = hasStaleBookmark || isStale
-                }
-            }
-            
-            let uniqueURLs = Array(Set(urls)).sorted { $0.path < $1.path }
-            if hasStaleBookmark { save(urls: uniqueURLs, for: key) }
-            return uniqueURLs
-        } catch {
-            storageLogger.error("Bookmarks load(many) failed: \(key.rawValue, privacy: .public) — \(error.localizedDescription, privacy: .public)")
-            return []
-        }
-    }
-}
-
-private struct StorageSecurityScopedAccessToken {
-    private let url: URL
-    private let started: Bool
-    
-    init(_ url: URL) {
-        self.url = url
-        self.started = url.startAccessingSecurityScopedResource()
-    }
-    
-    func stop() {
-        guard started else { return }
-        url.stopAccessingSecurityScopedResource()
-    }
-}
-
 
 // MARK: - 스캔 결과 모델 (폴더 + 파일)
 
@@ -377,18 +271,12 @@ struct StorageView: View {
     // ✅ [공유 모델] 앱 레벨에서 주입된 동일 인스턴스를 사용 (SmartScan과 상태 공유)
     @EnvironmentObject private var junkViewModel: JunkScannerViewModel
 
+    // ✅ 디스크 정보·폴더 크기 스캔 로직은 StorageViewModel로 이관했다.
+    //   (다른 스캐너 화면과 동일한 패턴 — 취소 가능한 Task + 세대 번호 + 공용 북마크 저장소)
+    @StateObject private var viewModel = StorageViewModel()
+
     // ✅ Paywall 표시 여부
     @State private var showPaywall = false
-
-    // 디스크 정보 + 상세 카테고리 정보
-    @State private var diskInfo: DiskInfo? = nil
-    @State private var homeScopeURL: URL? = StorageDiskScopeBookmarks.loadURL(for: .homeFolder)
-    @State private var appsScopeURLs: [URL] = StorageDiskScopeBookmarks.loadURLs(for: .applicationsFolders)
-
-    @State private var homeFolderBytes: Int64? = nil
-    @State private var appsFolderBytes: Int64? = nil
-    @State private var isHomeScanning: Bool = false
-    @State private var isAppsScanning: Bool = false
 
     var body: some View {
         // ✅ 인셋 규칙을 고정(섹션 간 좌우 정렬 깨짐 방지)
@@ -431,19 +319,16 @@ struct StorageView: View {
                 .environmentObject(storeManager)
         }
         .onAppear {
-            loadDiskInfo()
+            viewModel.onAppear()
 
             if junkViewModel.libraryURL != nil && !junkViewModel.hasResults && !junkViewModel.isScanning {
                 junkViewModel.scan()
             }
-
-            // ✅ 보수적: 권한(선택)이 있는 경우에만 사용량 계산
-            if homeScopeURL != nil {
-                scanHomeFolder()
-            }
-            if !appsScopeURLs.isEmpty {
-                scanApplicationsFolder()
-            }
+        }
+        // ✅ 화면을 벗어나면 진행 중인 폴더 순회를 중단한다.
+        //   (홈 폴더 전체 순회는 수 분이 걸릴 수 있어 방치하면 디스크 I/O가 계속된다.)
+        .onDisappear {
+            viewModel.onDisappear()
         }
     }
 
@@ -454,14 +339,14 @@ struct StorageView: View {
             Text("storage.header".localized)
                 .appFont(.title2, weight: .bold)
 
-            if let diskInfo {
+            if let diskInfo = viewModel.diskInfo {
                 DiskUsageSummaryView(
                     info: diskInfo,
-                    homeBytes: homeFolderBytes,
-                    appsBytes: appsFolderBytes,
-                    isHomeSelected: homeScopeURL != nil,
-                    isAppsSelected: !appsScopeURLs.isEmpty,
-                    isDetailScanning: isHomeScanning || isAppsScanning
+                    homeBytes: viewModel.homeFolderBytes,
+                    appsBytes: viewModel.appsFolderBytes,
+                    isHomeSelected: viewModel.isHomeSelected,
+                    isAppsSelected: viewModel.isAppsSelected,
+                    isDetailScanning: viewModel.isDetailScanning
                 )
 
                 diskUsageScopeControls
@@ -486,25 +371,25 @@ struct StorageView: View {
     private var diskUsageScopeControls: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Image(systemName: homeScopeURL == nil ? "xmark.circle" : "checkmark.circle")
-                    .foregroundStyle(homeScopeURL == nil ? Color.secondary : Color.green)
+                Image(systemName: viewModel.isHomeSelected ? "checkmark.circle" : "xmark.circle")
+                    .foregroundStyle(viewModel.isHomeSelected ? Color.green : Color.secondary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("storage.legend.home".localized)
                         .appFont(.caption, weight: .bold)
-                    Text(homeScopeURL?.path ?? "storage.scope.home_needed".localized)
+                    Text(viewModel.homeScopeURL?.path ?? "storage.scope.home_needed".localized)
                         .appFont(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button(homeScopeURL == nil ? "common.select".localized : "common.change".localized) {
-                    selectHomeFolderForDiskUsage()
+                Button(viewModel.isHomeSelected ? "common.change".localized : "common.select".localized) {
+                    viewModel.selectHomeFolderForDiskUsage()
                 }
                 .controlSize(.small)
                 .buttonStyle(.bordered)
-                if homeScopeURL != nil {
-                    Button("common.clear".localized) { clearHomeFolderScope() }
+                if viewModel.isHomeSelected {
+                    Button("common.clear".localized) { viewModel.clearHomeFolderScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
                         .controlSize(.small)
@@ -512,25 +397,25 @@ struct StorageView: View {
             }
 
             HStack(spacing: 10) {
-                Image(systemName: appsScopeURLs.isEmpty ? "xmark.circle" : "checkmark.circle")
-                    .foregroundStyle(appsScopeURLs.isEmpty ? Color.secondary : Color.green)
+                Image(systemName: viewModel.isAppsSelected ? "checkmark.circle" : "xmark.circle")
+                    .foregroundStyle(viewModel.isAppsSelected ? Color.green : Color.secondary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("storage.legend.apps".localized)
                         .appFont(.caption, weight: .bold)
-                    Text(appsScopeURLs.isEmpty ? "storage.scope.apps_needed".localized : appsScopeURLs.map { $0.path }.joined(separator: " · "))
+                    Text(viewModel.isAppsSelected ? viewModel.appsScopePathDescription : "storage.scope.apps_needed".localized)
                         .appFont(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button(appsScopeURLs.isEmpty ? "common.select".localized : "common.change".localized) {
-                    selectApplicationsFoldersForDiskUsage()
+                Button(viewModel.isAppsSelected ? "common.change".localized : "common.select".localized) {
+                    viewModel.selectApplicationsFoldersForDiskUsage()
                 }
                 .controlSize(.small)
                 .buttonStyle(.bordered)
-                if !appsScopeURLs.isEmpty {
-                    Button("common.clear".localized) { clearApplicationsFoldersScope() }
+                if viewModel.isAppsSelected {
+                    Button("common.clear".localized) { viewModel.clearApplicationsFoldersScope() }
                         .buttonStyle(.borderless)
                         .foregroundStyle(.secondary)
                         .controlSize(.small)
@@ -542,175 +427,5 @@ struct StorageView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.top, 6)
-    }
-
-    // MARK: - Disk Info
-
-    private func loadDiskInfo() {
-        // "/"보다는 현재 사용자 볼륨 기준이 UI(설정/파인더)와 더 일관적인 경우가 많습니다.
-        let volumeURL = FileManager.default.homeDirectoryForCurrentUser
-
-        do {
-            let values = try volumeURL.resourceValues(forKeys: [
-                .volumeNameKey,
-                .volumeTotalCapacityKey,
-                .volumeAvailableCapacityForImportantUsageKey,
-                .volumeAvailableCapacityKey
-            ])
-
-            guard let total = values.volumeTotalCapacity else {
-                diskInfo = nil
-                return
-            }
-
-            let free: Int64 =
-            values.volumeAvailableCapacityForImportantUsage
-            ?? Int64(values.volumeAvailableCapacity ?? 0)
-
-            let name = values.volumeName ?? "Macintosh HD"
-            let totalBytes = Int64(total)
-            let freeBytes = max(Int64(0), min(free, totalBytes))
-            let usedBytes = max(Int64(0), totalBytes - freeBytes)
-
-            diskInfo = DiskInfo(
-                name: name,
-                totalBytes: totalBytes,
-                freeBytes: freeBytes,
-                usedBytes: usedBytes
-            )
-        } catch {
-            diskInfo = nil
-        }
-    }
-
-    // MARK: - Folder Size Scans (Home / Applications)
-
-    private func scanHomeFolder() {
-        // ✅ 사용자 선택(보안 스코프) 기반: 선택되지 않으면 미표시(nil)
-        guard let homeURL = homeScopeURL else {
-            homeFolderBytes = nil
-            isHomeScanning = false
-            return
-        }
-
-        isHomeScanning = true
-        DispatchQueue.global(qos: .userInitiated).async {
-            let token = StorageSecurityScopedAccessToken(homeURL)
-            defer { token.stop() }
-
-            let size = Self.folderSizeBytes(at: homeURL)
-
-            DispatchQueue.main.async {
-                self.homeFolderBytes = size
-                self.isHomeScanning = false
-            }
-        }
-    }
-
-    private func scanApplicationsFolder() {
-        // ✅ 사용자 선택(보안 스코프) 기반: 선택된 폴더들만 합산
-        guard !appsScopeURLs.isEmpty else {
-            appsFolderBytes = nil
-            isAppsScanning = false
-            return
-        }
-
-        let targets = appsScopeURLs.map { $0.standardizedFileURL }
-
-        isAppsScanning = true
-        DispatchQueue.global(qos: .userInitiated).async {
-            var total: Int64 = 0
-            for url in targets {
-                let token = StorageSecurityScopedAccessToken(url)
-                total += Self.folderSizeBytes(at: url)
-                token.stop()
-            }
-
-            DispatchQueue.main.async {
-                self.appsFolderBytes = total
-                self.isAppsScanning = false
-            }
-        }
-    }
-
-    // MARK: - Disk Usage Scope (사용자 선택 기반)
-
-    private func selectHomeFolderForDiskUsage() {
-        let panel = NSOpenPanel()
-        panel.title = "storage.scope.select_home_title".localized
-        panel.message = "storage.scope.select_home_msg".localized
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
-
-        if panel.runModal() == .OK, let url = panel.url {
-            StorageDiskScopeBookmarks.save(url: url, for: .homeFolder)
-            homeScopeURL = url.standardizedFileURL
-            homeFolderBytes = nil
-            scanHomeFolder()
-        }
-    }
-
-    private func selectApplicationsFoldersForDiskUsage() {
-        let panel = NSOpenPanel()
-        panel.title = "storage.scope.select_apps_title".localized
-        panel.message = "storage.scope.select_apps_msg".localized
-        panel.allowsMultipleSelection = true
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.directoryURL = URL(fileURLWithPath: "/Applications", isDirectory: true)
-
-        if panel.runModal() == .OK {
-            let urls = panel.urls.map { $0.standardizedFileURL }
-            StorageDiskScopeBookmarks.save(urls: urls, for: .applicationsFolders)
-            appsScopeURLs = urls
-            appsFolderBytes = nil
-            scanApplicationsFolder()
-        }
-    }
-
-    private func clearHomeFolderScope() {
-        StorageDiskScopeBookmarks.clear(.homeFolder)
-        homeScopeURL = nil
-        homeFolderBytes = nil
-        isHomeScanning = false
-    }
-
-    private func clearApplicationsFoldersScope() {
-        StorageDiskScopeBookmarks.clear(.applicationsFolders)
-        appsScopeURLs = []
-        appsFolderBytes = nil
-        isAppsScanning = false
-    }
-
-    // MARK: - Size Utilities
-
-    private static func folderSizeBytes(at url: URL) -> Int64 {
-        let fileManager = FileManager.default
-        let keys: [URLResourceKey] = [.isRegularFileKey, .fileAllocatedSizeKey, .totalFileAllocatedSizeKey, .fileSizeKey]
-
-        guard let enumerator = fileManager.enumerator(
-            at: url,
-            includingPropertiesForKeys: keys,
-            options: [.skipsHiddenFiles],
-            errorHandler: { _, _ in true }
-        ) else {
-            return 0
-        }
-
-        var total: Int64 = 0
-
-        // Swift 6: DirectoryEnumerator의 for-in 순회는 async 컨텍스트에서 makeIterator() 이슈가 날 수 있으므로
-        // nextObject() 기반으로 순회
-        while let fileURL = enumerator.nextObject() as? URL {
-            if Task.isCancelled { break }
-            guard let values = try? fileURL.resourceValues(forKeys: Set(keys)) else { continue }
-            guard values.isRegularFile == true else { continue }
-
-            total += Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
-        }
-
-        return total
     }
 }
