@@ -8,14 +8,12 @@
 "common.confirm" = "確認";
 "common.close" = "閉じる";
 "common.preview" = "プレビュー";
-"common.delete" = "削除";
 "common.refresh" = "更新";
 "common.trash" = "ゴミ箱に入れる";
 "common.finder" = "Finderに表示";
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
 "common.permission_needed" = "アクセス権が必要";
-"common.quit" = "TriCleanを終了";
 "common.select" = "選択…";
 "common.change" = "変更…";
 "common.clear" = "クリア";
@@ -30,23 +28,12 @@
 "sidebar.memory" = "メモリ";
 "sidebar.apps" = "App";
 "sidebar.settings" = "設定";
-"sidebar.storage.subtitle" = "ディスク使用状況を分析";
-"sidebar.memory.subtitle" = "メモリ使用状況を表示";
-"sidebar.apps.subtitle" = "App関連ファイルを確認";
-"sidebar.status.memory_usage" = "現在の推定メモリ使用量です。";
-"sidebar.status.refresh_help" = "メモリの推定値を更新";
 
 /* Memory View */
 "memory.in_use" = "使用中: %@";
 "memory.total" = "合計: %@";
 "memory.used" = "使用済み: %@";
 "memory.available" = "利用可能: %@";
-
-"memory.clean_btn" = "更新";
-"memory.clean_desc" = "公開されたmacOS APIに基づきメモリ推定値を更新します。";
-"memory.optimize_btn" = "更新";
-"memory.optimize_desc" = "公開されたmacOS APIに基づきメモリ推定値を更新します。";
-"memory.optimize_done" = "メモリの推定値を更新しました。";
 
 "memory.disclaimer" = "表示される値は macOS の公開API (host_statistics64) に基づく推定値であり、実際のメモリ状態とは異なる場合があります。本Appはシステムのメモリ状態を変更しません。";
 "memory.menubar_disclaimer" = "表示値はおおよその推定値で、参考用です。";
@@ -61,7 +48,6 @@
 "memory.legend.available" = "利用可能";
 "memory.donut.in_use" = "使用中";
 
-"memory.tray_message" = "メモリの推定値を更新しました。";
 "memory.tooltip.app_click" = "%@ をアクティブにする (%@)";
 
 /* Storage View */
@@ -71,9 +57,6 @@
 "storage.legend.apps" = "App";
 "storage.legend.other" = "その他使用済み";
 "storage.legend.free" = "空き容量";
-"storage.permission.home" = "アクセス権が必要: ホームフォルダを選択";
-"storage.permission.apps" = "アクセス権が必要: Appフォルダを選択";
-"storage.scope_note" = "※ ホーム/Appの使用量は選択範囲内でのみ計算されます。それ以外は「その他使用済み」と表示されます。";
 "storage.scan.header" = "ディスクスキャン";
 "storage.scan.btn" = "フォルダを選択してスキャン";
 "storage.scan.updating" = "更新中…";
@@ -87,10 +70,6 @@
 "storage.scan.sort.note" = "スキャン中は検出順で表示され、完了後に並び替えが適用されます。";
 "storage.results.header" = "結果";
 "storage.alert.delete.title" = "削除してもよろしいですか?";
-"storage.alert.delete.message" = "「%@」%@ をゴミ箱に移動します。Finderから復元できます。";
-"storage.item.folder" = "フォルダ";
-"storage.item.file" = "ファイル";
-"storage.msg.empty" = "スキャン結果がありません。「フォルダを選択してスキャン」をクリックして開始してください。";
 "storage.msg.manual" = "「%@」フォルダを分析中…";
 "storage.msg.auto" = "条件が変更されたため再分析中…";
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
@@ -177,7 +156,6 @@
 "apps.status.scan_empty" = "関連ファイルは見つかりませんでした。";
 "apps.status.scan_found" = "%ld 個の関連項目が見つかりました。";
 "apps.status.related_success" = "%ld 個の関連項目をゴミ箱に移動しました。";
-"apps.status.related_partial_fail" = "%ld 個を移動、%ld 個が失敗しました。";
 "apps.status.related_none" = "ゴミ箱に移動された項目はありません。";
 "apps.status.uninstall_success" = "%ld 個のAppバンドルをゴミ箱に移動しました。";
 "apps.status.uninstall_partial_fail" = "%ld 個のAppバンドルを移動、%ld 個が失敗しました。";
@@ -202,19 +180,14 @@
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – メモリ";
-"menubar.clean" = "更新";
 "menubar.open_triclean" = "TriCleanを開く";
 
 /* Debug */
 "settings.debug" = "デバッグ";
-"settings.debug.clean_fill_mode" = "メモリデバッグモード";
-"settings.debug.clean_fill_desc" = "内部テスト用のデバッグ専用オプションです。";
 
 /* Paywall */
 "paywall.feat.memory" = "安全にゴミ箱へ移動";
 "paywall.feat.memory_desc" = "削除前にパスとファイル状態を再確認し、復元可能なゴミ箱へ移動します";
-
-/* Upgrade & Paywall */
 
 /* Paywall (Features) */
 "paywall.title" = "TriClean 買い切り版";
@@ -316,50 +289,6 @@
 "junk.category.http_storage.title" = "HTTPストレージ";
 "junk.category.http_storage.desc" = "Appが使用するHTTPキャッシュとストレージです。";
 
-/* Duplicate Finder (legacy keys) */
-"duplicates.title" = "重複ファイル検索";
-"duplicates.subtitle" = "同じ内容のファイルを検出してクリーンアップします。";
-"duplicates.min_size" = "最小:";
-"duplicates.change_folder" = "フォルダを変更";
-"duplicates.select_folder_title" = "重複検索するフォルダを選択";
-"duplicates.select_folder_desc" = "TriCleanは選択したフォルダとサブフォルダ内のファイルを比較します。\n3段階チェック (ファイルサイズ → 部分ハッシュ → 完全ハッシュ) を使用します。";
-"duplicates.select_folder" = "フォルダを選択";
-"duplicates.alert.title" = "重複ファイルをクリーン";
-"duplicates.alert.message" = "選択した重複ファイルをゴミ箱に移動します。\n各グループに少なくとも1つのファイルが残ります。";
-"duplicates.phase.idle" = "待機中";
-"duplicates.phase.collecting" = "ファイルを収集中…";
-"duplicates.phase.grouping" = "サイズ別にグループ化中…";
-"duplicates.phase.partial" = "部分ハッシュを比較中…";
-"duplicates.phase.full" = "完全ハッシュを比較中…";
-"duplicates.phase.done" = "完了";
-"duplicates.summary.groups" = "重複グループ";
-"duplicates.summary.reclaimable" = "回収可能な容量";
-"duplicates.summary.scanned" = "スキャン済みファイル";
-"duplicates.count_format" = "%ld";
-"duplicates.clean_selected" = "重複をクリーン (%@)";
-"duplicates.empty.done_title" = "重複ファイルは見つかりませんでした";
-"duplicates.empty.idle_title" = "スキャン準備完了";
-"duplicates.empty.done_desc" = "選択したフォルダに重複ファイルはありませんでした。";
-"duplicates.empty.idle_desc" = "「スキャン」をクリックして重複ファイルを検索します。";
-"duplicates.group.files" = "%ld 個の同一ファイル";
-"duplicates.group.detail" = "各 %@ · %@ 回収可能";
-"duplicates.file.help.keep" = "このファイルを保持。クリックで削除対象に変更できます。";
-"duplicates.file.help.delete" = "削除対象です。クリックで保持に変更できます。";
-"duplicates.file.keep" = "保持";
-"duplicates.file.delete" = "削除";
-"duplicates.panel.title" = "重複スキャンするフォルダを選択";
-"duplicates.panel.message" = "TriCleanは選択したフォルダとサブフォルダ内の重複ファイルをスキャンします。";
-"duplicates.status.collecting" = "ファイル一覧を収集中…";
-"duplicates.status.files_found" = "%ld 個のファイルを検出";
-"duplicates.status.grouping" = "サイズ別にグループ化中…";
-"duplicates.status.size_candidates" = "サイズが一致する重複候補が %ld 個あります。";
-"duplicates.status.partial_matches" = "部分ハッシュで %ld グループが一致しました。";
-"duplicates.status.full_progress" = "完全ハッシュを比較中… %ld/%ld";
-"duplicates.status.none_found" = "重複ファイルは見つかりませんでした。";
-"duplicates.status.found_groups" = "%ld 個の重複グループを検出 (%@ 回収可能)";
-"duplicates.status.deleted" = "%ld 個の重複ファイルをゴミ箱に移動しました。";
-
-
 /* Storage UX */
 "storage.status.header" = "現在のスキャン";
 "storage.status.folder" = "選択中のフォルダ";
@@ -386,14 +315,10 @@
 "junk.item.show_more" = "残り%ld項目をすべて表示";
 "junk.item.show_less" = "最初の30項目のみ表示";
 
-/* Duplicates */
-"duplicates.selected_folder" = "選択中のフォルダ";
-
 /* Settings Debug */
 "settings.debug.purchase_status" = "購入状態";
 "settings.debug.purchase_on" = "Pro";
 "settings.debug.purchase_off" = "無料";
-
 
 /* Apps View — Stage 3 */
 "apps.filter.label" = "フィルタ";
@@ -482,7 +407,6 @@
 "duplicate.status.keep_newest_applied" = "選択したグループの最新ファイルを保持しました。";
 "duplicate.status.keep_oldest_applied" = "選択したグループの最古ファイルを保持しました。";
 "duplicate.status.cleanup_done" = "%ld 個の重複ファイルをゴミ箱に移動しました (%@ 回収)。";
-"duplicate.status.cleanup_done_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました (%@ 回収)。%ld 件が失敗。";
 "duplicate.status.cleanup_failed" = "TriCleanは選択した重複ファイルをゴミ箱に移動できませんでした。";
 
 "duplicate.action.clear_selection" = "選択解除";
@@ -548,7 +472,6 @@
 "smartscan.safety.title" = "削除は各詳細画面でのみ実行されます。";
 "smartscan.safety.body" = "Smart Scanは概要と移動先を提供します。実際のクリーンアップは、項目を確認してからゴミ箱へ移動する方式で実行されます。";
 
-
 /* Photo Manager */
 "sidebar.photos" = "写真";
 "photos.title" = "写真マネージャ";
@@ -557,9 +480,7 @@
 "photos.select_folder.message" = "TriClean は選択したフォルダとそのサブフォルダ内の画像ファイルをスキャンします。";
 "photos.scope.select_hint" = "画像を検索するフォルダを選択してください。";
 "photos.action.scan" = "スキャン";
-"photos.action.scanning" = "スキャン中…";
 "photos.status.collecting" = "画像ファイルを収集中…";
-"photos.status.reading" = "画像情報を読み込み中…";
 "photos.status.found" = "%ld 枚の画像が見つかりました。";
 "photos.status.empty" = "このフォルダに画像が見つかりませんでした。";
 "photos.status.ready" = "スキャンの準備ができました。";
@@ -611,8 +532,6 @@
 "photos.similar.select_extras" = "1枚を残して選択";
 "photos.delete.status.moving" = "%ld 件の項目をゴミ箱に移動中…";
 "photos.delete.status.success" = "%ld 件の項目をゴミ箱に移動しました。";
-"photos.delete.status.partial" = "%1$ld 件の項目をゴミ箱に移動しました。%2$ld 件は移動できませんでした。";
-"photos.delete.status.failed" = "%ld 件の項目をゴミ箱に移動できませんでした。";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "選択した %ld 個の項目をゴミ箱に移動中…";
@@ -621,7 +540,6 @@
 "storage.msg.trash_failed" = "選択した項目をゴミ箱に移動できませんでした。";
 "junk.progress.cleaning" = "選択した %ld 個の項目をゴミ箱に移動中…";
 "junk.progress.clean_done" = "%ld 個の項目をゴミ箱に移動しました。";
-"junk.progress.clean_partial" = "%ld 個の項目をゴミ箱に移動しました。%ld 個の項目は失敗しました。";
 "junk.progress.clean_failed" = "選択したジャンク項目をゴミ箱に移動できませんでした。";
 
 /* CPU (Smart Scan / 메뉴바) */

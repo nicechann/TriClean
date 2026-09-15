@@ -8,14 +8,12 @@
 "common.confirm" = "Bestätigen";
 "common.close" = "Schließen";
 "common.preview" = "Vorschau";
-"common.delete" = "Löschen";
 "common.refresh" = "Aktualisieren";
 "common.trash" = "In den Papierkorb legen";
 "common.finder" = "Im Finder zeigen";
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
 "common.permission_needed" = "Berechtigung erforderlich";
-"common.quit" = "TriClean beenden";
 "common.select" = "Auswählen…";
 "common.change" = "Ändern…";
 "common.clear" = "Zurücksetzen";
@@ -30,23 +28,12 @@
 "sidebar.memory" = "Arbeitsspeicher";
 "sidebar.apps" = "Apps";
 "sidebar.settings" = "Einstellungen";
-"sidebar.storage.subtitle" = "Speichernutzung analysieren";
-"sidebar.memory.subtitle" = "Arbeitsspeichernutzung anzeigen";
-"sidebar.apps.subtitle" = "App-bezogene Dateien überprüfen";
-"sidebar.status.memory_usage" = "Aktuelle geschätzte Arbeitsspeichernutzung.";
-"sidebar.status.refresh_help" = "Arbeitsspeicher-Schätzungen aktualisieren";
 
 /* Memory View */
 "memory.in_use" = "Belegt: %@";
 "memory.total" = "Gesamt: %@";
 "memory.used" = "Verwendet: %@";
 "memory.available" = "Verfügbar: %@";
-
-"memory.clean_btn" = "Aktualisieren";
-"memory.clean_desc" = "Aktualisiert die Arbeitsspeicher-Schätzungen anhand öffentlicher macOS-APIs.";
-"memory.optimize_btn" = "Aktualisieren";
-"memory.optimize_desc" = "Aktualisiert die Arbeitsspeicher-Schätzungen anhand öffentlicher macOS-APIs.";
-"memory.optimize_done" = "Arbeitsspeicher-Schätzungen aktualisiert.";
 
 "memory.disclaimer" = "Die angezeigten Werte sind Schätzungen auf Basis öffentlicher macOS-APIs (host_statistics64) und können vom tatsächlichen Speicherzustand abweichen. Diese App verändert den Systemspeicher nicht.";
 "memory.menubar_disclaimer" = "Werte sind ungefähre Schätzungen, nur als Referenz.";
@@ -61,7 +48,6 @@
 "memory.legend.available" = "Verfügbar";
 "memory.donut.in_use" = "Belegt";
 
-"memory.tray_message" = "Arbeitsspeicher-Schätzungen aktualisiert.";
 "memory.tooltip.app_click" = "%@ aktivieren (%@)";
 
 /* Storage View */
@@ -71,9 +57,6 @@
 "storage.legend.apps" = "Programme";
 "storage.legend.other" = "Sonstige Belegung";
 "storage.legend.free" = "Freier Speicher";
-"storage.permission.home" = "Berechtigung erforderlich: Privatordner auswählen";
-"storage.permission.apps" = "Berechtigung erforderlich: Programme-Ordner auswählen";
-"storage.scope_note" = "※ Privat-/Programme-Nutzung wird nur innerhalb der ausgewählten Bereiche berechnet, sonst als „Sonstige Belegung“ angezeigt.";
 "storage.scan.header" = "Speicher-Scan";
 "storage.scan.btn" = "Ordner auswählen & scannen";
 "storage.scan.updating" = "Wird aktualisiert…";
@@ -87,10 +70,6 @@
 "storage.scan.sort.note" = "Während des Scans in Erkennungsreihenfolge angezeigt. Sortierung wird nach Abschluss angewendet.";
 "storage.results.header" = "Ergebnisse";
 "storage.alert.delete.title" = "Wirklich löschen?";
-"storage.alert.delete.message" = "„%@“ %@ wird in den Papierkorb verschoben. Sie können das Element über den Finder wiederherstellen.";
-"storage.item.folder" = "Ordner";
-"storage.item.file" = "Datei";
-"storage.msg.empty" = "Keine Scan-Ergebnisse. Klicken Sie auf „Ordner auswählen & scannen“, um zu beginnen.";
 "storage.msg.manual" = "Ordner „%@“ wird analysiert…";
 "storage.msg.auto" = "Bedingung geändert – wird neu analysiert…";
 "storage.msg.canceled" = "Scan abgebrochen.";
@@ -177,7 +156,6 @@
 "apps.status.scan_empty" = "Keine zugehörigen Dateien gefunden.";
 "apps.status.scan_found" = "%ld zugehörige Elemente gefunden.";
 "apps.status.related_success" = "%ld zugehörige Elemente in den Papierkorb verschoben.";
-"apps.status.related_partial_fail" = "%ld Elemente verschoben, %ld fehlgeschlagen.";
 "apps.status.related_none" = "Es wurden keine Elemente in den Papierkorb verschoben.";
 "apps.status.uninstall_success" = "%ld App-Bundles in den Papierkorb verschoben.";
 "apps.status.uninstall_partial_fail" = "%ld App-Bundles verschoben, %ld fehlgeschlagen.";
@@ -202,19 +180,14 @@
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Arbeitsspeicher";
-"menubar.clean" = "Aktualisieren";
 "menubar.open_triclean" = "TriClean öffnen";
 
 /* Debug */
 "settings.debug" = "Debug";
-"settings.debug.clean_fill_mode" = "Speicher-Debug-Modus";
-"settings.debug.clean_fill_desc" = "Debug-Option ausschließlich für interne Tests.";
 
 /* Paywall */
 "paywall.feat.memory" = "Sicher in den Papierkorb";
 "paywall.feat.memory_desc" = "Pfade und Dateistatus werden vor dem Verschieben in den wiederherstellbaren Papierkorb erneut geprüft";
-
-/* Upgrade & Paywall */
 
 /* Paywall (Features) */
 "paywall.title" = "TriClean Dauerzugang";
@@ -316,50 +289,6 @@
 "junk.category.http_storage.title" = "HTTP-Speicher";
 "junk.category.http_storage.desc" = "HTTP-Cache und Speicher, die von Apps verwendet werden.";
 
-/* Duplicate Finder (legacy keys) */
-"duplicates.title" = "Duplikatsuche";
-"duplicates.subtitle" = "Dateien mit identischem Inhalt finden und bereinigen.";
-"duplicates.min_size" = "Min.:";
-"duplicates.change_folder" = "Ordner ändern";
-"duplicates.select_folder_title" = "Ordner für Duplikatsuche auswählen";
-"duplicates.select_folder_desc" = "TriClean vergleicht Dateien im ausgewählten Ordner und seinen Unterordnern.\nEs verwendet eine 3-stufige Prüfung: Dateigröße → Teil-Hash → Gesamt-Hash.";
-"duplicates.select_folder" = "Ordner auswählen";
-"duplicates.alert.title" = "Doppelte Dateien bereinigen";
-"duplicates.alert.message" = "Ausgewählte doppelte Dateien in den Papierkorb verschieben.\nMindestens eine Datei in jeder Gruppe bleibt erhalten.";
-"duplicates.phase.idle" = "Inaktiv";
-"duplicates.phase.collecting" = "Dateien werden gesammelt…";
-"duplicates.phase.grouping" = "Nach Größe gruppieren…";
-"duplicates.phase.partial" = "Teil-Hashes vergleichen…";
-"duplicates.phase.full" = "Gesamt-Hashes vergleichen…";
-"duplicates.phase.done" = "Fertig";
-"duplicates.summary.groups" = "Duplikat-Gruppen";
-"duplicates.summary.reclaimable" = "Freisetzbarer Speicher";
-"duplicates.summary.scanned" = "Gescannte Dateien";
-"duplicates.count_format" = "%ld";
-"duplicates.clean_selected" = "Duplikate bereinigen (%@)";
-"duplicates.empty.done_title" = "Keine doppelten Dateien gefunden";
-"duplicates.empty.idle_title" = "Bereit zum Scannen";
-"duplicates.empty.done_desc" = "Im ausgewählten Ordner wurden keine doppelten Dateien gefunden.";
-"duplicates.empty.idle_desc" = "Klicken Sie auf „Scannen“, um nach doppelten Dateien zu suchen.";
-"duplicates.group.files" = "%ld identische Dateien";
-"duplicates.group.detail" = "Je %@ · %@ freisetzbar";
-"duplicates.file.help.keep" = "Diese Datei behalten. Klicken, um stattdessen zum Löschen zu markieren.";
-"duplicates.file.help.delete" = "Zum Löschen markiert. Klicken, um diese Datei stattdessen zu behalten.";
-"duplicates.file.keep" = "Behalten";
-"duplicates.file.delete" = "Löschen";
-"duplicates.panel.title" = "Ordner für Duplikat-Scan auswählen";
-"duplicates.panel.message" = "TriClean scannt den ausgewählten Ordner und seine Unterordner nach doppelten Dateien.";
-"duplicates.status.collecting" = "Dateiliste wird zusammengestellt…";
-"duplicates.status.files_found" = "%ld Dateien gefunden";
-"duplicates.status.grouping" = "Nach Größe gruppieren…";
-"duplicates.status.size_candidates" = "%ld Dateien sind nach Größe Duplikat-Kandidaten.";
-"duplicates.status.partial_matches" = "%ld Gruppen stimmen beim Teil-Hash überein.";
-"duplicates.status.full_progress" = "Gesamt-Hashes vergleichen… %ld/%ld";
-"duplicates.status.none_found" = "Keine doppelten Dateien gefunden.";
-"duplicates.status.found_groups" = "%ld Duplikat-Gruppen gefunden (%@ freisetzbar)";
-"duplicates.status.deleted" = "%ld doppelte Dateien wurden in den Papierkorb verschoben.";
-
-
 /* Storage UX */
 "storage.status.header" = "Aktueller Scan";
 "storage.status.folder" = "Ausgewählter Ordner";
@@ -386,14 +315,10 @@
 "junk.item.show_more" = "Weitere %ld Elemente anzeigen";
 "junk.item.show_less" = "Nur die ersten 30 Elemente anzeigen";
 
-/* Duplicates */
-"duplicates.selected_folder" = "Ausgewählter Ordner";
-
 /* Settings Debug */
 "settings.debug.purchase_status" = "Kaufstatus";
 "settings.debug.purchase_on" = "Pro";
 "settings.debug.purchase_off" = "Kostenlos";
-
 
 /* Apps View — Stage 3 */
 "apps.filter.label" = "Filter";
@@ -482,7 +407,6 @@
 "duplicate.status.keep_newest_applied" = "Die neueste Datei in der ausgewählten Gruppe wurde behalten.";
 "duplicate.status.keep_oldest_applied" = "Die älteste Datei in der ausgewählten Gruppe wurde behalten.";
 "duplicate.status.cleanup_done" = "%ld doppelte Dateien in den Papierkorb verschoben (%@ wiederhergestellt).";
-"duplicate.status.cleanup_done_with_failures" = "%ld doppelte Dateien in den Papierkorb verschoben (%@ wiederhergestellt). %ld Elemente fehlgeschlagen.";
 "duplicate.status.cleanup_failed" = "TriClean konnte die ausgewählten doppelten Dateien nicht in den Papierkorb verschieben.";
 
 "duplicate.action.clear_selection" = "Auswahl aufheben";
@@ -548,7 +472,6 @@
 "smartscan.safety.title" = "Gelöscht wird nur in den jeweiligen Detailansichten.";
 "smartscan.safety.body" = "Smart Scan bietet Zusammenfassungen und Navigation. Die eigentliche Bereinigung erfolgt erst, nachdem du Elemente geprüft und in den Papierkorb verschoben hast.";
 
-
 /* Photo Manager */
 "sidebar.photos" = "Fotos";
 "photos.title" = "Fotomanager";
@@ -557,9 +480,7 @@
 "photos.select_folder.message" = "TriClean durchsucht den ausgewählten Ordner und seine Unterordner nach Bilddateien.";
 "photos.scope.select_hint" = "Wählen Sie einen Ordner zum Durchsuchen nach Bildern aus.";
 "photos.action.scan" = "Scannen";
-"photos.action.scanning" = "Scannen…";
 "photos.status.collecting" = "Bilddateien werden gesammelt…";
-"photos.status.reading" = "Bildinformationen werden gelesen…";
 "photos.status.found" = "%ld Bilder gefunden.";
 "photos.status.empty" = "In diesem Ordner wurden keine Bilder gefunden.";
 "photos.status.ready" = "Bereit zum Scannen.";
@@ -611,8 +532,6 @@
 "photos.similar.select_extras" = "Alle außer einem";
 "photos.delete.status.moving" = "%ld Objekte werden in den Papierkorb verschoben…";
 "photos.delete.status.success" = "%ld Objekte wurden in den Papierkorb verschoben.";
-"photos.delete.status.partial" = "%1$ld Objekte wurden in den Papierkorb verschoben. %2$ld Objekte konnten nicht verschoben werden.";
-"photos.delete.status.failed" = "%ld Objekte konnten nicht in den Papierkorb verschoben werden.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "%ld ausgewählte Elemente werden in den Papierkorb verschoben…";
@@ -621,7 +540,6 @@
 "storage.msg.trash_failed" = "Die ausgewählten Elemente konnten nicht in den Papierkorb verschoben werden.";
 "junk.progress.cleaning" = "%ld ausgewählte Elemente werden in den Papierkorb verschoben…";
 "junk.progress.clean_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
-"junk.progress.clean_partial" = "%ld Elemente wurden in den Papierkorb verschoben. %ld Elemente sind fehlgeschlagen.";
 "junk.progress.clean_failed" = "Die ausgewählten Junk-Elemente konnten nicht in den Papierkorb verschoben werden.";
 
 /* CPU (Smart Scan / 메뉴바) */

@@ -11,14 +11,12 @@
 "common.confirm" = "Confirm";
 "common.close" = "Close";
 "common.preview" = "Preview";
-"common.delete" = "Delete";
 "common.refresh" = "Refresh";
 "common.trash" = "Move to Trash";
 "common.finder" = "Reveal in Finder";
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
 "common.permission_needed" = "Permission Required";
-"common.quit" = "Quit TriClean";
 "common.select" = "Select…";
 "common.change" = "Change…";
 "common.clear" = "Clear";
@@ -33,25 +31,12 @@
 "sidebar.memory" = "Memory";
 "sidebar.apps" = "Apps";
 "sidebar.settings" = "Settings";
-"sidebar.storage.subtitle" = "Analyze disk usage";
-"sidebar.memory.subtitle" = "View memory usage";
-"sidebar.apps.subtitle" = "Review app-related files";
-"sidebar.status.memory_usage" = "Current estimated memory usage.";
-"sidebar.status.refresh_help" = "Refresh memory estimates";
 
 /* Memory View */
 "memory.in_use" = "In Use: %@";
 "memory.total" = "Total: %@";
 "memory.used" = "Used: %@";
 "memory.available" = "Available: %@";
-
-/* ✅ [v2] All "Clean/Optimize" → "Refresh" only */
-"memory.clean_btn" = "Refresh";
-"memory.clean_desc" = "Refresh memory estimates based on public macOS APIs.";
-
-"memory.optimize_btn" = "Refresh";
-"memory.optimize_desc" = "Refresh memory estimates based on public macOS APIs.";
-"memory.optimize_done" = "Memory estimates refreshed.";
 
 /* ✅ Enhanced disclaimer */
 "memory.disclaimer" = "Values shown are estimates based on macOS public APIs (host_statistics64) and may differ from actual memory state. This app does not modify system memory.";
@@ -67,7 +52,6 @@
 "memory.legend.available" = "Available";
 "memory.donut.in_use" = "In Use";
 
-"memory.tray_message" = "Memory estimates refreshed.";
 "memory.tooltip.app_click" = "Activate %@ (%@)";
 
 /* Storage View */
@@ -77,9 +61,6 @@
 "storage.legend.apps" = "Applications";
 "storage.legend.other" = "Other Used";
 "storage.legend.free" = "Free Space";
-"storage.permission.home" = "Permission Required: Select Home Folder";
-"storage.permission.apps" = "Permission Required: Select Applications Folder";
-"storage.scope_note" = "※ Home/Applications usage is calculated only within selected scopes. Otherwise shown as 'Other Used'.";
 "storage.scan.header" = "Disk Scan";
 "storage.scan.btn" = "Select Folder & Scan";
 "storage.scan.updating" = "Updating…";
@@ -93,10 +74,6 @@
 "storage.scan.sort.note" = "Displayed in discovery order during scan. Sort applies once finished.";
 "storage.results.header" = "Results";
 "storage.alert.delete.title" = "Are you sure you want to delete?";
-"storage.alert.delete.message" = "'%@' %@ will be moved to Trash. You can restore it from Finder.";
-"storage.item.folder" = "Folder";
-"storage.item.file" = "File";
-"storage.msg.empty" = "No scan results. Click 'Select Folder & Scan' to start.";
 "storage.msg.manual" = "Analyzing '%@' folder…";
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
@@ -182,7 +159,6 @@
 "apps.status.scan_empty" = "No related files found.";
 "apps.status.scan_found" = "Found %ld related items.";
 "apps.status.related_success" = "Moved %ld related items to Trash.";
-"apps.status.related_partial_fail" = "Moved %ld items, failed %ld.";
 "apps.status.related_none" = "Nothing was moved to Trash.";
 "apps.status.uninstall_success" = "Moved %ld app bundles to Trash.";
 "apps.status.uninstall_partial_fail" = "Moved %ld app bundles, failed %ld.";
@@ -208,13 +184,10 @@
 
 /* Menu Bar */
 "menubar.memory.title" = "TriClean – Memory";
-"menubar.clean" = "Refresh";
 "menubar.open_triclean" = "Open TriClean";
 
 /* Debug */
 "settings.debug" = "Debug";
-"settings.debug.clean_fill_mode" = "Memory Debug Mode";
-"settings.debug.clean_fill_desc" = "Debug-only option for internal testing.";
 
 /* ✅ [v2] Paywall — "monitoring" focus */
 "paywall.feat.memory" = "Safe Move to Trash";
@@ -255,7 +228,6 @@
 "store.error.product_not_found"   = "Product not found. Please check the Product ID or StoreKit configuration.";
 "store.error.load_failed_detail"  = "Failed to load product: %@";
 
-
 // MARK: - Onboarding
 "onboarding.welcome.title" = "Welcome to TriClean";
 "onboarding.welcome.desc" = "Review storage usage, memory estimates, and app-related files in one place.";
@@ -268,8 +240,6 @@
 "onboarding.btn.next" = "Next";
 "onboarding.btn.back" = "Back";
 "onboarding.btn.start" = "Get Started";
-
-
 
 /* Sidebar Sections */
 "sidebar.section.system" = "System";
@@ -325,50 +295,6 @@
 "junk.category.http_storage.title" = "HTTP Storage";
 "junk.category.http_storage.desc" = "HTTP cache and storage used by apps.";
 
-/* Duplicate Finder */
-"duplicates.title" = "Duplicate Finder";
-"duplicates.subtitle" = "Find and clean files with identical contents.";
-"duplicates.min_size" = "Min:";
-"duplicates.change_folder" = "Change Folder";
-"duplicates.select_folder_title" = "Select a folder to scan for duplicates";
-"duplicates.select_folder_desc" = "TriClean compares files in the selected folder and its subfolders.\nIt uses a 3-step check: file size → partial hash → full hash.";
-"duplicates.select_folder" = "Select Folder";
-"duplicates.alert.title" = "Clean Duplicate Files";
-"duplicates.alert.message" = "Move selected duplicate files to Trash.\nAt least one file in each group will be kept.";
-"duplicates.phase.idle" = "Idle";
-"duplicates.phase.collecting" = "Collecting files…";
-"duplicates.phase.grouping" = "Grouping by size…";
-"duplicates.phase.partial" = "Comparing partial hashes…";
-"duplicates.phase.full" = "Comparing full hashes…";
-"duplicates.phase.done" = "Done";
-"duplicates.summary.groups" = "Duplicate Groups";
-"duplicates.summary.reclaimable" = "Reclaimable Space";
-"duplicates.summary.scanned" = "Scanned Files";
-"duplicates.count_format" = "%ld";
-"duplicates.clean_selected" = "Clean Duplicates (%@)";
-"duplicates.empty.done_title" = "No duplicate files found";
-"duplicates.empty.idle_title" = "Ready to scan";
-"duplicates.empty.done_desc" = "No duplicate files were found in the selected folder.";
-"duplicates.empty.idle_desc" = "Click 'Scan' to look for duplicate files.";
-"duplicates.group.files" = "%ld identical files";
-"duplicates.group.detail" = "Each %@ · %@ reclaimable";
-"duplicates.file.help.keep" = "Keep this file. Click to mark it for deletion.";
-"duplicates.file.help.delete" = "Marked for deletion. Click to keep this file instead.";
-"duplicates.file.keep" = "Keep";
-"duplicates.file.delete" = "Delete";
-"duplicates.panel.title" = "Select Folder for Duplicate Scan";
-"duplicates.panel.message" = "TriClean scans the selected folder and its subfolders for duplicate files.";
-"duplicates.status.collecting" = "Collecting file list…";
-"duplicates.status.files_found" = "%ld files found";
-"duplicates.status.grouping" = "Grouping by size…";
-"duplicates.status.size_candidates" = "%ld files are duplicate candidates by size.";
-"duplicates.status.partial_matches" = "%ld groups matched on partial hash.";
-"duplicates.status.full_progress" = "Comparing full hashes… %ld/%ld";
-"duplicates.status.none_found" = "No duplicate files were found.";
-"duplicates.status.found_groups" = "%ld duplicate groups found (%@ reclaimable)";
-"duplicates.status.deleted" = "%ld duplicate files were moved to Trash.";
-
-
 /* Storage UX */
 "storage.status.header" = "Current Scan";
 "storage.status.folder" = "Selected Folder";
@@ -395,14 +321,10 @@
 "junk.item.show_more" = "Show %ld more items";
 "junk.item.show_less" = "Show first 30 items";
 
-/* Duplicates */
-"duplicates.selected_folder" = "Selected Folder";
-
 /* Settings Debug */
 "settings.debug.purchase_status" = "Purchase Status";
 "settings.debug.purchase_on" = "Pro";
 "settings.debug.purchase_off" = "Free";
-
 
 /* Apps View — Stage 3 */
 "apps.filter.label" = "Filter";
@@ -439,7 +361,6 @@
 "apps.related.footer" = "%1$ld selected · estimated cleanup size %2$@";
 "apps.alert.uninstall.msg" = "Move %1$ld removable app bundles to Trash out of %2$ld selected apps? App Store apps are excluded, and moved items can be restored from Finder Trash.";
 "apps.alert.related.msg" = "Move %1$ld selected related files/folders (%2$@) to Trash?";
-
 
 // MARK: - Duplicate Finder
 "duplicate.header.title" = "Duplicate Finder";
@@ -494,7 +415,6 @@
 "duplicate.status.keep_newest_applied" = "Kept the newest file in the selected group.";
 "duplicate.status.keep_oldest_applied" = "Kept the oldest file in the selected group.";
 "duplicate.status.cleanup_done" = "%ld duplicate files moved to Trash (%@ recovered).";
-"duplicate.status.cleanup_done_with_failures" = "%ld duplicate files moved to Trash (%@ recovered). %ld items failed.";
 "duplicate.status.cleanup_failed" = "TriClean could not move the selected duplicate files to Trash.";
 
 "duplicate.action.clear_selection" = "Clear Selection";
@@ -560,7 +480,6 @@
 "smartscan.safety.title" = "Deletion only happens in each detail screen.";
 "smartscan.safety.body" = "Smart Scan provides summaries and navigation. Actual cleanup is performed only after you review items and move them to Trash.";
 
-
 /* Photo Manager */
 "sidebar.photos" = "Photos";
 "photos.title" = "Photo Manager";
@@ -569,9 +488,7 @@
 "photos.select_folder.message" = "TriClean scans the selected folder and its subfolders for image files.";
 "photos.scope.select_hint" = "Select a folder to scan for images.";
 "photos.action.scan" = "Scan";
-"photos.action.scanning" = "Scanning…";
 "photos.status.collecting" = "Collecting image files…";
-"photos.status.reading" = "Reading image info…";
 "photos.status.found" = "Found %ld images.";
 "photos.status.empty" = "No images found in this folder.";
 "photos.status.ready" = "Ready to scan.";
@@ -623,8 +540,6 @@
 "photos.similar.select_extras" = "Select all but one";
 "photos.delete.status.moving" = "Moving %ld items to the Trash…";
 "photos.delete.status.success" = "Moved %ld items to the Trash.";
-"photos.delete.status.partial" = "Moved %1$ld items to the Trash. %2$ld items could not be moved.";
-"photos.delete.status.failed" = "Could not move %ld items to the Trash.";
 
 // MARK: - Trash Operation Status
 "storage.msg.trash_moving" = "Moving %ld selected items to Trash…";
@@ -633,7 +548,6 @@
 "storage.msg.trash_failed" = "Could not move the selected items to Trash.";
 "junk.progress.cleaning" = "Moving %ld selected items to Trash…";
 "junk.progress.clean_done" = "%ld items moved to Trash.";
-"junk.progress.clean_partial" = "%ld items moved to Trash. %ld items failed.";
 "junk.progress.clean_failed" = "Could not move the selected junk items to Trash.";
 
 /* CPU (Smart Scan / 메뉴바) */
