@@ -7,6 +7,7 @@
 "common.cancel" = "キャンセル";
 "common.confirm" = "確認";
 "common.close" = "閉じる";
+"common.preview" = "プレビュー";
 "common.delete" = "削除";
 "common.refresh" = "更新";
 "common.trash" = "ゴミ箱に入れる";

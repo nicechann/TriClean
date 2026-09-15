@@ -10,6 +10,7 @@
 "common.cancel" = "Cancel";
 "common.confirm" = "Confirm";
 "common.close" = "Close";
+"common.preview" = "Preview";
 "common.delete" = "Delete";
 "common.refresh" = "Refresh";
 "common.trash" = "Move to Trash";

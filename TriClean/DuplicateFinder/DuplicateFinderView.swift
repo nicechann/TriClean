@@ -15,6 +15,7 @@ struct DuplicateFinderView: View {
     @State private var showDeleteConfirm = false
     @State private var showPaywall = false
     @State private var expandedGroupIDs: Set<UUID> = []
+    @State private var previewTarget: QuickLookTarget? = nil
 
     private let freePreviewGroupLimit = 3
 
@@ -62,6 +63,9 @@ struct DuplicateFinderView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView()
                 .environmentObject(storeManager)
+        }
+        .sheet(item: $previewTarget) { target in
+            QuickLookPreviewSheet(target: target) { previewTarget = nil }
         }
         .alert(item: $viewModel.lastCleanupResult) { result in
             Alert(
@@ -531,12 +535,22 @@ struct DuplicateFinderView: View {
                             }
 
                             Button {
+                                previewTarget = viewModel.previewTarget(for: file, in: group)
+                            } label: {
+                                Image(systemName: "eye")
+                            }
+                            .buttonStyle(.plain)
+                            .help("common.preview".localized)
+                            .accessibilityLabel(Text("common.preview".localized + " — " + file.name))
+
+                            Button {
                                 viewModel.revealInFinder(file.url)
                             } label: {
                                 Image(systemName: "folder")
                             }
                             .buttonStyle(.plain)
                             .help("duplicate.file.reveal".localized)
+                            .accessibilityLabel(Text("duplicate.file.reveal".localized + " — " + file.name))
 
                             Text(file.isKeep ? "duplicate.file.keep".localized : "duplicate.file.delete".localized)
                                 .appFont(.caption2, weight: .bold)

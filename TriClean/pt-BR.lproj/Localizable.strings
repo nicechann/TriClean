@@ -2,6 +2,7 @@
 "common.cancel" = "Cancelar";
 "common.confirm" = "Confirmar";
 "common.close" = "Fechar";
+"common.preview" = "Pré-visualizar";
 "common.refresh" = "Atualizar";
 "common.trash" = "Mover para o Lixo";
 "common.finder" = "Mostrar no Finder";

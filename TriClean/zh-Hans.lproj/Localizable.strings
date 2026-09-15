@@ -2,6 +2,7 @@
 "common.cancel" = "取消";
 "common.confirm" = "确认";
 "common.close" = "关闭";
+"common.preview" = "预览";
 "common.refresh" = "刷新";
 "common.trash" = "移到废纸篓";
 "common.finder" = "在 Finder 中显示";

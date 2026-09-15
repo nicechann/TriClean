@@ -10,6 +10,7 @@
 "common.cancel" = "취소";
 "common.confirm" = "확인";
 "common.close" = "닫기";
+"common.preview" = "미리보기";
 "common.delete" = "삭제";
 "common.refresh" = "새로고침";
 "common.trash" = "휴지통으로 이동";

@@ -116,6 +116,8 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         if panel.runModal() == .OK, let url = panel.url {
             bookmarks.trySave(url: url, for: .duplicateScanFolder)
+            // 이전 폴더의 보안 스코프 접근을 반드시 닫는다.
+            releaseFolderAccess()
             scanFolderURL = url
             lastCleanupResult = nil
             phase = .idle
@@ -141,6 +143,11 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         let minBytes = Int64(minFileSizeKB) * 1024
         let rootURL = folderURL.standardizedFileURL
+
+        // 결과가 표시되는 동안 접근을 유지한다. QuickLook 미리보기는 파일을 **읽으므로**
+        // 스캔이 끝난 뒤에도 스코프가 열려 있어야 내용이 보인다.
+        // 스코프는 북마크에서 복원한 원본 URL(`folderURL`)로 시작해야 한다.
+        beginFolderAccess(folderURL)
 
         scanTask = Task {
             let started = rootURL.startAccessingSecurityScopedResource()
@@ -416,45 +423,77 @@ final class DuplicateScannerViewModel: ObservableObject {
         updateSelectionStatusMessage(fallback: "duplicate.status.selection_cleared".localized)
     }
 
-    // MARK: - Finder
+    // MARK: - 보안 스코프 유지
+
+    /// 결과 목록이 가리키는 폴더의 접근을 유지합니다(미리보기·Finder 열기용).
+    /// 다른 폴더로 바뀌면 이전 접근을 닫고 새로 엽니다.
+    private var accessedFolderURL: URL? = nil
+    private var folderAccessToken: SecurityScopedAccessToken? = nil
+
+    private func beginFolderAccess(_ url: URL) {
+        if accessedFolderURL == url, folderAccessToken != nil { return }
+        releaseFolderAccess()
+        folderAccessToken = SecurityScopedAccessToken(url: url)
+        accessedFolderURL = url
+    }
+
+    private func releaseFolderAccess() {
+        folderAccessToken?.stop()
+        folderAccessToken = nil
+        accessedFolderURL = nil
+    }
+
+    // MARK: - Finder / 미리보기
 
     func revealInFinder(_ url: URL) {
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 
+    /// 삭제 판단 전에 내용을 확인할 수 있도록 미리보기 대상을 만듭니다.
+    func previewTarget(for file: DuplicateFile, in group: DuplicateGroup) -> QuickLookTarget {
+        QuickLookTarget(url: file.url, sizeText: group.fileSizeString)
+    }
+
     // MARK: - 삭제
 
     /// 삭제 작업의 단위 (백그라운드 Task에서 사용)
-    private struct DeleteTarget: Sendable {
+    nonisolated private struct DeleteTarget: Sendable {
         let fileID: UUID
         let url: URL
         let perFileSize: Int64
         let fileIdentity: FileIdentitySnapshot?
     }
 
-    private struct KeeperSnapshot: Sendable {
+    nonisolated private struct KeeperSnapshot: Sendable {
         let url: URL
         let fileIdentity: FileIdentitySnapshot?
     }
 
     /// 삭제 결과의 단위
-    private struct DeleteGroupSnapshot: Sendable {
+    nonisolated private struct DeleteGroupSnapshot: Sendable {
         let keeper: KeeperSnapshot?
         let targets: [DeleteTarget]
     }
 
-    private struct DeleteOutcome: Sendable {
+    nonisolated private struct DeleteOutcome: Sendable {
         let succeeded: Set<UUID>
         let deletedCount: Int
         let failedCount: Int
         let deletedBytes: Int64
         let excludedCount: Int
+        /// 보안 스코프 접근 자체가 실패한 경우. 삭제를 시도조차 하지 않았음을 뜻한다.
+        var accessDenied: Bool = false
     }
 
     /// 삭제 직전에 보안 스코프 안에서 보존본과 모든 대상 경로를 재검증합니다.
     func deleteDuplicates() {
         guard StoreManager.shared.isPurchased else { return }
-        guard let folder = scanFolderURL?.standardizedFileURL else { return }
+        // ⚠️ 보안 스코프는 북마크에서 복원한 **원본 URL**로 시작해야 한다.
+        //    standardizedFileURL은 /var → /private/var 같은 심볼릭 링크를 해석해 경로 문자열을
+        //    바꾸므로 스코프가 열리지 않을 수 있다(SecurityScopedBookmarks.swift 주석 참조).
+        //    경로 경계 검증에만 standardized 형태를 쓴다.
+        guard let scopeURL = scanFolderURL else { return }
+        let validationScope = scopeURL.standardizedFileURL
         guard canDeleteSelected else {
             statusMessage = "duplicate.status.nothing_selected".localized
             return

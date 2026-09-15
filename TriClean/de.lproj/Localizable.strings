@@ -7,6 +7,7 @@
 "common.cancel" = "Abbrechen";
 "common.confirm" = "Bestätigen";
 "common.close" = "Schließen";
+"common.preview" = "Vorschau";
 "common.delete" = "Löschen";
 "common.refresh" = "Aktualisieren";
 "common.trash" = "In den Papierkorb legen";

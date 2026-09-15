@@ -2,6 +2,7 @@
 "common.cancel" = "İptal";
 "common.confirm" = "Onayla";
 "common.close" = "Kapat";
+"common.preview" = "Önizleme";
 "common.refresh" = "Yenile";
 "common.trash" = "Çöp Kutusu'na Taşı";
 "common.finder" = "Finder'da Göster";

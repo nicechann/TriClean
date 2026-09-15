@@ -4,6 +4,7 @@
 "common.cancel" = "Отменить";
 "common.confirm" = "Подтвердить";
 "common.close" = "Закрыть";
+"common.preview" = "Просмотр";
 "common.refresh" = "Обновить";
 "common.trash" = "Переместить в Корзину";
 "common.finder" = "Показать в Finder";
