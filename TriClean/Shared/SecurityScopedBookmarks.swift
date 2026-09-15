@@ -27,6 +27,9 @@ enum TriCleanBookmarkKey: String, CaseIterable {
     ///   반드시 동일해야 업데이트 후에도 폴더 접근 권한이 유지된다.
     case storageHomeFolder = "TriClean.Storage.DiskUsage.HomeFolderBookmark"
     case storageApplicationsFolders = "TriClean.Storage.DiskUsage.ApplicationsFolderBookmarks"
+    /// 대용량 파일 화면의 스캔 폴더. 기존에는 이 화면만 북마크를 저장하지 않아
+    /// 앱을 다시 켤 때마다 폴더를 다시 골라야 했다.
+    case largeFilesScanFolder = "TriClean.LargeFiles.FolderBookmark"
 
     var pathKey: String { rawValue + ".path" }
 }

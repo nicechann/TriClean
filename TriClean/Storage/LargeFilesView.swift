@@ -4,99 +4,27 @@
 //
 //  Large file scan surface separated from Storage summary.
 //
+//  스캔·정렬·삭제 로직은 `LargeFilesViewModel`에 있다. 이 파일은 표시만 담당한다.
+//
 
 import SwiftUI
 import AppKit
 import StoreKit
 
-private struct LargeFilesSecurityScopedAccessToken {
-    private let url: URL
-    private let started: Bool
-
-    nonisolated init(_ url: URL) {
-        self.url = url
-        self.started = url.startAccessingSecurityScopedResource()
-    }
-
-    nonisolated func stop() {
-        guard started else { return }
-        url.stopAccessingSecurityScopedResource()
-    }
-}
-
 struct LargeFilesView: View {
     @EnvironmentObject private var storeManager: StoreManager
+    @EnvironmentObject private var viewModel: LargeFilesViewModel
 
     @State private var showPaywall = false
-
-    @State private var minFolderSizeMB: Double = 200
-    @State private var selectedFolderURL: URL? = nil
-    @State private var isScanning: Bool = false
-    @State private var isAutoUpdating: Bool = false
-    @State private var isDeleting: Bool = false
-    @State private var scanTask: Task<Void, Never>? = nil
-    @State private var scanMessage: String = "storage.scan.default_msg".localized
-    @State private var folderResults: [FolderInfo] = []
-    @State private var ignoredFolderURLs: Set<URL> = []
-    @State private var tableSelection = Set<FolderInfo.ID>()
-
-    @State private var deleteTargets: [FolderInfo] = []
-    @State private var showingDeleteAlert = false
-
-    @State private var activeScanID = UUID()
-    @State private var lastScannedMinSizeMB: Double? = nil
-    @State private var topFolderSort: TopFolderSort = .discovered
-    @State private var discoveredResults: [FolderInfo] = []
+    @State private var previewTarget: QuickLookTarget? = nil
 
     // Free users can verify scan quality with a small preview; Lifetime Access reveals the full result list.
     private let freePreviewItemLimit = 5
 
     private var displayedFolderResults: [FolderInfo] {
-        storeManager.isPurchased ? folderResults : Array(folderResults.prefix(freePreviewItemLimit))
-    }
-
-    private var rootResultCount: Int {
-        folderResults.filter { $0.depth == 0 }.count
-    }
-
-    private var childResultCount: Int {
-        folderResults.filter { $0.depth > 0 }.count
-    }
-
-    private var selectedFolderDisplayName: String {
-        guard let selectedFolderURL else { return "storage.status.folder_none".localized }
-        return selectedFolderURL.lastPathComponent.isEmpty ? selectedFolderURL.path : selectedFolderURL.lastPathComponent
-    }
-
-    private var minFolderSizeDisplay: String {
-        "storage.min_size.display".localized(with: Int(minFolderSizeMB))
-    }
-
-    private var scanButtonBusyText: String {
-        isAutoUpdating
-            ? "storage.scan.updating".localized
-            : "storage.scan.scanning".localized
-    }
-
-    private enum TopFolderSort: String, CaseIterable, Identifiable {
-        case discovered
-        case name
-        case size
-
-        var id: String { rawValue }
-
-        var title: String {
-            switch self {
-            case .discovered: return "storage.scan.sort.default".localized
-            case .name: return "storage.scan.sort.name".localized
-            case .size: return "storage.scan.sort.size".localized
-            }
-        }
-    }
-
-    private enum ScanTrigger {
-        case manual
-        case auto
+        storeManager.isPurchased
+            ? viewModel.folderResults
+            : Array(viewModel.folderResults.prefix(freePreviewItemLimit))
     }
 
     var body: some View {
@@ -108,14 +36,14 @@ struct LargeFilesView: View {
                 headerSection
                     .padding(.horizontal, sectionInset)
 
-                if !folderResults.isEmpty {
+                if viewModel.hasResults {
                     TreemapView(
                         // Keep the visualization truthful: it represents the full scan result.
                         // Free users only get a limited list preview below.
-                        items: folderResults,
+                        items: viewModel.folderResults,
                         onItemTapped: { item in
                             if storeManager.isPurchased {
-                                openInFinder(item)
+                                viewModel.openInFinder(item)
                             } else {
                                 showPaywall = true
                             }
@@ -128,12 +56,11 @@ struct LargeFilesView: View {
 
                 folderScanSection
 
-                if selectedFolderURL != nil || isScanning || !folderResults.isEmpty {
+                if viewModel.selectedFolderURL != nil || viewModel.isScanning || viewModel.hasResults {
                     storageStatusSection
-                    Divider()
-                } else {
-                    Divider()
                 }
+
+                Divider()
 
                 resultsTableSection
                 Spacer(minLength: 10)
@@ -162,23 +89,36 @@ struct LargeFilesView: View {
             PaywallView()
                 .environmentObject(storeManager)
         }
-        .task(id: minFolderSizeMB) {
-            guard let url = selectedFolderURL else { return }
-
-            try? await Task.sleep(nanoseconds: 250_000_000)
-
-            if lastScannedMinSizeMB == minFolderSizeMB { return }
-
-            await MainActor.run {
-                runScan(for: url, minSizeMB: minFolderSizeMB, trigger: .auto)
+        .sheet(item: $previewTarget) { target in
+            QuickLookPreviewSheet(target: target) { previewTarget = nil }
+        }
+        // 최소 크기 슬라이더 디바운스.
+        // ⚠️ `try?`로 취소를 삼키면 안 된다. 슬라이더를 끄는 동안 취소된 태스크까지
+        //    전부 스캔을 시작해 파일시스템 순회가 폭주한다.
+        .task(id: viewModel.minFolderSizeMB) {
+            let target = viewModel.minFolderSizeMB
+            do {
+                try await Task.sleep(nanoseconds: 250_000_000)
+            } catch {
+                return   // 취소됨 — 더 최신 값이 들어왔다는 뜻이므로 스캔하지 않는다.
             }
+            guard !Task.isCancelled else { return }
+            viewModel.autoRescanIfNeeded(minSizeMB: target)
+        }
+        // 진입 시점의 최소 크기를 기준값으로 고정한다(진입만으로 스캔이 시작되지 않도록).
+        .onAppear {
+            viewModel.onAppear()
+        }
+        // 탭을 벗어나면 뷰가 파괴되므로 진행 중인 스캔을 반드시 멈춘다.
+        .onDisappear {
+            viewModel.onDisappear()
         }
     }
 
     private var largeFilesFreePreviewDescription: String? {
-        guard folderResults.count > displayedFolderResults.count else { return nil }
+        guard viewModel.folderResults.count > displayedFolderResults.count else { return nil }
         return "upgrade.bottom.preview.items".localized(
-            with: folderResults.count.formatted(),
+            with: viewModel.folderResults.count.formatted(),
             displayedFolderResults.count.formatted()
         )
     }
@@ -225,7 +165,7 @@ struct LargeFilesView: View {
                 Spacer()
 
                 Button {
-                    selectFolderAndScan()
+                    viewModel.selectFolderAndScan()
                 } label: {
                     ZStack {
                         Group {
@@ -238,11 +178,11 @@ struct LargeFilesView: View {
                         }
                         .opacity(0)
 
-                        if isScanning {
+                        if viewModel.isScanning {
                             HStack(spacing: 6) {
                                 ProgressView()
                                     .controlSize(.small)
-                                Text(scanButtonBusyText)
+                                Text(viewModel.scanButtonBusyText)
                                     .lineLimit(1)
                             }
                         } else {
@@ -254,11 +194,12 @@ struct LargeFilesView: View {
                 .controlSize(.small)
                 .buttonStyle(.bordered)
                 .keyboardShortcut("s", modifiers: [.command])
-                .disabled(isScanning || isDeleting)
+                .disabled(!viewModel.canScan)
+                .accessibilityLabel(Text("storage.scan.btn".localized))
 
-                if isScanning {
+                if viewModel.isScanning {
                     Button {
-                        cancelActiveScan()
+                        viewModel.cancelActiveScan()
                     } label: {
                         Text("common.cancel".localized)
                             .lineLimit(1)
@@ -278,12 +219,14 @@ struct LargeFilesView: View {
                     .appFont(.subheadline)
                     .frame(width: 120, alignment: .leading)
 
-                Slider(value: $minFolderSizeMB, in: 10...2000, step: 10)
+                Slider(value: $viewModel.minFolderSizeMB, in: 10...2000, step: 10)
                     .controlSize(.small)
                     .frame(maxWidth: 260)
+                    .accessibilityLabel(Text("storage.scan.min_size".localized))
+                    .accessibilityValue(Text(viewModel.minFolderSizeDisplay))
 
                 // ✅ 이미 존재하는 storage.min_size.display 키로 통일
-                Text("storage.min_size.display".localized(with: Int(minFolderSizeMB)))
+                Text(viewModel.minFolderSizeDisplay)
                     .appFont(.subheadline, monospacedDigit: true)
                     .frame(width: 90, alignment: .trailing)
 
@@ -294,8 +237,8 @@ struct LargeFilesView: View {
                 Text("storage.scan.sort".localized)
                     .appFont(.subheadline)
                     .frame(width: 120, alignment: .leading)
-                Picker("", selection: $topFolderSort) {
-                    ForEach(TopFolderSort.allCases) { mode in
+                Picker("", selection: $viewModel.topFolderSort) {
+                    ForEach(LargeFilesViewModel.TopFolderSort.allCases) { mode in
                         Text(mode.title).tag(mode)
                     }
                 }
@@ -304,21 +247,22 @@ struct LargeFilesView: View {
                 .controlSize(.small)
                 .appFont(.subheadline)
                 .frame(maxWidth: 270)
+                .accessibilityLabel(Text("storage.scan.sort".localized))
 
                 Spacer()
             }
-            .onChange(of: topFolderSort) { _ in
-                guard !isScanning else { return }
-                applyTopFolderSortFromDiscovered()
+            .onChange(of: viewModel.topFolderSort) { _ in
+                guard !viewModel.isScanning else { return }
+                viewModel.applyTopFolderSortFromDiscovered()
             }
 
-            if isScanning && topFolderSort != .discovered {
+            if viewModel.isScanning && viewModel.topFolderSort != .discovered {
                 Text("storage.scan.sort.note".localized)
                     .appFont(.callout)
                     .foregroundStyle(.secondary)
             }
 
-            Text(scanMessage)
+            Text(viewModel.scanMessage)
                 .appFont(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -332,15 +276,23 @@ struct LargeFilesView: View {
                 .appFont(.title3, weight: .bold)
 
             HStack(spacing: 10) {
-                infoCard(title: "storage.status.folder".localized, value: selectedFolderDisplayName)
+                infoCard(
+                    title: "storage.status.folder".localized,
+                    value: viewModel.selectedFolderDisplayName
+                )
                 infoCard(
                     title: "storage.status.visible_results".localized,
-                    value: "storage.status.visible_results_value".localized(with: rootResultCount, childResultCount)
+                    value: "storage.status.visible_results_value".localized(
+                        with: viewModel.rootResultCount, viewModel.childResultCount
+                    )
                 )
-                infoCard(title: "storage.status.min_size".localized, value: minFolderSizeDisplay)
+                infoCard(
+                    title: "storage.status.min_size".localized,
+                    value: viewModel.minFolderSizeDisplay
+                )
             }
 
-            Text(isScanning ? scanButtonBusyText : scanMessage)
+            Text(viewModel.isScanning ? viewModel.scanButtonBusyText : viewModel.scanMessage)
                 .appFont(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -354,11 +306,12 @@ struct LargeFilesView: View {
                 Text("storage.results.header".localized)
                     .appFont(.title3, weight: .bold)
 
-                if !storeManager.isPurchased && folderResults.count > displayedFolderResults.count {
+                if !storeManager.isPurchased,
+                   viewModel.folderResults.count > displayedFolderResults.count {
                     Label {
                         Text(
                             "upgrade.preview.count".localized(
-                                with: folderResults.count,
+                                with: viewModel.folderResults.count,
                                 displayedFolderResults.count
                             )
                         )
@@ -375,88 +328,120 @@ struct LargeFilesView: View {
                 Spacer()
 
                 Button(role: .destructive) {
-                    deleteSelectedFolders()
+                    requestDeleteSelected()
                 } label: {
                     Text("common.trash".localized)
                 }
                 .controlSize(.small)
                 .buttonStyle(.bordered)
-                .disabled(isScanning || isDeleting || tableSelection.isEmpty)
+                .disabled(viewModel.isScanning || viewModel.isDeleting || viewModel.tableSelection.isEmpty)
             }
 
-            if folderResults.isEmpty {
-                Table(displayedFolderResults, selection: $tableSelection) {
-                    TableColumn("storage.table.item".localized) { item in
-                        itemNameCell(item)
-                    }
-
-                    TableColumn("storage.table.size".localized) { item in
-                        Text(item.sizeString)
-                            .appFont(.body, monospacedDigit: true)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .width(min: 90, ideal: 110, max: 130)
+            // 결과 유무로 Table 구조를 바꾸면 첫 배치가 도착하는 순간 NSTableView가
+            // 통째로 재생성되어 선택과 스크롤 위치가 리셋된다. 하나의 Table만 쓴다.
+            Table(displayedFolderResults, selection: $viewModel.tableSelection) {
+                TableColumn("storage.table.item".localized) { item in
+                    itemNameCell(item)
                 }
-            } else {
-                Table(displayedFolderResults, selection: $tableSelection) {
-                    TableColumn("storage.table.item".localized) { item in
-                        itemNameCell(item)
-                    }
 
-                    TableColumn("storage.table.size".localized) { item in
-                        Text(item.sizeString)
-                            .appFont(.body, monospacedDigit: true)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .width(min: 90, ideal: 110, max: 130)
-
-                    TableColumn("") { item in
-                        Button {
-                            openInFinder(item)
-                        } label: {
-                            Label("common.finder_app".localized, systemImage: "folder")
-                        }
-                        .labelStyle(.titleAndIcon)
-                        .controlSize(.small)
-                        .buttonStyle(.bordered)
-                        .help("common.finder".localized)
+                TableColumn("storage.table.size".localized) { item in
+                    Text(item.sizeString)
+                        .appFont(.body, monospacedDigit: true)
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .width(min: 90, ideal: 100, max: 110)
+                }
+                .width(min: 90, ideal: 110, max: 130)
 
-                    TableColumn("") { item in
-                        Button(role: .destructive) {
-                            requestDelete(item)
+                // 삭제 판단 직전에 내용을 확인할 수 있게 한다.
+                // 폴더는 QuickLook으로 볼 것이 없으므로 파일에만 노출한다.
+                TableColumn("") { item in
+                    if item.isDirectory {
+                        Color.clear.frame(width: 0, height: 0)
+                    } else {
+                        Button {
+                            previewTarget = QuickLookTarget(url: item.url, sizeText: item.sizeString)
                         } label: {
-                            Image(systemName: "trash")
+                            Image(systemName: "eye")
                                 .appIconFont(13, weight: .semibold)
-                                .foregroundStyle(.red)
                                 .padding(6)
-                                .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
-                        .disabled(isScanning || isDeleting)
-                        .help("common.trash".localized)
+                        .help("common.preview".localized)
+                        .accessibilityLabel(Text("common.preview".localized + " — " + item.name))
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    .width(min: 44, ideal: 48, max: 52)
                 }
+                .width(min: 40, ideal: 44, max: 48)
+
+                TableColumn("") { item in
+                    Button {
+                        viewModel.openInFinder(item)
+                    } label: {
+                        Label("common.finder_app".localized, systemImage: "folder")
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
+                    .help("common.finder".localized)
+                    .accessibilityLabel(Text("common.finder".localized + " — " + item.name))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .width(min: 90, ideal: 100, max: 110)
+
+                TableColumn("") { item in
+                    Button(role: .destructive) {
+                        requestDelete(item)
+                    } label: {
+                        Image(systemName: "trash")
+                            .appIconFont(13, weight: .semibold)
+                            .foregroundStyle(.red)
+                            .padding(6)
+                            .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(viewModel.isScanning || viewModel.isDeleting)
+                    .help("common.trash".localized)
+                    .accessibilityLabel(Text("common.trash".localized + " — " + item.name))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .width(min: 44, ideal: 48, max: 52)
             }
         }
         .frame(minHeight: 320)
-        .alert("storage.alert.delete.title".localized, isPresented: $showingDeleteAlert) {
-            Button("common.move_to_trash".localized, role: .destructive) { confirmDelete() }
-            Button("common.cancel".localized, role: .cancel) { deleteTargets = [] }
+        .alert("storage.alert.delete.title".localized, isPresented: $viewModel.showingDeleteAlert) {
+            Button("common.move_to_trash".localized, role: .destructive) {
+                viewModel.confirmDelete()
+            }
+            Button("common.cancel".localized, role: .cancel) {
+                viewModel.cancelDeleteRequest()
+            }
         } message: {
-            if deleteTargets.count == 1, let target = deleteTargets.first {
+            if viewModel.deleteTargets.count == 1, let target = viewModel.deleteTargets.first {
                 let key = target.isDirectory ? "storage.alert.delete.msg_folder" : "storage.alert.delete.msg_file"
                 Text(key.localized(with: target.name))
             } else {
-                Text("storage.alert.delete.msg_multi".localized(with: deleteTargets.count))
+                Text("storage.alert.delete.msg_multi".localized(with: viewModel.deleteTargets.count))
             }
         }
         .padding(.horizontal, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - 결제 게이팅
+
+    private func requestDelete(_ item: FolderInfo) {
+        guard storeManager.isPurchased else {
+            showPaywall = true
+            return
+        }
+        viewModel.requestDelete(item)
+    }
+
+    private func requestDeleteSelected() {
+        guard storeManager.isPurchased else {
+            showPaywall = true
+            return
+        }
+        viewModel.requestDeleteSelected()
     }
 
     private func itemNameCell(_ item: FolderInfo) -> some View {
@@ -491,501 +476,4 @@ struct LargeFilesView: View {
                 .lineLimit(1)
         }
     }
-
-    private func cancelActiveScan() {
-        scanTask?.cancel()
-        scanMessage = "storage.msg.canceling".localized
-    }
-
-    private func selectFolderAndScan() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-
-            selectedFolderURL = url
-            tableSelection.removeAll()
-
-            runScan(for: url, minSizeMB: minFolderSizeMB, trigger: .manual)
-        }
-    }
-
-    private func runScan(for url: URL, minSizeMB: Double, trigger: ScanTrigger) {
-        scanTask?.cancel()
-
-        let scanID = UUID()
-        activeScanID = scanID
-
-        let root = url.standardizedFileURL
-        let ignoredSnapshot = ignoredFolderURLs
-        let isAuto = (trigger == .auto)
-
-        isAutoUpdating = isAuto
-        isScanning = true
-        tableSelection.removeAll()
-
-        switch trigger {
-        case .manual:
-            scanMessage = "storage.msg.manual".localized(with: url.lastPathComponent)
-        case .auto:
-            scanMessage = "storage.msg.auto".localized
-        }
-
-        if trigger == .manual {
-            folderResults = []
-            discoveredResults = []
-        }
-
-        scanTask = Task(priority: .userInitiated) {
-            let token = LargeFilesSecurityScopedAccessToken(root)
-            defer { token.stop() }
-
-            var didReplace = (trigger == .manual)
-
-            let stream = Self.scanStructuredItemsBatches(
-                of: root,
-                minSizeMB: minSizeMB,
-                ignoredFolderURLs: ignoredSnapshot,
-                batchSize: 220
-            )
-
-            for await batch in stream {
-                if Task.isCancelled { break }
-
-                let shouldReplace = !didReplace
-                await MainActor.run {
-                    guard self.activeScanID == scanID else { return }
-
-                    if shouldReplace {
-                        self.folderResults = batch
-                        self.discoveredResults = batch
-                    } else {
-                        self.folderResults.append(contentsOf: batch)
-                        self.discoveredResults.append(contentsOf: batch)
-                    }
-                }
-
-                didReplace = true
-            }
-
-            await MainActor.run {
-                guard self.activeScanID == scanID else { return }
-
-                self.isScanning = false
-                self.isAutoUpdating = false
-                self.lastScannedMinSizeMB = minSizeMB
-
-                if Task.isCancelled {
-                    self.scanMessage = "storage.msg.canceled".localized
-                    return
-                }
-
-                if !didReplace {
-                    self.folderResults = []
-                    self.discoveredResults = []
-                }
-
-                self.applyTopFolderSortFromDiscovered()
-
-                let results = self.folderResults
-                let folderCount = results.filter { $0.isDirectory && $0.depth == 0 }.count
-                let fileCount = results.filter { !$0.isDirectory }.count
-
-                if results.isEmpty {
-                    self.scanMessage = "storage.msg.no_items".localized(with: root.lastPathComponent)
-                } else {
-                    self.scanMessage = "storage.msg.completed".localized(with: root.lastPathComponent, folderCount, fileCount)
-                }
-            }
-        }
-    }
-
-    @MainActor
-    private func applyTopFolderSortFromDiscovered() {
-        switch topFolderSort {
-        case .discovered:
-            folderResults = discoveredResults
-        case .name, .size:
-            folderResults = Self.sortedTopFolderGroups(in: discoveredResults, by: topFolderSort)
-        }
-    }
-
-    private static func sortedTopFolderGroups(in results: [FolderInfo], by mode: TopFolderSort) -> [FolderInfo] {
-        guard mode != .discovered else { return results }
-
-        var rootItems: [FolderInfo] = []
-        rootItems.reserveCapacity(64)
-
-        var topFolders: [FolderInfo] = []
-        topFolders.reserveCapacity(64)
-
-        var childrenByParent: [URL: [FolderInfo]] = [:]
-        childrenByParent.reserveCapacity(64)
-
-        for item in results {
-            if item.depth == 0, item.parentURL == nil, item.isDirectory {
-                topFolders.append(item)
-            } else if item.depth == 0, item.parentURL == nil, !item.isDirectory {
-                rootItems.append(item)
-            } else if let parent = item.parentURL {
-                childrenByParent[parent.standardizedFileURL, default: []].append(item)
-            } else {
-                rootItems.append(item)
-            }
-        }
-
-        switch mode {
-        case .name:
-            topFolders.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        case .size:
-            topFolders.sort {
-                if $0.sizeBytes != $1.sizeBytes { return $0.sizeBytes > $1.sizeBytes }
-                return $0.name.localizedStandardCompare($1.name) == .orderedAscending
-            }
-        case .discovered:
-            break
-        }
-
-        var output: [FolderInfo] = []
-        output.reserveCapacity(results.count)
-
-        var included = Set<FolderInfo.ID>()
-        included.reserveCapacity(results.count)
-
-        output.append(contentsOf: rootItems)
-        for i in rootItems { included.insert(i.id) }
-
-        for folder in topFolders {
-            output.append(folder)
-            included.insert(folder.id)
-
-            if let children = childrenByParent[folder.url.standardizedFileURL] {
-                output.append(contentsOf: children)
-                for c in children { included.insert(c.id) }
-            }
-        }
-
-        if included.count != results.count {
-            for item in results where !included.contains(item.id) {
-                output.append(item)
-            }
-        }
-
-        return output
-    }
-
-    nonisolated private static func fileSize(from values: URLResourceValues) -> Int {
-        values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
-    }
-
-    private static func scanStructuredItemsBatches(
-        of root: URL,
-        minSizeMB: Double,
-        ignoredFolderURLs: Set<URL>,
-        batchSize: Int
-    ) -> AsyncStream<[FolderInfo]> {
-        AsyncStream { continuation in
-            let producer = Task.detached(priority: .utility) {
-                let fm = FileManager.default
-                let rootStd = root.standardizedFileURL
-
-                let directKeys: [URLResourceKey] = [
-                    .isDirectoryKey,
-                    .isRegularFileKey,
-                    .fileAllocatedSizeKey,
-                    .totalFileAllocatedSizeKey,
-                    .fileSizeKey
-                ]
-
-                guard let directItems = try? fm.contentsOfDirectory(
-                    at: rootStd,
-                    includingPropertiesForKeys: directKeys,
-                    options: [.skipsHiddenFiles]
-                ) else {
-                    continuation.finish()
-                    return
-                }
-
-                var topFolders: [URL] = []
-                var rootFiles: [FolderInfo] = []
-                rootFiles.reserveCapacity(64)
-
-                for raw in directItems {
-                    if Task.isCancelled { break }
-
-                    let url = raw.standardizedFileURL
-                    if ignoredFolderURLs.contains(url) { continue }
-
-                    guard let values = try? url.resourceValues(forKeys: Set(directKeys)) else { continue }
-
-                    if values.isDirectory == true {
-                        topFolders.append(url)
-                        continue
-                    }
-
-                    if values.isRegularFile == true {
-                        let size = Int64(Self.fileSize(from: values))
-                        let sizeMB = Double(size) / 1024.0 / 1024.0
-                        if sizeMB >= minSizeMB {
-                            rootFiles.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 0, parentURL: nil))
-                        }
-                    }
-                }
-
-                rootFiles.sort { $0.sizeBytes > $1.sizeBytes }
-
-                var idx = 0
-                while idx < rootFiles.count {
-                    if Task.isCancelled { break }
-
-                    let end = min(idx + max(batchSize, 1), rootFiles.count)
-                    continuation.yield(Array(rootFiles[idx..<end]))
-                    idx = end
-                    await Task.yield()
-                }
-
-                let scanKeys: [URLResourceKey] = [
-                    .isDirectoryKey,
-                    .isRegularFileKey,
-                    .fileAllocatedSizeKey,
-                    .totalFileAllocatedSizeKey,
-                    .fileSizeKey,
-                    .isPackageKey
-                ]
-
-                for folderURL in topFolders {
-                    if Task.isCancelled { break }
-
-                    let folder = folderURL.standardizedFileURL
-                    if ignoredFolderURLs.contains(folder) { continue }
-
-                    guard let enumerator = fm.enumerator(
-                        at: folder,
-                        includingPropertiesForKeys: scanKeys,
-                        options: [.skipsHiddenFiles],
-                        errorHandler: { _, _ in true }
-                    ) else {
-                        continue
-                    }
-
-                    var total: Int64 = 0
-                    var children: [FolderInfo] = []
-                    children.reserveCapacity(64)
-
-                    var packagePrefixes: [String] = []
-                    packagePrefixes.reserveCapacity(8)
-
-                    let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
-
-                    while let rawURL = enumerator.nextObject() as? URL {
-                        if Task.isCancelled { break }
-
-                        let url = rawURL.standardizedFileURL
-
-                        if ignoredFolderURLs.contains(url) {
-                            if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
-                                enumerator.skipDescendants()
-                            }
-                            continue
-                        }
-
-                        guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else { continue }
-
-                        if values.isDirectory == true && values.isPackage == true {
-                            let prefix = url.path.hasSuffix("/") ? url.path : (url.path + "/")
-                            packagePrefixes.append(prefix)
-                            continue
-                        }
-
-                        guard values.isRegularFile == true else { continue }
-
-                        let size = Int64(Self.fileSize(from: values))
-                        total += size
-
-                        guard size >= minBytes else { continue }
-
-                        let path = url.path
-                        var isInsidePackage = false
-                        for prefix in packagePrefixes {
-                            if path.hasPrefix(prefix) {
-                                isInsidePackage = true
-                                break
-                            }
-                        }
-                        if isInsidePackage { continue }
-
-                        children.append(FolderInfo(url: url, sizeBytes: size, isDirectory: false, depth: 1, parentURL: folder))
-                    }
-
-                    if Task.isCancelled { break }
-                    guard total >= minBytes else { continue }
-
-                    continuation.yield([
-                        FolderInfo(url: folder, sizeBytes: total, isDirectory: true, depth: 0, parentURL: nil)
-                    ])
-                    await Task.yield()
-
-                    if !children.isEmpty {
-                        children.sort { $0.sizeBytes > $1.sizeBytes }
-
-                        var j = 0
-                        while j < children.count {
-                            if Task.isCancelled { break }
-
-                            let end = min(j + max(batchSize, 1), children.count)
-                            continuation.yield(Array(children[j..<end]))
-                            j = end
-                            await Task.yield()
-                        }
-                    }
-                }
-
-                continuation.finish()
-            }
-            continuation.onTermination = { _ in
-                producer.cancel()
-            }
-        }
-    }
-
-    private func openInFinder(_ item: FolderInfo) {
-        NSWorkspace.shared.activateFileViewerSelecting([item.url])
-    }
-
-    private func requestDelete(_ item: FolderInfo) {
-        guard storeManager.isPurchased else {
-            showPaywall = true
-            return
-        }
-        deleteTargets = [item]
-        showingDeleteAlert = true
-    }
-
-    private func deleteSelectedFolders() {
-        guard storeManager.isPurchased else {
-            showPaywall = true
-            return
-        }
-        let selected = folderResults.filter { tableSelection.contains($0.id) }
-        guard !selected.isEmpty else { return }
-        deleteTargets = selected
-        showingDeleteAlert = true
-    }
-
-    private struct LargeDeleteOutcome: Sendable {
-        let succeededURLs: Set<URL>
-        let rejectedCount: Int
-    }
-
-    private func confirmDelete() {
-        guard storeManager.isPurchased else {
-            deleteTargets = []
-            showPaywall = true
-            return
-        }
-        let candidates = Self.normalizedDeleteTargets(deleteTargets)
-        guard !candidates.isEmpty else { return }
-        guard !isDeleting else { return }
-        guard let rootURL = selectedFolderURL?.standardizedFileURL else {
-            deleteTargets = []
-            scanMessage = "storage.msg.trash_failed".localized
-            return
-        }
-
-        isDeleting = true
-        scanMessage = "storage.msg.trash_moving".localized(with: candidates.count)
-
-        Task {
-            let outcome = await Task.detached(priority: .utility) {
-                await Self.moveToTrash(candidates, selectedRootURL: rootURL)
-            }.value
-            let succeededURLs = outcome.succeededURLs
-            let acceptedCount = max(0, candidates.count - outcome.rejectedCount)
-            let failedCount = outcome.rejectedCount + max(0, acceptedCount - succeededURLs.count)
-
-            guard !succeededURLs.isEmpty else {
-                isDeleting = false
-                deleteTargets = []
-                scanMessage = "storage.msg.trash_failed".localized
-                return
-            }
-
-            ignoredFolderURLs.formUnion(succeededURLs)
-
-            folderResults.removeAll { info in
-                let u = info.url.standardizedFileURL
-                if succeededURLs.contains(u) { return true }
-                if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
-                return false
-            }
-
-            discoveredResults.removeAll { info in
-                let u = info.url.standardizedFileURL
-                if succeededURLs.contains(u) { return true }
-                if let p = info.parentURL?.standardizedFileURL, succeededURLs.contains(p) { return true }
-                return false
-            }
-
-            let remainingIDs = Set(folderResults.map(\.id))
-            tableSelection.formIntersection(remainingIDs)
-
-            isDeleting = false
-            deleteTargets = []
-            scanMessage = failedCount > 0
-                ? "storage.msg.trash_partial".localized(with: succeededURLs.count, failedCount)
-                : "storage.msg.trash_done".localized(with: succeededURLs.count)
-        }
-    }
-
-    nonisolated private static func normalizedDeleteTargets(_ items: [FolderInfo]) -> [FolderInfo] {
-        let sorted = items.sorted { lhs, rhs in
-            let lhsPath = DeletionSafety.resolvedPath(for: lhs.url)
-            let rhsPath = DeletionSafety.resolvedPath(for: rhs.url)
-            if lhsPath.count == rhsPath.count { return lhsPath < rhsPath }
-            return lhsPath.count < rhsPath.count
-        }
-
-        var result: [FolderInfo] = []
-        for item in sorted {
-            let isCoveredByParent = result.contains { parent in
-                parent.isDirectory && DeletionSafety.isContained(item.url, inScope: parent.url)
-            }
-            if !isCoveredByParent {
-                result.append(item)
-            }
-        }
-        return result
-    }
-
-    nonisolated private static func moveToTrash(
-        _ candidates: [FolderInfo],
-        selectedRootURL: URL
-    ) async -> LargeDeleteOutcome {
-        let token = LargeFilesSecurityScopedAccessToken(selectedRootURL)
-        defer { token.stop() }
-
-        // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
-        // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
-        // 폴더는 스캔~삭제 사이에 내부 파일이 바뀌면 크기·수정 시각이 달라진다.
-        // 대용량 폴더 스캔은 수 분이 걸리므로 엄격 비교를 유지하면 활성 폴더가
-        // 이유 없이 제외된다. device·inode·항목 유형은 여전히 일치해야 하므로
-        // 같은 경로가 다른 폴더로 교체된 경우는 계속 거부된다.
-        let outcome = await TrashService.sanitizeAndMoveToTrash(
-            candidates,
-            scopes: [.descendants(of: selectedRootURL)],
-            url: \.url,
-            identity: \.fileIdentity,
-            allowsDirectoryContentChanges: { $0.isDirectory },
-            logCategory: "LargeFiles"
-        )
-
-        return LargeDeleteOutcome(
-            succeededURLs: Set(outcome.succeeded.map { $0.url.standardizedFileURL }),
-            rejectedCount: outcome.excludedCount
-        )
-    }
-
 }

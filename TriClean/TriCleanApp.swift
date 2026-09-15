@@ -50,6 +50,9 @@ struct TriCleanApp: App {
     @StateObject private var duplicateViewModel = DuplicateScannerViewModel()
     @StateObject private var appsViewModel = AppsViewModel()
     @StateObject private var photoViewModel = PhotoScannerViewModel()
+    // 대용량 파일 화면도 같은 이유로 앱 레벨에서 보유한다. 뷰가 상태를 들고 있으면
+    // 탭 전환 시 스캔 Task가 취소되지 않은 채 남고 결과도 매번 사라진다.
+    @StateObject private var largeFilesViewModel = LargeFilesViewModel()
     // ✅ 주간 정리 리마인더 매니저 (다른 매니저와 동일하게 .shared 싱글톤을 주입)
     @StateObject private var reminderManager = CleanupReminderManager.shared
     @State private var showPaywallSheet: Bool = false
@@ -129,6 +132,7 @@ struct TriCleanApp: App {
             .environmentObject(duplicateViewModel)
             .environmentObject(appsViewModel)
             .environmentObject(photoViewModel)
+            .environmentObject(largeFilesViewModel)
             .environmentObject(reminderManager)
             // ✅ 별도 폰트 지정이 없는 기본 Text/Label도 사용자 설정을 따르도록
             //    앱 전역의 기본 본문 폰트를 먼저 지정한다. 개별 .appFont(...)는 이를 덮어쓴다.
