@@ -24,6 +24,7 @@ import Combine
 import SwiftUI
 import AppKit
 import CryptoKit
+import os.log
 
 struct DuplicateCleanupResult: Identifiable {
     let id = UUID()
@@ -482,14 +483,27 @@ final class DuplicateScannerViewModel: ObservableObject {
         isDeleting = true
         statusMessage = "duplicate.status.cleanup_running".localized
 
-        Task { @MainActor [weak self, snapshots, folder] in
-            let outcome = await Task.detached(priority: .userInitiated) {
-                let started = folder.startAccessingSecurityScopedResource()
-                defer { if started { folder.stopAccessingSecurityScopedResource() } }
+        Task { @MainActor [weak self, snapshots, scopeURL, validationScope] in
+            let outcome = await Task.detached(priority: .userInitiated) { () -> DeleteOutcome in
+                let started = scopeURL.startAccessingSecurityScopedResource()
+                guard started else {
+                    Logger(subsystem: "com.nicechann.TriClean", category: "DuplicateCleanup").error(
+                        "Security-scoped access failed for \(scopeURL.path, privacy: .public)"
+                    )
+                    return DeleteOutcome(
+                        succeeded: [],
+                        deletedCount: 0,
+                        failedCount: 0,
+                        deletedBytes: 0,
+                        excludedCount: 0,
+                        accessDenied: true
+                    )
+                }
+                defer { scopeURL.stopAccessingSecurityScopedResource() }
 
                 return await Self.prepareAndPerformDeletion(
                     snapshots: snapshots,
-                    folder: folder
+                    folder: validationScope
                 )
             }.value
 
@@ -539,6 +553,12 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     private func applyDeleteOutcome(_ outcome: DeleteOutcome) {
+        // 스코프를 열지 못했다면 삭제를 시도하지 않았다. 결과 목록을 건드리지 않고 안내만 한다.
+        guard !outcome.accessDenied else {
+            statusMessage = "common.permission_needed".localized
+            return
+        }
+
         for i in groups.indices {
             groups[i].files.removeAll { outcome.succeeded.contains($0.id) }
         }
@@ -837,12 +857,16 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     /// 파일 처음 4KB의 SHA-256 해시
+    ///
+    /// ⚠️ `readData(ofLength:)`는 읽기 실패 시 `NSFileHandleOperationException`을 raise하며
+    ///    Swift에서 catch할 수 없어 프로세스가 죽는다. 네트워크 볼륨 끊김·외장 디스크 분리·
+    ///    권한 오류에서 현실적으로 발생하므로 throwing API인 `read(upToCount:)`를 쓴다.
     nonisolated private static func partialHash(of url: URL, bytes: Int = 4096) -> String? {
         guard !Task.isCancelled else { return nil }
         guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
         defer { try? handle.close() }
 
-        let data = handle.readData(ofLength: bytes)
+        guard let data = try? handle.read(upToCount: bytes) else { return nil }
         guard !Task.isCancelled, !data.isEmpty else { return nil }
 
         let digest = SHA256.hash(data: data)
@@ -850,6 +874,9 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     /// 파일 전체의 SHA-256 해시 (스트리밍)
+    ///
+    /// 읽기 오류는 `nil`로 보고한다. 중간까지만 읽고 만든 해시를 돌려주면 서로 다른 파일이
+    /// 같은 해시로 묶여 **잘못된 중복 판정 → 잘못된 삭제**로 이어지므로, 부분 성공은 허용하지 않는다.
     nonisolated private static func fullHash(of url: URL) -> String? {
         guard !Task.isCancelled else { return nil }
         guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
@@ -860,10 +887,19 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         while true {
             guard !Task.isCancelled else { return nil }
-            let chunk = autoreleasepool {
-                handle.readData(ofLength: bufferSize)
+
+            let chunk: Data?
+            do {
+                chunk = try autoreleasepool { try handle.read(upToCount: bufferSize) }
+            } catch {
+                Logger(subsystem: "com.nicechann.TriClean", category: "DuplicateScan").warning(
+                    "Full hash read failed path=\(url.path, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                )
+                return nil
             }
-            guard !chunk.isEmpty else { break }
+
+            // `read(upToCount:)`는 EOF에서 nil 또는 빈 Data를 돌려준다.
+            guard let chunk, !chunk.isEmpty else { break }
             hasher.update(data: chunk)
         }
 
