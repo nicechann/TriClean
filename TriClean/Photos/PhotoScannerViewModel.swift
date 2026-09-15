@@ -18,6 +18,7 @@ import UniformTypeIdentifiers
 import CoreServices
 import ImageIO
 import CoreGraphics   // Spotlight 메타데이터(kMDItemIsScreenCapture)
+import os.log
 
 @MainActor
 final class PhotoScannerViewModel: ObservableObject {
@@ -80,6 +81,10 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
+
+    /// 스캔 세대 번호. 다른 스캐너(`DuplicateScannerViewModel`, `JunkScannerViewModel`)와 같은 방식으로,
+    /// 늦게 끝난 이전 스캔이 최신 스캔의 결과·보안 스코프를 덮어쓰는 것을 막는다.
+    private var scanGeneration: UInt = 0
 
     // MARK: - Computed
 
@@ -152,6 +157,7 @@ final class PhotoScannerViewModel: ObservableObject {
             collectTask?.cancel()
             blurTask?.cancel()
             similarTask?.cancel()
+            scanGeneration &+= 1   // 진행 중이던 스캔의 늦은 결과 반영을 무효화한다.
             releaseFolderAccess()
 
             bookmarks.trySave(url: url, for: .photoScanFolder)
@@ -161,6 +167,9 @@ final class PhotoScannerViewModel: ObservableObject {
             selectedCategory = .all
             resetAnalysisState()
             deleteStatusMessage = nil
+            // 세대를 올렸으므로 진행 중이던 스캔의 `finishScan`이 더 이상 호출되지 않는다.
+            // 진행 상태는 여기서 직접 초기화해야 한다.
+            isScanning = false
             phase = .idle
             progress = 0
             lastScanDate = nil
@@ -175,8 +184,12 @@ final class PhotoScannerViewModel: ObservableObject {
         guard !isScanning, !isDeleting else { return }
 
         scanTask?.cancel()
+        collectTask?.cancel()   // detached 수집 작업은 부모 취소를 상속하지 않으므로 직접 취소한다.
         blurTask?.cancel()
         similarTask?.cancel()
+
+        scanGeneration &+= 1
+        let generation = scanGeneration
 
         isScanning = true
         items = []
@@ -193,7 +206,10 @@ final class PhotoScannerViewModel: ObservableObject {
 
         // ✅ 보안 스코프: 결과가 표시되는 동안(썸네일 lazy 로딩 포함) 접근을 유지.
         //    스캔 직후 닫으면 샌드박스에서 썸네일 파일 읽기가 거부되어 모두 실패합니다.
-        guard beginFolderAccess(root) else {
+        // ⚠️ 스코프는 북마크에서 복원한 **원본 URL**(`folderURL`)로 시작한다.
+        //    standardizedFileURL은 경로를 바꿔 스코프가 열리지 않을 수 있다.
+        //    폴더 순회에만 standardized 형태(`root`)를 쓴다.
+        guard beginFolderAccess(folderURL) else {
             isScanning = false
             phase = .done
             statusMessage = "common.permission_needed".localized
@@ -216,6 +232,11 @@ final class PhotoScannerViewModel: ObservableObject {
             // 폴더 접근은 여기서 닫지 않음 — 다음 스캔/폴더 변경 시 교체됨
             let cancelled = collect.isCancelled
             await MainActor.run {
+                // ⚠️ 이 스캔이 이미 대체되었다면 아무것도 건드리지 않는다.
+                //    특히 `finishScan`은 결과가 비면 `releaseFolderAccess()`를 호출하므로,
+                //    세대 검증 없이 통과시키면 진행 중인 새 스캔의 보안 스코프가 해제된다.
+                guard generation == self.scanGeneration else { return }
+
                 if cancelled {
                     self.items = []
                     self.finishScan(cancelled: true)
@@ -348,7 +369,8 @@ final class PhotoScannerViewModel: ObservableObject {
         isAnalyzingSimilar = true
         isSimilarAnalyzed = false
         similarProgress = 0
-        similarGroups = []
+        // 그룹만 비우고 선택을 남기면 keep-1 가드가 조회 대상을 잃어 그룹 전체가 삭제될 수 있다.
+        clearSimilarGroupsAndSelections()
 
         let snapshot = items
         let threshold = Self.similarHammingThreshold
@@ -451,10 +473,23 @@ final class PhotoScannerViewModel: ObservableObject {
         isAnalyzingBlur = false
         isBlurAnalyzed = false
         blurProgress = 0
-        similarGroups = []
+        clearSimilarGroupsAndSelections()
         isAnalyzingSimilar = false
         isSimilarAnalyzed = false
         similarProgress = 0
+    }
+
+    /// 유사 그룹을 비울 때는 그 그룹에 속한 선택도 반드시 함께 해제한다.
+    ///
+    /// `toggleSelection`의 keep-1 가드, `similarKeeperIDs`(전체 선택 보호),
+    /// `preparePhotoDeletion`의 생존자 재검증은 전부 `similarGroups`를 조회해서 동작한다.
+    /// 그룹이 빈 배열이 되면 세 가드가 동시에 무력화되므로, 선택만 남아 있으면
+    /// 원본을 포함한 그룹 전체가 휴지통으로 이동할 수 있다.
+    private func clearSimilarGroupsAndSelections() {
+        guard !similarGroups.isEmpty else { return }
+        let groupedIDs = Set(similarGroups.flatMap { $0.items.map(\.id) })
+        similarGroups = []
+        selectedIDs.subtract(groupedIDs)
     }
 
     private func cancelRunningAnalysesForDeletion() {
@@ -466,7 +501,9 @@ final class PhotoScannerViewModel: ObservableObject {
             blurProgress = 0
         }
         if isAnalyzingSimilar {
-            similarGroups = []
+            // 분석 중에는 `analyzeSimilar()`가 이미 그룹을 비워둔 상태다.
+            // 여기서는 삭제 직전이므로 사용자의 선택을 건드리지 않고 진행 상태만 정리한다.
+            // 호출부(`deleteSelected`)는 이 함수보다 **먼저** 그룹 스냅샷을 캡처해야 한다.
             finishSimilar(cancelled: true)
         }
     }
@@ -573,18 +610,26 @@ final class PhotoScannerViewModel: ObservableObject {
         guard !isDeleting else { return }
         let selected = items.filter { selectedIDs.contains($0.id) }
         guard !selected.isEmpty else { return }
-        guard let scope = scanFolderURL?.standardizedFileURL else {
+        // ⚠️ 보안 스코프는 복원 원본 URL로 시작하고, 경로 경계 검증에만 standardized 형태를 쓴다.
+        guard let scopeURL = scanFolderURL else {
             deleteStatusMessage = "photos.delete.status.invalid".localized
             return
         }
+        let validationScope = scopeURL.standardizedFileURL
+
+        // 스캔 결과가 표시되는 동안 유지 중인 장기 접근 토큰이 있으면, 중첩 start가
+        // 실패하더라도 접근 권한은 이미 열려 있다.
+        let hasPersistentAccess = folderAccessToken != nil && accessedFolderURL == scopeURL
+
+        // ⚠️ 그룹 스냅샷은 진행 중인 분석을 취소하기 **전에** 캡처해야 한다.
+        //    취소 처리가 그룹을 비운 뒤에 읽으면 생존자 재검증이 빈 배열을 받는다.
+        let groupsSnapshot = similarGroups
 
         cancelRunningAnalysesForDeletion()
         isDeleting = true
         deleteStatusMessage = "photos.delete.status.moving".localized(with: selected.count)
 
         let selectedSnapshot = selected
-        let groupsSnapshot = similarGroups
-        let scopeURL = scope
 
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
@@ -593,10 +638,21 @@ final class PhotoScannerViewModel: ObservableObject {
             let started = scopeURL.startAccessingSecurityScopedResource()
             defer { if started { scopeURL.stopAccessingSecurityScopedResource() } }
 
+            guard started || hasPersistentAccess else {
+                Logger(subsystem: "com.nicechann.TriClean", category: "PhotoCleanup").error(
+                    "Security-scoped access failed for \(scopeURL.path, privacy: .public)"
+                )
+                await MainActor.run {
+                    self.isDeleting = false
+                    self.deleteStatusMessage = "common.permission_needed".localized
+                }
+                return
+            }
+
             let preparation = Self.preparePhotoDeletion(
                 selected: selectedSnapshot,
                 similarGroups: groupsSnapshot,
-                scope: scopeURL
+                scope: validationScope
             )
 
             let outcome = await TrashService.moveToTrash(
