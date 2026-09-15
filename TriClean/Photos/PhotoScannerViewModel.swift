@@ -770,7 +770,7 @@ final class PhotoScannerViewModel: ObservableObject {
             .typeIdentifierKey,
             .isDirectoryKey,
             .isPackageKey
-        ]
+        ] + CloudFileStatus.requiredResourceKeys
 
         guard let enumerator = fm.enumerator(
             at: root,
@@ -781,12 +781,22 @@ final class PhotoScannerViewModel: ObservableObject {
 
         var result: [PhotoItem] = []
         result.reserveCapacity(512)
+        var skippedCloudFileCount = 0
 
         for case let url as URL in enumerator {
             if Task.isCancelled { break }
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
             guard isImageFile(url: url, typeIdentifier: values.typeIdentifier) else { continue }
+
+            // ⚠️ 클라우드 전용(자리표시자) 사진은 **바로 아래 `imagePixelDimensions` 이전에** 제외한다.
+            //    `CGImageSourceCreateWithURL`은 헤더만 읽어도 자리표시자를 실체화하므로,
+            //    수집 단계만으로 폴더 전체가 내려받아진다.
+            //    (로컬 점유가 0이라 삭제해도 공간이 늘지 않으므로 대상에서 빼는 것이 맞다.)
+            guard !CloudFileStatus.isDataless(values) else {
+                skippedCloudFileCount += 1
+                continue
+            }
 
             let size = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
             // ImageIO 메타데이터만 읽어 원본을 디코딩하지 않고 픽셀 크기를 확보합니다.
@@ -802,6 +812,12 @@ final class PhotoScannerViewModel: ObservableObject {
                 pixelHeight: dimensions.height,
                 isScreenshot: screenshot
             ))
+        }
+
+        if skippedCloudFileCount > 0 {
+            Logger(subsystem: "com.nicechann.TriClean", category: "PhotoScan").info(
+                "Skipped \(skippedCloudFileCount) cloud-only images to avoid triggering downloads"
+            )
         }
 
         return result

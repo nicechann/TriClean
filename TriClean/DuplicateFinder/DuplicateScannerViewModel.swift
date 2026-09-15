@@ -600,20 +600,21 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     /// 전체 해시 병렬 계산 결과 단위.
-    private struct HashedFile: Sendable {
+    nonisolated private struct HashedFile: Sendable {
         let hash: String
         let file: FileCandidate
     }
 
-    private struct FullHashChunk: Sendable {
+    nonisolated private struct FullHashChunk: Sendable {
         let hashed: [HashedFile]
         /// 진행률 계산용. 해시에 실패한 파일도 처리한 것으로 센다.
         let processedCount: Int
     }
 
     /// 정렬을 위한 중간 표현.
-    /// DuplicateGroup은 기본 액터 격리(MainActor)를 따르므로 nonisolated 컨텍스트에서
-    /// reclaimableBytes 같은 계산 프로퍼티를 읽을 수 없다. 정렬 키를 여기서 미리 구한다.
+    /// (도입 당시에는 `DuplicateGroup`이 MainActor 격리라 nonisolated 컨텍스트에서
+    ///  `reclaimableBytes`를 읽을 수 없었다. 지금은 `DuplicateGroup`도 nonisolated지만,
+    ///  정렬 키를 미리 구해 그룹마다 재계산하지 않는 이점이 남아 있어 유지한다.)
     nonisolated private struct PendingDuplicateGroup: Sendable {
         let reclaimableBytes: Int64
         let hash: String
@@ -683,7 +684,7 @@ final class DuplicateScannerViewModel: ObservableObject {
         let keys: [URLResourceKey] = [
             .isRegularFileKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey,
             .contentModificationDateKey, .isDirectoryKey, .isPackageKey
-        ]
+        ] + CloudFileStatus.requiredResourceKeys
 
         guard let enumerator = fm.enumerator(
             at: root,
@@ -694,6 +695,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         var files: [FileCandidate] = []
         files.reserveCapacity(1000)
+        var skippedCloudFileCount = 0
 
         for case let url as URL in enumerator {
             guard !Task.isCancelled else {
@@ -702,6 +704,16 @@ final class DuplicateScannerViewModel: ObservableObject {
             }
             guard let values = try? url.resourceValues(forKeys: Set(keys)) else { continue }
             guard values.isRegularFile == true else { continue }
+
+            // ⚠️ 클라우드 전용(자리표시자) 파일은 **해시를 계산하기 전에** 반드시 제외한다.
+            //    아래 `logicalSize`는 논리 크기라 자리표시자도 크기 그룹핑을 통과하는데,
+            //    그다음 단계의 `partialHash`가 4KB를 읽는 순간 macOS가 파일 전체를 내려받는다.
+            //    디스크를 비우려는 스캔이 오히려 디스크를 채우게 된다.
+            //    (어차피 로컬 점유가 0이라 지워도 공간이 늘지 않는다.)
+            guard !CloudFileStatus.isDataless(values) else {
+                skippedCloudFileCount += 1
+                continue
+            }
 
             let logicalSize = Int64(values.fileSize ?? 0)
             guard logicalSize >= minBytes else { continue }
