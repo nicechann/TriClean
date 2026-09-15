@@ -22,8 +22,11 @@ import AppKit
 import os.log
 
 /// 앱이 전면에 있을 때도 주간 정리 알림을 배너와 사운드로 표시합니다.
+// ⚠️ `UNUserNotificationCenterDelegate`의 요구사항은 nonisolated다.
+//   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` 때문에 명시하지 않으면 이 메서드가
+//   MainActor로 추론되어 conformance 전체가 격리되고, Swift 6에서 에러가 된다.
 private final class ForegroundNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
-    func userNotificationCenter(
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {

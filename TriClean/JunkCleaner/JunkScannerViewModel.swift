@@ -403,14 +403,14 @@ final class JunkScannerViewModel: ObservableObject {
     
     // MARK: - 삭제
 
-    private struct CleanTarget: Sendable {
+    nonisolated private struct CleanTarget: Sendable {
         let id: UUID
         let url: URL
         let fileIdentity: FileIdentitySnapshot?
         let identityValidationPolicy: JunkCategory.IdentityValidationPolicy
     }
 
-    private struct CleanOutcome: Sendable {
+    nonisolated private struct CleanOutcome: Sendable {
         let succeededIDs: Set<UUID>
         let failedCount: Int
         let excludedCount: Int

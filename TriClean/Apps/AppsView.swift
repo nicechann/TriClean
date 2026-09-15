@@ -13,7 +13,11 @@ import CoreServices
 
 // MARK: - Models
 
-enum AppsListFilter: String, CaseIterable, Identifiable {
+// ⚠️ 아래 모델 타입들은 `nonisolated`다. `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`
+//   때문에 명시하지 않으면 **합성 conformance(Equatable/Hashable)** 까지 MainActor로
+//   추론되어, `Task.detached` 스캔 작업에서 비교·해싱할 때 Swift 6 에러가 된다.
+//   (`Sendable` 선언만으로는 풀리지 않는다.)
+nonisolated enum AppsListFilter: String, CaseIterable, Identifiable, Sendable {
     case all
     case removable
     case appStore
@@ -31,7 +35,7 @@ enum AppsListFilter: String, CaseIterable, Identifiable {
     }
 }
 
-struct AppsInstalledApp: Identifiable, Hashable, Sendable {
+nonisolated struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     let name: String
     let bundleID: String?
     let url: URL
@@ -56,7 +60,7 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
         return modifiedDate.formatted(date: .abbreviated, time: .omitted)
     }
 
-    nonisolated init(
+    init(
         name: String,
         bundleID: String?,
         url: URL,
@@ -79,7 +83,7 @@ struct AppsInstalledApp: Identifiable, Hashable, Sendable {
     }
 }
 
-struct AppsRelatedItem: Identifiable, Hashable, Sendable {
+nonisolated struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     let url: URL
     var selected: Bool
     let isDirectory: Bool
@@ -94,7 +98,7 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
         ByteCountFormatter.string(fromByteCount: sizeBytes, countStyle: .file)
     }
 
-    nonisolated init(
+    init(
         url: URL,
         selected: Bool,
         isDirectory: Bool,
@@ -122,7 +126,7 @@ struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     }
 }
 
-struct AppsSelectedAppInfo: Sendable {
+nonisolated struct AppsSelectedAppInfo: Sendable {
     let name: String
     let bundleID: String?
     let appPath: String

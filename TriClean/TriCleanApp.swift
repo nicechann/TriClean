@@ -14,18 +14,43 @@ import AppKit
 private struct WindowMinSizeSetter: NSViewRepresentable {
     let minContentSize: NSSize
 
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView(frame: .zero)
-        DispatchQueue.main.async { apply(to: view) }
+    /// 창에 실제로 부착되는 시점을 직접 잡아내는 컨테이너.
+    ///
+    /// 기존에는 `makeNSView`에서 `DispatchQueue.main.async`로 한 박자 미뤄 `view.window`가
+    /// 채워지기를 기대했다. 그러나 `@Sendable` 클로저가 비-Sendable한 `NSView`를 캡처하는
+    /// 구조라 Swift 6에서 에러이고, 지연 실행 시점에 window가 아직 없으면 `apply`가
+    /// 조용히 빠져나가 최소 크기가 적용되지 않는다.
+    /// `viewDidMoveToWindow`는 부착 직후 정확히 한 번 호출되므로 타이밍 추측이 필요 없다.
+    final class MinSizeProbeView: NSView {
+        var onAttach: ((NSWindow) -> Void)?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if let window { onAttach?(window) }
+        }
+    }
+
+    func makeNSView(context: Context) -> MinSizeProbeView {
+        let view = MinSizeProbeView(frame: .zero)
+        let size = minContentSize
+        view.onAttach = { window in
+            Self.apply(minContentSize: size, to: window)
+        }
         return view
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async { apply(to: nsView) }
+    func updateNSView(_ nsView: MinSizeProbeView, context: Context) {
+        let size = minContentSize
+        nsView.onAttach = { window in
+            Self.apply(minContentSize: size, to: window)
+        }
+        // 이미 부착된 뒤 값이 바뀐 경우를 위해 즉시 한 번 더 적용한다.
+        if let window = nsView.window {
+            Self.apply(minContentSize: size, to: window)
+        }
     }
 
-    private func apply(to view: NSView) {
-        guard let window = view.window else { return }
+    private static func apply(minContentSize: NSSize, to window: NSWindow) {
 
         // 콘텐츠 기준 최소 크기
         window.contentMinSize = minContentSize

@@ -12,7 +12,12 @@
 import Foundation
 
 /// 사진 분류. 1단계에서는 .all만 채워지고, 이후 단계에서 나머지가 활성화됩니다.
-enum PhotoCategory: String, CaseIterable, Identifiable, Sendable {
+// ⚠️ 아래 타입들은 전부 `nonisolated`다.
+//   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` 때문에 명시하지 않으면 타입과
+//   **합성 conformance(Equatable/Hashable)**, 계산 프로퍼티까지 MainActor로 추론된다.
+//   이 값들은 `Task.detached` 스캔·해시 작업에서 생성·비교·정렬된다.
+//   `Sendable` 선언만으로는 conformance 격리가 풀리지 않는다.
+nonisolated enum PhotoCategory: String, CaseIterable, Identifiable, Sendable {
     case all
     case similar
     case blurry
@@ -40,7 +45,7 @@ enum PhotoCategory: String, CaseIterable, Identifiable, Sendable {
 }
 
 /// 폴더에서 발견된 개별 이미지 파일.
-struct PhotoItem: Identifiable, Hashable, Sendable {
+nonisolated struct PhotoItem: Identifiable, Hashable, Sendable {
     let id: String          // url.path (안정적 고유키)
     let url: URL
     let sizeBytes: Int64
@@ -70,7 +75,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
         return "\(pixelWidth)×\(pixelHeight)"
     }
 
-    nonisolated init(
+    init(
         url: URL,
         sizeBytes: Int64,
         modificationDate: Date?,
@@ -97,7 +102,7 @@ struct PhotoItem: Identifiable, Hashable, Sendable {
 
 /// 스캔 진행 단계.
 /// 유사 사진 묶음 (4단계: dHash + 해밍 거리 클러스터링 결과).
-struct PhotoGroup: Identifiable, Hashable, Sendable {
+nonisolated struct PhotoGroup: Identifiable, Hashable, Sendable {
     let id: String
     let items: [PhotoItem]
 
@@ -108,7 +113,7 @@ struct PhotoGroup: Identifiable, Hashable, Sendable {
     }
 }
 
-enum PhotoScanPhase: String, Sendable {
+nonisolated enum PhotoScanPhase: String, Sendable {
     case idle
     case collecting
     case reading

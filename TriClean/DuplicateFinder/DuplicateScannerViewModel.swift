@@ -630,7 +630,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     // MARK: - 파일 수집 (백그라운드)
 
-    private struct FileCandidate: Sendable {
+    nonisolated private struct FileCandidate: Sendable {
         let url: URL
         /// Duplicate detection must use the logical file size. Allocated size can differ
         /// for sparse/compressed files and would split identical files before hashing.
@@ -762,6 +762,12 @@ final class DuplicateScannerViewModel: ObservableObject {
                 size: logicalSize,
                 modDate: values.contentModificationDate
             ))
+        }
+
+        if skippedCloudFileCount > 0 {
+            Logger(subsystem: "com.nicechann.TriClean", category: "DuplicateScan").info(
+                "Skipped \(skippedCloudFileCount) cloud-only files to avoid triggering downloads"
+            )
         }
 
         return files

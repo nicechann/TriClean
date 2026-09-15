@@ -11,7 +11,12 @@ import StoreKit // ✅ 결제 기능을 위해 추가
 
 // MARK: - 스캔 결과 모델 (폴더 + 파일)
 
-struct FolderInfo: Identifiable, Hashable, Sendable {
+// ⚠️ 아래 타입들은 전부 `nonisolated`다.
+//   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` 때문에 명시하지 않으면 타입과
+//   **합성 conformance(Equatable/Hashable)**, 계산 프로퍼티까지 MainActor로 추론된다.
+//   이 값들은 `Task.detached` 스캔·해시 작업에서 생성·비교·정렬된다.
+//   `Sendable` 선언만으로는 conformance 격리가 풀리지 않는다.
+nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
     let id = UUID()
     let url: URL
     let sizeBytes: Int64
@@ -26,7 +31,7 @@ struct FolderInfo: Identifiable, Hashable, Sendable {
     /// depth > 0 인 경우, 어떤 상위 폴더 아래에 붙는지(표시/삭제 동기화용)
     let parentURL: URL?
     
-    nonisolated init(
+    init(
         url: URL,
         sizeBytes: Int64,
         isDirectory: Bool,

@@ -10,7 +10,7 @@ import Combine
 import AppKit
 
 // 메뉴바 전용, 간단 메모리 정보
-struct MenuBarMemoryInfo {
+nonisolated struct MenuBarMemoryInfo: Sendable {
     let total: Double
     let used: Double
     let available: Double   // MB (Cached + Free)
@@ -21,6 +21,7 @@ struct MenuBarMemoryInfo {
     }
 }
 
+@MainActor
 final class MenuBarMemoryViewModel: ObservableObject {
     // ✅ 이중 발송 제거: @Published가 자동으로 objectWillChange를 처리함
     @Published var info = MenuBarMemoryInfo(total: 0, used: 0, available: 0)
@@ -30,26 +31,32 @@ final class MenuBarMemoryViewModel: ObservableObject {
         refresh()
     }
 
+    // ⚠️ 기존에는 `DispatchQueue.global(...).async` 안에서 `self.info`/`self.isRefreshing`
+    //   (MainActor 프로퍼티)을 직접 변형했다. @Sendable 클로저가 비-Sendable한
+    //   MainActor 클래스를 캡처하고 격리된 상태를 백그라운드에서 쓰는 구조라
+    //   Swift 6에서는 에러다. 다른 ViewModel과 같은 구조화 동시성 패턴으로 교체한다.
     func refresh() {
         guard !isRefreshing else { return }
         isRefreshing = true
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            let stats = MemoryReader.fetchStats()
+        Task { [weak self] in
+            let stats = await Task.detached(priority: .userInitiated) {
+                MemoryReader.fetchStats()
+            }.value
+
+            guard let self else { return }
 
             let mb = 1024.0 * 1024.0
-            let totalMB    = Double(stats.totalBytes) / mb
-            let usedMB     = Double(stats.usedBytes) / mb
-            let availMB    = Double(stats.availableBytes) / mb
+            let totalMB = Double(stats.totalBytes) / mb
+            let usedMB  = Double(stats.usedBytes) / mb
+            let availMB = Double(stats.availableBytes) / mb
 
-            DispatchQueue.main.async {
-                self.info = MenuBarMemoryInfo(
-                    total:     max(totalMB, 0),
-                    used:      max(usedMB, 0),
-                    available: max(availMB, 0)
-                )
-                self.isRefreshing = false
-            }
+            self.info = MenuBarMemoryInfo(
+                total:     max(totalMB, 0),
+                used:      max(usedMB, 0),
+                available: max(availMB, 0)
+            )
+            self.isRefreshing = false
         }
     }
 

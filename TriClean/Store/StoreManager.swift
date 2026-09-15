@@ -227,7 +227,11 @@ final class StoreManager: ObservableObject {
 }
 
 /// 구매 흐름에서 사용자에게 노출되는 오류.
-enum StoreError: LocalizedError {
+///
+/// ⚠️ `nonisolated`: `Error` 값은 `throw`되어 nonisolated 경계를 넘을 수 있다.
+///   기본 액터 격리 때문에 `errorDescription`이 MainActor로 추론되면
+///   `LocalizedError` conformance 전체가 격리되어 Swift 6에서 에러가 된다.
+nonisolated enum StoreError: LocalizedError, Sendable {
     case productUnavailable
     case noPurchaseToRestore
 

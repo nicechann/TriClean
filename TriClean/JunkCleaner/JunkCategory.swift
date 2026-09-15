@@ -11,7 +11,12 @@
 import Foundation
 import SwiftUI
 
-struct JunkCategory: Identifiable, Hashable {
+// ⚠️ 아래 타입들은 전부 `nonisolated`다.
+//   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` 설정 때문에 명시하지 않으면 타입과
+//   **합성 conformance(Equatable/Hashable)** 까지 MainActor 격리로 추론되는데,
+//   이 값들은 `Task.detached` 스캔 작업과 nonisolated 테스트에서 생성·비교된다.
+//   `Sendable` 선언만으로는 conformance 격리가 풀리지 않는다.
+nonisolated struct JunkCategory: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let icon: String
@@ -51,7 +56,7 @@ struct JunkCategory: Identifiable, Hashable {
         case allowDirectoryContentChanges
     }
 
-    enum RiskLevel: String, CaseIterable {
+    nonisolated enum RiskLevel: String, CaseIterable, Sendable {
         case safe
         case moderate
         case caution
@@ -72,7 +77,7 @@ struct JunkCategory: Identifiable, Hashable {
             }
         }
 
-        nonisolated var defaultSelected: Bool {
+        var defaultSelected: Bool {
             self == .safe
         }
     }
@@ -86,7 +91,7 @@ struct JunkCategory: Identifiable, Hashable {
     }
 }
 
-struct JunkItem: Identifiable, Hashable {
+nonisolated struct JunkItem: Identifiable, Hashable, Sendable {
     let id: UUID
     let url: URL
     let sizeBytes: Int64
@@ -94,7 +99,7 @@ struct JunkItem: Identifiable, Hashable {
     let fileIdentity: FileIdentitySnapshot?
     var isSelected: Bool
 
-    nonisolated init(
+    init(
         id: UUID = UUID(),
         url: URL,
         sizeBytes: Int64,
@@ -120,13 +125,13 @@ struct JunkItem: Identifiable, Hashable {
     static func == (lhs: JunkItem, rhs: JunkItem) -> Bool { lhs.id == rhs.id }
 }
 
-enum JunkSelectionState: Equatable {
+nonisolated enum JunkSelectionState: Equatable, Sendable {
     case none
     case partial
     case all
 }
 
-struct JunkScanResult: Identifiable {
+nonisolated struct JunkScanResult: Identifiable, Sendable {
     let id: String
     let category: JunkCategory
     var items: [JunkItem]
@@ -162,7 +167,7 @@ struct JunkScanResult: Identifiable {
 }
 
 extension JunkCategory {
-    static let defaultCategories: [JunkCategory] = [
+    nonisolated static let defaultCategories: [JunkCategory] = [
         JunkCategory(
             id: "system_caches",
             name: "junk.category.system_caches.title".localized,
