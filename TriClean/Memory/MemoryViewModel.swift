@@ -40,7 +40,7 @@ struct SignificantMemoryApp: Identifiable {
     var id: String { bundleIdentifier ?? "pid_\(pid)" }
 }
 
-private struct SignificantMemoryAppSnapshot: Sendable {
+nonisolated private struct SignificantMemoryAppSnapshot: Sendable {
     let pid: pid_t
     let name: String
     let bundleIdentifier: String?
@@ -96,7 +96,12 @@ final class MemoryViewModel: ObservableObject {
     // ✅ 메뉴바 텍스트 자동 갱신용 Timer (5초 주기)
     //   - 사용자가 윈도우를 열지 않아도 메뉴바 숫자가 실시간으로 갱신됨
     //   - @StateObject로 보유되므로 앱 수명 동안 유지됨
-    private var refreshTimer: Timer?
+    //
+    // ⚠️ `nonisolated(unsafe)`가 필요한 이유: 이 값은 MainActor에서만 읽고 쓰지만
+    //   `deinit`은 nonisolated이고 `Timer`는 Sendable이 아니라 그대로는 접근할 수 없다.
+    //   deinit이 도는 시점에는 이 객체를 가리키는 다른 참조가 남아 있지 않으므로
+    //   경합 자체가 성립하지 않는다(이 파일 안에서 이 값을 만지는 곳은 아래 셋뿐이다).
+    private nonisolated(unsafe) var refreshTimer: Timer?
 
     init() {
         refresh()
@@ -104,8 +109,16 @@ final class MemoryViewModel: ObservableObject {
     }
 
     deinit {
-        // ✅ Timer는 메인 런루프에 스케줄되어 있으므로 nonisolated deinit에서도 안전하게 invalidate 가능.
-        refreshTimer?.invalidate()
+        // ⚠️ 기존 주석은 "메인 런루프에 스케줄되어 있으므로 어느 스레드에서 invalidate해도
+        //   안전하다"고 적혀 있었으나 사실이 아니다. `Timer.invalidate()`는 **타이머를 설치한
+        //   스레드에서 호출해야 한다**(Apple 문서). 다른 스레드에서 부르면 동작이 미정의다.
+        //
+        //   이 객체는 앱 수명과 함께하는 @StateObject라 실제로 deinit이 도는 경로가 없고,
+        //   타이머 콜백도 `[weak self]`라 self를 붙잡지 않는다. 그래서 메인 스레드일 때만
+        //   정리하고, 아니면 그대로 둔다(콜백이 돌아도 self가 nil이라 아무 일도 하지 않는다).
+        if Thread.isMainThread {
+            refreshTimer?.invalidate()
+        }
     }
 
     private func startAutoRefresh() {
