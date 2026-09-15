@@ -60,8 +60,9 @@ nonisolated enum CloudFileStatus {
         //    SMB/NFS 등 네트워크 볼륨과 일부 FUSE 파일시스템은 서버가 할당 정보를
         //    주지 않아 `totalFileAllocatedSize`를 nil이 아니라 **0으로 채운다**.
         //    그대로 적용하면 NAS 폴더의 파일이 통째로 스캔에서 사라진다.
-        //    볼륨이 원격임이 확인되면 판정을 포기한다(제외하지 않는다).
-        guard values.volumeIsLocal != false else { return false }
+        //    로컬 볼륨임이 명확히 확인된 경우에만 적용한다. 값이 nil이면
+        //    판단 근거가 부족하므로 보수적으로 판정을 포기한다(제외하지 않는다).
+        guard values.volumeIsLocal == true else { return false }
 
         let logicalSize = values.fileSize ?? 0
         guard logicalSize > 0 else { return false }
