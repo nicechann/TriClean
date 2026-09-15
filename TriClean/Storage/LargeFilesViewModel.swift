@@ -68,7 +68,6 @@ final class LargeFilesViewModel: ObservableObject {
     private var ignoredFolderURLs: Set<URL> = []
     private var scanTask: Task<Void, Never>? = nil
     private var activeScanID = UUID()
-    private var lastScannedMinSizeMB: Double? = nil
 
     /// 화면이 보이는 동안만 슬라이더 변경에 반응하기 위한 기준값.
     ///
@@ -155,7 +154,6 @@ final class LargeFilesViewModel: ObservableObject {
 
                 self.selectedFolderURL = url
                 self.ignoredFolderURLs = []
-                self.lastScannedMinSizeMB = nil
                 self.tableSelection.removeAll()
                 self.runScan(for: url, minSizeMB: self.minFolderSizeMB, trigger: .manual)
             }
@@ -174,19 +172,32 @@ final class LargeFilesViewModel: ObservableObject {
     ///   완료 여부를 기준으로 삼으면 첫 스캔을 취소했을 때 슬라이더가 영영
     ///   반응하지 않고, 값을 바꾼 뒤 탭을 나갔다 오면 진입만으로 스캔이 시작된다.
     func autoRescanIfNeeded(minSizeMB: Double) {
-        // 화면 진입 시점 값과 같으면 사용자가 슬라이더를 만진 것이 아니다.
+        // 화면에 들어왔을 때의 값 또는 마지막으로 처리한 슬라이더 값과 같으면
+        // 새 변경이 아니다. `.task(id:)`의 최초 실행도 여기서 걸러진다.
         guard let baseline = autoScanBaseline, baseline != minSizeMB else { return }
-        // 이미 같은 값으로 스캔했다면 중복 실행하지 않는다.
-        guard lastScannedMinSizeMB != minSizeMB else { return }
-        guard let url = selectedFolderURL else { return }
+
+        // 삭제 중 변경은 처리 완료 후 `confirmDelete()`가 다시 호출하므로
+        // 여기서 기준값을 갱신하면 안 된다. 그래야 변경 사실이 보존된다.
+        guard !isDeleting else { return }
+
+        // 폴더가 없을 때는 스캔할 수 없지만, 이번 UI 변경은 처리된 것으로 본다.
+        guard let url = selectedFolderURL else {
+            autoScanBaseline = minSizeMB
+            return
+        }
+
+        // 스캔 시작 직전에 갱신한다. 진행 중인 자동 스캔이 일부 결과를 표시한 뒤
+        // 사용자가 이전 값으로 되돌린 경우에도 반드시 새 스캔이 시작되어
+        // 화면 조건과 실제 결과가 다시 일치한다.
+        autoScanBaseline = minSizeMB
         runScan(for: url, minSizeMB: minSizeMB, trigger: .auto)
     }
 
     /// 진행 중인 스캔을 멈추고 화면 상태를 확정한다.
     ///
     /// `activeScanID`를 함께 갱신하는 것이 핵심이다. 이것을 빼먹으면 취소된 Task의
-    /// 완료 블록이 세대 검사를 통과해 `scanMessage`와 `lastScannedMinSizeMB`를
-    /// 나중에 덮어쓴다(삭제 진행 메시지가 "취소됨"으로 바뀌는 원인).
+    /// 완료 블록이 세대 검사를 통과해 `scanMessage`를 나중에 덮어쓴다
+    /// (삭제 진행 메시지가 "취소됨"으로 바뀌는 원인).
     private func stopScan(message: String?) {
         scanTask?.cancel()
         scanTask = nil
@@ -282,10 +293,6 @@ final class LargeFilesViewModel: ObservableObject {
                     self.scanMessage = "storage.msg.canceled".localized
                     return
                 }
-
-                // ⚠️ 완주한 스캔만 기록한다. 취소된 스캔이 이 값을 남기면
-                //    같은 최소 크기로 다시는 자동 재스캔되지 않아 화면이 고착된다.
-                self.lastScannedMinSizeMB = minSizeMB
 
                 if !didReplace {
                     self.folderResults = []
