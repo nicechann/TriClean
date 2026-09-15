@@ -79,6 +79,7 @@
 "storage.msg.canceled" = "Сканирование отменено.";
 "storage.msg.no_items" = "В «%@» нет объектов, соответствующих условиям.";
 "storage.msg.completed" = "Анализ «%@» завершён. (Папок: %ld / файлов: %ld)";
+"storage.msg.access_denied" = "Доступ к папке истёк. Выберите папку заново.";
 "storage.scope.select_home_msg" = "Использование диска для домашней папки рассчитывается только в пределах выбранной папки.";
 "storage.scope.select_home_title" = "Выберите домашнюю папку";
 "storage.scope.select_apps_title" = "Выберите папку «Программы»";

@@ -73,6 +73,7 @@
 "storage.msg.canceled" = "Escaneamento cancelado.";
 "storage.msg.no_items" = "Nenhum item em “%@” corresponde aos critérios.";
 "storage.msg.completed" = "Análise de “%@” concluída. (%ld pastas / %ld arquivos)";
+"storage.msg.access_denied" = "Acesso à pasta expirou. Selecione a pasta novamente.";
 "storage.scope.select_home_msg" = "O uso do disco da pasta Início é calculado apenas dentro do escopo da pasta selecionada.";
 "storage.scope.select_home_title" = "Selecionar a pasta Início";
 "storage.scope.select_apps_title" = "Selecionar a pasta Aplicativos";

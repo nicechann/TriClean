@@ -75,6 +75,7 @@
 "storage.msg.canceled" = "Análisis cancelado.";
 "storage.msg.no_items" = "No se encontraron elementos en «%@» que coincidan con los criterios.";
 "storage.msg.completed" = "Análisis de «%@» completado. (%ld carpetas / %ld archivos)";
+"storage.msg.access_denied" = "El acceso a la carpeta caducó. Vuelve a seleccionar la carpeta.";
 "storage.scope.select_home_msg" = "El uso de disco de la carpeta personal se calcula solo dentro del ámbito seleccionado.";
 "storage.scope.select_home_title" = "Seleccionar carpeta personal";
 "storage.scope.select_apps_title" = "Seleccionar carpeta Aplicaciones";

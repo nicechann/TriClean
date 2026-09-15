@@ -75,6 +75,7 @@
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
 "storage.msg.no_items" = "「%@」に条件に一致する項目はありません。";
 "storage.msg.completed" = "「%@」の分析が完了しました。(%ld フォルダ / %ld ファイル)";
+"storage.msg.access_denied" = "フォルダのアクセス権限が失効しました。フォルダを選び直してください。";
 "storage.scope.select_home_msg" = "ホームフォルダのディスク使用量は、選択した範囲内でのみ計算されます。";
 "storage.scope.select_home_title" = "ホームフォルダを選択";
 "storage.scope.select_apps_title" = "Appフォルダを選択";

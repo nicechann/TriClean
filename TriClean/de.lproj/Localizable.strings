@@ -75,6 +75,7 @@
 "storage.msg.canceled" = "Scan abgebrochen.";
 "storage.msg.no_items" = "Keine passenden Elemente in „%@“ gefunden.";
 "storage.msg.completed" = "Analyse von „%@“ abgeschlossen. (%ld Ordner / %ld Dateien)";
+"storage.msg.access_denied" = "Ordnerzugriff abgelaufen. Bitte wähle den Ordner erneut aus.";
 "storage.scope.select_home_msg" = "Die Speichernutzung des Privatordners wird nur innerhalb des ausgewählten Bereichs berechnet.";
 "storage.scope.select_home_title" = "Privatordner auswählen";
 "storage.scope.select_apps_title" = "Programme-Ordner auswählen";

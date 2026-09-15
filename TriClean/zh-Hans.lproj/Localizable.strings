@@ -73,6 +73,7 @@
 "storage.msg.canceled" = "已取消扫描。";
 "storage.msg.no_items" = "「%@」中没有符合条件的项目。";
 "storage.msg.completed" = "「%@」分析完成。（%ld 个文件夹／%ld 个文件）";
+"storage.msg.access_denied" = "文件夹访问权限已失效。请重新选择文件夹。";
 "storage.scope.select_home_msg" = "个人文件夹的磁盘用量仅在所选文件夹范围内计算。";
 "storage.scope.select_home_title" = "选择个人文件夹";
 "storage.scope.select_apps_title" = "选择应用程序文件夹";

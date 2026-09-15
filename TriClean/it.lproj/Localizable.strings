@@ -73,6 +73,7 @@
 "storage.msg.canceled" = "Scansione annullata.";
 "storage.msg.no_items" = "Nessun elemento in «%@» corrisponde ai criteri.";
 "storage.msg.completed" = "Analisi di «%@» completata. (%ld cartelle / %ld file)";
+"storage.msg.access_denied" = "Accesso alla cartella scaduto. Seleziona di nuovo la cartella.";
 "storage.scope.select_home_msg" = "L'utilizzo del disco per la cartella Inizio viene calcolato solo entro l'ambito della cartella selezionata.";
 "storage.scope.select_home_title" = "Seleziona la cartella Inizio";
 "storage.scope.select_apps_title" = "Seleziona la cartella Applicazioni";

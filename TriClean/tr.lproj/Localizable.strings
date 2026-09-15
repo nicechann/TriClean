@@ -77,6 +77,7 @@
 "storage.msg.canceled" = "Tarama iptal edildi.";
 "storage.msg.no_items" = "“%@” içinde ölçütlere uyan öğe yok.";
 "storage.msg.completed" = "“%@” incelemesi tamamlandı. (Klasör: %ld / dosya: %ld)";
+"storage.msg.access_denied" = "Klasör erişimi sona erdi. Lütfen klasörü yeniden seçin.";
 "storage.scope.select_home_msg" = "Ana Klasör'ün disk kullanımı yalnızca seçilen klasör kapsamında hesaplanır.";
 "storage.scope.select_home_title" = "Ana Klasör'ü seç";
 "storage.scope.select_apps_title" = "Uygulamalar klasörünü seç";

@@ -73,6 +73,7 @@
 "storage.msg.canceled" = "已取消掃描。";
 "storage.msg.no_items" = "「%@」中沒有符合條件的項目。";
 "storage.msg.completed" = "「%@」分析完成。（%ld 個資料夾／%ld 個檔案）";
+"storage.msg.access_denied" = "資料夾存取權限已失效。請重新選擇資料夾。";
 "storage.scope.select_home_msg" = "個人專屬資料夾的磁碟用量只會在所選資料夾範圍內計算。";
 "storage.scope.select_home_title" = "選擇個人專屬資料夾";
 "storage.scope.select_apps_title" = "選擇「應用程式」資料夾";

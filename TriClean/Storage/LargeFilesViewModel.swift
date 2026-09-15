@@ -230,7 +230,19 @@ final class LargeFilesViewModel: ObservableObject {
         // 결과 표시 중 Finder 열기·삭제에 필요한 접근을 유지한다.
         // 스코프는 북마크에서 복원한 **원본 URL**로 시작해야 한다.
         if folderAccessToken == nil {
-            folderAccessToken = SecurityScopedAccessToken(url: url)
+            guard let token = SecurityScopedAccessToken(url: url) else {
+                // 권한이 만료된 상태에서 이전 결과를 그대로 두면 사용자가 현재 폴더의
+                // 결과로 오인할 수 있으므로, 스캔 실패와 함께 stale 결과도 정리한다.
+                scanTask = nil
+                tableSelection.removeAll()
+                folderResults = []
+                discoveredResults = []
+                isAutoUpdating = false
+                isScanning = false
+                scanMessage = "storage.msg.access_denied".localized
+                return
+            }
+            folderAccessToken = token
         }
 
         isAutoUpdating = isAuto

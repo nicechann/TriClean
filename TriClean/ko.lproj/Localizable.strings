@@ -79,6 +79,7 @@
 "storage.msg.canceled" = "분석이 취소되었습니다.";
 "storage.msg.no_items" = "'%@' 폴더에 조건에 맞는 하위 항목이 없습니다.";
 "storage.msg.completed" = "'%@' 폴더 분석이 완료되었습니다. (폴더 %ld개 / 파일 %ld개)";
+"storage.msg.access_denied" = "폴더 접근 권한이 만료되었습니다. 폴더를 다시 선택해 주세요.";
 "storage.scope.select_home_msg" = "Disk Usage의 Home Folder 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다.";
 "storage.scope.select_home_title" = "Home Folder 선택";
 "storage.scope.select_apps_msg" = "Disk Usage의 Applications 구간 계산을 위해 폴더를 선택합니다. (/Applications, ~/Applications 등 복수 선택 가능)";
