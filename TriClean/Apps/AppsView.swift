@@ -707,6 +707,15 @@ final class AppsViewModel: ObservableObject {
             dict[item.id] = item
         }
 
+        /// 이름 기반 추정처럼 소유권을 확신할 수 없는 항목은 이미 등록된 항목을 덮어쓰지 않는다.
+        /// 번들 ID 정확 일치로 등록된 경로의 선택 상태를 뒤집으면 안 되기 때문이다.
+        ///
+        /// 값 비교 없이 키 존재만 O(1)로 확인한다.
+        func insertIfAbsent(_ item: AppsRelatedItem) {
+            guard dict.index(forKey: item.id) == nil else { return }
+            dict[item.id] = item
+        }
+
         if let bundleID, !bundleID.isEmpty {
             // ✅ Spotlight 결과: 경로/유형이 사전에 분류되지 않으므로 안전하게 기본 선택 해제
             for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
@@ -753,6 +762,11 @@ final class AppsViewModel: ObservableObject {
             }
         }
 
+        // ⚠️ 이름(CFBundleName) 기반 추정 경로.
+        //   `Google`, `Adobe`, `Microsoft`, `Steam`처럼 여러 앱이 공유하는 벤더 이름이면
+        //   다른 앱의 데이터 디렉터리를 가리킬 수 있고, 소유권을 검증할 수단이 없다.
+        //   따라서 목록에는 노출하되 **절대 기본 선택하지 않으며**, 번들 ID 정확 일치로
+        //   이미 등록된 항목을 덮어쓰지도 않는다.
         if !appName.isEmpty {
             let namePaths = ["Application Support", "Caches"]
             for sub in namePaths {
@@ -763,10 +777,9 @@ final class AppsViewModel: ObservableObject {
                 var isDir: ObjCBool = false
                 if fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
                     let sizeBytes = fileSize(at: targetURL)
-                    let isHighRisk = highRiskSubs.contains(sub)
-                    upsert(AppsRelatedItem(
+                    insertIfAbsent(AppsRelatedItem(
                         url: targetURL,
-                        selected: !isHighRisk,
+                        selected: false,
                         isDirectory: true,
                         sizeBytes: sizeBytes
                     ))
