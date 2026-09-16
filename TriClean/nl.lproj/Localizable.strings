@@ -87,7 +87,6 @@
 "storage.alert.delete.msg_folder" = "De map ‘%@’ wordt naar de prullenmand verplaatst. Je kunt deze via de Finder terugzetten.";
 "storage.alert.delete.msg_file" = "Het bestand ‘%@’ wordt naar de prullenmand verplaatst. Je kunt dit via de Finder terugzetten.";
 "storage.alert.delete.msg_multi" = "Aantal geselecteerde items dat naar de prullenmand wordt verplaatst: %ld. Je kunt ze via de Finder terugzetten.";
-"storage.msg.canceling" = "Annuleren…";
 "storage.status.header" = "Huidige scan";
 "storage.status.folder" = "Geselecteerde map";
 "storage.status.folder_none" = "Geen map geselecteerd";
@@ -157,7 +156,6 @@
 "junk.section.wrong_path_desc" = "Overbodige bestanden staan in ~/Library. Tik op ‘Wijzig’ om je ~/Library-map te selecteren.";
 "junk.item.select_all" = "Selecteer alles";
 "junk.item.deselect_all" = "Deselecteer alles";
-"junk.item.more" = "en nog %ld items…";
 "junk.item.show_more" = "Nog %ld items weergeven";
 "junk.item.show_less" = "Alleen de eerste 30 items weergeven";
 "junk.section.access_title" = "Maptoegang verlopen";

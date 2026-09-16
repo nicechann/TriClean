@@ -87,7 +87,6 @@
 "storage.alert.delete.msg_folder" = "資料夾「%@」將被移到垃圾桶。你可以從 Finder 回復。";
 "storage.alert.delete.msg_file" = "檔案「%@」將被移到垃圾桶。你可以從 Finder 回復。";
 "storage.alert.delete.msg_multi" = "所選的 %ld 個項目將被移到垃圾桶。你可以從 Finder 回復。";
-"storage.msg.canceling" = "正在取消…";
 "storage.status.header" = "目前掃描";
 "storage.status.folder" = "所選資料夾";
 "storage.status.folder_none" = "未選擇資料夾";
@@ -157,7 +156,6 @@
 "junk.section.wrong_path_desc" = "垃圾檔案位於 ~/Library。請點按「更改」選擇你的 ~/Library 資料夾。";
 "junk.item.select_all" = "全選";
 "junk.item.deselect_all" = "取消全選";
-"junk.item.more" = "以及其他 %ld 個項目…";
 "junk.item.show_more" = "顯示其餘 %ld 個項目";
 "junk.item.show_less" = "僅顯示前 30 個項目";
 "junk.section.access_title" = "資料夾存取權限已失效";

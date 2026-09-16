@@ -93,7 +93,6 @@
 "storage.alert.delete.msg_folder" = "'%@' folder will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_file" = "'%@' file will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_multi" = "%ld selected items will be moved to Trash. You can restore them from Finder.";
-"storage.msg.canceling" = "Canceling…";
 
 /* ✅ [v2] Apps View — "uninstall/remove" → "review related files" focus */
 "apps.header.uninstall" = "Installed Apps";
@@ -318,7 +317,6 @@
 /* Junk item selection */
 "junk.item.select_all" = "Select All";
 "junk.item.deselect_all" = "Deselect All";
-"junk.item.more" = "and %ld more items…";
 "junk.item.show_more" = "Show %ld more items";
 "junk.item.show_less" = "Show first 30 items";
 

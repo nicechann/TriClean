@@ -20,6 +20,13 @@ from collections import Counter
 BASE = "en"
 SRC_DIR = "TriClean"
 
+# 런타임 조합으로 생성되는 키. 문자열 리터럴 교집합만으로는 참조를 찾을 수 없다.
+# AppTypography의 localizationKey가 아래 접두사 + rawValue 형태로 키를 만든다.
+DYNAMIC_PREFIXES = (
+    "settings.typography.design.",
+    "settings.typography.scale.",
+)
+
 def strings_files():
     return sorted(glob.glob(os.path.join(SRC_DIR, "*.lproj", "Localizable.strings")))
 
@@ -105,6 +112,10 @@ def main():
     for f in swift:
         literals |= set(LITERAL.findall(open(f, encoding="utf-8").read()))
     referenced = set(base) & literals
+    referenced |= {
+        key for key in base
+        if any(key.startswith(prefix) for prefix in DYNAMIC_PREFIXES)
+    }
 
     print(f"언어 {len(langs)}개: {', '.join(langs)}")
     print(f"기준({BASE}) 키 {len(base)}개 · 소스에서 참조 {len(referenced)}개\n")

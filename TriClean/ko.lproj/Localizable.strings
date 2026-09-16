@@ -93,7 +93,6 @@
 "storage.alert.delete.msg_folder" = "'%@' 폴더를 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.alert.delete.msg_file" = "'%@' 파일을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
 "storage.alert.delete.msg_multi" = "선택한 %ld개 항목을 휴지통으로 이동합니다. Finder에서 복원하거나 '휴지통 비우기'로 완전히 삭제할 수 있습니다.";
-"storage.msg.canceling" = "취소 중…";
 
 /* ✅ [수정 v2] Apps View — "앱 제거" 표현을 "관련 파일 검토/정리"로 전환 */
 "apps.header.uninstall" = "설치된 앱";
@@ -319,7 +318,6 @@
 /* Junk item selection */
 "junk.item.select_all" = "전체 선택";
 "junk.item.deselect_all" = "전체 해제";
-"junk.item.more" = "외 %ld개 항목…";
 "junk.item.show_more" = "나머지 %ld개 모두 보기";
 "junk.item.show_less" = "처음 30개만 보기";
 

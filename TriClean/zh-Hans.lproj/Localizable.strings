@@ -87,7 +87,6 @@
 "storage.alert.delete.msg_folder" = "文件夹「%@」将被移到废纸篓。你可以从 Finder 中恢复。";
 "storage.alert.delete.msg_file" = "文件「%@」将被移到废纸篓。你可以从 Finder 中恢复。";
 "storage.alert.delete.msg_multi" = "已选择的 %ld 个项目将被移到废纸篓。你可以从 Finder 中恢复。";
-"storage.msg.canceling" = "正在取消…";
 "storage.status.header" = "当前扫描";
 "storage.status.folder" = "所选文件夹";
 "storage.status.folder_none" = "未选择文件夹";
@@ -157,7 +156,6 @@
 "junk.section.wrong_path_desc" = "垃圾文件位于 ~/Library。请点击「更改」选择你的 ~/Library 文件夹。";
 "junk.item.select_all" = "全选";
 "junk.item.deselect_all" = "取消全选";
-"junk.item.more" = "以及其他 %ld 个项目…";
 "junk.item.show_more" = "显示其余 %ld 个项目";
 "junk.item.show_less" = "仅显示前 30 个项目";
 "junk.section.access_title" = "文件夹访问权限已失效";

@@ -91,7 +91,6 @@
 "storage.alert.delete.msg_folder" = "“%@” klasörü Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
 "storage.alert.delete.msg_file" = "“%@” dosyası Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
 "storage.alert.delete.msg_multi" = "Seçilen %ld öğe Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
-"storage.msg.canceling" = "İptal ediliyor…";
 "storage.status.header" = "Geçerli tarama";
 "storage.status.folder" = "Seçilen klasör";
 "storage.status.folder_none" = "Klasör seçilmedi";
@@ -161,7 +160,6 @@
 "junk.section.wrong_path_desc" = "Gereksiz dosyalar ~/Library içinde bulunur. ~/Library klasörünüzü seçmek için “Değiştir”e dokunun.";
 "junk.item.select_all" = "Tümünü seç";
 "junk.item.deselect_all" = "Seçimi kaldır";
-"junk.item.more" = "ve %ld öğe daha…";
 "junk.item.show_more" = "%ld öğe daha göster";
 "junk.item.show_less" = "Yalnızca ilk 30 öğeyi göster";
 "junk.section.access_title" = "Klasör erişimi sona erdi";

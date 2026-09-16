@@ -93,7 +93,6 @@
 "storage.alert.delete.msg_folder" = "Папка «%@» будет перемещена в Корзину. Её можно восстановить через Finder.";
 "storage.alert.delete.msg_file" = "Файл «%@» будет перемещён в Корзину. Его можно восстановить через Finder.";
 "storage.alert.delete.msg_multi" = "Выбранных объектов для перемещения в Корзину: %ld. Их можно восстановить через Finder.";
-"storage.msg.canceling" = "Отмена…";
 "storage.status.header" = "Текущее сканирование";
 "storage.status.folder" = "Выбранная папка";
 "storage.status.folder_none" = "Папка не выбрана";
@@ -163,7 +162,6 @@
 "junk.section.wrong_path_desc" = "Ненужные файлы находятся в ~/Library. Нажмите «Изменить», чтобы выбрать свою папку ~/Library.";
 "junk.item.select_all" = "Выбрать все";
 "junk.item.deselect_all" = "Снять выбор";
-"junk.item.more" = "и ещё объектов: %ld…";
 "junk.item.show_more" = "Показать ещё %ld объектов";
 "junk.item.show_less" = "Показать только первые 30 объектов";
 "junk.section.access_title" = "Доступ к папке истёк";

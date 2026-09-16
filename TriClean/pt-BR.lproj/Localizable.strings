@@ -87,7 +87,6 @@
 "storage.alert.delete.msg_folder" = "A pasta “%@” será movida para o Lixo. Você pode restaurá-la no Finder.";
 "storage.alert.delete.msg_file" = "O arquivo “%@” será movido para o Lixo. Você pode restaurá-lo no Finder.";
 "storage.alert.delete.msg_multi" = "%ld itens selecionados serão movidos para o Lixo. Você pode restaurá-los no Finder.";
-"storage.msg.canceling" = "Cancelando…";
 "storage.status.header" = "Escaneamento atual";
 "storage.status.folder" = "Pasta selecionada";
 "storage.status.folder_none" = "Nenhuma pasta selecionada";
@@ -157,7 +156,6 @@
 "junk.section.wrong_path_desc" = "Os arquivos desnecessários ficam em ~/Library. Toque em “Alterar” para selecionar sua pasta ~/Library.";
 "junk.item.select_all" = "Selecionar tudo";
 "junk.item.deselect_all" = "Desmarcar tudo";
-"junk.item.more" = "e mais %ld itens…";
 "junk.item.show_more" = "Mostrar mais %ld itens";
 "junk.item.show_less" = "Mostrar apenas os primeiros 30 itens";
 "junk.section.access_title" = "Acesso à pasta expirou";

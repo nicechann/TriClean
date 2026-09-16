@@ -87,7 +87,6 @@
 "storage.alert.delete.msg_folder" = "La cartella «%@» verrà spostata nel Cestino. Puoi ripristinarla dal Finder.";
 "storage.alert.delete.msg_file" = "Il file «%@» verrà spostato nel Cestino. Puoi ripristinarlo dal Finder.";
 "storage.alert.delete.msg_multi" = "%ld elementi selezionati verranno spostati nel Cestino. Puoi ripristinarli dal Finder.";
-"storage.msg.canceling" = "Annullamento…";
 "storage.status.header" = "Scansione corrente";
 "storage.status.folder" = "Cartella selezionata";
 "storage.status.folder_none" = "Nessuna cartella selezionata";
@@ -157,7 +156,6 @@
 "junk.section.wrong_path_desc" = "I file inutili si trovano in ~/Library. Tocca «Cambia» per selezionare la tua cartella ~/Library.";
 "junk.item.select_all" = "Seleziona tutto";
 "junk.item.deselect_all" = "Deseleziona tutto";
-"junk.item.more" = "e altri %ld elementi…";
 "junk.item.show_more" = "Mostra altri %ld elementi";
 "junk.item.show_less" = "Mostra solo i primi 30 elementi";
 "junk.section.access_title" = "Accesso alla cartella scaduto";

@@ -89,7 +89,6 @@
 "storage.alert.delete.msg_folder" = "Ordner „%@“ wird in den Papierkorb verschoben. Sie können ihn über den Finder wiederherstellen.";
 "storage.alert.delete.msg_file" = "Datei „%@“ wird in den Papierkorb verschoben. Sie können sie über den Finder wiederherstellen.";
 "storage.alert.delete.msg_multi" = "%ld ausgewählte Elemente werden in den Papierkorb verschoben. Sie können sie über den Finder wiederherstellen.";
-"storage.msg.canceling" = "Wird abgebrochen…";
 
 /* Apps View */
 "apps.header.uninstall" = "Installierte Apps";
@@ -312,7 +311,6 @@
 /* Junk item selection */
 "junk.item.select_all" = "Alle auswählen";
 "junk.item.deselect_all" = "Auswahl aufheben";
-"junk.item.more" = "und %ld weitere Elemente…";
 "junk.item.show_more" = "Weitere %ld Elemente anzeigen";
 "junk.item.show_less" = "Nur die ersten 30 Elemente anzeigen";
 

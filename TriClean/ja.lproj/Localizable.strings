@@ -89,7 +89,6 @@
 "storage.alert.delete.msg_folder" = "「%@」フォルダをゴミ箱に移動します。Finderから復元できます。";
 "storage.alert.delete.msg_file" = "「%@」ファイルをゴミ箱に移動します。Finderから復元できます。";
 "storage.alert.delete.msg_multi" = "選択した %ld 個の項目をゴミ箱に移動します。Finderから復元できます。";
-"storage.msg.canceling" = "キャンセル中…";
 
 /* Apps View */
 "apps.header.uninstall" = "インストール済みのApp";
@@ -312,7 +311,6 @@
 /* Junk item selection */
 "junk.item.select_all" = "すべて選択";
 "junk.item.deselect_all" = "選択解除";
-"junk.item.more" = "他 %ld 件…";
 "junk.item.show_more" = "残り%ld項目をすべて表示";
 "junk.item.show_less" = "最初の30項目のみ表示";
 

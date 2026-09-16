@@ -89,7 +89,6 @@
 "storage.alert.delete.msg_folder" = "Le dossier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
 "storage.alert.delete.msg_file" = "Le fichier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
 "storage.alert.delete.msg_multi" = "Les %ld éléments sélectionnés seront placés dans la corbeille. Vous pouvez les restaurer depuis le Finder.";
-"storage.msg.canceling" = "Annulation…";
 
 /* Apps View */
 "apps.header.uninstall" = "Apps installées";
@@ -312,7 +311,6 @@
 /* Junk item selection */
 "junk.item.select_all" = "Tout sélectionner";
 "junk.item.deselect_all" = "Tout désélectionner";
-"junk.item.more" = "et %ld éléments de plus…";
 "junk.item.show_more" = "Afficher %ld éléments supplémentaires";
 "junk.item.show_less" = "Afficher uniquement les 30 premiers éléments";
 

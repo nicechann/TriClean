@@ -93,7 +93,6 @@
 "storage.alert.delete.msg_folder" = "Folder „%@” zostanie przeniesiony do Kosza. Możesz go przywrócić z Findera.";
 "storage.alert.delete.msg_file" = "Plik „%@” zostanie przeniesiony do Kosza. Możesz go przywrócić z Findera.";
 "storage.alert.delete.msg_multi" = "Wybranych elementów do przeniesienia do Kosza: %ld. Możesz je przywrócić z Findera.";
-"storage.msg.canceling" = "Anulowanie…";
 "storage.status.header" = "Bieżące skanowanie";
 "storage.status.folder" = "Wybrany folder";
 "storage.status.folder_none" = "Nie wybrano folderu";
@@ -163,7 +162,6 @@
 "junk.section.wrong_path_desc" = "Zbędne pliki znajdują się w ~/Library. Dotknij „Zmień”, aby wybrać swój folder ~/Library.";
 "junk.item.select_all" = "Zaznacz wszystko";
 "junk.item.deselect_all" = "Odznacz wszystko";
-"junk.item.more" = "oraz kolejnych elementów: %ld…";
 "junk.item.show_more" = "Pokaż pozostałe elementy: %ld";
 "junk.item.show_less" = "Pokaż tylko pierwsze 30 elementów";
 "junk.section.access_title" = "Dostęp do folderu wygasł";
