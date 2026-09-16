@@ -589,7 +589,7 @@ final class JunkScannerViewModel: ObservableObject {
         let started = securityScopedURL.startAccessingSecurityScopedResource()
         guard started else {
             Logger(subsystem: "com.nicechann.TriClean", category: "JunkCleanup").error(
-                "Security-scoped access failed for \(securityScopedURL.path, privacy: .public)"
+                "Security-scoped access failed for \(securityScopedURL.path, privacy: .private)"
             )
             return CleanOutcome(
                 succeededIDs: [],

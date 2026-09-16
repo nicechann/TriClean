@@ -640,7 +640,7 @@ final class PhotoScannerViewModel: ObservableObject {
 
             guard started || hasPersistentAccess else {
                 Logger(subsystem: "com.nicechann.TriClean", category: "PhotoCleanup").error(
-                    "Security-scoped access failed for \(scopeURL.path, privacy: .public)"
+                    "Security-scoped access failed for \(scopeURL.path, privacy: .private)"
                 )
                 await MainActor.run {
                     self.isDeleting = false

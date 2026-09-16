@@ -120,7 +120,7 @@ nonisolated enum TrashService {
             } catch {
                 let trashFailure = Failure(url: targetURL, error: error)
                 logger.warning(
-                    "FileManager trash failed path=\(trashFailure.path, privacy: .public) domain=\(trashFailure.domain, privacy: .public) code=\(trashFailure.code) message=\(trashFailure.message, privacy: .public)"
+                    "FileManager trash failed path=\(trashFailure.path, privacy: .private) domain=\(trashFailure.domain, privacy: .public) code=\(trashFailure.code) message=\(trashFailure.message, privacy: .private)"
                 )
 
                 // 폴백 직전에도 같은 항목인지 다시 확인한다.
@@ -136,7 +136,7 @@ nonisolated enum TrashService {
 
                 if let workspaceFailure = await recycleUsingWorkspace(targetURL) {
                     logger.error(
-                        "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .public) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .public)"
+                        "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .private) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .private)"
                     )
                     failed.append(target)
                     if firstFailure == nil { firstFailure = workspaceFailure }

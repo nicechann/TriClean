@@ -527,7 +527,7 @@ final class DuplicateScannerViewModel: ObservableObject {
                 let started = scopeURL.startAccessingSecurityScopedResource()
                 guard started else {
                     Logger(subsystem: "com.nicechann.TriClean", category: "DuplicateCleanup").error(
-                        "Security-scoped access failed for \(scopeURL.path, privacy: .public)"
+                        "Security-scoped access failed for \(scopeURL.path, privacy: .private)"
                     )
                     return DeleteOutcome(
                         succeeded: [],
@@ -950,7 +950,7 @@ final class DuplicateScannerViewModel: ObservableObject {
                 chunk = try autoreleasepool { try handle.read(upToCount: bufferSize) }
             } catch {
                 Logger(subsystem: "com.nicechann.TriClean", category: "DuplicateScan").warning(
-                    "Full hash read failed path=\(url.path, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                    "Full hash read failed path=\(url.path, privacy: .private) error=\(error.localizedDescription, privacy: .private)"
                 )
                 return nil
             }

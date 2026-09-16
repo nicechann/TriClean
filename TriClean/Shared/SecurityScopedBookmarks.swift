@@ -58,7 +58,7 @@ final class SecurityScopedBookmarkStore {
             return true
         } catch {
             bookmarkLogger.error(
-                "북마크 저장 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                "북마크 저장 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .private)"
             )
             return false
         }
@@ -132,7 +132,7 @@ final class SecurityScopedBookmarkStore {
             return true
         } catch {
             bookmarkLogger.error(
-                "북마크 다중 저장 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                "북마크 다중 저장 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .private)"
             )
             return false
         }
@@ -148,7 +148,7 @@ final class SecurityScopedBookmarkStore {
             datas = try PropertyListDecoder().decode([Data].self, from: blob)
         } catch {
             bookmarkLogger.error(
-                "북마크 다중 복원 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                "북마크 다중 복원 실패 key=\(key.rawValue, privacy: .public) error=\(error.localizedDescription, privacy: .private)"
             )
             return []
         }
