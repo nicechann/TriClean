@@ -16,16 +16,20 @@ struct MemoryView: View {
     @State private var trayMessage = ""
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
+        ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 16) {
                 headerSection
                 disclaimerSection
                 compositionSection
                 significantAppsSection
-                Spacer()
             }
             .padding()
-
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        // 창 높이가 본문보다 작아져도 콘텐츠의 상단을 유지하고 세로 스크롤로 접근 가능하게 한다.
+        // 기존 ZStack(.bottomTrailing)은 큰 본문까지 하단 기준으로 정렬해 상단 콘텐츠가 창 밖으로 밀릴 수 있었다.
+        .hardTopScrollEdge()
+        .overlay(alignment: .bottomTrailing) {
             if showTray {
                 TrayView(message: trayMessage)
                     .padding()
