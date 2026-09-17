@@ -50,11 +50,20 @@ final class StoreManager: ObservableObject {
     #endif
 
     init() {
+        // 앱 밖(App Store/리딤 URL)에서 완료된 Offer Code 거래를 놓치지 않도록
+        // updates 리스너를 가장 먼저 등록합니다.
         updatesTask = listenForTransactions()
+
         Task {
-            async let statusTask: Void  = updatePurchasedStatus()
+            // 상품 정보 로드는 구매 상태 복구와 독립적이므로 병렬로 진행합니다.
             async let productsTask: Void = loadProducts()
-            _ = await (statusTask, productsTask)
+
+            // 앱이 종료되어 있던 동안 생성된 미처리 거래를 먼저 복구합니다.
+            // Apple은 앱 시작 시 currentEntitlements와 unfinished를 모두 확인하도록 안내합니다.
+            let recoveredUnfinishedPurchase = await processUnfinishedTransactions()
+            _ = await updatePurchasedStatus(fallbackPurchased: recoveredUnfinishedPurchase)
+
+            _ = await productsTask
         }
     }
 
@@ -74,8 +83,17 @@ final class StoreManager: ObservableObject {
         switch result {
         case .success(let verification):
             let transaction = try verified(verification)
+            guard transaction.productID == productID else {
+                storeLogger.error(
+                    "구매 결과 Product ID 불일치: expected=\(self.productID, privacy: .public), actual=\(transaction.productID, privacy: .public)"
+                )
+                throw StoreError.productUnavailable
+            }
+
+            // 구매 콘텐츠(Lifetime Access)를 먼저 반영한 뒤 거래를 finish합니다.
+            // finish를 먼저 호출하면 외부 거래 처리 시점에 UI 상태 갱신이 늦어질 수 있습니다.
+            publishPurchaseState(true)
             await transaction.finish()
-            await updatePurchasedStatus()
         case .userCancelled, .pending:
             break
         @unknown default:
@@ -90,12 +108,10 @@ final class StoreManager: ObservableObject {
 
         try await AppStore.sync()
 
-        // 복원 요청의 결과를 이 호출에서 직접 확정합니다. Transaction.updates 등에서
-        // 시작된 이전 상태 조회가 뒤늦게 완료돼 결과를 덮지 않도록 세대도 갱신합니다.
-        let restored = await resolvePurchasedStatus()
-        purchaseStateGeneration &+= 1
-        isPurchased = restored
-        hasLoadedPurchaseState = true
+        // App Store 밖에서 Offer Code를 Redeem한 거래가 unfinished에 남아 있을 수 있으므로
+        // sync 직후 미처리 거래를 먼저 회수한 다음 currentEntitlements와 합쳐 판정합니다.
+        let recoveredUnfinishedPurchase = await processUnfinishedTransactions()
+        let restored = await updatePurchasedStatus(fallbackPurchased: recoveredUnfinishedPurchase)
 
         guard restored else {
             throw StoreError.noPurchaseToRestore
@@ -136,16 +152,82 @@ final class StoreManager: ObservableObject {
                 guard let self else { return }
                 do {
                     let transaction = try self.verified(result)
-                    await transaction.finish()
-                    if transaction.productID == self.productID {
+
+                    // 이 StoreManager가 소유한 Lifetime 상품만 처리합니다.
+                    // 다른 상품의 거래를 여기서 임의로 finish하면 해당 상품의 전달 로직이
+                    // 실행되기 전에 거래가 완료될 수 있으므로 건드리지 않습니다.
+                    guard transaction.productID == self.productID else {
+                        storeLogger.notice(
+                            "처리 대상이 아닌 거래 건너뜀: productID=\(transaction.productID, privacy: .public)"
+                        )
+                        continue
+                    }
+
+                    if transaction.revocationDate == nil {
+                        // App Store/Offer Code 등 앱 밖에서 발생한 정상 거래는
+                        // currentEntitlements 재조회보다 거래 자체를 우선 반영해 즉시 잠금 해제합니다.
+                        self.publishPurchaseState(true)
+                    } else {
+                        // 환불/취소된 거래는 현재 entitlement를 다시 계산합니다.
                         await self.updatePurchasedStatus()
                     }
+
+                    // 서비스 반영 후에만 거래를 완료합니다.
+                    await transaction.finish()
                 } catch {
                     storeLogger.warning("Transaction verification failed: \(error.localizedDescription, privacy: .public)")
                     continue
                 }
             }
         }
+    }
+
+    /// 앱이 실행되지 않는 동안 생성된 미처리 StoreKit 거래를 복구합니다.
+    /// 특히 App Store에서 Offer Code를 교환한 뒤 앱을 처음 실행하는 경로를 보완합니다.
+    /// - Returns: 유효한 Lifetime 거래를 하나 이상 복구했는지 여부.
+    private func processUnfinishedTransactions() async -> Bool {
+        #if DEBUG
+        // DEBUG에서 Free/Pro를 명시적으로 강제한 경우 테스트 상태를 StoreKit이 덮지 않게 합니다.
+        if UserDefaults.standard.object(forKey: "debug.purchaseOverride") != nil {
+            return false
+        }
+        #endif
+
+        var recoveredPurchase = false
+
+        for await result in Transaction.unfinished {
+            do {
+                let transaction = try verified(result)
+
+                guard transaction.productID == productID else {
+                    storeLogger.notice(
+                        "처리 대상이 아닌 unfinished 거래 건너뜀: productID=\(transaction.productID, privacy: .public)"
+                    )
+                    continue
+                }
+
+                if transaction.revocationDate == nil {
+                    recoveredPurchase = true
+                    publishPurchaseState(true)
+                    storeLogger.info(
+                        "미처리 Lifetime 거래 복구: transactionID=\(transaction.id, privacy: .public)"
+                    )
+                } else {
+                    storeLogger.info(
+                        "취소/환불된 미처리 Lifetime 거래 정리: transactionID=\(transaction.id, privacy: .public)"
+                    )
+                }
+
+                // Lifetime Access 반영(또는 취소 상태 확인) 후 거래를 완료합니다.
+                await transaction.finish()
+            } catch {
+                storeLogger.warning(
+                    "Unfinished transaction verification failed: \(error.localizedDescription, privacy: .public)"
+                )
+            }
+        }
+
+        return recoveredPurchase
     }
 
     private struct Version: Comparable {
@@ -172,13 +254,37 @@ final class StoreManager: ObservableObject {
 
     /// 구매 상태 갱신은 여러 경로(초기화·구매·복원·Transaction.updates)에서
     /// 동시에 요청될 수 있습니다. 세대 번호로 오래된 결과가 최신 상태를 덮지 않게 합니다.
-    private func updatePurchasedStatus() async {
+    /// `fallbackPurchased`는 방금 검증한 unfinished 거래처럼 currentEntitlements 반영보다
+    /// 한 박자 빠르게 확인된 구매를 이번 판정에 보존하기 위한 값입니다.
+    @discardableResult
+    private func updatePurchasedStatus(fallbackPurchased: Bool = false) async -> Bool {
         purchaseStateGeneration &+= 1
         let generation = purchaseStateGeneration
         let resolved = await resolvePurchasedStatus()
 
-        guard generation == purchaseStateGeneration else { return }
-        isPurchased = resolved
+        // 조회 중 Transaction.updates 등 더 최신 이벤트가 상태를 갱신했다면
+        // 오래된 조회 결과를 덮지 않고 현재 최신 상태를 그대로 사용합니다.
+        guard generation == purchaseStateGeneration else { return isPurchased }
+
+        isPurchased = resolved || fallbackPurchased
+        hasLoadedPurchaseState = true
+        return isPurchased
+    }
+
+    /// 이미 검증을 마친 거래/복원 결과를 즉시 UI 상태에 반영합니다.
+    /// 진행 중이던 이전 entitlement 조회 결과가 뒤늦게 덮지 못하도록 세대도 함께 올립니다.
+    private func publishPurchaseState(_ purchased: Bool) {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: "debug.purchaseOverride") != nil {
+            isPurchased = UserDefaults.standard.bool(forKey: "debug.purchaseOverride")
+            hasLoadedPurchaseState = true
+            purchaseStateGeneration &+= 1
+            return
+        }
+        #endif
+
+        purchaseStateGeneration &+= 1
+        isPurchased = purchased
         hasLoadedPurchaseState = true
     }
 
@@ -197,10 +303,22 @@ final class StoreManager: ObservableObject {
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try verified(result)
-                if transaction.productID == productID {
+                guard transaction.productID == productID else {
+                    storeLogger.notice(
+                        "현재 entitlement의 Product ID 불일치: expected=\(self.productID, privacy: .public), actual=\(transaction.productID, privacy: .public)"
+                    )
+                    continue
+                }
+
+                // currentEntitlements는 원칙적으로 현재 유효한 권한만 반환하지만,
+                // 환불/취소 상태를 한 번 더 방어적으로 확인합니다.
+                if transaction.revocationDate == nil {
                     return true
                 }
             } catch {
+                storeLogger.warning(
+                    "Current entitlement verification failed: \(error.localizedDescription, privacy: .public)"
+                )
                 continue
             }
         }
