@@ -237,8 +237,12 @@ final class MemoryViewModel: ObservableObject {
         guard app.pid > 0 else { return }
         guard let running = NSRunningApplication(processIdentifier: app.pid) else { return }
         let raw = UserDefaults.standard.string(forKey: "significantAppActivationMode") ?? "single"
-        var options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
-        if raw == "all" { options.insert(NSApplication.ActivationOptions.activateAllWindows) }
+        var options: NSApplication.ActivationOptions = []
+        if raw == "all" { options.insert(.activateAllWindows) }
+
+        // macOS 14+: 사용자가 TriClean에서 대상 앱을 직접 선택한 흐름이므로
+        // cooperative activation으로 활성 상태를 넘긴 뒤 대상 앱을 활성화합니다.
+        NSApp.yieldActivation(to: running)
         _ = running.activate(options: options)
     }
 

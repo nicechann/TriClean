@@ -177,7 +177,7 @@ struct TriCleanApp: App {
                     .appFont(.body)
                     .environment(\.appTypography, typography)
             }
-            .onChange(of: scenePhase) { newPhase in
+            .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     // ✅ 시스템 설정에서 알림 권한이 바뀌었을 수 있으므로 활성화 시 예약을 보정
                     reminderManager.refreshSchedule()

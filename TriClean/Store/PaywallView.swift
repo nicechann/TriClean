@@ -162,7 +162,7 @@ struct PaywallView: View {
         .onAppear {
             if storeManager.isPurchased { dismiss() }
         }
-        .onChange(of: storeManager.isPurchased) { newValue in
+        .onChange(of: storeManager.isPurchased) { _, newValue in
             if newValue { dismiss() }
         }
         // ✅ [수정] 하드코딩 한국어 → localized 키로 교체
