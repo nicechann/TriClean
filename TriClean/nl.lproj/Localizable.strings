@@ -300,6 +300,11 @@
 "duplicate.action.apply_recommended.help" = "Bewaart in elke duplicaatgroep het bestand dat het meest waarschijnlijk het origineel is en selecteert de rest automatisch om op te ruimen.";
 "duplicate.action.clear_selection" = "Wis selectie";
 "duplicate.action.clear_selection.help" = "Wist alle voor opruiming geselecteerde items en zet elk bestand terug op ‘Bewaar’.";
+"duplicate.action.export_csv" = "CSV exporteren";
+"duplicate.action.export_csv.help" = "Exporteert de resultaten van dubbele bestanden als CSV-bestand.";
+"duplicate.export.panel.title" = "Resultaten van dubbele bestanden exporteren";
+"duplicate.export.status.done" = "CSV geëxporteerd: %@";
+"duplicate.export.status.failed" = "CSV kon niet worden geëxporteerd: %@";
 "duplicate.footer.summary" = "%ld groepen · %ld bestanden geselecteerd · %@ terug te winnen";
 "duplicate.footer.delete" = "Ruim duplicaten op (%ld, %@)";
 "duplicate.group.header" = "%ld identieke bestanden · %@ per stuk";

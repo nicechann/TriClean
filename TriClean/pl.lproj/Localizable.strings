@@ -306,6 +306,11 @@
 "duplicate.action.apply_recommended.help" = "Zachowuje w każdej grupie duplikatów plik, który najprawdopodobniej jest oryginałem, a pozostałe automatycznie zaznacza do usunięcia.";
 "duplicate.action.clear_selection" = "Wyczyść zaznaczenie";
 "duplicate.action.clear_selection.help" = "Czyści wszystkie elementy zaznaczone do usunięcia i przywraca każdy plik do stanu „Zachowaj”.";
+"duplicate.action.export_csv" = "Eksportuj CSV";
+"duplicate.action.export_csv.help" = "Eksportuje wyniki duplikatów plików do pliku CSV.";
+"duplicate.export.panel.title" = "Eksportuj wyniki duplikatów";
+"duplicate.export.status.done" = "Wyeksportowano CSV: %@";
+"duplicate.export.status.failed" = "Nie udało się wyeksportować CSV: %@";
 "duplicate.footer.summary" = "Grup: %ld · zaznaczonych plików: %ld · do odzyskania %@";
 "duplicate.footer.delete" = "Wyczyść duplikaty (%ld, %@)";
 "duplicate.group.header" = "Identycznych plików: %ld · po %@";

@@ -23,6 +23,7 @@ import Foundation
 import Combine
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 import CryptoKit
 import os.log
 
@@ -452,6 +453,37 @@ final class DuplicateScannerViewModel: ObservableObject {
     /// 삭제 판단 전에 내용을 확인할 수 있도록 미리보기 대상을 만듭니다.
     func previewTarget(for file: DuplicateFile, in group: DuplicateGroup) -> QuickLookTarget {
         QuickLookTarget(url: file.url, sizeText: group.fileSizeString)
+    }
+
+    // MARK: - CSV 내보내기
+
+    func exportCSV() {
+        guard !groups.isEmpty else { return }
+
+        let panel = NSSavePanel()
+        panel.title = "duplicate.export.panel.title".localized
+        panel.nameFieldStringValue = Self.defaultCSVFilename()
+        panel.allowedContentTypes = [.commaSeparatedText]
+        panel.allowsOtherFileTypes = false
+        panel.canCreateDirectories = true
+        panel.isExtensionHidden = false
+
+        guard panel.runModal() == .OK, let destinationURL = panel.url else { return }
+
+        do {
+            let data = DuplicateCSVExporter.makeData(groups: groups)
+            try data.write(to: destinationURL, options: [.atomic])
+            statusMessage = "duplicate.export.status.done".localized(with: destinationURL.lastPathComponent)
+        } catch {
+            statusMessage = "duplicate.export.status.failed".localized(with: error.localizedDescription)
+        }
+    }
+
+    private static func defaultCSVFilename() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd_HHmmss"
+        return "TriClean_Duplicates_\(formatter.string(from: Date())).csv"
     }
 
     // MARK: - 삭제

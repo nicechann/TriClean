@@ -304,6 +304,11 @@
 "duplicate.action.apply_recommended.help" = "Her kopya grubunda özgün olma olasılığı en yüksek dosyayı saklar ve geri kalanını otomatik olarak temizlik için seçer.";
 "duplicate.action.clear_selection" = "Seçimi temizle";
 "duplicate.action.clear_selection.help" = "Temizlik için seçilen tüm öğeleri temizler ve her dosyayı “Sakla” durumuna döndürür.";
+"duplicate.action.export_csv" = "CSV’yi Dışa Aktar";
+"duplicate.action.export_csv.help" = "Yinelenen dosya sonuçlarını CSV dosyası olarak dışa aktarır.";
+"duplicate.export.panel.title" = "Yinelenen Dosya Sonuçlarını Dışa Aktar";
+"duplicate.export.status.done" = "CSV dışa aktarıldı: %@";
+"duplicate.export.status.failed" = "CSV dışa aktarılamadı: %@";
 "duplicate.footer.summary" = "Grup: %ld · seçilen dosya: %ld · geri kazanılabilir %@";
 "duplicate.footer.delete" = "Kopyaları temizle (%ld, %@)";
 "duplicate.group.header" = "%ld aynı dosya · her biri %@";

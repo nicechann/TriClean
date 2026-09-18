@@ -300,6 +300,11 @@
 "duplicate.action.apply_recommended.help" = "在每個重複檔案群組中保留一個最可能是原始檔的檔案，並自動選擇其餘檔案進行清理。";
 "duplicate.action.clear_selection" = "清除選擇";
 "duplicate.action.clear_selection.help" = "清除所有待清理的選擇，將所有檔案回復為保留狀態。";
+"duplicate.action.export_csv" = "匯出 CSV";
+"duplicate.action.export_csv.help" = "將重複檔案結果匯出為 CSV 檔案。";
+"duplicate.export.panel.title" = "匯出重複檔案結果";
+"duplicate.export.status.done" = "CSV 已匯出：%@";
+"duplicate.export.status.failed" = "無法匯出 CSV：%@";
 "duplicate.footer.summary" = "%ld 個群組 · 已選 %ld 個檔案 · 可回收 %@";
 "duplicate.footer.delete" = "清理重複檔案（%ld 個，%@）";
 "duplicate.group.header" = "%ld 個相同檔案 · 每個 %@";

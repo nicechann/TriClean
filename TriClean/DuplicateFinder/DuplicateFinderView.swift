@@ -255,6 +255,19 @@ struct DuplicateFinderView: View {
                 .disabled(!viewModel.canDeleteSelected)
                 .help("duplicate.action.clear_selection.help".localized)
 
+                Button {
+                    if storeManager.isPurchased {
+                        viewModel.exportCSV()
+                    } else {
+                        showPaywall = true
+                    }
+                } label: {
+                    Label("duplicate.action.export_csv".localized, systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("duplicate.action.export_csv.help".localized)
+
                 Spacer()
 
                 Text(viewModel.statusMessage)

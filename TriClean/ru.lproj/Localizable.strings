@@ -306,6 +306,11 @@
 "duplicate.action.apply_recommended.help" = "Сохраняет в каждой группе дубликатов файл, который с наибольшей вероятностью является оригиналом, а остальные автоматически выбирает для очистки.";
 "duplicate.action.clear_selection" = "Снять выбор";
 "duplicate.action.clear_selection.help" = "Снимает выбор со всех объектов и возвращает каждый файл в состояние «Сохранить».";
+"duplicate.action.export_csv" = "Экспорт CSV";
+"duplicate.action.export_csv.help" = "Экспортирует результаты поиска дубликатов в файл CSV.";
+"duplicate.export.panel.title" = "Экспорт результатов дубликатов";
+"duplicate.export.status.done" = "CSV экспортирован: %@";
+"duplicate.export.status.failed" = "Не удалось экспортировать CSV: %@";
 "duplicate.footer.summary" = "Групп: %ld · выбрано файлов: %ld · освободится %@";
 "duplicate.footer.delete" = "Очистить дубликаты (%ld, %@)";
 "duplicate.group.header" = "Одинаковых файлов: %ld · по %@";

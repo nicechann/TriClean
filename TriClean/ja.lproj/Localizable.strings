@@ -410,6 +410,11 @@
 
 "duplicate.action.clear_selection" = "選択解除";
 "duplicate.action.clear_selection.help" = "選択中のクリーンアップ項目をすべてクリアし、すべてのファイルを保持状態に戻します。";
+"duplicate.action.export_csv" = "CSVを書き出す";
+"duplicate.action.export_csv.help" = "重複ファイルの結果をCSVファイルとして書き出します。";
+"duplicate.export.panel.title" = "重複ファイルの結果を書き出す";
+"duplicate.export.status.done" = "CSVを書き出しました: %@";
+"duplicate.export.status.failed" = "CSVを書き出せませんでした: %@";
 "duplicate.status.selection_cleared" = "クリーンアップ選択をすべて解除しました。";
 
 /* Duplicate scan phase */

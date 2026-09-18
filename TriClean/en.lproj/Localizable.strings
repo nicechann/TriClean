@@ -418,6 +418,11 @@
 
 "duplicate.action.clear_selection" = "Clear Selection";
 "duplicate.action.clear_selection.help" = "Clears all selected cleanup items and returns every file to the keep state.";
+"duplicate.action.export_csv" = "Export CSV";
+"duplicate.action.export_csv.help" = "Export the duplicate file results as a CSV file.";
+"duplicate.export.panel.title" = "Export Duplicate Results";
+"duplicate.export.status.done" = "CSV exported: %@";
+"duplicate.export.status.failed" = "Could not export CSV: %@";
 "duplicate.status.selection_cleared" = "All cleanup selections were cleared.";
 
 /* Duplicate scan phase */

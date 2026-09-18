@@ -410,6 +410,11 @@
 
 "duplicate.action.clear_selection" = "Auswahl aufheben";
 "duplicate.action.clear_selection.help" = "Hebt alle ausgewählten Bereinigungselemente auf und stellt jede Datei in den Behalten-Status zurück.";
+"duplicate.action.export_csv" = "CSV exportieren";
+"duplicate.action.export_csv.help" = "Exportiert die Ergebnisse der doppelten Dateien als CSV-Datei.";
+"duplicate.export.panel.title" = "Ergebnisse doppelter Dateien exportieren";
+"duplicate.export.status.done" = "CSV exportiert: %@";
+"duplicate.export.status.failed" = "CSV konnte nicht exportiert werden: %@";
 "duplicate.status.selection_cleared" = "Alle Bereinigungsauswahlen wurden zurückgesetzt.";
 
 /* Duplicate scan phase */

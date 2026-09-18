@@ -410,6 +410,11 @@
 
 "duplicate.action.clear_selection" = "Effacer la sélection";
 "duplicate.action.clear_selection.help" = "Efface tous les éléments de nettoyage sélectionnés et remet chaque fichier en mode conservation.";
+"duplicate.action.export_csv" = "Exporter en CSV";
+"duplicate.action.export_csv.help" = "Exporte les résultats des fichiers en double dans un fichier CSV.";
+"duplicate.export.panel.title" = "Exporter les résultats des doublons";
+"duplicate.export.status.done" = "CSV exporté : %@";
+"duplicate.export.status.failed" = "Impossible d’exporter le CSV : %@";
 "duplicate.status.selection_cleared" = "Toutes les sélections de nettoyage ont été effacées.";
 
 /* Duplicate scan phase */

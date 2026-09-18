@@ -300,6 +300,11 @@
 "duplicate.action.apply_recommended.help" = "在每个重复文件组中保留一个最可能是原件的文件，并自动选择其余文件进行清理。";
 "duplicate.action.clear_selection" = "清除选择";
 "duplicate.action.clear_selection.help" = "清除所有待清理选择，将所有文件恢复为保留状态。";
+"duplicate.action.export_csv" = "导出 CSV";
+"duplicate.action.export_csv.help" = "将重复文件结果导出为 CSV 文件。";
+"duplicate.export.panel.title" = "导出重复文件结果";
+"duplicate.export.status.done" = "CSV 已导出：%@";
+"duplicate.export.status.failed" = "无法导出 CSV：%@";
 "duplicate.footer.summary" = "%ld 组 · 已选 %ld 个文件 · 可回收 %@";
 "duplicate.footer.delete" = "清理重复文件（%ld 个，%@）";
 "duplicate.group.header" = "%ld 个相同文件 · 每个 %@";

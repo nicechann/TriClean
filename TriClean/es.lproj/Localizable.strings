@@ -410,6 +410,11 @@
 
 "duplicate.action.clear_selection" = "Borrar selección";
 "duplicate.action.clear_selection.help" = "Borra todos los elementos de limpieza seleccionados y devuelve cada archivo al estado de conservación.";
+"duplicate.action.export_csv" = "Exportar CSV";
+"duplicate.action.export_csv.help" = "Exporta los resultados de archivos duplicados como un archivo CSV.";
+"duplicate.export.panel.title" = "Exportar resultados de duplicados";
+"duplicate.export.status.done" = "CSV exportado: %@";
+"duplicate.export.status.failed" = "No se pudo exportar el CSV: %@";
 "duplicate.status.selection_cleared" = "Se borraron todas las selecciones de limpieza.";
 
 /* Duplicate scan phase */

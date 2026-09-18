@@ -300,6 +300,11 @@
 "duplicate.action.apply_recommended.help" = "Mantém em cada grupo de duplicados o arquivo com maior probabilidade de ser o original e seleciona automaticamente os demais para limpeza.";
 "duplicate.action.clear_selection" = "Limpar seleção";
 "duplicate.action.clear_selection.help" = "Limpa todos os itens selecionados para limpeza e devolve cada arquivo ao estado “Manter”.";
+"duplicate.action.export_csv" = "Exportar CSV";
+"duplicate.action.export_csv.help" = "Exporta os resultados de arquivos duplicados como um arquivo CSV.";
+"duplicate.export.panel.title" = "Exportar resultados de duplicados";
+"duplicate.export.status.done" = "CSV exportado: %@";
+"duplicate.export.status.failed" = "Não foi possível exportar o CSV: %@";
 "duplicate.footer.summary" = "%ld grupos · %ld arquivos selecionados · %@ recuperáveis";
 "duplicate.footer.delete" = "Limpar duplicados (%ld, %@)";
 "duplicate.group.header" = "%ld arquivos idênticos · %@ cada";
