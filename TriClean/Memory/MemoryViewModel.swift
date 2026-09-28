@@ -253,9 +253,15 @@ final class MemoryViewModel: ObservableObject {
         var options: NSApplication.ActivationOptions = []
         if raw == "all" { options.insert(.activateAllWindows) }
 
-        // macOS 14+: 사용자가 TriClean에서 대상 앱을 직접 선택한 흐름이므로
-        // cooperative activation으로 활성 상태를 넘긴 뒤 대상 앱을 활성화합니다.
-        NSApp.yieldActivation(to: running)
+        if #available(macOS 14.0, *) {
+            // 사용자가 TriClean에서 대상 앱을 직접 선택한 흐름이므로
+            // cooperative activation으로 활성 상태를 넘긴 뒤 대상 앱을 활성화합니다.
+            NSApp.yieldActivation(to: running)
+        } else {
+            // macOS 13에는 cooperative activation이 없어 이 옵션이 다른 앱을 제치고
+            // 활성화하는 유일한 방법이다(14부터 deprecated).
+            options.insert(.activateIgnoringOtherApps)
+        }
         _ = running.activate(options: options)
     }
 

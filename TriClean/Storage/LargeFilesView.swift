@@ -251,7 +251,7 @@ struct LargeFilesView: View {
 
                 Spacer()
             }
-            .onChange(of: viewModel.topFolderSort) {
+            .onValueChange(of: viewModel.topFolderSort) { _ in
                 guard !viewModel.isScanning else { return }
                 viewModel.applyTopFolderSortFromDiscovered()
             }
