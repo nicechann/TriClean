@@ -161,6 +161,8 @@
 "apps.status.uninstall_partial_fail" = "%ld bundles d'apps déplacés, %ld ont échoué.";
 "apps.status.uninstall_all_fail" = "Impossible de placer les bundles d'apps sélectionnés dans la corbeille (autorisation requise).";
 "apps.status.appstore_reference_only" = "Les apps de l'App Store sont affichées à titre indicatif uniquement.";
+"apps.status.system_reference_only" = "Les apps système sont affichées à titre indicatif uniquement ; leurs données ne sont pas analysées.";
+"apps.status.running_skipped" = "%ld app(s) en cours d'exécution ont été ignorées. Quittez-les puis réessayez.";
 
 /* Settings View */
 "settings.display" = "Affichage";

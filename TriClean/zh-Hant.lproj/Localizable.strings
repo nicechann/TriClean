@@ -233,6 +233,8 @@
 "apps.status.uninstall_partial_fail" = "已移動 %ld 個應用程式套件，失敗 %ld 個。";
 "apps.status.uninstall_all_fail" = "無法將所選應用程式套件移到垃圾桶（需要權限）。";
 "apps.status.appstore_reference_only" = "App Store 應用程式僅供參考顯示。";
+"apps.status.system_reference_only" = "系統應用程式僅供參考顯示，不會掃描其相關資料。";
+"apps.status.running_skipped" = "已略過 %ld 個正在執行的應用程式。請結束後再試一次。";
 "apps.status.related_invalid" = "沒有可刪除的關聯檔案。%ld 個項目已變更，已跳過。";
 "apps.status.uninstall_invalid" = "沒有可移除的應用程式。%ld 個應用程式已變更，或不在允許的位置內。";
 "apps.status.related_summary" = "已移動 %1$ld 個關聯項目。失敗 %2$ld 個；重新驗證後跳過 %3$ld 個。";

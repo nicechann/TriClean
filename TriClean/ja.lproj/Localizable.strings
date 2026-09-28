@@ -161,6 +161,8 @@
 "apps.status.uninstall_partial_fail" = "%ld 個のAppバンドルを移動、%ld 個が失敗しました。";
 "apps.status.uninstall_all_fail" = "選択したAppバンドルをゴミ箱に移動できませんでした (アクセス権が必要)。";
 "apps.status.appstore_reference_only" = "App Store Appは参照のみ表示されます。";
+"apps.status.system_reference_only" = "システムAppは参照のみ表示され、関連データはスキャンされません。";
+"apps.status.running_skipped" = "実行中のApp %ld個を除外しました。Appを終了してから再度お試しください。";
 
 /* Settings View */
 "settings.display" = "表示";

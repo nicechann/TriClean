@@ -285,10 +285,12 @@ final class StorageViewModel: ObservableObject {
             .fileSizeKey
         ]
 
+        // 숨김 항목도 디스크를 차지한다. `.skipsHiddenFiles`를 쓰면 UF_HIDDEN 플래그가 붙은
+        // ~/Library와 `.Trash`·`.cache` 같은 점 폴더가 빠져, 수십 GB가 "기타"로 표시되었다.
         guard let enumerator = fileManager.enumerator(
             at: url,
             includingPropertiesForKeys: keys,
-            options: [.skipsHiddenFiles],
+            options: [],
             errorHandler: { _, _ in true }
         ) else {
             return 0

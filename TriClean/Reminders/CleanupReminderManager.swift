@@ -147,7 +147,7 @@ final class CleanupReminderManager: ObservableObject {
         let identifier = requestIdentifier
 
         operationTask = Task {
-            await refreshAuthStatus()
+            await refreshAuthStatusRequestingIfUndetermined()
 
             guard !Task.isCancelled,
                   isEnabled,
@@ -228,7 +228,7 @@ final class CleanupReminderManager: ObservableObject {
                 return
             }
 
-            await refreshAuthStatus()
+            await refreshAuthStatusRequestingIfUndetermined()
 
             guard !Task.isCancelled,
                   isEnabled,
@@ -239,6 +239,17 @@ final class CleanupReminderManager: ObservableObject {
 
             await schedule(identifier: identifier)
         }
+    }
+
+    /// 켜기 흐름(`startEnableFlow`)이 권한 요청 응답을 기다리는 동안 요일·시간 변경이나
+    /// 앱 활성화로 취소되면, 대체 작업은 아직 `.notDetermined`라서 예약 없이 끝났다.
+    /// 그러면 사용자가 허용을 눌러도 다음 활성화 전까지 알림이 예약되지 않는다.
+    /// 리마인더가 켜져 있는데 권한이 미결정이면 대체 작업이 직접 권한 응답을 기다린다.
+    private func refreshAuthStatusRequestingIfUndetermined() async {
+        await refreshAuthStatus()
+        guard isEnabled, authStatus == .notDetermined, !Task.isCancelled else { return }
+        _ = await requestAuthorizationIfNeeded()
+        await refreshAuthStatus()
     }
 
     private func disable() {

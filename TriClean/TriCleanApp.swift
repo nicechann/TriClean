@@ -228,7 +228,13 @@ struct TriCleanApp: App {
         NSApp.activate(ignoringOtherApps: true)
         
         // 메인 윈도우가 닫혀 있으면 새로 열고, 이미 있으면 앞으로 가져오기
-        if let window = NSApp.windows.first(where: { $0.isVisible }) ?? NSApp.windows.first {
+        // ⚠️ 단순히 "보이는 첫 창"을 고르면 항상 떠 있는 메뉴바(MenuBarExtra) 창이 잡혀
+        //    메인 창이 없는데도 openWindow가 호출되지 않고, 시트를 띄울 창이 없어 결제창이 뜨지 않았다.
+        //    메인 창이 될 수 있는 일반 창만 대상으로 삼는다.
+        let mainWindow = NSApp.windows.first { window in
+            window.canBecomeMain && !(window is NSPanel) && (window.isVisible || window.isMiniaturized)
+        }
+        if let window = mainWindow {
             window.deminiaturize(nil)
             window.makeKeyAndOrderFront(nil)
         } else {

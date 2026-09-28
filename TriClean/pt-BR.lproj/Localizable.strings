@@ -233,6 +233,8 @@
 "apps.status.uninstall_partial_fail" = "%ld pacotes de apps movidos, %ld falharam.";
 "apps.status.uninstall_all_fail" = "Não foi possível mover os pacotes selecionados para o Lixo (permissão necessária).";
 "apps.status.appstore_reference_only" = "Apps da App Store são exibidos apenas para referência.";
+"apps.status.system_reference_only" = "Apps do sistema são exibidos apenas para referência; seus dados não são analisados.";
+"apps.status.running_skipped" = "%ld app(s) em execução foram ignorados. Encerre-os e tente novamente.";
 "apps.status.related_invalid" = "Nenhum arquivo relacionado pode ser removido. Itens alterados e ignorados: %ld.";
 "apps.status.uninstall_invalid" = "Nenhum app pode ser removido. Apps alterados ou fora do local permitido: %ld.";
 "apps.status.related_summary" = "Itens relacionados movidos: %1$ld. Falhas: %2$ld; ignorados após revalidação: %3$ld.";

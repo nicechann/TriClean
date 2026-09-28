@@ -161,6 +161,8 @@
 "apps.status.uninstall_partial_fail" = "%ld App-Bundles verschoben, %ld fehlgeschlagen.";
 "apps.status.uninstall_all_fail" = "Ausgewählte App-Bundles konnten nicht in den Papierkorb verschoben werden (Berechtigung erforderlich).";
 "apps.status.appstore_reference_only" = "App-Store-Apps werden nur zur Information angezeigt.";
+"apps.status.system_reference_only" = "System-Apps werden nur zur Information angezeigt; ihre Daten werden nicht gescannt.";
+"apps.status.running_skipped" = "%ld laufende App(s) wurden übersprungen. Beende sie und versuche es erneut.";
 
 /* Settings View */
 "settings.display" = "Anzeige";

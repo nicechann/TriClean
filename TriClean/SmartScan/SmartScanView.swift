@@ -69,6 +69,11 @@ struct SmartScanView: View {
         junkViewModel.isScanning || duplicateViewModel.isScanning || appsViewModel.isLoadingInstalledApps
     }
 
+    /// 정리·삭제가 진행 중이면 재스캔 결과가 삭제 완료 처리와 섞이므로 스캔을 막는다.
+    private var isCleaningUp: Bool {
+        junkViewModel.isCleaning || duplicateViewModel.isDeleting || appsViewModel.isRemoving
+    }
+
     private var memoryUsagePercent: Int {
         let total = max(memoryViewModel.stats.totalBytes, 1)
         return Int((Double(memoryViewModel.realUsedBytes) / Double(total)) * 100.0)
@@ -149,7 +154,7 @@ struct SmartScanView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
-            .disabled(isScanning)
+            .disabled(isScanning || isCleaningUp)
         }
     }
 
@@ -484,15 +489,15 @@ struct SmartScanView: View {
         memoryViewModel.refresh()
         viewModel.refreshDiskInfo()
 
-        if junkViewModel.libraryURL != nil, !junkViewModel.isScanning {
+        if junkViewModel.libraryURL != nil, !junkViewModel.isScanning, !junkViewModel.isCleaning {
             junkViewModel.scan()
         }
 
-        if duplicateViewModel.scanFolderURL != nil, !duplicateViewModel.isScanning {
+        if duplicateViewModel.scanFolderURL != nil, !duplicateViewModel.isScanning, !duplicateViewModel.isDeleting {
             duplicateViewModel.scan()
         }
 
-        if appsViewModel.applicationsFolderURL != nil, !appsViewModel.isLoadingInstalledApps {
+        if appsViewModel.applicationsFolderURL != nil, !appsViewModel.isLoadingInstalledApps, !appsViewModel.isRemoving {
             appsViewModel.loadInstalledApps()
         }
     }

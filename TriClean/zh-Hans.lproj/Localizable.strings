@@ -233,6 +233,8 @@
 "apps.status.uninstall_partial_fail" = "已移动 %ld 个应用程序包，失败 %ld 个。";
 "apps.status.uninstall_all_fail" = "无法将所选应用程序包移到废纸篓（需要权限）。";
 "apps.status.appstore_reference_only" = "App Store 应用仅供参考显示。";
+"apps.status.system_reference_only" = "系统应用仅供参考显示，不会扫描其相关数据。";
+"apps.status.running_skipped" = "已跳过 %ld 个正在运行的应用。请退出后重试。";
 "apps.status.related_invalid" = "没有可删除的关联文件。%ld 个项目已变更，已跳过。";
 "apps.status.uninstall_invalid" = "没有可移除的应用。%ld 个应用已变更，或不在允许的位置内。";
 "apps.status.related_summary" = "已移动 %1$ld 个关联项目。失败 %2$ld 个；重新校验后跳过 %3$ld 个。";

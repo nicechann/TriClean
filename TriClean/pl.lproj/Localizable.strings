@@ -239,6 +239,8 @@
 "apps.status.uninstall_partial_fail" = "Przeniesiono pakietów aplikacji: %ld, niepowodzeń: %ld.";
 "apps.status.uninstall_all_fail" = "Nie można przenieść wybranych pakietów aplikacji do Kosza (wymagane uprawnienie).";
 "apps.status.appstore_reference_only" = "Aplikacje z App Store są wyświetlane wyłącznie informacyjnie.";
+"apps.status.system_reference_only" = "Aplikacje systemowe są wyświetlane wyłącznie informacyjnie; ich dane nie są skanowane.";
+"apps.status.running_skipped" = "Pominięto uruchomione aplikacje: %ld. Zamknij je i spróbuj ponownie.";
 "apps.status.related_invalid" = "Nie można usunąć żadnych plików powiązanych. Pominiętych z powodu zmian: %ld.";
 "apps.status.uninstall_invalid" = "Nie można usunąć żadnych aplikacji. Zmienionych lub poza dozwoloną lokalizacją: %ld.";
 "apps.status.related_summary" = "Przeniesiono elementów powiązanych: %1$ld. Niepowodzeń: %2$ld; pominiętych po ponownej weryfikacji: %3$ld.";

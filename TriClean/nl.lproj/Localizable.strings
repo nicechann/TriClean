@@ -233,6 +233,8 @@
 "apps.status.uninstall_partial_fail" = "Verplaatst: %ld app-bundels. Mislukt: %ld.";
 "apps.status.uninstall_all_fail" = "Kan de geselecteerde app-bundels niet naar de prullenmand verplaatsen (toegang vereist).";
 "apps.status.appstore_reference_only" = "App Store-apps worden alleen ter referentie weergegeven.";
+"apps.status.system_reference_only" = "Systeemapps worden alleen ter referentie weergegeven; hun gegevens worden niet gescand.";
+"apps.status.running_skipped" = "%ld actieve app(s) overgeslagen. Stop ze en probeer het opnieuw.";
 "apps.status.related_invalid" = "Er kunnen geen gerelateerde bestanden worden verwijderd. Gewijzigd en overgeslagen: %ld items.";
 "apps.status.uninstall_invalid" = "Er kunnen geen apps worden verwijderd. Gewijzigd of buiten de toegestane locatie: %ld apps.";
 "apps.status.related_summary" = "Verplaatste gerelateerde items: %1$ld. Mislukt: %2$ld; overgeslagen na hercontrole: %3$ld.";

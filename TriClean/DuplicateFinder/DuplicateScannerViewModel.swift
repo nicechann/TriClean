@@ -107,6 +107,9 @@ final class DuplicateScannerViewModel: ObservableObject {
     // MARK: - 폴더 선택
 
     func selectFolder() {
+        // 삭제가 끝나기 전에 결과를 비우면 삭제 완료 처리가 새 폴더 상태를 건드린다.
+        guard !isDeleting else { return }
+
         let panel = NSOpenPanel()
         panel.title = "duplicate.select_folder.title".localized
         panel.message = "duplicate.select_folder.message".localized
@@ -117,6 +120,15 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         if panel.runModal() == .OK, let url = panel.url {
             bookmarks.trySave(url: url, for: .duplicateScanFolder)
+            // 이전 폴더의 스캔이 새 폴더 결과로 기록되지 않도록 세대를 올려 무효화하고,
+            // 이전 폴더 결과가 새 폴더 경로 아래에 남지 않도록 비운다.
+            scanTask?.cancel()
+            scanTask = nil
+            scanGeneration &+= 1
+            isScanning = false
+            groups = []
+            progress = 0
+            totalFilesScanned = 0
             // 이전 폴더의 보안 스코프 접근을 반드시 닫는다.
             releaseFolderAccess()
             scanFolderURL = url
@@ -130,7 +142,9 @@ final class DuplicateScannerViewModel: ObservableObject {
 
     func scan() {
         guard let folderURL = scanFolderURL else { return }
-        guard !isScanning else { return }
+        // 삭제 중에 재스캔하면 휴지통으로 이동 중인 파일이 결과에 섞이고,
+        // 삭제 완료 처리가 새 결과를 기준으로 동작한다.
+        guard !isScanning, !isDeleting else { return }
 
         scanTask?.cancel()
         scanGeneration &+= 1

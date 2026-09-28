@@ -161,6 +161,8 @@
 "apps.status.uninstall_partial_fail" = "Se movieron %ld paquetes de apps, fallaron %ld.";
 "apps.status.uninstall_all_fail" = "No se pudieron mover los paquetes de apps seleccionados a la Papelera (se requiere permiso).";
 "apps.status.appstore_reference_only" = "Las apps del App Store se muestran solo como referencia.";
+"apps.status.system_reference_only" = "Las apps del sistema se muestran solo como referencia; sus datos no se analizan.";
+"apps.status.running_skipped" = "Se omitieron %ld app(s) en ejecución. Ciérralas e inténtalo de nuevo.";
 
 /* Settings View */
 "settings.display" = "Visualización";

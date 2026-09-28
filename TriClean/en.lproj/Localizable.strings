@@ -164,6 +164,8 @@
 "apps.status.uninstall_partial_fail" = "Moved %ld app bundles, failed %ld.";
 "apps.status.uninstall_all_fail" = "Failed to move selected app bundles to Trash (permission required).";
 "apps.status.appstore_reference_only" = "App Store apps are shown for reference only.";
+"apps.status.system_reference_only" = "System apps are shown for reference only; their data is not scanned.";
+"apps.status.running_skipped" = "%ld running app(s) were skipped. Quit them and try again.";
 
 /* Settings View */
 "settings.display" = "Display";

@@ -66,17 +66,13 @@ final class JunkScannerViewModel: ObservableObject {
     
     var hasResults: Bool { !results.isEmpty }
     
-    /// 선택된 경로가 ~/Library처럼 보이는지 확인
+    /// 선택된 경로가 현재 사용자의 ~/Library인지 확인
+    ///
+    /// 스캔 허용 여부와 정리 시 범위 검증(`resolveLibraryURLForCleaning`)이
+    /// 같은 규칙을 써야 "스캔은 되는데 정리는 전부 제외"되는 불일치가 생기지 않는다.
     var isValidLibraryPath: Bool {
         guard let url = libraryURL else { return false }
-        let path = url.path
-        if path.hasSuffix("/Library") || path.hasSuffix("/Library/") { return true }
-        let fm = FileManager.default
-        let knownSubs = ["Caches", "Logs", "Preferences", "Application Support"]
-        for sub in knownSubs {
-            if fm.fileExists(atPath: url.appendingPathComponent(sub).path) { return true }
-        }
-        return false
+        return isLibraryLike(url)
     }
     
     // MARK: - 스캔 작업 핸들
@@ -112,17 +108,33 @@ final class JunkScannerViewModel: ObservableObject {
         // 3) 둘 다 없거나 유효하지 않으면 nil — UI에서 자동 안내
     }
     
-    /// ~/Library 경로인지 빠르게 확인 (파일 시스템 접근 없이)
+    /// 현재 사용자의 ~/Library인지 확인한다.
+    ///
+    /// 이름이 `Library`로 끝나는지만 보면 시스템 전역 `/Library`나 임의의 `Library` 폴더도
+    /// 통과해 `/Library/Caches` 하위가 "안전" 항목으로 기본 선택된다.
     private func isLibraryLike(_ url: URL) -> Bool {
-        let path = url.path
-        return path.hasSuffix("/Library") || path.hasSuffix("/Library/")
+        DeletionSafety.isSameItem(url, Self.userLibraryURL)
+    }
+
+    /// 샌드박스 앱에서는 `homeDirectoryForCurrentUser`가 컨테이너 경로를 돌려주므로
+    /// 계정 데이터베이스의 실제 홈 디렉터리를 기준으로 삼는다.
+    nonisolated static var userLibraryURL: URL {
+        let home: URL
+        if let pw = getpwuid(getuid()), let dir = pw.pointee.pw_dir {
+            home = URL(fileURLWithPath: String(cString: dir), isDirectory: true)
+        } else {
+            home = FileManager.default.homeDirectoryForCurrentUser
+        }
+        return home.appendingPathComponent("Library", isDirectory: true)
     }
     
     // MARK: - 폴더 선택
     
     func selectLibraryFolder() {
-        let homeLibrary = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library", isDirectory: true)
+        // 정리 중에 범위를 바꾸면 정리 완료 처리가 새 범위의 결과를 건드린다.
+        guard !isCleaning else { return }
+
+        let homeLibrary = Self.userLibraryURL
         
         let panel = NSOpenPanel()
         panel.title = "junk.scope.title".localized
@@ -136,6 +148,13 @@ final class JunkScannerViewModel: ObservableObject {
         
         if panel.runModal() == .OK, let url = panel.url {
             bookmarks.trySave(url: url, for: .junkLibraryFolder)
+            // 이전 범위의 스캔·결과가 새 범위 아래에 남지 않도록 무효화한다.
+            scanTask?.cancel()
+            scanTask = nil
+            scanGeneration &+= 1
+            isScanning = false
+            scanProgress = ""
+            results = []
             libraryURL = url
             accessDenied = false
             cleanupNotice = nil
@@ -145,8 +164,9 @@ final class JunkScannerViewModel: ObservableObject {
     // MARK: - 스캔
     
     func scan() {
-        guard let library = libraryURL else { return }
-        guard !isScanning else { return }
+        guard let library = libraryURL, isValidLibraryPath else { return }
+        // 정리 중에 재스캔하면 휴지통으로 이동 중인 항목이 결과에 섞인다.
+        guard !isScanning, !isCleaning else { return }
         
         scanTask?.cancel()
         scanGeneration &+= 1

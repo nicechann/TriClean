@@ -115,6 +115,7 @@ struct DuplicateFinderView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
+                    .disabled(viewModel.isDeleting)
 
                     Button {
                         viewModel.scan()
@@ -122,7 +123,7 @@ struct DuplicateFinderView: View {
                         Label("common.scan".localized, systemImage: "magnifyingglass")
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(viewModel.isScanning)
+                    .disabled(viewModel.isScanning || viewModel.isDeleting)
                 }
             }
 

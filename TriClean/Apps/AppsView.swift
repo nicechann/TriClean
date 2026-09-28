@@ -387,6 +387,7 @@ final class AppsViewModel: ObservableObject {
         if panel.runModal() == .OK, let url = panel.url {
             do {
                 try SecurityScopedBookmarkStore.shared.save(url: url, for: .appsManualAppBundle)
+                dropPreviousManualApp(replacingWith: url)
                 manualAppBundleURL = url
                 handleManuallySelectedApp(at: url)
             } catch {
@@ -394,6 +395,21 @@ final class AppsViewModel: ObservableObject {
                 lastStatusMessage = "apps.status.app_bookmark_fail".localized(with: error.localizedDescription)
             }
         }
+    }
+
+    /// 수동 선택 북마크는 하나만 유지되므로, 앱 목록 폴더 밖의 이전 수동 선택 앱은
+    /// 새 선택 이후 삭제 허용 범위를 잃는다. 제거할 수 없는 항목을 제거 가능한 것처럼
+    /// 남겨두지 않도록 목록에서 뺀다.
+    private func dropPreviousManualApp(replacingWith newURL: URL) {
+        guard let previous = manualAppBundleURL?.standardizedFileURL,
+              !DeletionSafety.isSameItem(previous, newURL) else { return }
+        if let folder = applicationsFolderURL, DeletionSafety.isContained(previous, inScope: folder) {
+            return
+        }
+        let removedIDs = Set(installedApps.filter { DeletionSafety.isSameItem($0.url, previous) }.map(\.id))
+        guard !removedIDs.isEmpty else { return }
+        installedApps.removeAll { removedIDs.contains($0.id) }
+        selectedInstalledAppIDs.subtract(removedIDs)
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
@@ -581,7 +597,9 @@ final class AppsViewModel: ObservableObject {
         let isApple = bundleID?.hasPrefix("com.apple.") ?? false
         let isSystemApp = isSystemPath || (isApple && !canDelete)
         let isAppStoreApp = fm.fileExists(atPath: url.appendingPathComponent("Contents/_MASReceipt/receipt").path)
-        let canUninstall = canDelete && !isSystemApp && !isAppStoreApp
+        // TriClean 자신은 목록에 보이더라도 제거 대상에서 제외한다.
+        let isSelf = DeletionSafety.isSameItem(url, Bundle.main.bundleURL)
+        let canUninstall = canDelete && !isSystemApp && !isAppStoreApp && !isSelf
 
         return AppsInstalledApp(
             name: name,
@@ -618,6 +636,13 @@ final class AppsViewModel: ObservableObject {
         if app.isAppStoreApp {
             lastStatusIsError = false
             lastStatusMessage = "apps.status.appstore_reference_only".localized
+            return
+        }
+
+        // 시스템 앱은 제거할 수 없으므로 그 데이터(Containers 등)도 정리 대상으로 제시하지 않는다.
+        if app.isSystemApp {
+            lastStatusIsError = false
+            lastStatusMessage = "apps.status.system_reference_only".localized
             return
         }
 
@@ -689,6 +714,19 @@ final class AppsViewModel: ObservableObject {
         }
     }
 
+    /// 번들 ID·앱 이름은 앱의 Info.plist에서 오는 신뢰할 수 없는 값이다.
+    /// `.`·`..`·경로 구분자가 섞이면 `Caches/.` → `Caches` 전체, `Caches/../Keychains` 같은
+    /// 무관한 Library 폴더가 삭제 후보가 되므로 단일 경로 구성요소만 허용한다.
+    nonisolated static func isSafePathComponent(_ name: String) -> Bool {
+        guard !name.isEmpty, name != ".", name != ".." else { return false }
+        return !name.contains("/") && !name.contains(":") && !name.contains("\0")
+    }
+
+    /// 조합한 경로가 표준화 후에도 `dir`의 바로 아래 항목인지 재확인한다.
+    nonisolated static func isDirectChild(_ url: URL, of dir: URL) -> Bool {
+        url.standardizedFileURL.deletingLastPathComponent().path == dir.standardizedFileURL.path
+    }
+
     nonisolated private static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
         guard !isCurrentTaskCancelled() else { return [] }
 
@@ -720,7 +758,7 @@ final class AppsViewModel: ObservableObject {
             dict[item.id] = item
         }
 
-        if let bundleID, !bundleID.isEmpty {
+        if let bundleID, isSafePathComponent(bundleID) {
             // ✅ Spotlight 결과: 경로/유형이 사전에 분류되지 않으므로 안전하게 기본 선택 해제
             for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
                 if isCurrentTaskCancelled() { return [] }
@@ -752,7 +790,7 @@ final class AppsViewModel: ObservableObject {
                 if let s = suffix { targetName += s }
                 let targetURL = dir.appendingPathComponent(targetName)
 
-                if fm.fileExists(atPath: targetURL.path) {
+                if isDirectChild(targetURL, of: dir), fm.fileExists(atPath: targetURL.path) {
                     let isDir = (try? targetURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
                     let sizeBytes = fileSize(at: targetURL)
                     let isHighRisk = highRiskSubs.contains(sub)
@@ -771,7 +809,7 @@ final class AppsViewModel: ObservableObject {
         //   다른 앱의 데이터 디렉터리를 가리킬 수 있고, 소유권을 검증할 수단이 없다.
         //   따라서 목록에는 노출하되 **절대 기본 선택하지 않으며**, 번들 ID 정확 일치로
         //   이미 등록된 항목을 덮어쓰지도 않는다.
-        if !appName.isEmpty {
+        if isSafePathComponent(appName) {
             let namePaths = ["Application Support", "Caches"]
             for sub in namePaths {
                 if isCurrentTaskCancelled() { return [] }
@@ -779,7 +817,8 @@ final class AppsViewModel: ObservableObject {
                 let dir = libraryRoot.appendingPathComponent(sub)
                 let targetURL = dir.appendingPathComponent(appName)
                 var isDir: ObjCBool = false
-                if fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
+                if isDirectChild(targetURL, of: dir),
+                   fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
                     let sizeBytes = fileSize(at: targetURL)
                     insertIfAbsent(AppsRelatedItem(
                         url: targetURL,
@@ -912,7 +951,24 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        let candidates = deletableSelectedApps
+        // 실행 중인 앱 번들을 휴지통으로 옮기면 리소스 지연 로딩·업데이트·재실행이 깨진다.
+        // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 삭제 직전에 확인한다.
+        let runningPaths = Set(
+            NSWorkspace.shared.runningApplications.compactMap { $0.bundleURL.map(DeletionSafety.resolvedPath(for:)) }
+        )
+        let selectedDeletable = deletableSelectedApps
+        let runningApps = selectedDeletable.filter { runningPaths.contains(DeletionSafety.resolvedPath(for: $0.url)) }
+        let runningIDs = Set(runningApps.map(\.id))
+        let candidates = selectedDeletable.filter { !runningIDs.contains($0.id) }
+
+        if candidates.isEmpty && !runningApps.isEmpty {
+            lastFailedApps = runningApps
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.running_skipped".localized(with: runningApps.count)
+            completion(nil)
+            return
+        }
+
         guard !candidates.isEmpty else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.nothing_to_trash".localized
@@ -939,13 +995,16 @@ final class AppsViewModel: ObservableObject {
 
         let sanitized = DeletionSafety.sanitize(candidates, scopes: deletionScopes, url: \.url)
         let acceptedIDs = Set(sanitized.accepted.map(\.id))
-        let rejectedApps = candidates.filter { !acceptedIDs.contains($0.id) }
+        let rejectedApps = runningApps + candidates.filter { !acceptedIDs.contains($0.id) }
+        let runningNote = runningApps.isEmpty
+            ? ""
+            : " " + "apps.status.running_skipped".localized(with: runningApps.count)
 
         guard !sanitized.accepted.isEmpty else {
             scopeTokens.forEach { $0.stop() }
             lastFailedApps = rejectedApps
             lastStatusIsError = true
-            lastStatusMessage = "apps.status.uninstall_invalid".localized(with: rejectedApps.count)
+            lastStatusMessage = "apps.status.uninstall_invalid".localized(with: rejectedApps.count) + runningNote
             // 스캔 이후 앱이 이동·삭제됐거나 북마크가 만료된 경우로, 실제로 발생한다.
             // 사용자에게 실패 앱 이름과 Finder 열기를 제공하기 위해 알림까지 띄운다.
             completion(.uninstallPartialFail(successCount: 0, failedCount: rejectedApps.count))
@@ -976,7 +1035,7 @@ final class AppsViewModel: ObservableObject {
 
             if succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.uninstall_all_fail".localized
+                self.lastStatusMessage = "apps.status.uninstall_all_fail".localized + runningNote
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
                 self.lastStatusIsError = false
@@ -984,7 +1043,7 @@ final class AppsViewModel: ObservableObject {
                 completion(nil)
             } else if !succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count)
+                self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count) + runningNote
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             } else {
                 completion(nil)
@@ -1026,8 +1085,17 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
+        // 관련 파일은 항상 `Library/<하위폴더>/<항목>` 이하에 있다.
+        // `Library/Caches`처럼 하위폴더 자체나 `Library/Keychains` 같은 1단계 항목은 거부한다.
+        let rootDepth = libraryRoot.pathComponents.count
+        let deepEnough = candidates.filter {
+            $0.url.standardizedFileURL.pathComponents.count >= rootDepth + 2
+        }
+        let shallowCount = candidates.count - deepEnough.count
+
         // 보안 스코프를 연 상태에서 실제 삭제 대상을 재검증합니다.
-        let sanitized = DeletionSafety.sanitize(candidates, scope: libraryRoot, url: \.url)
+        let checked = DeletionSafety.sanitize(deepEnough, scope: libraryRoot, url: \.url)
+        let sanitized = (accepted: checked.accepted, rejectedCount: checked.rejectedCount + shallowCount)
         guard !sanitized.accepted.isEmpty else {
             scopeToken.stop()
             lastStatusIsError = true

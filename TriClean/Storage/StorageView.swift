@@ -8,6 +8,7 @@
 import SwiftUI
 import AppKit
 import StoreKit // ✅ 결제 기능을 위해 추가
+import CryptoKit
 
 // MARK: - 스캔 결과 모델 (폴더 + 파일)
 
@@ -17,7 +18,10 @@ import StoreKit // ✅ 결제 기능을 위해 추가
 //   이 값들은 `Task.detached` 스캔·해시 작업에서 생성·비교·정렬된다.
 //   `Sendable` 선언만으로는 conformance 격리가 풀리지 않는다.
 nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
-    let id = UUID()
+    /// 경로에서 결정적으로 만든 ID.
+    /// 스캔마다 `UUID()`를 새로 만들면 자동 재스캔이 유지한 `tableSelection`이
+    /// 새 행과 하나도 맞지 않아, 선택이 풀린 것처럼 보이고 삭제 버튼이 아무 동작도 하지 않았다.
+    let id: UUID
     let url: URL
     let sizeBytes: Int64
     let isDirectory: Bool
@@ -39,6 +43,7 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         parentURL: URL? = nil,
         fileIdentity: FileIdentitySnapshot? = nil
     ) {
+        self.id = Self.stableID(for: url)
         self.url = url
         self.sizeBytes = sizeBytes
         self.isDirectory = isDirectory
@@ -47,6 +52,15 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
     }
     
+    static func stableID(for url: URL) -> UUID {
+        let digest = SHA256.hash(data: Data(url.standardizedFileURL.path.utf8))
+        var bytes = Array(digest.prefix(16))
+        bytes[6] = (bytes[6] & 0x0F) | 0x50   // RFC 4122 형식(버전·변형 비트) 유지
+        bytes[8] = (bytes[8] & 0x3F) | 0x80
+        return UUID(uuid: (bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+                           bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]))
+    }
+
     var name: String { url.lastPathComponent }
     var path: String { url.path }
     

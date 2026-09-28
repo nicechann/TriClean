@@ -164,6 +164,8 @@
 "apps.status.uninstall_partial_fail" = "앱 번들 %ld개는 이동, %ld개는 실패했습니다.";
 "apps.status.uninstall_all_fail" = "선택한 앱 번들을 휴지통으로 이동할 수 없습니다(권한 필요).";
 "apps.status.appstore_reference_only" = "App Store 앱은 참고용으로만 표시됩니다.";
+"apps.status.system_reference_only" = "시스템 앱은 참고용으로만 표시되며 관련 데이터는 스캔하지 않습니다.";
+"apps.status.running_skipped" = "실행 중인 앱 %ld개는 제외했습니다. 앱을 종료한 뒤 다시 시도하세요.";
 
 /* Settings View */
 "settings.display" = "표시";

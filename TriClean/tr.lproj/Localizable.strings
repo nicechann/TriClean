@@ -237,6 +237,8 @@
 "apps.status.uninstall_partial_fail" = "%ld uygulama paketi taşındı, %ld tanesi başarısız oldu.";
 "apps.status.uninstall_all_fail" = "Seçilen uygulama paketleri Çöp Kutusu'na taşınamadı (izin gerekiyor).";
 "apps.status.appstore_reference_only" = "App Store uygulamaları yalnızca bilgi amaçlı gösterilir.";
+"apps.status.system_reference_only" = "Sistem uygulamaları yalnızca bilgi amaçlı gösterilir; verileri taranmaz.";
+"apps.status.running_skipped" = "Çalışan %ld uygulama atlandı. Uygulamalardan çıkıp yeniden deneyin.";
 "apps.status.related_invalid" = "Kaldırılabilecek ilgili dosya yok. Değiştiği için atlanan: %ld.";
 "apps.status.uninstall_invalid" = "Kaldırılabilecek uygulama yok. Değişen veya izin verilen konum dışında olan: %ld.";
 "apps.status.related_summary" = "Taşınan ilgili öğe: %1$ld. Başarısız: %2$ld; yeniden doğrulama sonrası atlanan: %3$ld.";

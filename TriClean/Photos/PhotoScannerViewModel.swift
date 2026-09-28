@@ -53,6 +53,10 @@ final class PhotoScannerViewModel: ObservableObject {
     private var scanTask: Task<Void, Never>? = nil
     private var blurTask: Task<Void, Never>? = nil
     private var similarTask: Task<Void, Never>? = nil
+    /// 취소된 분석 Task는 즉시 끝나지 않고 진행률·최종 상태를 계속 반영하려 한다.
+    /// 취소 직후 새 분석을 시작하면 이전 Task가 새 분석 상태를 덮어쓰므로 실행 번호로 구분한다.
+    private var blurRunID: UInt = 0
+    private var similarRunID: UInt = 0
 
     /// 라플라시안 분산 임계값. 이 값보다 낮으면 흐릿한 것으로 판단(낮을수록 더 흐릿).
     /// 콘텐츠 의존적이라 실사용 후 조정이 필요할 수 있습니다.
@@ -155,8 +159,8 @@ final class PhotoScannerViewModel: ObservableObject {
         if panel.runModal() == .OK, let url = panel.url {
             scanTask?.cancel()
             collectTask?.cancel()
-            blurTask?.cancel()
-            similarTask?.cancel()
+            invalidateBlurTask()
+            invalidateSimilarTask()
             scanGeneration &+= 1   // 진행 중이던 스캔의 늦은 결과 반영을 무효화한다.
             releaseFolderAccess()
 
@@ -185,8 +189,8 @@ final class PhotoScannerViewModel: ObservableObject {
 
         scanTask?.cancel()
         collectTask?.cancel()   // detached 수집 작업은 부모 취소를 상속하지 않으므로 직접 취소한다.
-        blurTask?.cancel()
-        similarTask?.cancel()
+        invalidateBlurTask()
+        invalidateSimilarTask()
 
         scanGeneration &+= 1
         let generation = scanGeneration
@@ -282,7 +286,8 @@ final class PhotoScannerViewModel: ObservableObject {
 
     func analyzeBlur() {
         guard !items.isEmpty, !isAnalyzingBlur, !isDeleting else { return }
-        blurTask?.cancel()
+        invalidateBlurTask()
+        let runID = blurRunID
 
         deleteStatusMessage = nil
         isAnalyzingBlur = true
@@ -324,14 +329,18 @@ final class PhotoScannerViewModel: ObservableObject {
                     result.formUnion(ids)
                     done += 1
                     let p = Double(done) / Double(max(slices.count, 1))
-                    await MainActor.run { self.blurProgress = p }
+                    await MainActor.run {
+                        guard self.blurRunID == runID else { return }
+                        self.blurProgress = p
+                    }
                 }
                 return result
             }
 
-            let cancelled = Task.isCancelled
             await MainActor.run {
-                if cancelled {
+                // 취소 여부는 MainActor에서 판정해야 큐에 대기하던 사이의 취소·재스캔도 반영된다.
+                guard self.blurRunID == runID else { return }
+                if Task.isCancelled {
                     self.isAnalyzingBlur = false
                     self.isBlurAnalyzed = false
                     self.blurProgress = 0
@@ -346,8 +355,20 @@ final class PhotoScannerViewModel: ObservableObject {
         }
     }
 
-    func cancelBlurAnalysis() {
+    private func invalidateBlurTask() {
         blurTask?.cancel()
+        blurTask = nil
+        blurRunID &+= 1
+    }
+
+    private func invalidateSimilarTask() {
+        similarTask?.cancel()
+        similarTask = nil
+        similarRunID &+= 1
+    }
+
+    func cancelBlurAnalysis() {
+        invalidateBlurTask()
         isAnalyzingBlur = false
         isBlurAnalyzed = false
         blurProgress = 0
@@ -363,7 +384,8 @@ final class PhotoScannerViewModel: ObservableObject {
 
     func analyzeSimilar() {
         guard !items.isEmpty, !isAnalyzingSimilar, !isDeleting else { return }
-        similarTask?.cancel()
+        invalidateSimilarTask()
+        let runID = similarRunID
 
         deleteStatusMessage = nil
         isAnalyzingSimilar = true
@@ -413,12 +435,18 @@ final class PhotoScannerViewModel: ObservableObject {
                     hashes.append(contentsOf: part)
                     done += 1
                     let p = (Double(done) / Double(max(slices.count, 1))) * 0.85
-                    await MainActor.run { self.similarProgress = p }
+                    await MainActor.run {
+                        guard self.similarRunID == runID else { return }
+                        self.similarProgress = p
+                    }
                 }
             }
 
             if Task.isCancelled {
-                await MainActor.run { self.finishSimilar(cancelled: true) }
+                await MainActor.run {
+                    guard self.similarRunID == runID else { return }
+                    self.finishSimilar(cancelled: true)
+                }
                 return
             }
 
@@ -430,14 +458,17 @@ final class PhotoScannerViewModel: ObservableObject {
             )
 
             if Task.isCancelled {
-                await MainActor.run { self.finishSimilar(cancelled: true) }
+                await MainActor.run {
+                    guard self.similarRunID == runID else { return }
+                    self.finishSimilar(cancelled: true)
+                }
                 return
             }
 
             // 3) id → 현재 PhotoItem → PhotoGroup (삭제/새 스캔으로 사라진 항목은 제외)
-            let cancelled = Task.isCancelled
             await MainActor.run {
-                if cancelled {
+                guard self.similarRunID == runID else { return }
+                if Task.isCancelled {
                     self.finishSimilar(cancelled: true)
                     return
                 }
@@ -457,7 +488,7 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     func cancelSimilarAnalysis() {
-        similarTask?.cancel()
+        invalidateSimilarTask()
         finishSimilar(cancelled: true)
     }
 
@@ -493,8 +524,8 @@ final class PhotoScannerViewModel: ObservableObject {
     }
 
     private func cancelRunningAnalysesForDeletion() {
-        blurTask?.cancel()
-        similarTask?.cancel()
+        invalidateBlurTask()
+        invalidateSimilarTask()
         if isAnalyzingBlur {
             isAnalyzingBlur = false
             isBlurAnalyzed = false

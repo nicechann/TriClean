@@ -224,7 +224,6 @@ final class LargeFilesViewModel: ObservableObject {
         activeScanID = scanID
 
         let root = url.standardizedFileURL
-        let ignoredSnapshot = ignoredFolderURLs
         let isAuto = (trigger == .auto)
 
         // 결과 표시 중 Finder 열기·삭제에 필요한 접근을 유지한다.
@@ -244,6 +243,11 @@ final class LargeFilesViewModel: ObservableObject {
             }
             folderAccessToken = token
         }
+
+        // 삭제한 경로에 새 파일·폴더가 다시 생겼다면 다른 항목이므로 더 이상 숨기지 않는다.
+        // 존재 여부는 보안 스코프를 연 뒤에 확인해야 샌드박스 거부로 오판하지 않는다.
+        ignoredFolderURLs = ignoredFolderURLs.filter { !FileManager.default.fileExists(atPath: $0.path) }
+        let ignoredSnapshot = ignoredFolderURLs
 
         isAutoUpdating = isAuto
         isScanning = true
@@ -434,7 +438,8 @@ final class LargeFilesViewModel: ObservableObject {
                     .isRegularFileKey,
                     .fileAllocatedSizeKey,
                     .totalFileAllocatedSizeKey,
-                    .fileSizeKey
+                    .fileSizeKey,
+                    .isPackageKey
                 ]
 
                 guard let directItems = try? fm.contentsOfDirectory(
@@ -447,6 +452,10 @@ final class LargeFilesViewModel: ObservableObject {
                 }
 
                 var topFolders: [URL] = []
+                // 스캔 루트 바로 아래의 패키지(.photoslibrary, .app, .fcpbundle 등).
+                // 하위 탐색의 `packagePrefixes`는 더 깊은 곳에서 발견한 패키지만 다루므로,
+                // 최상위 패키지는 따로 기억해 내부 파일을 개별 삭제 항목으로 노출하지 않는다.
+                var topPackages = Set<URL>()
                 var rootFiles: [FolderInfo] = []
                 rootFiles.reserveCapacity(64)
 
@@ -462,6 +471,7 @@ final class LargeFilesViewModel: ObservableObject {
 
                         if values.isDirectory == true {
                             topFolders.append(url)
+                            if values.isPackage == true { topPackages.insert(url) }
                             return
                         }
 
@@ -521,6 +531,7 @@ final class LargeFilesViewModel: ObservableObject {
                     packagePrefixes.reserveCapacity(8)
 
                     let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
+                    let isPackageRoot = topPackages.contains(folder)
 
                     // ⚠️ `for ... in enumerator`를 쓸 수 없다. 일반 Sequence 순회는 async에서도
                     //    되지만, `FileManager.DirectoryEnumerator`의 `makeIterator()`는
@@ -555,7 +566,7 @@ final class LargeFilesViewModel: ObservableObject {
                             let size = Int64(Self.fileSize(from: values))
                             total += size
 
-                            guard size >= minBytes else { return }
+                            guard size >= minBytes, !isPackageRoot else { return }
 
                             let path = url.path
                             for prefix in packagePrefixes where path.hasPrefix(prefix) {
@@ -692,8 +703,31 @@ final class LargeFilesViewModel: ObservableObject {
                 return false
             }
 
+            // 하위 파일만 지운 경우 상위 폴더 행의 크기도 줄여야 목록·트리맵·정렬이 맞는다.
+            var removedBytesByParent: [URL: Int64] = [:]
+            for info in self.discoveredResults where succeededURLs.contains(info.url.standardizedFileURL) {
+                guard let parent = info.parentURL?.standardizedFileURL, !succeededURLs.contains(parent) else { continue }
+                removedBytesByParent[parent, default: 0] += info.sizeBytes
+            }
+            let shrinkParent: (FolderInfo) -> FolderInfo = { info in
+                guard info.isDirectory,
+                      let removed = removedBytesByParent[info.url.standardizedFileURL] else { return info }
+                return FolderInfo(
+                    url: info.url,
+                    sizeBytes: max(0, info.sizeBytes - removed),
+                    isDirectory: info.isDirectory,
+                    depth: info.depth,
+                    parentURL: info.parentURL,
+                    fileIdentity: info.fileIdentity
+                )
+            }
+
             self.folderResults.removeAll(where: isRemoved)
             self.discoveredResults.removeAll(where: isRemoved)
+            if !removedBytesByParent.isEmpty {
+                self.folderResults = self.folderResults.map(shrinkParent)
+                self.discoveredResults = self.discoveredResults.map(shrinkParent)
+            }
 
             let remainingIDs = Set(self.folderResults.map(\.id))
             self.tableSelection.formIntersection(remainingIDs)

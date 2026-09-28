@@ -166,10 +166,17 @@ final class MemoryViewModel: ObservableObject {
 
     // MARK: - API
 
+    /// 진행 중인 새로고침. init·onAppear·타이머·버튼이 거의 동시에 `refresh()`를 부르면
+    /// 여러 표본이 완료 순서대로 반영되어, 나중 표본이 먼저 기준선이 된 뒤 이전 표본과의
+    /// `&-` 뺄셈이 wrap-around되어 CPU 사용률이 실제와 무관한 값이 되었다. 한 번에 하나만 수행한다.
+    private var refreshTask: Task<Void, Never>?
+
     func refresh() {
+        guard refreshTask == nil else { return }
         // 통계 수집은 짧지만 system call이므로 background에서 수행하고,
         // UI 반영만 MainActor에서 처리합니다.
-        Task { @MainActor in
+        refreshTask = Task { @MainActor in
+            defer { self.refreshTask = nil }
             // 메모리 통계와 CPU tick을 병렬로 수집
             async let statsTask = Self.fetchStatsInBackground(priority: .userInitiated)
             async let ticksTask = Self.fetchCPUTicksInBackground(priority: .userInitiated)
@@ -186,9 +193,14 @@ final class MemoryViewModel: ObservableObject {
     /// 첫 호출은 기준선만 저장하고 값을 채우지 않습니다(누적 카운터라 두 표본의 차이가 필요).
     private func updateCPUUsage(with ticks: CPUTicks?) {
         guard let ticks else { return }
-        defer { previousCPUTicks = ticks }
+        guard let previous = previousCPUTicks else {
+            previousCPUTicks = ticks
+            return
+        }
 
-        guard let previous = previousCPUTicks else { return }
+        // 수 ms 간격의 두 표본은 tick이 몇 개뿐이라 0%와 100% 사이를 오간다.
+        // 충분한 tick이 쌓이기 전에는 기준선을 유지해 다음 표본과 비교한다.
+        let minimumTotalTicks: Double = 50
 
         // 누적 카운터의 wrap-around를 감안해 wrapping 뺄셈(&-) 사용
         let userDelta   = Double(ticks.user   &- previous.user)
@@ -198,7 +210,8 @@ final class MemoryViewModel: ObservableObject {
 
         let usedDelta  = userDelta + systemDelta + niceDelta
         let totalDelta = usedDelta + idleDelta
-        guard totalDelta > 0 else { return }
+        guard totalDelta >= minimumTotalTicks else { return }
+        previousCPUTicks = ticks
 
         let percent = Int((usedDelta / totalDelta * 100.0).rounded())
         withAnimation(.easeInOut(duration: 0.25)) {

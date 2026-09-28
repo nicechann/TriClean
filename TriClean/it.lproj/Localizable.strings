@@ -233,6 +233,8 @@
 "apps.status.uninstall_partial_fail" = "Spostati %ld bundle di app, %ld non riusciti.";
 "apps.status.uninstall_all_fail" = "Impossibile spostare nel Cestino i bundle selezionati (autorizzazione richiesta).";
 "apps.status.appstore_reference_only" = "Le app dell'App Store sono mostrate solo a titolo informativo.";
+"apps.status.system_reference_only" = "Le app di sistema sono mostrate solo a titolo informativo; i loro dati non vengono analizzati.";
+"apps.status.running_skipped" = "%ld app in esecuzione sono state saltate. Chiudile e riprova.";
 "apps.status.related_invalid" = "Nessun file correlato può essere rimosso. Elementi modificati e ignorati: %ld.";
 "apps.status.uninstall_invalid" = "Nessuna app può essere rimossa. App modificate o al di fuori della posizione consentita: %ld.";
 "apps.status.related_summary" = "Elementi correlati spostati: %1$ld. Non riusciti: %2$ld; ignorati dopo la riverifica: %3$ld.";
