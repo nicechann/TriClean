@@ -67,7 +67,7 @@
 "storage.scan.sort.size" = "Grootte";
 "storage.scan.sort.note" = "Tijdens het scannen worden items weergegeven in de volgorde waarin ze worden gevonden. De sortering wordt na afloop toegepast.";
 "storage.results.header" = "Resultaten";
-"storage.alert.delete.title" = "Weet je zeker dat je wilt verwijderen?";
+"storage.alert.delete.title" = "Naar de prullenmand verplaatsen?";
 "storage.msg.manual" = "Map ‘%@’ analyseren…";
 "storage.msg.auto" = "Opnieuw analyseren vanwege gewijzigde voorwaarden…";
 "storage.msg.canceled" = "Scan geannuleerd.";
@@ -153,13 +153,13 @@
 "junk.section.ready_desc" = "Scan het geselecteerde ~/Library-bereik om caches, logbestanden en wegwerpbare resten te bekijken.";
 "junk.section.wrong_path_warning" = "Dit pad is niet ~/Library. Er worden mogelijk geen overbodige bestanden gevonden.";
 "junk.section.wrong_path_title" = "Verkeerde map geselecteerd";
-"junk.section.wrong_path_desc" = "Overbodige bestanden staan in ~/Library. Tik op ‘Wijzig’ om je ~/Library-map te selecteren.";
+"junk.section.wrong_path_desc" = "Overbodige bestanden staan in ~/Library. Klik op ‘Wijzig’ om je ~/Library-map te selecteren.";
 "junk.item.select_all" = "Selecteer alles";
 "junk.item.deselect_all" = "Deselecteer alles";
 "junk.item.show_more" = "Nog %ld items weergeven";
 "junk.item.show_less" = "Alleen de eerste 30 items weergeven";
 "junk.section.access_title" = "Maptoegang verlopen";
-"junk.section.access_desc" = "TriClean heeft geen toegang meer tot ~/Library. Tik op ‘Wijzig’ en selecteer de map opnieuw.";
+"junk.section.access_desc" = "TriClean heeft geen toegang meer tot ~/Library. Klik op ‘Wijzig’ en selecteer de map opnieuw.";
 "junk.progress.cleaning" = "Geselecteerde items naar de prullenmand verplaatsen: %ld…";
 "junk.progress.clean_done" = "Naar de prullenmand verplaatst: %ld items.";
 "junk.progress.clean_failed" = "Kan de geselecteerde overbodige bestanden niet naar de prullenmand verplaatsen.";
@@ -291,7 +291,7 @@
 "duplicate.empty.waiting_title" = "Klaar om te scannen";
 "duplicate.empty.waiting_body" = "Klik op Scan om dubbele bestanden te zoeken.";
 "duplicate.empty.access_title" = "Maptoegang verlopen";
-"duplicate.empty.access_body" = "TriClean heeft geen toegang meer tot deze map. Tik hierboven op ‘Wijzig map’ en selecteer de map opnieuw.";
+"duplicate.empty.access_body" = "TriClean heeft geen toegang meer tot deze map. Klik hierboven op ‘Wijzig map’ en selecteer de map opnieuw.";
 "duplicate.summary.groups" = "Duplicaatgroepen";
 "duplicate.summary.selected_files" = "Geselecteerde bestanden";
 "duplicate.summary.selected_space" = "Geselecteerde ruimte";
@@ -318,7 +318,7 @@
 "duplicate.file.help.delete" = "Gemarkeerd om op te ruimen. Klik om dit bestand in plaats daarvan te bewaren.";
 "duplicate.file.reveal" = "Toon in Finder";
 "duplicate.file.keep" = "Bewaar";
-"duplicate.file.delete" = "Verwijder";
+"duplicate.file.delete" = "Naar prullenmand";
 "duplicate.delete_confirm.title" = "Dubbele bestanden opruimen";
 "duplicate.delete_confirm.message" = "%ld geselecteerde dubbele bestanden (%@) worden naar de prullenmand verplaatst. In elke groep blijft ten minste één bestand behouden.";
 "duplicate.cleanup_result.title" = "Opruimen voltooid";
@@ -492,7 +492,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Geheugen";
 "menubar.open_triclean" = "Open TriClean";
-"menu.buy_pro" = "Koop TriClean Pro…";
+"menu.buy_pro" = "Koop levenslange toegang…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "Welkom bij TriClean";
@@ -536,7 +536,7 @@
 "store.status.loading_products" = "Producten laden…";
 "store.error.load_failed" = "Kan de producten niet laden.";
 "store.error.load_failed_detail" = "Kan het product niet laden: %@";
-"store.error.product_not_found" = "Product niet gevonden. Controleer de product-ID of de StoreKit-configuratie.";
+"store.error.product_not_found" = "Kan de productgegevens niet laden uit de App Store. Controleer je verbinding en probeer het opnieuw.";
 "store.error.product_unavailable" = "Kan de productgegevens niet laden uit de App Store. Controleer je verbinding en probeer het opnieuw.";
 "store.error.no_purchase_to_restore" = "Er is geen eerdere aankoop gevonden voor deze Apple Account.";
 "store.btn.retry" = "Probeer opnieuw";

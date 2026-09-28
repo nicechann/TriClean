@@ -244,14 +244,14 @@ struct SmartScanView: View {
 
     private var junkValueText: String {
         if junkViewModel.isScanning { return "smartscan.state.scanning".localized }
-        if junkViewModel.libraryURL == nil { return "smartscan.state.permission".localized }
+        if !junkViewModel.isValidLibraryPath { return "smartscan.state.permission".localized }
         if junkViewModel.accessDenied { return "smartscan.state.permission".localized }
         if junkViewModel.hasResults { return junkViewModel.totalJunkString }
         return "smartscan.state.ready".localized
     }
 
     private var junkCaptionText: String {
-        if junkViewModel.libraryURL == nil { return "smartscan.junk.caption_permission".localized }
+        if !junkViewModel.isValidLibraryPath { return "smartscan.junk.caption_permission".localized }
         if junkViewModel.accessDenied { return "smartscan.junk.caption_access".localized }
         if junkViewModel.isScanning { return junkViewModel.scanProgress.isEmpty ? "smartscan.junk.caption_scanning".localized : junkViewModel.scanProgress }
         if junkViewModel.hasResults { return "smartscan.junk.caption_found".localized(with: junkViewModel.results.count) }
@@ -331,7 +331,7 @@ struct SmartScanView: View {
                     title: "smartscan.details.junk.title".localized,
                     message: junkCaptionText,
                     icon: "trash.circle",
-                    status: junkViewModel.libraryURL == nil ? "smartscan.status.permission_needed".localized : "smartscan.status.available".localized,
+                    status: !junkViewModel.isValidLibraryPath ? "smartscan.status.permission_needed".localized : "smartscan.status.available".localized,
                     buttonTitle: "smartscan.details.open".localized,
                     target: .storage
                 )
@@ -489,7 +489,8 @@ struct SmartScanView: View {
         memoryViewModel.refresh()
         viewModel.refreshDiskInfo()
 
-        if junkViewModel.libraryURL != nil, !junkViewModel.isScanning, !junkViewModel.isCleaning {
+        // 폴더가 실제 ~/Library가 아니면 scan()이 아무 일도 하지 않으므로 권한 필요 상태로 안내한다.
+        if junkViewModel.isValidLibraryPath, !junkViewModel.isScanning, !junkViewModel.isCleaning {
             junkViewModel.scan()
         }
 

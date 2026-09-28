@@ -73,7 +73,7 @@
 "storage.scan.sort.size" = "Size";
 "storage.scan.sort.note" = "Displayed in discovery order during scan. Sort applies once finished.";
 "storage.results.header" = "Results";
-"storage.alert.delete.title" = "Are you sure you want to delete?";
+"storage.alert.delete.title" = "Move to Trash?";
 "storage.msg.manual" = "Analyzing '%@' folder…";
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
@@ -217,7 +217,7 @@
 "store.btn.retry" = "Retry";
 
 // MARK: - Menubar
-"menu.buy_pro" = "Buy TriClean Pro...";
+"menu.buy_pro" = "Get Lifetime Access…";
 
 // MARK: - Paywall (Links)
 "paywall.link.privacy" = "Privacy Policy";
@@ -227,7 +227,7 @@
 "paywall.error.title"   = "Purchase Error";
 "paywall.error.unknown" = "An unknown error occurred.";
 
-"store.error.product_not_found"   = "Product not found. Please check the Product ID or StoreKit configuration.";
+"store.error.product_not_found"   = "Could not load product information from the App Store. Check your connection and try again.";
 "store.error.load_failed_detail"  = "Failed to load product: %@";
 
 // MARK: - Onboarding
@@ -314,7 +314,7 @@
 "junk.section.ready_desc" = "Scan your selected ~/Library scope to review caches, logs, and disposable leftovers.";
 "junk.section.wrong_path_warning" = "This path is not ~/Library. Junk files may not be found.";
 "junk.section.wrong_path_title" = "Wrong folder selected";
-"junk.section.wrong_path_desc" = "Junk files are located in ~/Library. Tap 'Change' to select your ~/Library folder.";
+"junk.section.wrong_path_desc" = "Junk files are located in ~/Library. Click 'Change' to select your ~/Library folder.";
 
 /* Junk item selection */
 "junk.item.select_all" = "Select All";
@@ -396,7 +396,7 @@
 "duplicate.file.help.delete" = "Marked for cleanup. Click to keep this file instead.";
 "duplicate.file.reveal" = "Reveal in Finder";
 "duplicate.file.keep" = "Keep";
-"duplicate.file.delete" = "Delete";
+"duplicate.file.delete" = "To Trash";
 "duplicate.delete_confirm.title" = "Clean Duplicate Files";
 "duplicate.delete_confirm.message" = "%ld selected duplicate files (%@) will be moved to Trash. At least one file is preserved in each group.";
 "duplicate.cleanup_result.title" = "Cleanup Complete";
@@ -429,10 +429,10 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "Idle";
-"duplicate.phase.collecting" = "Collecting files...";
-"duplicate.phase.grouping" = "Grouping by size...";
-"duplicate.phase.partial_hash" = "Comparing partial hashes...";
-"duplicate.phase.full_hash" = "Comparing full hashes...";
+"duplicate.phase.collecting" = "Collecting files…";
+"duplicate.phase.grouping" = "Grouping by size…";
+"duplicate.phase.partial_hash" = "Comparing partial hashes…";
+"duplicate.phase.full_hash" = "Comparing full hashes…";
 "duplicate.phase.done" = "Done";
 
 /* Smart Scan */
@@ -564,12 +564,12 @@
 /* Duplicate Finder — 접근 권한 만료 안내 */
 "duplicate.phase.access_denied" = "Access denied";
 "duplicate.empty.access_title" = "Folder access expired";
-"duplicate.empty.access_body" = "TriClean can no longer access this folder. Tap “Change Folder” above and select it again.";
+"duplicate.empty.access_body" = "TriClean can no longer access this folder. Click “Change Folder” above and select it again.";
 "duplicate.status.access_denied" = "Folder access expired. Please re-select the folder.";
 
 /* Junk — 접근 권한 만료 안내 */
 "junk.section.access_title" = "Folder access expired";
-"junk.section.access_desc" = "TriClean can no longer access ~/Library. Tap “Change” and select the folder again.";
+"junk.section.access_desc" = "TriClean can no longer access ~/Library. Click “Change” and select the folder again.";
 "smartscan.junk.caption_access" = "Folder access expired. Please re-select it in Storage.";
 
 /* 주간 정리 리마인더 */

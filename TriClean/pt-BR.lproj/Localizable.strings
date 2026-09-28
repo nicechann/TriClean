@@ -67,7 +67,7 @@
 "storage.scan.sort.size" = "Tamanho";
 "storage.scan.sort.note" = "Durante o escaneamento, os itens aparecem na ordem em que são encontrados. A ordenação é aplicada ao final.";
 "storage.results.header" = "Resultados";
-"storage.alert.delete.title" = "Deseja realmente excluir?";
+"storage.alert.delete.title" = "Mover para o Lixo?";
 "storage.msg.manual" = "Analisando a pasta “%@”…";
 "storage.msg.auto" = "Reanalisando devido a alteração nas condições…";
 "storage.msg.canceled" = "Escaneamento cancelado.";
@@ -153,13 +153,13 @@
 "junk.section.ready_desc" = "Escaneie o escopo ~/Library selecionado para revisar caches, registros e resíduos descartáveis.";
 "junk.section.wrong_path_warning" = "Este caminho não é ~/Library. Talvez nenhum arquivo desnecessário seja encontrado.";
 "junk.section.wrong_path_title" = "Pasta selecionada incorreta";
-"junk.section.wrong_path_desc" = "Os arquivos desnecessários ficam em ~/Library. Toque em “Alterar” para selecionar sua pasta ~/Library.";
+"junk.section.wrong_path_desc" = "Os arquivos desnecessários ficam em ~/Library. Clique em “Alterar” para selecionar sua pasta ~/Library.";
 "junk.item.select_all" = "Selecionar tudo";
 "junk.item.deselect_all" = "Desmarcar tudo";
 "junk.item.show_more" = "Mostrar mais %ld itens";
 "junk.item.show_less" = "Mostrar apenas os primeiros 30 itens";
 "junk.section.access_title" = "Acesso à pasta expirou";
-"junk.section.access_desc" = "O TriClean não consegue mais acessar ~/Library. Toque em “Alterar” e selecione a pasta novamente.";
+"junk.section.access_desc" = "O TriClean não consegue mais acessar ~/Library. Clique em “Alterar” e selecione a pasta novamente.";
 "junk.progress.cleaning" = "Movendo %ld itens selecionados para o Lixo…";
 "junk.progress.clean_done" = "%ld itens movidos para o Lixo.";
 "junk.progress.clean_failed" = "Não foi possível mover os arquivos desnecessários selecionados para o Lixo.";
@@ -291,7 +291,7 @@
 "duplicate.empty.waiting_title" = "Pronto para escanear";
 "duplicate.empty.waiting_body" = "Clique em Escanear para buscar arquivos duplicados.";
 "duplicate.empty.access_title" = "Acesso à pasta expirou";
-"duplicate.empty.access_body" = "O TriClean não consegue mais acessar esta pasta. Toque em “Alterar pasta” acima e selecione-a novamente.";
+"duplicate.empty.access_body" = "O TriClean não consegue mais acessar esta pasta. Clique em “Alterar pasta” acima e selecione-a novamente.";
 "duplicate.summary.groups" = "Grupos de duplicados";
 "duplicate.summary.selected_files" = "Arquivos selecionados";
 "duplicate.summary.selected_space" = "Espaço selecionado";
@@ -318,7 +318,7 @@
 "duplicate.file.help.delete" = "Marcado para limpeza. Clique para manter este arquivo.";
 "duplicate.file.reveal" = "Mostrar no Finder";
 "duplicate.file.keep" = "Manter";
-"duplicate.file.delete" = "Excluir";
+"duplicate.file.delete" = "Para o Lixo";
 "duplicate.delete_confirm.title" = "Limpar arquivos duplicados";
 "duplicate.delete_confirm.message" = "%ld arquivos duplicados selecionados (%@) serão movidos para o Lixo. Pelo menos um arquivo é preservado em cada grupo.";
 "duplicate.cleanup_result.title" = "Limpeza concluída";
@@ -492,7 +492,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Memória";
 "menubar.open_triclean" = "Abrir o TriClean";
-"menu.buy_pro" = "Comprar o TriClean Pro…";
+"menu.buy_pro" = "Obter acesso vitalício…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "Bem-vindo ao TriClean";
@@ -536,7 +536,7 @@
 "store.status.loading_products" = "Carregando produtos…";
 "store.error.load_failed" = "Falha ao carregar os produtos.";
 "store.error.load_failed_detail" = "Falha ao carregar o produto: %@";
-"store.error.product_not_found" = "Produto não encontrado. Verifique o Product ID ou a configuração do StoreKit.";
+"store.error.product_not_found" = "Não foi possível carregar as informações do produto na App Store. Verifique sua conexão e tente novamente.";
 "store.error.product_unavailable" = "Não foi possível carregar as informações do produto na App Store. Verifique sua conexão e tente novamente.";
 "store.error.no_purchase_to_restore" = "Nenhuma compra anterior foi encontrada para esta conta Apple.";
 "store.btn.retry" = "Tentar novamente";

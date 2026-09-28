@@ -38,9 +38,9 @@
 "memory.disclaimer" = "Die angezeigten Werte sind Schätzungen auf Basis öffentlicher macOS-APIs (host_statistics64) und können vom tatsächlichen Speicherzustand abweichen. Diese App verändert den Systemspeicher nicht.";
 "memory.menubar_disclaimer" = "Werte sind ungefähre Schätzungen, nur als Referenz.";
 
-"memory.composition" = "Speicherzusammensetzung";
+"memory.composition" = "Arbeitsspeicher-Zusammensetzung";
 "memory.composition_note" = "※ Basiert auf macOS Mach-VM-Statistiken (host_statistics64). Werte sind Schätzungen und können von Aktivitätsanzeige abweichen.";
-"memory.significant_usage" = "Hohe Speichernutzung";
+"memory.significant_usage" = "Hohe Arbeitsspeichernutzung";
 "memory.significant_empty" = "Keine laufenden Apps anzuzeigen.";
 "memory.legend.app" = "App-Speicher";
 "memory.legend.wired" = "Reservierter Speicher";
@@ -69,13 +69,13 @@
 "storage.scan.sort.size" = "Größe";
 "storage.scan.sort.note" = "Während des Scans in Erkennungsreihenfolge angezeigt. Sortierung wird nach Abschluss angewendet.";
 "storage.results.header" = "Ergebnisse";
-"storage.alert.delete.title" = "Wirklich löschen?";
+"storage.alert.delete.title" = "In den Papierkorb legen?";
 "storage.msg.manual" = "Ordner „%@“ wird analysiert…";
 "storage.msg.auto" = "Bedingung geändert – wird neu analysiert…";
 "storage.msg.canceled" = "Scan abgebrochen.";
 "storage.msg.no_items" = "Keine passenden Elemente in „%@“ gefunden.";
 "storage.msg.completed" = "Analyse von „%@“ abgeschlossen. (%ld Ordner / %ld Dateien)";
-"storage.msg.access_denied" = "Ordnerzugriff abgelaufen. Bitte wähle den Ordner erneut aus.";
+"storage.msg.access_denied" = "Ordnerzugriff abgelaufen. Bitte wählen Sie den Ordner erneut aus.";
 "storage.scope.select_home_msg" = "Die Speichernutzung des Privatordners wird nur innerhalb des ausgewählten Bereichs berechnet.";
 "storage.scope.select_home_title" = "Privatordner auswählen";
 "storage.scope.select_apps_title" = "Programme-Ordner auswählen";
@@ -162,21 +162,21 @@
 "apps.status.uninstall_all_fail" = "Ausgewählte App-Bundles konnten nicht in den Papierkorb verschoben werden (Berechtigung erforderlich).";
 "apps.status.appstore_reference_only" = "App-Store-Apps werden nur zur Information angezeigt.";
 "apps.status.system_reference_only" = "System-Apps werden nur zur Information angezeigt; ihre Daten werden nicht gescannt.";
-"apps.status.running_skipped" = "%ld laufende App(s) wurden übersprungen. Beende sie und versuche es erneut.";
+"apps.status.running_skipped" = "%ld laufende App(s) wurden übersprungen. Beenden Sie sie und versuchen Sie es erneut.";
 
 /* Settings View */
 "settings.display" = "Anzeige";
 "settings.menubar_unit" = "Menüleisten-Einheit";
-"settings.menubar_unit_desc" = "Wählen Sie die in Menüleiste und Seitenleiste angezeigte Speichereinheit.";
+"settings.menubar_unit_desc" = "Wählen Sie die in Menüleiste und Seitenleiste angezeigte Arbeitsspeicher-Einheit.";
 "settings.app_activation" = "App-Aktivierung";
-"settings.app_activation_desc" = "Wählen Sie das Verhalten beim Klick auf ein App-Symbol in „Hohe Speichernutzung“ (Einzelfenster vs. alle Fenster).";
+"settings.app_activation_desc" = "Wählen Sie das Verhalten beim Klick auf ein App-Symbol in „Hohe Arbeitsspeichernutzung“ (Einzelfenster vs. alle Fenster).";
 "settings.app_activation.single" = "Einzeln";
 "settings.app_activation.all" = "Alle";
 "settings.about" = "Über TriClean";
 "settings.help" = "Hilfe";
 
-"settings.help.clean_title" = "So funktionieren Speicherschätzungen";
-"settings.help.clean_desc" = "• Speicherwerte werden aus öffentlichen macOS-APIs wie host_statistics64 berechnet.\n• In TriClean angezeigte Zahlen sind Schätzungen und können von Aktivitätsanzeige abweichen.\n• „Aktualisieren“ aktualisiert nur die angezeigten Werte; der Systemspeicher wird nicht verändert.\n• Diese App dient ausschließlich der Überwachung und optimiert oder gibt keinen Speicher frei.";
+"settings.help.clean_title" = "So funktionieren Arbeitsspeicher-Schätzungen";
+"settings.help.clean_desc" = "• Arbeitsspeicherwerte werden aus öffentlichen macOS-APIs wie host_statistics64 berechnet.\n• In TriClean angezeigte Zahlen sind Schätzungen und können von Aktivitätsanzeige abweichen.\n• „Aktualisieren“ aktualisiert nur die angezeigten Werte; der Systemspeicher wird nicht verändert.\n• Diese App dient ausschließlich der Überwachung und optimiert oder gibt keinen Arbeitsspeicher frei.";
 "settings.help.search_title" = "App-Suche: Spotlight-Indizierung";
 "settings.help.search_desc" = "• Die Ergebnisse können leer sein, wenn die Spotlight-Indizierung deaktiviert ist.\n• In der Sandbox werden nur zugängliche Pfade durchsucht.";
 
@@ -211,7 +211,7 @@
 "store.btn.retry" = "Erneut versuchen";
 
 /* Menubar */
-"menu.buy_pro" = "TriClean Pro kaufen...";
+"menu.buy_pro" = "Dauerzugang kaufen…";
 
 /* Paywall (Links) */
 "paywall.link.privacy" = "Datenschutz";
@@ -221,7 +221,7 @@
 "paywall.error.title"   = "Kauf-Fehler";
 "paywall.error.unknown" = "Ein unbekannter Fehler ist aufgetreten.";
 
-"store.error.product_not_found"   = "Produkt nicht gefunden. Bitte überprüfen Sie die Produkt-ID oder die StoreKit-Konfiguration.";
+"store.error.product_not_found"   = "Produktinformationen konnten nicht aus dem App Store geladen werden. Bitte Verbindung prüfen und erneut versuchen.";
 "store.error.load_failed_detail"  = "Produkt konnte nicht geladen werden: %@";
 
 /* Onboarding */
@@ -229,8 +229,8 @@
 "onboarding.welcome.desc" = "Speichernutzung, Arbeitsspeicher-Schätzungen und App-bezogene Dateien an einem Ort überprüfen.";
 "onboarding.storage.title" = "Speicher-Analyse";
 "onboarding.storage.desc" = "Scannen Sie Ihren Speicher nach großen Ordnern und Dateien. Wählen Sie diese aus und legen Sie sie in den Papierkorb, um Speicherplatz freizugeben.";
-"onboarding.memory.title" = "Speicher-Monitor";
-"onboarding.memory.desc" = "Geschätzte Speichernutzung und -zusammensetzung über öffentliche macOS-APIs anzeigen. Diese App verändert den Systemspeicher nicht.";
+"onboarding.memory.title" = "Arbeitsspeicher-Monitor";
+"onboarding.memory.desc" = "Geschätzte Arbeitsspeichernutzung und -zusammensetzung über öffentliche macOS-APIs anzeigen. Diese App verändert den Systemspeicher nicht.";
 "onboarding.apps.title" = "App-Datei-Überprüfung";
 "onboarding.apps.desc" = "App-Bundles und zugehörige Dateien in Ihrer Privat-Library überprüfen. App-Store-Apps werden nur zur Information angezeigt.";
 "onboarding.btn.next" = "Weiter";
@@ -283,7 +283,7 @@
 "junk.category.safari_cache.title" = "Safari-Cache";
 "junk.category.safari_cache.desc" = "Cache des Safari-Browsers. Erste Seitenladevorgänge können nach dem Entfernen leicht langsamer sein.";
 "junk.category.mail_downloads.title" = "Mail-Downloads";
-"junk.category.mail_downloads.desc" = "Kopien von mit Mail geladenen Anhängen. Prüfe sie vor dem Bereinigen, damit keine benötigten Dateien entfernt werden.";
+"junk.category.mail_downloads.desc" = "Kopien von mit Mail geladenen Anhängen. Prüfen Sie sie vor dem Bereinigen, damit keine benötigten Dateien entfernt werden.";
 "junk.category.saved_app_state.title" = "Gesicherter App-Zustand";
 "junk.category.saved_app_state.desc" = "Daten zur Wiederherstellung von Fenstern und Tabs. Apps können nach dem Entfernen im Standardzustand starten.";
 "junk.category.crash_reports.title" = "Absturzberichte";
@@ -308,7 +308,7 @@
 "junk.section.ready_desc" = "Scannen Sie den ausgewählten ~/Library-Bereich, um Caches, Logs und entbehrliche Reste zu prüfen.";
 "junk.section.wrong_path_warning" = "Dieser Pfad ist nicht ~/Library. Junk-Dateien werden möglicherweise nicht gefunden.";
 "junk.section.wrong_path_title" = "Falscher Ordner ausgewählt";
-"junk.section.wrong_path_desc" = "Junk-Dateien befinden sich unter ~/Library. Tippen Sie auf „Ändern“, um Ihren ~/Library-Ordner auszuwählen.";
+"junk.section.wrong_path_desc" = "Junk-Dateien befinden sich unter ~/Library. Klicken Sie auf „Ändern“, um Ihren ~/Library-Ordner auszuwählen.";
 
 /* Junk item selection */
 "junk.item.select_all" = "Alle auswählen";
@@ -388,7 +388,7 @@
 "duplicate.file.help.delete" = "Zur Bereinigung markiert. Klicken, um diese Datei stattdessen zu behalten.";
 "duplicate.file.reveal" = "Im Finder zeigen";
 "duplicate.file.keep" = "Behalten";
-"duplicate.file.delete" = "Löschen";
+"duplicate.file.delete" = "In Papierkorb";
 "duplicate.delete_confirm.title" = "Doppelte Dateien bereinigen";
 "duplicate.delete_confirm.message" = "%ld ausgewählte doppelte Dateien (%@) werden in den Papierkorb verschoben. Mindestens eine Datei in jeder Gruppe bleibt erhalten.";
 "duplicate.cleanup_result.title" = "Bereinigung abgeschlossen";
@@ -421,16 +421,16 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "Inaktiv";
-"duplicate.phase.collecting" = "Dateien werden gesammelt...";
-"duplicate.phase.grouping" = "Nach Größe gruppieren...";
-"duplicate.phase.partial_hash" = "Teil-Hashes vergleichen...";
-"duplicate.phase.full_hash" = "Gesamt-Hashes vergleichen...";
+"duplicate.phase.collecting" = "Dateien werden gesammelt…";
+"duplicate.phase.grouping" = "Nach Größe gruppieren…";
+"duplicate.phase.partial_hash" = "Teil-Hashes vergleichen…";
+"duplicate.phase.full_hash" = "Gesamt-Hashes vergleichen…";
 "duplicate.phase.done" = "Fertig";
 
 /* Smart Scan */
 "sidebar.smartscan" = "Smart Scan";
 "smartscan.title" = "Mac Smart Scan";
-"smartscan.subtitle" = "Prüfe Speicher, Datenmüll, Duplikate, Apps und Arbeitsspeicher in einem Dashboard.";
+"smartscan.subtitle" = "Prüfen Sie Speicher, Datenmüll, Duplikate, Apps und Arbeitsspeicher in einem Dashboard.";
 "smartscan.last.never" = "Noch nicht gescannt";
 "smartscan.last.updated" = "Zuletzt geprüft: %@";
 "smartscan.action.scan" = "Scan starten";
@@ -450,19 +450,19 @@
 "smartscan.memory.title" = "Arbeitsspeicher";
 "smartscan.memory.caption" = "%@ von %@ verwendet";
 "smartscan.junk.title" = "Datenmüll";
-"smartscan.junk.caption_permission" = "Erlaube zuerst im Speicherbereich den Zugriff auf ~/Library.";
+"smartscan.junk.caption_permission" = "Erlauben Sie zuerst im Speicherbereich den Zugriff auf ~/Library.";
 "smartscan.junk.caption_scanning" = "Datenmüll wird geprüft.";
 "smartscan.junk.caption_found" = "Bereinigungskandidaten in %ld Kategorien gefunden.";
-"smartscan.junk.caption_ready" = "Berechtigung ist bereit. Starte einen Scan.";
+"smartscan.junk.caption_ready" = "Berechtigung ist bereit. Starten Sie einen Scan.";
 "smartscan.duplicates.title" = "Duplikate";
-"smartscan.duplicates.caption_permission" = "Wähle zuerst im Bereich Duplikate einen Scanordner aus.";
+"smartscan.duplicates.caption_permission" = "Wählen Sie zuerst im Bereich Duplikate einen Scanordner aus.";
 "smartscan.duplicates.caption_found" = "%ld Duplikat-Gruppen gefunden.";
-"smartscan.duplicates.caption_ready" = "Ordner ist bereit. Starte einen Scan.";
+"smartscan.duplicates.caption_ready" = "Ordner ist bereit. Starten Sie einen Scan.";
 "smartscan.reclaimable.storage_ratio" = "%@ des Speichers";
-"smartscan.apps.caption_permission" = "Erlaube zuerst im Apps-Bereich den Zugriff auf den Applications-Ordner.";
+"smartscan.apps.caption_permission" = "Erlauben Sie zuerst im Apps-Bereich den Zugriff auf den Applications-Ordner.";
 "smartscan.apps.caption_scanning" = "App-Liste wird geladen.";
 "smartscan.apps.caption_found" = "%ld Apps geprüft · %ld entfernbar";
-"smartscan.apps.caption_ready" = "Berechtigung ist bereit. Prüfe deine Apps.";
+"smartscan.apps.caption_ready" = "Berechtigung ist bereit. Prüfen Sie Ihre Apps.";
 "smartscan.actions.title" = "Schnellzugriff";
 "smartscan.actions.storage" = "Speicher";
 "smartscan.actions.apps" = "Apps";
@@ -476,7 +476,7 @@
 "smartscan.details.duplicates.title" = "Duplikate bereinigen";
 "smartscan.details.open" = "Öffnen";
 "smartscan.safety.title" = "Gelöscht wird nur in den jeweiligen Detailansichten.";
-"smartscan.safety.body" = "Smart Scan bietet Zusammenfassungen und Navigation. Die eigentliche Bereinigung erfolgt erst, nachdem du Elemente geprüft und in den Papierkorb verschoben hast.";
+"smartscan.safety.body" = "Smart Scan bietet Zusammenfassungen und Navigation. Die eigentliche Bereinigung erfolgt erst, nachdem Sie Elemente geprüft und in den Papierkorb verschoben haben.";
 
 /* Photo Manager */
 "sidebar.photos" = "Fotos";
@@ -556,12 +556,12 @@
 /* Duplicate Finder — 접근 권한 만료 안내 */
 "duplicate.phase.access_denied" = "Kein Zugriff";
 "duplicate.empty.access_title" = "Ordnerzugriff abgelaufen";
-"duplicate.empty.access_body" = "TriClean kann nicht mehr auf diesen Ordner zugreifen. Tippe oben auf „Ordner ändern“ und wähle ihn erneut aus.";
-"duplicate.status.access_denied" = "Ordnerzugriff abgelaufen. Bitte wähle den Ordner erneut aus.";
+"duplicate.empty.access_body" = "TriClean kann nicht mehr auf diesen Ordner zugreifen. Klicken Sie oben auf „Ordner ändern“ und wählen Sie ihn erneut aus.";
+"duplicate.status.access_denied" = "Ordnerzugriff abgelaufen. Bitte wählen Sie den Ordner erneut aus.";
 
 /* Junk — 접근 권한 만료 안내 */
 "junk.section.access_title" = "Ordnerzugriff abgelaufen";
-"junk.section.access_desc" = "TriClean kann nicht mehr auf ~/Library zugreifen. Tippe auf „Ändern“ und wähle den Ordner erneut aus.";
+"junk.section.access_desc" = "TriClean kann nicht mehr auf ~/Library zugreifen. Klicken Sie auf „Ändern“ und wählen Sie den Ordner erneut aus.";
 "smartscan.junk.caption_access" = "Ordnerzugriff abgelaufen. Bitte im Speicher erneut auswählen.";
 
 /* Wöchentliche Aufräum-Erinnerung */
@@ -570,10 +570,10 @@
 "settings.reminder.toggle_desc" = "Erhalte einmal pro Woche eine Mitteilung, um Datenmüll, Duplikate und große Dateien aufzuräumen.";
 "settings.reminder.weekday" = "Tag";
 "settings.reminder.time" = "Uhrzeit";
-"settings.reminder.denied" = "Mitteilungen für TriClean sind deaktiviert. Aktiviere sie in den Systemeinstellungen, um Erinnerungen zu erhalten.";
+"settings.reminder.denied" = "Mitteilungen für TriClean sind deaktiviert. Aktivieren Sie sie in den Systemeinstellungen, um Erinnerungen zu erhalten.";
 "settings.reminder.open_settings" = "Systemeinstellungen öffnen";
 "reminder.notification.title" = "Zeit zum Aufräumen";
-"reminder.notification.body" = "Deine wöchentliche Aufräumaktion steht an. Suche nach Datenmüll, Duplikaten und großen Dateien, um Speicher freizugeben.";
+"reminder.notification.body" = "Ihre wöchentliche Aufräumaktion steht an. Suchen Sie nach Datenmüll, Duplikaten und großen Dateien, um Speicher freizugeben.";
 
 /* MARK: - Sicherheitsprüfung beim Löschen (hinzugefügt in v1.4.4) */
 "junk.progress.clean_invalid" = "Keine Objekte zum Entfernen. %ld Objekt(e) haben sich geändert und wurden übersprungen. Bitte erneut scannen.";
@@ -634,4 +634,4 @@
 
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "In der Menüleiste anzeigen";
-"settings.menubar_show_desc" = "Zeigt die Speicherauslastung in der Menüleiste an. Wenn Sie dies deaktivieren, öffnen Sie TriClean über das Dock, um die Anzeige in den Einstellungen wieder einzuschalten.";
+"settings.menubar_show_desc" = "Zeigt die Arbeitsspeicherauslastung in der Menüleiste an. Wenn Sie dies deaktivieren, öffnen Sie TriClean über das Dock, um die Anzeige in den Einstellungen wieder einzuschalten.";

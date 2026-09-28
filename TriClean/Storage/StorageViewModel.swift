@@ -285,12 +285,16 @@ final class StorageViewModel: ObservableObject {
             .fileSizeKey
         ]
 
-        // 숨김 항목도 디스크를 차지한다. `.skipsHiddenFiles`를 쓰면 UF_HIDDEN 플래그가 붙은
-        // ~/Library와 `.Trash`·`.cache` 같은 점 폴더가 빠져, 수십 GB가 "기타"로 표시되었다.
+        // ⚠️ `.skipsHiddenFiles`를 빼지 말 것.
+        //   빼면 홈 폴더 합계에 ~/Library(UF_HIDDEN)까지 순회하게 되는데,
+        //   - macOS 14+에서 다른 앱의 `Library/Containers`·`Group Containers`를 읽는 순간
+        //     "다른 앱의 데이터에 접근" 시스템 경고가 저장 공간 탭 진입만으로 뜰 수 있고,
+        //   - 파일 수가 가장 많은 트리라 탭을 열 때마다 수 분짜리 순회가 반복된다.
+        //   그 대가로 ~/Library와 점 폴더 용량은 "기타"로 표시된다(v1.5.0과 같은 동작).
         guard let enumerator = fileManager.enumerator(
             at: url,
             includingPropertiesForKeys: keys,
-            options: [],
+            options: [.skipsHiddenFiles],
             errorHandler: { _, _ in true }
         ) else {
             return 0

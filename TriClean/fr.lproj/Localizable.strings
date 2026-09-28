@@ -69,7 +69,7 @@
 "storage.scan.sort.size" = "Taille";
 "storage.scan.sort.note" = "Affichés dans l'ordre de découverte pendant l'analyse. Le tri est appliqué à la fin.";
 "storage.results.header" = "Résultats";
-"storage.alert.delete.title" = "Voulez-vous vraiment supprimer ?";
+"storage.alert.delete.title" = "Placer dans la corbeille ?";
 "storage.msg.manual" = "Analyse du dossier « %@ »…";
 "storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
 "storage.msg.canceled" = "Analyse annulée.";
@@ -211,7 +211,7 @@
 "store.btn.retry" = "Réessayer";
 
 /* Menubar */
-"menu.buy_pro" = "Acheter TriClean Pro...";
+"menu.buy_pro" = "Acheter l’accès à vie…";
 
 /* Paywall (Links) */
 "paywall.link.privacy" = "Confidentialité";
@@ -221,7 +221,7 @@
 "paywall.error.title"   = "Erreur d'achat";
 "paywall.error.unknown" = "Une erreur inconnue s'est produite.";
 
-"store.error.product_not_found"   = "Produit introuvable. Vérifiez l'identifiant de produit ou la configuration StoreKit.";
+"store.error.product_not_found"   = "Impossible de charger les informations du produit depuis l'App Store. Vérifiez votre connexion et réessayez.";
 "store.error.load_failed_detail"  = "Échec du chargement du produit : %@";
 
 /* Onboarding */
@@ -308,7 +308,7 @@
 "junk.section.ready_desc" = "Analysez la zone ~/Library sélectionnée pour examiner les caches, journaux et résidus jetables.";
 "junk.section.wrong_path_warning" = "Ce chemin n'est pas ~/Library. Les fichiers inutiles peuvent ne pas être trouvés.";
 "junk.section.wrong_path_title" = "Mauvais dossier sélectionné";
-"junk.section.wrong_path_desc" = "Les fichiers inutiles se trouvent dans ~/Library. Touchez « Modifier » pour sélectionner votre dossier ~/Library.";
+"junk.section.wrong_path_desc" = "Les fichiers inutiles se trouvent dans ~/Library. Cliquez sur « Modifier » pour sélectionner votre dossier ~/Library.";
 
 /* Junk item selection */
 "junk.item.select_all" = "Tout sélectionner";
@@ -388,7 +388,7 @@
 "duplicate.file.help.delete" = "Marqué pour nettoyage. Cliquez pour conserver ce fichier.";
 "duplicate.file.reveal" = "Afficher dans le Finder";
 "duplicate.file.keep" = "Conserver";
-"duplicate.file.delete" = "Supprimer";
+"duplicate.file.delete" = "À la corbeille";
 "duplicate.delete_confirm.title" = "Nettoyer les fichiers en double";
 "duplicate.delete_confirm.message" = "%ld fichiers en double sélectionnés (%@) seront placés dans la corbeille. Au moins un fichier est conservé dans chaque groupe.";
 "duplicate.cleanup_result.title" = "Nettoyage terminé";
@@ -421,10 +421,10 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "Inactif";
-"duplicate.phase.collecting" = "Collecte des fichiers...";
-"duplicate.phase.grouping" = "Regroupement par taille...";
-"duplicate.phase.partial_hash" = "Comparaison des hachages partiels...";
-"duplicate.phase.full_hash" = "Comparaison des hachages complets...";
+"duplicate.phase.collecting" = "Collecte des fichiers…";
+"duplicate.phase.grouping" = "Regroupement par taille…";
+"duplicate.phase.partial_hash" = "Comparaison des hachages partiels…";
+"duplicate.phase.full_hash" = "Comparaison des hachages complets…";
 "duplicate.phase.done" = "Terminé";
 
 /* Smart Scan */
@@ -556,12 +556,12 @@
 /* Duplicate Finder — 접근 권한 만료 안내 */
 "duplicate.phase.access_denied" = "Accès refusé";
 "duplicate.empty.access_title" = "Accès au dossier expiré";
-"duplicate.empty.access_body" = "TriClean ne peut plus accéder à ce dossier. Touchez « Changer de dossier » ci-dessus et sélectionnez-le à nouveau.";
+"duplicate.empty.access_body" = "TriClean ne peut plus accéder à ce dossier. Cliquez sur « Changer de dossier » ci-dessus et sélectionnez-le à nouveau.";
 "duplicate.status.access_denied" = "Accès au dossier expiré. Veuillez re-sélectionner le dossier.";
 
 /* Junk — 접근 권한 만료 안내 */
 "junk.section.access_title" = "Accès au dossier expiré";
-"junk.section.access_desc" = "TriClean ne peut plus accéder à ~/Library. Touchez « Changer » et sélectionnez le dossier à nouveau.";
+"junk.section.access_desc" = "TriClean ne peut plus accéder à ~/Library. Cliquez sur « Modifier » et sélectionnez le dossier à nouveau.";
 "smartscan.junk.caption_access" = "Accès au dossier expiré. Re-sélectionnez-le dans Stockage.";
 
 /* Rappel de nettoyage hebdomadaire */

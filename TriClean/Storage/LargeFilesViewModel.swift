@@ -145,6 +145,14 @@ final class LargeFilesViewModel: ObservableObject {
             guard response == .OK, let url = panel.url else { return }
 
             Task { @MainActor in
+                // `panel.begin`은 비모달이라 패널이 떠 있는 동안 메인 창에서 삭제를 시작할 수 있다.
+                // 삭제 중에 폴더를 바꾸면 이전 결과가 새 폴더 이름 아래 남고(스코프는 닫힘),
+                // 이후 삭제는 새 폴더 기준으로 검증되어 전부 실패한다. 삭제가 끝난 뒤 다시 고르게 한다.
+                guard !self.isDeleting else {
+                    self.scanMessage = "junk.progress.wait".localized
+                    return
+                }
+
                 // 다음 실행에서도 같은 폴더를 다시 고르지 않도록 북마크를 저장한다.
                 self.bookmarks.trySave(url: url, for: .largeFilesScanFolder)
 
@@ -205,6 +213,9 @@ final class LargeFilesViewModel: ObservableObject {
         isScanning = false
         isAutoUpdating = false
         if let message { scanMessage = message }
+        // 스캔 중에는 정렬 변경을 미뤄두므로(LargeFilesView의 onValueChange), 스캔을 멈출 때
+        // 현재 정렬을 적용하지 않으면 선택기와 목록 순서가 어긋난 채 남는다.
+        applyTopFolderSortFromDiscovered()
     }
 
     func cancelActiveScan() {
@@ -722,12 +733,12 @@ final class LargeFilesViewModel: ObservableObject {
                 )
             }
 
-            self.folderResults.removeAll(where: isRemoved)
             self.discoveredResults.removeAll(where: isRemoved)
             if !removedBytesByParent.isEmpty {
-                self.folderResults = self.folderResults.map(shrinkParent)
                 self.discoveredResults = self.discoveredResults.map(shrinkParent)
             }
+            // 크기가 바뀌었으므로 크기 정렬을 다시 적용한다.
+            self.applyTopFolderSortFromDiscovered()
 
             let remainingIDs = Set(self.folderResults.map(\.id))
             self.tableSelection.formIntersection(remainingIDs)

@@ -118,7 +118,8 @@ final class JunkScannerViewModel: ObservableObject {
 
     /// 샌드박스 앱에서는 `homeDirectoryForCurrentUser`가 컨테이너 경로를 돌려주므로
     /// 계정 데이터베이스의 실제 홈 디렉터리를 기준으로 삼는다.
-    nonisolated static var userLibraryURL: URL {
+    /// 실행 중 바뀌지 않는 값이고 `getpwuid`는 재진입 안전하지 않으므로 한 번만 계산한다.
+    nonisolated static let userLibraryURL: URL = {
         let home: URL
         if let pw = getpwuid(getuid()), let dir = pw.pointee.pw_dir {
             home = URL(fileURLWithPath: String(cString: dir), isDirectory: true)
@@ -126,7 +127,7 @@ final class JunkScannerViewModel: ObservableObject {
             home = FileManager.default.homeDirectoryForCurrentUser
         }
         return home.appendingPathComponent("Library", isDirectory: true)
-    }
+    }()
     
     // MARK: - 폴더 선택
     

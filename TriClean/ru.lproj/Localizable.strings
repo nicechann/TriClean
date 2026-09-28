@@ -73,7 +73,7 @@
 "storage.scan.sort.size" = "Размер";
 "storage.scan.sort.note" = "Во время сканирования объекты отображаются в порядке обнаружения. Сортировка применяется после завершения.";
 "storage.results.header" = "Результаты";
-"storage.alert.delete.title" = "Действительно удалить?";
+"storage.alert.delete.title" = "Переместить в Корзину?";
 "storage.msg.manual" = "Анализ папки «%@»…";
 "storage.msg.auto" = "Повторный анализ из-за изменения условий…";
 "storage.msg.canceled" = "Сканирование отменено.";
@@ -129,7 +129,7 @@
 "junk.section.alert.title" = "Очистить выбранные ненужные файлы";
 "junk.section.alert.message" = "%@ будет перемещено в Корзину.\nВосстановить можно через Finder.";
 "junk.category.alert.title" = "Очистить «%@»";
-"junk.category.alert.message" = "Переместить %1$ld выбранных объектов (%2$@) в Корзину.\nИх можно восстановить через Finder.";
+"junk.category.alert.message" = "Переместить выбранные объекты (%1$ld, %2$@) в Корзину.\nИх можно восстановить через Finder.";
 "junk.scope.title" = "Выберите личную Библиотеку (~/Library)";
 "junk.scope.message" = "Выберите папку личной Библиотеки для поиска ненужных файлов.";
 "junk.progress.preparing" = "Подготовка к сканированию…";
@@ -162,7 +162,7 @@
 "junk.section.wrong_path_desc" = "Ненужные файлы находятся в ~/Library. Нажмите «Изменить», чтобы выбрать свою папку ~/Library.";
 "junk.item.select_all" = "Выбрать все";
 "junk.item.deselect_all" = "Снять выбор";
-"junk.item.show_more" = "Показать ещё %ld объектов";
+"junk.item.show_more" = "Показать ещё: %ld";
 "junk.item.show_less" = "Показать только первые 30 объектов";
 "junk.section.access_title" = "Доступ к папке истёк";
 "junk.section.access_desc" = "TriClean больше не имеет доступа к ~/Library. Нажмите «Изменить» и выберите папку заново.";
@@ -324,7 +324,7 @@
 "duplicate.file.help.delete" = "Отмечен для очистки. Нажмите, чтобы сохранить этот файл.";
 "duplicate.file.reveal" = "Показать в Finder";
 "duplicate.file.keep" = "Сохранить";
-"duplicate.file.delete" = "Удалить";
+"duplicate.file.delete" = "В Корзину";
 "duplicate.delete_confirm.title" = "Очистить дубликаты файлов";
 "duplicate.delete_confirm.message" = "Выбранных дубликатов для перемещения в Корзину: %ld (%@). В каждой группе будет сохранён хотя бы один файл.";
 "duplicate.cleanup_result.title" = "Очистка завершена";
@@ -498,7 +498,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Память";
 "menubar.open_triclean" = "Открыть TriClean";
-"menu.buy_pro" = "Купить TriClean Pro…";
+"menu.buy_pro" = "Получить бессрочный доступ…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "Добро пожаловать в TriClean";
@@ -536,13 +536,13 @@
 "upgrade.bottom.desc" = "Сканирование, сводка и ограниченный просмотр бесплатны. Полные подробные результаты и очистка доступны с бессрочным доступом.";
 "upgrade.bottom.preview.items" = "В бесплатном просмотре показано %2$@ из %1$@ элементов. Полные подробные результаты и очистка доступны с бессрочным доступом.";
 "upgrade.bottom.preview.groups" = "В бесплатном просмотре показано %2$@ из %1$@ групп. Полные подробные результаты и очистка доступны с бессрочным доступом.";
-"upgrade.preview.count" = "%2$ld из %1$ld результатов";
+"upgrade.preview.count" = "Показано %2$ld из %1$ld";
 "upgrade.bottom.buy" = "Получить бессрочный доступ";
 "store.status.checking" = "Проверка состояния покупки…";
 "store.status.loading_products" = "Загрузка продуктов…";
 "store.error.load_failed" = "Не удалось загрузить продукты.";
 "store.error.load_failed_detail" = "Не удалось загрузить продукт: %@";
-"store.error.product_not_found" = "Продукт не найден. Проверьте Product ID или конфигурацию StoreKit.";
+"store.error.product_not_found" = "Не удалось загрузить сведения о продукте из App Store. Проверьте подключение и повторите попытку.";
 "store.error.product_unavailable" = "Не удалось загрузить сведения о продукте из App Store. Проверьте подключение и повторите попытку.";
 "store.error.no_purchase_to_restore" = "Для этой учётной записи Apple предыдущих покупок не найдено.";
 "store.btn.retry" = "Повторить";

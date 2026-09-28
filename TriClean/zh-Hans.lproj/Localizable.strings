@@ -67,7 +67,7 @@
 "storage.scan.sort.size" = "大小";
 "storage.scan.sort.note" = "扫描过程中按发现顺序显示，完成后应用排序。";
 "storage.results.header" = "结果";
-"storage.alert.delete.title" = "确定要删除吗？";
+"storage.alert.delete.title" = "要移到废纸篓吗？";
 "storage.msg.manual" = "正在分析「%@」文件夹…";
 "storage.msg.auto" = "条件已更改，正在重新分析…";
 "storage.msg.canceled" = "已取消扫描。";
@@ -318,7 +318,7 @@
 "duplicate.file.help.delete" = "已标记待清理。点击可改为保留此文件。";
 "duplicate.file.reveal" = "在 Finder 中显示";
 "duplicate.file.keep" = "保留";
-"duplicate.file.delete" = "删除";
+"duplicate.file.delete" = "移到废纸篓";
 "duplicate.delete_confirm.title" = "清理重复文件";
 "duplicate.delete_confirm.message" = "已选择的 %ld 个重复文件（%@）将被移到废纸篓。每组会至少保留一个文件。";
 "duplicate.cleanup_result.title" = "清理完成";
@@ -492,7 +492,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – 内存";
 "menubar.open_triclean" = "打开 TriClean";
-"menu.buy_pro" = "购买 TriClean Pro…";
+"menu.buy_pro" = "获取永久使用权…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "欢迎使用 TriClean";
@@ -536,7 +536,7 @@
 "store.status.loading_products" = "正在载入商品…";
 "store.error.load_failed" = "载入商品失败。";
 "store.error.load_failed_detail" = "载入商品失败：%@";
-"store.error.product_not_found" = "未找到商品。请检查 Product ID 或 StoreKit 配置。";
+"store.error.product_not_found" = "无法从 App Store 载入商品信息。请检查网络连接后重试。";
 "store.error.product_unavailable" = "无法从 App Store 载入商品信息。请检查网络连接后重试。";
 "store.error.no_purchase_to_restore" = "未找到此 Apple 账户的历史购买记录。";
 "store.btn.retry" = "重试";

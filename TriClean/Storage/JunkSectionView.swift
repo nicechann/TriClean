@@ -104,6 +104,7 @@ struct JunkSectionView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .disabled(viewModel.isCleaning)
             }
 
             // ── 접근 권한 만료 안내 ──
@@ -124,6 +125,7 @@ struct JunkSectionView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
+                    .disabled(viewModel.isCleaning)
                 }
                 .padding(10)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.orange.opacity(0.1)))

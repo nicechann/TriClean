@@ -4,7 +4,7 @@
 "common.close" = "Kapat";
 "common.preview" = "Önizleme";
 "common.refresh" = "Yenile";
-"common.trash" = "Çöp Kutusu'na Taşı";
+"common.trash" = "Çöp Sepeti'ne Taşı";
 "common.finder" = "Finder'da Göster";
 "common.finder_app" = "Finder";
 "common.macos" = "macOS";
@@ -16,7 +16,7 @@
 "common.updated" = "Güncellendi: %@";
 "common.version" = "Sürüm";
 "common.build" = "Yapı";
-"common.move_to_trash" = "Çöp Kutusu'na Taşı";
+"common.move_to_trash" = "Çöp Sepeti'ne Taşı";
 
 /* MARK: - 크기 단위 */
 "common.unit.kb" = "%ld KB";
@@ -71,7 +71,7 @@
 "storage.scan.sort.size" = "Boyut";
 "storage.scan.sort.note" = "Tarama sırasında öğeler bulunma sırasına göre gösterilir. Sıralama tarama bittiğinde uygulanır.";
 "storage.results.header" = "Sonuçlar";
-"storage.alert.delete.title" = "Silmek istediğinizden emin misiniz?";
+"storage.alert.delete.title" = "Çöp Sepeti'ne taşınsın mı?";
 "storage.msg.manual" = "“%@” klasörü inceleniyor…";
 "storage.msg.auto" = "Koşullar değiştiği için yeniden inceleniyor…";
 "storage.msg.canceled" = "Tarama iptal edildi.";
@@ -88,9 +88,9 @@
 "storage.scope.apps_needed" = "İzin gerekiyor: lütfen Uygulamalar klasörünü seçin.";
 "storage.usage.format" = "%2$@ içinde %1$@ kullanıldı";
 "storage.msg.analyzing_home_apps" = "Ana Klasör ve Uygulamalar inceleniyor…";
-"storage.alert.delete.msg_folder" = "“%@” klasörü Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
-"storage.alert.delete.msg_file" = "“%@” dosyası Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
-"storage.alert.delete.msg_multi" = "Seçilen %ld öğe Çöp Kutusu'na taşınacak. Finder'dan geri yükleyebilirsiniz.";
+"storage.alert.delete.msg_folder" = "“%@” klasörü Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
+"storage.alert.delete.msg_file" = "“%@” dosyası Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
+"storage.alert.delete.msg_multi" = "Seçilen %ld öğe Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
 "storage.status.header" = "Geçerli tarama";
 "storage.status.folder" = "Seçilen klasör";
 "storage.status.folder_none" = "Klasör seçilmedi";
@@ -104,10 +104,10 @@
 "storage.treemap.item_help" = "%@ — %@";
 "storage.table.item" = "Öğe";
 "storage.table.size" = "Boyut";
-"storage.msg.trash_moving" = "Seçilen %ld öğe Çöp Kutusu'na taşınıyor…";
-"storage.msg.trash_done" = "%ld öğe Çöp Kutusu'na taşındı.";
-"storage.msg.trash_partial" = "%ld öğe Çöp Kutusu'na taşındı. Başarısız: %ld.";
-"storage.msg.trash_failed" = "Seçilen öğeler Çöp Kutusu'na taşınamadı.";
+"storage.msg.trash_moving" = "Seçilen %ld öğe Çöp Sepeti'ne taşınıyor…";
+"storage.msg.trash_done" = "%ld öğe Çöp Sepeti'ne taşındı.";
+"storage.msg.trash_partial" = "%ld öğe Çöp Sepeti'ne taşındı. Başarısız: %ld.";
+"storage.msg.trash_failed" = "Seçilen öğeler Çöp Sepeti'ne taşınamadı.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "Büyük dosyalar";
@@ -125,7 +125,7 @@
 "junk.section.clean_all" = "Seçilenlerin tümünü temizle";
 "junk.section.last_scan" = "Son tarama: %@";
 "junk.section.alert.title" = "Seçilen gereksiz dosyaları temizle";
-"junk.section.alert.message" = "%@ Çöp Kutusu'na taşınacak.\nFinder'dan geri yükleyebilirsiniz.";
+"junk.section.alert.message" = "%@ Çöp Sepeti'ne taşınacak.\nFinder'dan geri yükleyebilirsiniz.";
 "junk.category.alert.title" = "%@ öğesini temizle";
 "junk.category.alert.message" = "Seçilen %1$ld öğeyi (%2$@) Çöp Sepeti’ne taşı.\nFinder’dan geri yükleyebilirsiniz.";
 "junk.scope.title" = "Kişisel Kitaplık'ı (~/Library) seç";
@@ -157,25 +157,25 @@
 "junk.section.ready_desc" = "Önbellekleri, günlükleri ve atılabilir artıkları incelemek için seçtiğiniz ~/Library kapsamını tarayın.";
 "junk.section.wrong_path_warning" = "Bu yol ~/Library değil. Gereksiz dosya bulunamayabilir.";
 "junk.section.wrong_path_title" = "Yanlış klasör seçildi";
-"junk.section.wrong_path_desc" = "Gereksiz dosyalar ~/Library içinde bulunur. ~/Library klasörünüzü seçmek için “Değiştir”e dokunun.";
+"junk.section.wrong_path_desc" = "Gereksiz dosyalar ~/Library içinde bulunur. ~/Library klasörünüzü seçmek için “Değiştir”e tıklayın.";
 "junk.item.select_all" = "Tümünü seç";
 "junk.item.deselect_all" = "Seçimi kaldır";
 "junk.item.show_more" = "%ld öğe daha göster";
 "junk.item.show_less" = "Yalnızca ilk 30 öğeyi göster";
 "junk.section.access_title" = "Klasör erişimi sona erdi";
-"junk.section.access_desc" = "TriClean artık ~/Library'ye erişemiyor. “Değiştir”e dokunup klasörü yeniden seçin.";
-"junk.progress.cleaning" = "Seçilen %ld öğe Çöp Kutusu'na taşınıyor…";
-"junk.progress.clean_done" = "%ld öğe Çöp Kutusu'na taşındı.";
-"junk.progress.clean_failed" = "Seçilen gereksiz dosyalar Çöp Kutusu'na taşınamadı.";
+"junk.section.access_desc" = "TriClean artık ~/Library'ye erişemiyor. “Değiştir”e tıklayıp klasörü yeniden seçin.";
+"junk.progress.cleaning" = "Seçilen %ld öğe Çöp Sepeti'ne taşınıyor…";
+"junk.progress.clean_done" = "%ld öğe Çöp Sepeti'ne taşındı.";
+"junk.progress.clean_failed" = "Seçilen gereksiz dosyalar Çöp Sepeti'ne taşınamadı.";
 "junk.progress.clean_invalid" = "Kaldırılacak öğe yok. Değiştiği için atlanan: %ld. Lütfen yeniden tarayın.";
-"junk.progress.clean_summary" = "Çöp Kutusu'na taşınan öğe: %1$ld. Başarısız: %2$ld; yeniden doğrulama sonrası atlanan: %3$ld.";
+"junk.progress.clean_summary" = "Çöp Sepeti'ne taşınan öğe: %1$ld. Başarısız: %2$ld; yeniden doğrulama sonrası atlanan: %3$ld.";
 
 /* MARK: - 앱 관리 */
 "apps.header.uninstall" = "Yüklü uygulamalar";
-"apps.header.desc" = "Seçilen kapsamdaki uygulama paketlerini tarar. Yalnızca uygun olan, kullanıcı tarafından yüklenmiş ve App Store dışı öğeler Çöp Kutusu'na taşınabilir. Sistem, korumalı ve App Store uygulamaları yalnızca bilgi amaçlı listelenir ve bu ekrandan kaldırılamaz.";
+"apps.header.desc" = "Seçilen kapsamdaki uygulama paketlerini tarar. Yalnızca uygun olan, kullanıcı tarafından yüklenmiş ve App Store dışı öğeler Çöp Sepeti'ne taşınabilir. Sistem, korumalı ve App Store uygulamaları yalnızca bilgi amaçlı listelenir ve bu ekrandan kaldırılamaz.";
 "apps.btn.manual_select" = ".app dosyasını elle seç…";
 "apps.search.placeholder" = "Uygulama adı veya Bundle ID ara";
-"apps.btn.uninstall" = "Çöp Kutusu'na Taşı";
+"apps.btn.uninstall" = "Çöp Sepeti'ne Taşı";
 "apps.btn.details" = "Ayrıntılar";
 "apps.scope.apps_folder" = "Uygulamalar klasörünü seç";
 "apps.scope.apps_msg" = "Uygulamaları taramak için bir klasör seçin (örneğin /Applications veya ~/Applications).\nTriClean yalnızca seçilen kapsamda tarama yapar.";
@@ -196,17 +196,17 @@
 "apps.details.scanning" = "İlgili dosyalar aranıyor…";
 "apps.details.no_related" = "İlgili dosya bulunamadı.";
 "apps.details.found_count" = "İlgili dosyalar (%ld)";
-"apps.details.trash_selected" = "Seçilenleri Çöp Kutusu'na Taşı";
+"apps.details.trash_selected" = "Seçilenleri Çöp Sepeti'ne Taşı";
 "apps.details.guide" = "Uygulama ayrıntılarını ve ilgili dosyaları (önbellek, tercihler vb.) incelemek için tablodan bir uygulama seçin ya da “.app dosyasını elle seç”i kullanın.";
 "apps.details.appstore_note" = "App Store uygulamaları bu ekrandan kaldırılamaz. Bunları doğrudan Launchpad'den (basılı tutarak) veya Finder'dan silin.";
 "apps.details.modified" = "Değiştirilme: %@";
-"apps.alert.uninstall.title" = "Seçilen uygulama paketlerini Çöp Kutusu'na taşı";
-"apps.alert.uninstall.msg" = "Seçilen %2$ld uygulamadan kaldırılabilir olan %1$ld paket Çöp Kutusu'na taşınsın mı? App Store uygulamaları hariç tutulur ve taşınan öğeler Finder Çöp Kutusu'ndan geri yüklenebilir.";
+"apps.alert.uninstall.title" = "Seçilen uygulama paketlerini Çöp Sepeti'ne taşı";
+"apps.alert.uninstall.msg" = "Seçilen %2$ld uygulamadan kaldırılabilir olan %1$ld paket Çöp Sepeti'ne taşınsın mı? App Store uygulamaları hariç tutulur ve taşınan öğeler Finder Çöp Sepeti'nden geri yüklenebilir.";
 "apps.alert.fail.title" = "Taşıma başarısız (izin)";
 "apps.alert.fail.msg" = "macOS güvenlik ilkeleri nedeniyle (yönetici gerekir) %ld uygulama otomatik olarak taşınamadı.%@\nLütfen “Finder'da Göster”i kullanıp elle silin.";
 "apps.alert.fail.list" = "\n\nBaşarısız: %@";
 "apps.alert.related.title" = "İlgili dosyaları incele";
-"apps.alert.related.msg" = "Seçilen %1$ld ilgili dosya/klasör (%2$@) Çöp Kutusu'na taşınsın mı?";
+"apps.alert.related.msg" = "Seçilen %1$ld ilgili dosya/klasör (%2$@) Çöp Sepeti'ne taşınsın mı?";
 "apps.alert.reset.title" = "İzinleri sıfırla";
 "apps.alert.reset.msg" = "Bu işlem tüm klasör erişim izinlerini temizler. Tarama yapmak için klasörleri yeniden seçmeniz gerekir.";
 "apps.status.scoped_error" = "Uygulamalar klasörü için erişim izni (Security-Scoped) yok.";
@@ -231,11 +231,11 @@
 "apps.status.scanning" = "İlgili dosyalar taranıyor…";
 "apps.status.scan_empty" = "İlgili dosya bulunamadı.";
 "apps.status.scan_found" = "%ld ilgili öğe bulundu.";
-"apps.status.related_success" = "%ld ilgili öğe Çöp Kutusu'na taşındı.";
-"apps.status.related_none" = "Çöp Kutusu'na hiçbir öğe taşınmadı.";
-"apps.status.uninstall_success" = "%ld uygulama paketi Çöp Kutusu'na taşındı.";
+"apps.status.related_success" = "%ld ilgili öğe Çöp Sepeti'ne taşındı.";
+"apps.status.related_none" = "Çöp Sepeti'ne hiçbir öğe taşınmadı.";
+"apps.status.uninstall_success" = "%ld uygulama paketi Çöp Sepeti'ne taşındı.";
 "apps.status.uninstall_partial_fail" = "%ld uygulama paketi taşındı, %ld tanesi başarısız oldu.";
-"apps.status.uninstall_all_fail" = "Seçilen uygulama paketleri Çöp Kutusu'na taşınamadı (izin gerekiyor).";
+"apps.status.uninstall_all_fail" = "Seçilen uygulama paketleri Çöp Sepeti'ne taşınamadı (izin gerekiyor).";
 "apps.status.appstore_reference_only" = "App Store uygulamaları yalnızca bilgi amaçlı gösterilir.";
 "apps.status.system_reference_only" = "Sistem uygulamaları yalnızca bilgi amaçlı gösterilir; verileri taranmaz.";
 "apps.status.running_skipped" = "Çalışan %ld uygulama atlandı. Uygulamalardan çıkıp yeniden deneyin.";
@@ -246,7 +246,7 @@
 "apps.help.select_first" = "Lütfen en az bir uygun uygulama paketi seçin.";
 "apps.help.all_protected" = "Seçilen öğeler korumalı, sistem veya App Store uygulamasıdır ve buradan kaldırılamaz.";
 "apps.help.partial_protected" = "Seçilen öğelerin bazıları korumalı, sistem veya App Store uygulamasıdır ve atlanacaktır.";
-"apps.help.move_trash" = "Seçilen App Store dışı uygulama paketlerini Çöp Kutusu'na taşı.";
+"apps.help.move_trash" = "Seçilen App Store dışı uygulama paketlerini Çöp Sepeti'ne taşı.";
 "apps.help.removing" = "Taşınıyor…";
 "apps.filter.label" = "Filtre";
 "apps.filter.all" = "Tümü";
@@ -260,9 +260,9 @@
 "apps.summary.appstore" = "App Store";
 "apps.summary.selected" = "Seçilen";
 "apps.safety.title" = "Temizlemeden önce güvenle inceleyin";
-"apps.safety.desc" = "TriClean seçilen uygulama paketlerini ve ilgili dosyaları Çöp Kutusu'na taşır. Öğeleri hemen kalıcı olarak silmez ve App Store uygulamaları bu ekrandan kaldırılamaz.";
+"apps.safety.desc" = "TriClean seçilen uygulama paketlerini ve ilgili dosyaları Çöp Sepeti'ne taşır. Öğeleri hemen kalıcı olarak silmez ve App Store uygulamaları bu ekrandan kaldırılamaz.";
 "apps.selection.none" = "Geçerli filtrede %ld uygulama görünüyor";
-"apps.selection.summary" = "Seçilen: %1$ld · Çöp Kutusu'na taşınabilir: %2$ld";
+"apps.selection.summary" = "Seçilen: %1$ld · Çöp Sepeti'ne taşınabilir: %2$ld";
 "apps.table.app" = "Uygulama";
 "apps.table.bundle" = "Bundle ID";
 "apps.table.location" = "Konum";
@@ -295,13 +295,13 @@
 "duplicate.empty.waiting_title" = "Taramaya hazır";
 "duplicate.empty.waiting_body" = "Kopya dosyaları aramak için Tara'ya tıklayın.";
 "duplicate.empty.access_title" = "Klasör erişimi sona erdi";
-"duplicate.empty.access_body" = "TriClean artık bu klasöre erişemiyor. Yukarıdaki “Klasörü değiştir”e dokunup klasörü yeniden seçin.";
+"duplicate.empty.access_body" = "TriClean artık bu klasöre erişemiyor. Yukarıdaki “Klasörü değiştir”e tıklayıp klasörü yeniden seçin.";
 "duplicate.summary.groups" = "Kopya grupları";
 "duplicate.summary.selected_files" = "Seçilen dosyalar";
 "duplicate.summary.selected_space" = "Seçilen alan";
 "duplicate.summary.scanned_files" = "Taranan dosyalar";
 "duplicate.selection.card_title" = "Otomatik önerilen seçim";
-"duplicate.selection.card_body" = "TriClean her grupta özgün olma olasılığı en yüksek dosyayı saklar ve geri kalanını otomatik olarak temizlik için seçer. İpucu olarak yolu, dosya adını, klasör konumunu ve değiştirilme tarihini kullanır; bu nedenle öğeleri Çöp Kutusu'na taşımadan önce inceleyin.";
+"duplicate.selection.card_body" = "TriClean her grupta özgün olma olasılığı en yüksek dosyayı saklar ve geri kalanını otomatik olarak temizlik için seçer. İpucu olarak yolu, dosya adını, klasör konumunu ve değiştirilme tarihini kullanır; bu nedenle öğeleri Çöp Sepeti'ne taşımadan önce inceleyin.";
 "duplicate.action.apply_recommended" = "Otomatik seçim";
 "duplicate.action.apply_recommended.help" = "Her kopya grubunda özgün olma olasılığı en yüksek dosyayı saklar ve geri kalanını otomatik olarak temizlik için seçer.";
 "duplicate.action.clear_selection" = "Seçimi temizle";
@@ -322,12 +322,12 @@
 "duplicate.file.help.delete" = "Temizlik için işaretlendi. Bunun yerine bu dosyayı saklamak üzere tıklayın.";
 "duplicate.file.reveal" = "Finder'da Göster";
 "duplicate.file.keep" = "Sakla";
-"duplicate.file.delete" = "Sil";
+"duplicate.file.delete" = "Çöp Sepeti'ne";
 "duplicate.delete_confirm.title" = "Kopya dosyaları temizle";
-"duplicate.delete_confirm.message" = "Seçilen %ld kopya dosya (%@) Çöp Kutusu'na taşınacak. Her grupta en az bir dosya korunur.";
+"duplicate.delete_confirm.message" = "Seçilen %ld kopya dosya (%@) Çöp Sepeti'ne taşınacak. Her grupta en az bir dosya korunur.";
 "duplicate.cleanup_result.title" = "Temizlik tamamlandı";
-"duplicate.cleanup_result.body" = "%ld kopya dosya Çöp Kutusu'na taşındı. Tahmini geri kazanılan alan: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld kopya dosya Çöp Kutusu'na taşındı. Tahmini geri kazanılan alan: %@. %ld öğe taşınamadı.";
+"duplicate.cleanup_result.body" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Tahmini geri kazanılan alan: %@.";
+"duplicate.cleanup_result.body_with_failures" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Tahmini geri kazanılan alan: %@. %ld öğe taşınamadı.";
 "duplicate.status.collecting" = "Dosyalar toplanıyor…";
 "duplicate.status.found_files" = "%ld dosya bulundu";
 "duplicate.status.grouping_by_size" = "Dosyalar boyuta göre gruplanıyor…";
@@ -341,11 +341,11 @@
 "duplicate.status.recommended_applied" = "Her grupta bir dosya saklandı, geri kalanı temizlik için otomatik seçildi.";
 "duplicate.status.keep_newest_applied" = "Seçilen grupta en yeni dosya saklandı.";
 "duplicate.status.keep_oldest_applied" = "Seçilen grupta en eski dosya saklandı.";
-"duplicate.status.cleanup_done" = "%ld kopya dosya Çöp Kutusu'na taşındı (%@ geri kazanıldı).";
-"duplicate.status.cleanup_failed" = "TriClean, seçilen kopya dosyaları Çöp Kutusu'na taşıyamadı.";
-"duplicate.status.cleanup_running" = "Kopyalar Çöp Kutusu'na taşınıyor…";
+"duplicate.status.cleanup_done" = "%ld kopya dosya Çöp Sepeti'ne taşındı (%@ geri kazanıldı).";
+"duplicate.status.cleanup_failed" = "TriClean, seçilen kopya dosyaları Çöp Sepeti'ne taşıyamadı.";
+"duplicate.status.cleanup_running" = "Kopyalar Çöp Sepeti'ne taşınıyor…";
 "duplicate.status.revalidate_needed" = "Saklanacak dosya doğrulanamadığı için atlanan grup: %ld. Lütfen yeniden tarayın.";
-"duplicate.status.cleanup_summary" = "Çöp Kutusu'na taşınan kopya dosya: %1$ld, geri kazanılan %2$@. Başarısız: %3$ld; yeniden doğrulama sonrası atlanan: %4$ld.";
+"duplicate.status.cleanup_summary" = "Çöp Sepeti'ne taşınan kopya dosya: %1$ld, geri kazanılan %2$@. Başarısız: %3$ld; yeniden doğrulama sonrası atlanan: %4$ld.";
 "duplicate.status.selection_cleared" = "Tüm temizlik seçimleri temizlendi.";
 "duplicate.status.access_denied" = "Klasör erişimi sona erdi. Lütfen klasörü yeniden seçin.";
 "duplicate.phase.idle" = "Boşta";
@@ -405,7 +405,7 @@
 "smartscan.details.duplicates.title" = "Kopya temizliği";
 "smartscan.details.open" = "Aç";
 "smartscan.safety.title" = "Silme işlemi yalnızca ilgili ayrıntı ekranlarında yapılır.";
-"smartscan.safety.body" = "Akıllı tarama yalnızca özet ve yönlendirme sağlar. Gerçek temizlik, öğeleri inceleyip Çöp Kutusu'na taşımanızdan sonra gerçekleşir.";
+"smartscan.safety.body" = "Akıllı tarama yalnızca özet ve yönlendirme sağlar. Gerçek temizlik, öğeleri inceleyip Çöp Sepeti'ne taşımanızdan sonra gerçekleşir.";
 "smartscan.cpu.title" = "CPU";
 "smartscan.cpu.caption" = "Geçerli işlemci yükü";
 "cpu.usage" = "CPU: %@";
@@ -418,7 +418,7 @@
 "photos.scope.select_hint" = "Resimleri taramak için bir klasör seçin.";
 "photos.action.scan" = "Tara";
 "photos.action.stop" = "Durdur";
-"photos.action.trash" = "Çöp Kutusu'na Taşı";
+"photos.action.trash" = "Çöp Sepeti'ne Taşı";
 "photos.action.reveal" = "Finder'da Göster";
 "photos.status.collecting" = "Resim dosyaları toplanıyor…";
 "photos.status.found" = "%ld resim bulundu.";
@@ -454,14 +454,14 @@
 "photos.select.count" = "%ld seçildi";
 "photos.select.clear" = "Seçimi kaldır";
 "photos.select.all" = "Tümünü seç";
-"photos.delete.confirm.title" = "Seçilen fotoğraflar Çöp Kutusu'na taşınsın mı?";
-"photos.delete.confirm.msg" = "%ld öğe Çöp Kutusu'na taşınacak. Çöp Kutusu'ndan geri yükleyebilirsiniz.";
-"photos.delete.confirm.button" = "Çöp Kutusu'na Taşı";
-"photos.delete.status.moving" = "%ld öğe Çöp Kutusu'na taşınıyor…";
-"photos.delete.status.success" = "%ld öğe Çöp Kutusu'na taşındı.";
+"photos.delete.confirm.title" = "Seçilen fotoğraflar Çöp Sepeti'ne taşınsın mı?";
+"photos.delete.confirm.msg" = "%ld öğe Çöp Sepeti'ne taşınacak. Çöp Sepeti'nden geri yükleyebilirsiniz.";
+"photos.delete.confirm.button" = "Çöp Sepeti'ne Taşı";
+"photos.delete.status.moving" = "%ld öğe Çöp Sepeti'ne taşınıyor…";
+"photos.delete.status.success" = "%ld öğe Çöp Sepeti'ne taşındı.";
 "photos.delete.status.invalid" = "Kaldırılabilecek fotoğraf yok. Lütfen klasörü yeniden seçip tekrar tarayın.";
 "photos.delete.status.revalidate" = "Seçilen fotoğraflardan hiçbiri kaldırılmadı. Saklanacak dosya veya yol değiştiği için atlanan: %ld. Lütfen yeniden tarayın.";
-"photos.delete.status.summary" = "Çöp Kutusu'na taşınan fotoğraf: %1$ld. Başarısız: %2$ld; güvenlik için atlanan: %3$ld.";
+"photos.delete.status.summary" = "Çöp Sepeti'ne taşınan fotoğraf: %1$ld. Başarısız: %2$ld; güvenlik için atlanan: %3$ld.";
 
 /* MARK: - 설정 */
 "settings.display" = "Görünüm";
@@ -496,13 +496,13 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Bellek";
 "menubar.open_triclean" = "TriClean'i aç";
-"menu.buy_pro" = "TriClean Pro satın al…";
+"menu.buy_pro" = "Ömür boyu erişim al…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "TriClean'e hoş geldiniz";
 "onboarding.welcome.desc" = "Depolama kullanımını, bellek tahminlerini ve uygulamayla ilgili dosyaları tek bir yerde inceleyin.";
 "onboarding.storage.title" = "Disk incelemesi";
-"onboarding.storage.desc" = "Büyük klasör ve dosyaları bulmak için diskinizi tarayın. Yer açmak için bunları seçip Çöp Kutusu'na taşıyın.";
+"onboarding.storage.desc" = "Büyük klasör ve dosyaları bulmak için diskinizi tarayın. Yer açmak için bunları seçip Çöp Sepeti'ne taşıyın.";
 "onboarding.memory.title" = "Bellek izleyici";
 "onboarding.memory.desc" = "Genel macOS API'lerini kullanarak tahmini bellek kullanımını ve dağılımını görün. Bu uygulama sistem belleğini değiştirmez.";
 "onboarding.apps.title" = "Uygulama dosyalarını inceleme";
@@ -514,8 +514,8 @@
 /* MARK: - 결제 */
 "paywall.title" = "TriClean ömür boyu erişim";
 "paywall.subtitle" = "Tüm sonuçların ve temizliğin kilidini açın";
-"paywall.feat.memory" = "Güvenli şekilde Çöp Kutusu'na taşıma";
-"paywall.feat.memory_desc" = "Öğeleri geri yüklenebilir Çöp Kutusu'na taşımadan önce yolları ve dosya durumunu yeniden doğrular";
+"paywall.feat.memory" = "Güvenli şekilde Çöp Sepeti'ne taşıma";
+"paywall.feat.memory_desc" = "Öğeleri geri yüklenebilir Çöp Sepeti'ne taşımadan önce yolları ve dosya durumunu yeniden doğrular";
 "paywall.feat.disk" = "Büyük ve gereksiz dosya temizliği";
 "paywall.feat.disk_desc" = "İnceleme sonuçlarından seçtiğiniz büyük ve gereksiz dosyaları temizleyin";
 "paywall.feat.apps" = "Uygulama ve ilgili dosya temizliği";
@@ -540,7 +540,7 @@
 "store.status.loading_products" = "Ürünler yükleniyor…";
 "store.error.load_failed" = "Ürünler yüklenemedi.";
 "store.error.load_failed_detail" = "Ürün yüklenemedi: %@";
-"store.error.product_not_found" = "Ürün bulunamadı. Lütfen Product ID'yi veya StoreKit yapılandırmasını kontrol edin.";
+"store.error.product_not_found" = "Ürün bilgileri App Store'dan yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.";
 "store.error.product_unavailable" = "Ürün bilgileri App Store'dan yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.";
 "store.error.no_purchase_to_restore" = "Bu Apple Hesabı için önceki bir satın alma bulunamadı.";
 "store.btn.retry" = "Yeniden dene";

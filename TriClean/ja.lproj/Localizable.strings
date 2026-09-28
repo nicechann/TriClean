@@ -69,7 +69,7 @@
 "storage.scan.sort.size" = "サイズ";
 "storage.scan.sort.note" = "スキャン中は検出順で表示され、完了後に並び替えが適用されます。";
 "storage.results.header" = "結果";
-"storage.alert.delete.title" = "削除してもよろしいですか?";
+"storage.alert.delete.title" = "ゴミ箱に入れますか？";
 "storage.msg.manual" = "「%@」フォルダを分析中…";
 "storage.msg.auto" = "条件が変更されたため再分析中…";
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
@@ -211,7 +211,7 @@
 "store.btn.retry" = "再試行";
 
 /* Menubar */
-"menu.buy_pro" = "TriClean Proを購入...";
+"menu.buy_pro" = "買い切り版を購入…";
 
 /* Paywall (Links) */
 "paywall.link.privacy" = "プライバシーポリシー";
@@ -221,7 +221,7 @@
 "paywall.error.title"   = "購入エラー";
 "paywall.error.unknown" = "不明なエラーが発生しました。";
 
-"store.error.product_not_found"   = "製品が見つかりません。製品IDまたはStoreKit設定を確認してください。";
+"store.error.product_not_found"   = "App Storeから製品情報を読み込めませんでした。通信状況を確認してもう一度お試しください。";
 "store.error.load_failed_detail"  = "製品の読み込みに失敗: %@";
 
 /* Onboarding */
@@ -308,7 +308,7 @@
 "junk.section.ready_desc" = "選択した ~/Library 範囲をスキャンしてキャッシュ、ログ、不要な残骸を確認します。";
 "junk.section.wrong_path_warning" = "このパスは ~/Library ではありません。不要ファイルが見つからない可能性があります。";
 "junk.section.wrong_path_title" = "間違ったフォルダが選択されています";
-"junk.section.wrong_path_desc" = "不要ファイルは ~/Library にあります。「変更」をタップして ~/Library フォルダを選択してください。";
+"junk.section.wrong_path_desc" = "不要ファイルは ~/Library にあります。「変更」をクリックして ~/Library フォルダを選択してください。";
 
 /* Junk item selection */
 "junk.item.select_all" = "すべて選択";
@@ -388,7 +388,7 @@
 "duplicate.file.help.delete" = "クリーンアップ対象です。クリックでこのファイルを保持に変更できます。";
 "duplicate.file.reveal" = "Finderに表示";
 "duplicate.file.keep" = "保持";
-"duplicate.file.delete" = "削除";
+"duplicate.file.delete" = "ゴミ箱へ";
 "duplicate.delete_confirm.title" = "重複ファイルをクリーン";
 "duplicate.delete_confirm.message" = "選択した %ld 個の重複ファイル (%@) をゴミ箱に移動します。各グループに少なくとも1つのファイルが残ります。";
 "duplicate.cleanup_result.title" = "クリーンアップ完了";
@@ -421,10 +421,10 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "待機中";
-"duplicate.phase.collecting" = "ファイルを収集中...";
-"duplicate.phase.grouping" = "サイズ別にグループ化中...";
-"duplicate.phase.partial_hash" = "部分ハッシュを比較中...";
-"duplicate.phase.full_hash" = "完全ハッシュを比較中...";
+"duplicate.phase.collecting" = "ファイルを収集中…";
+"duplicate.phase.grouping" = "サイズ別にグループ化中…";
+"duplicate.phase.partial_hash" = "部分ハッシュを比較中…";
+"duplicate.phase.full_hash" = "完全ハッシュを比較中…";
 "duplicate.phase.done" = "完了";
 
 /* Smart Scan */

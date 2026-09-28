@@ -69,7 +69,7 @@
 "storage.scan.sort.size" = "Tamaño";
 "storage.scan.sort.note" = "Se muestran en orden de descubrimiento durante el análisis. El orden se aplica al finalizar.";
 "storage.results.header" = "Resultados";
-"storage.alert.delete.title" = "¿Seguro que quieres eliminarlo?";
+"storage.alert.delete.title" = "¿Mover a la Papelera?";
 "storage.msg.manual" = "Analizando la carpeta «%@»…";
 "storage.msg.auto" = "Volviendo a analizar por cambio de criterio…";
 "storage.msg.canceled" = "Análisis cancelado.";
@@ -211,7 +211,7 @@
 "store.btn.retry" = "Reintentar";
 
 /* Menubar */
-"menu.buy_pro" = "Comprar TriClean Pro...";
+"menu.buy_pro" = "Comprar acceso de por vida…";
 
 /* Paywall (Links) */
 "paywall.link.privacy" = "Política de privacidad";
@@ -221,7 +221,7 @@
 "paywall.error.title"   = "Error de compra";
 "paywall.error.unknown" = "Se produjo un error desconocido.";
 
-"store.error.product_not_found"   = "Producto no encontrado. Verifica el ID del producto o la configuración de StoreKit.";
+"store.error.product_not_found"   = "No se pudo cargar la información del producto desde el App Store. Comprueba tu conexión e inténtalo de nuevo.";
 "store.error.load_failed_detail"  = "Error al cargar el producto: %@";
 
 /* Onboarding */
@@ -308,7 +308,7 @@
 "junk.section.ready_desc" = "Analiza el ámbito ~/Library seleccionado para revisar cachés, registros y residuos desechables.";
 "junk.section.wrong_path_warning" = "Esta ruta no es ~/Library. Es posible que no se encuentren archivos basura.";
 "junk.section.wrong_path_title" = "Carpeta incorrecta seleccionada";
-"junk.section.wrong_path_desc" = "Los archivos basura se encuentran en ~/Library. Toca «Cambiar» para seleccionar tu carpeta ~/Library.";
+"junk.section.wrong_path_desc" = "Los archivos basura se encuentran en ~/Library. Haz clic en «Cambiar» para seleccionar tu carpeta ~/Library.";
 
 /* Junk item selection */
 "junk.item.select_all" = "Seleccionar todo";
@@ -388,7 +388,7 @@
 "duplicate.file.help.delete" = "Marcado para limpieza. Haz clic para conservar este archivo.";
 "duplicate.file.reveal" = "Mostrar en el Finder";
 "duplicate.file.keep" = "Conservar";
-"duplicate.file.delete" = "Eliminar";
+"duplicate.file.delete" = "A la Papelera";
 "duplicate.delete_confirm.title" = "Limpiar archivos duplicados";
 "duplicate.delete_confirm.message" = "%ld archivos duplicados seleccionados (%@) se moverán a la Papelera. Se conserva al menos un archivo en cada grupo.";
 "duplicate.cleanup_result.title" = "Limpieza completada";
@@ -421,10 +421,10 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "Inactivo";
-"duplicate.phase.collecting" = "Recopilando archivos...";
-"duplicate.phase.grouping" = "Agrupando por tamaño...";
-"duplicate.phase.partial_hash" = "Comparando hashes parciales...";
-"duplicate.phase.full_hash" = "Comparando hashes completos...";
+"duplicate.phase.collecting" = "Recopilando archivos…";
+"duplicate.phase.grouping" = "Agrupando por tamaño…";
+"duplicate.phase.partial_hash" = "Comparando hashes parciales…";
+"duplicate.phase.full_hash" = "Comparando hashes completos…";
 "duplicate.phase.done" = "Listo";
 
 /* Smart Scan */
@@ -556,12 +556,12 @@
 /* Duplicate Finder — 접근 권한 만료 안내 */
 "duplicate.phase.access_denied" = "Sin acceso";
 "duplicate.empty.access_title" = "El acceso a la carpeta caducó";
-"duplicate.empty.access_body" = "TriClean ya no puede acceder a esta carpeta. Pulsa «Cambiar carpeta» arriba y vuelve a seleccionarla.";
+"duplicate.empty.access_body" = "TriClean ya no puede acceder a esta carpeta. Haz clic en «Cambiar carpeta» arriba y vuelve a seleccionarla.";
 "duplicate.status.access_denied" = "El acceso a la carpeta caducó. Vuelve a seleccionar la carpeta.";
 
 /* Junk — 접근 권한 만료 안내 */
 "junk.section.access_title" = "El acceso a la carpeta caducó";
-"junk.section.access_desc" = "TriClean ya no puede acceder a ~/Library. Pulsa «Cambiar» y vuelve a seleccionar la carpeta.";
+"junk.section.access_desc" = "TriClean ya no puede acceder a ~/Library. Haz clic en «Cambiar» y vuelve a seleccionar la carpeta.";
 "smartscan.junk.caption_access" = "El acceso a la carpeta caducó. Vuelve a seleccionarla en Almacenamiento.";
 
 /* Recordatorio de limpieza semanal */

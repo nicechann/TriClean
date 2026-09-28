@@ -73,7 +73,7 @@
 "storage.scan.sort.size" = "Rozmiar";
 "storage.scan.sort.note" = "Podczas skanowania elementy są wyświetlane w kolejności znajdowania. Sortowanie zostanie zastosowane po zakończeniu.";
 "storage.results.header" = "Wyniki";
-"storage.alert.delete.title" = "Czy na pewno chcesz usunąć?";
+"storage.alert.delete.title" = "Przenieść do Kosza?";
 "storage.msg.manual" = "Analizowanie folderu „%@”…";
 "storage.msg.auto" = "Ponowna analiza z powodu zmiany warunków…";
 "storage.msg.canceled" = "Skanowanie anulowane.";
@@ -129,7 +129,7 @@
 "junk.section.alert.title" = "Usuń wybrane zbędne pliki";
 "junk.section.alert.message" = "Przenieś %@ do Kosza.\nMożesz je przywrócić z Findera.";
 "junk.category.alert.title" = "Wyczyść: %@";
-"junk.category.alert.message" = "Przenieś %1$ld zaznaczonych elementów (%2$@) do Kosza.\nMożesz je przywrócić w Finderze.";
+"junk.category.alert.message" = "Przenieś zaznaczone elementy (%1$ld, %2$@) do Kosza.\nMożesz je przywrócić w Finderze.";
 "junk.scope.title" = "Wybierz Bibliotekę użytkownika (~/Library)";
 "junk.scope.message" = "Wybierz folder Biblioteki użytkownika, aby przeskanować go w poszukiwaniu zbędnych plików.";
 "junk.progress.preparing" = "Przygotowywanie skanowania…";
@@ -159,13 +159,13 @@
 "junk.section.ready_desc" = "Przeskanuj wybrany zakres ~/Library, aby sprawdzić pamięci podręczne, dzienniki i zbędne pozostałości.";
 "junk.section.wrong_path_warning" = "Ta ścieżka to nie ~/Library. Zbędne pliki mogą nie zostać znalezione.";
 "junk.section.wrong_path_title" = "Wybrano niewłaściwy folder";
-"junk.section.wrong_path_desc" = "Zbędne pliki znajdują się w ~/Library. Dotknij „Zmień”, aby wybrać swój folder ~/Library.";
+"junk.section.wrong_path_desc" = "Zbędne pliki znajdują się w ~/Library. Kliknij „Zmień”, aby wybrać swój folder ~/Library.";
 "junk.item.select_all" = "Zaznacz wszystko";
 "junk.item.deselect_all" = "Odznacz wszystko";
 "junk.item.show_more" = "Pokaż pozostałe elementy: %ld";
 "junk.item.show_less" = "Pokaż tylko pierwsze 30 elementów";
 "junk.section.access_title" = "Dostęp do folderu wygasł";
-"junk.section.access_desc" = "TriClean nie ma już dostępu do ~/Library. Dotknij „Zmień” i wybierz folder ponownie.";
+"junk.section.access_desc" = "TriClean nie ma już dostępu do ~/Library. Kliknij „Zmień” i wybierz folder ponownie.";
 "junk.progress.cleaning" = "Przenoszenie wybranych elementów do Kosza: %ld…";
 "junk.progress.clean_done" = "Przeniesiono do Kosza elementów: %ld.";
 "junk.progress.clean_failed" = "Nie można przenieść wybranych zbędnych plików do Kosza.";
@@ -297,7 +297,7 @@
 "duplicate.empty.waiting_title" = "Gotowe do skanowania";
 "duplicate.empty.waiting_body" = "Kliknij Skanuj, aby wyszukać zduplikowane pliki.";
 "duplicate.empty.access_title" = "Dostęp do folderu wygasł";
-"duplicate.empty.access_body" = "TriClean nie ma już dostępu do tego folderu. Dotknij powyżej „Zmień folder” i wybierz go ponownie.";
+"duplicate.empty.access_body" = "TriClean nie ma już dostępu do tego folderu. Kliknij powyżej „Zmień folder” i wybierz go ponownie.";
 "duplicate.summary.groups" = "Grupy duplikatów";
 "duplicate.summary.selected_files" = "Zaznaczone pliki";
 "duplicate.summary.selected_space" = "Zaznaczone miejsce";
@@ -324,7 +324,7 @@
 "duplicate.file.help.delete" = "Oznaczony do usunięcia. Kliknij, aby zamiast tego zachować ten plik.";
 "duplicate.file.reveal" = "Pokaż w Finderze";
 "duplicate.file.keep" = "Zachowaj";
-"duplicate.file.delete" = "Usuń";
+"duplicate.file.delete" = "Do Kosza";
 "duplicate.delete_confirm.title" = "Wyczyść zduplikowane pliki";
 "duplicate.delete_confirm.message" = "Zaznaczonych zduplikowanych plików do przeniesienia do Kosza: %ld (%@). W każdej grupie zostanie zachowany co najmniej jeden plik.";
 "duplicate.cleanup_result.title" = "Porządkowanie zakończone";
@@ -498,7 +498,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Pamięć";
 "menubar.open_triclean" = "Otwórz TriClean";
-"menu.buy_pro" = "Kup TriClean Pro…";
+"menu.buy_pro" = "Uzyskaj dostęp dożywotni…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "Witamy w TriClean";
@@ -536,13 +536,13 @@
 "upgrade.bottom.desc" = "Skanowanie, podsumowania i ograniczony podgląd są bezpłatne. Pełne szczegółowe wyniki i porządkowanie wymagają dożywotniego dostępu.";
 "upgrade.bottom.preview.items" = "Bezpłatny podgląd pokazuje %2$@ z %1$@ elementów. Pełne szczegółowe wyniki i porządkowanie wymagają dożywotniego dostępu.";
 "upgrade.bottom.preview.groups" = "Bezpłatny podgląd pokazuje %2$@ z %1$@ grup. Pełne szczegółowe wyniki i porządkowanie wymagają dożywotniego dostępu.";
-"upgrade.preview.count" = "%2$ld z %1$ld wyników";
+"upgrade.preview.count" = "Wyniki: %2$ld z %1$ld";
 "upgrade.bottom.buy" = "Uzyskaj dostęp dożywotni";
 "store.status.checking" = "Sprawdzanie stanu zakupu…";
 "store.status.loading_products" = "Wczytywanie produktów…";
 "store.error.load_failed" = "Nie udało się wczytać produktów.";
 "store.error.load_failed_detail" = "Nie udało się wczytać produktu: %@";
-"store.error.product_not_found" = "Nie znaleziono produktu. Sprawdź Product ID lub konfigurację StoreKit.";
+"store.error.product_not_found" = "Nie udało się wczytać informacji o produkcie z App Store. Sprawdź połączenie i spróbuj ponownie.";
 "store.error.product_unavailable" = "Nie udało się wczytać informacji o produkcie z App Store. Sprawdź połączenie i spróbuj ponownie.";
 "store.error.no_purchase_to_restore" = "Nie znaleziono wcześniejszego zakupu dla tego konta Apple.";
 "store.btn.retry" = "Spróbuj ponownie";
@@ -552,8 +552,8 @@
 "junk.cleanup.result.success_title" = "Czyszczenie zakończone";
 "junk.cleanup.result.partial_title" = "Czyszczenie częściowo zakończone";
 "junk.cleanup.result.failed_title" = "Czyszczenie nie powiodło się";
-"junk.cleanup.result.success_message" = "Przeniesiono %ld elementów do Kosza.";
-"junk.cleanup.result.partial_message" = "Przeniesiono %1$ld elementów do Kosza. Niepowodzenia: %2$ld; pominięto po zmianach: %3$ld.";
+"junk.cleanup.result.success_message" = "Przeniesiono do Kosza elementów: %ld.";
+"junk.cleanup.result.partial_message" = "Przeniesiono do Kosza elementów: %1$ld. Niepowodzenia: %2$ld; pominięto po zmianach: %3$ld.";
 "junk.cleanup.result.failed_message" = "Nie przeniesiono żadnych elementów do Kosza. Niepowodzenia: %1$ld; pominięto po zmianach: %2$ld.";
 "junk.cleanup.result.access_denied" = "Nie udało się aktywować uprawnienia do folderu Library. Wybierz ponownie folder Library za pomocą „Zmień…” i spróbuj jeszcze raz.";
 "junk.cleanup.result.error_detail" = "Pierwszy błąd: %@";

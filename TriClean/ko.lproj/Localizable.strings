@@ -43,7 +43,7 @@
 "memory.menubar_disclaimer" = "수치는 추정값이며 참고용입니다.";
 
 "memory.composition" = "메모리 구성";
-"memory.composition_note" = "※ macOS Mach VM 통계(host_statistics64) 기반 추정값입니다. Activity Monitor 수치와 다를 수 있습니다.";
+"memory.composition_note" = "※ macOS Mach VM 통계(host_statistics64) 기반 추정값입니다. 활성 상태 보기 수치와 다를 수 있습니다.";
 "memory.significant_usage" = "메모리 사용량 상위 앱";
 "memory.significant_empty" = "표시할 실행 앱이 없습니다.";
 "memory.legend.app" = "앱 메모리";
@@ -65,7 +65,7 @@
 "storage.scan.btn" = "폴더 선택 후 스캔";
 "storage.scan.updating" = "업데이트 중…";
 "storage.scan.scanning" = "스캔 중…";
-"storage.scan.tip" = "Tip: 시스템 폴더보다는 홈 폴더(~) 또는 /Users 하위 폴더를 선택하는 것을 권장합니다.";
+"storage.scan.tip" = "팁: 시스템 폴더보다는 홈 폴더(~) 또는 /Users 하위 폴더를 선택하는 것을 권장합니다.";
 "storage.scan.min_size" = "최소 폴더 크기";
 "storage.scan.sort" = "상위 폴더 정렬";
 "storage.scan.sort.default" = "기본값";
@@ -73,19 +73,19 @@
 "storage.scan.sort.size" = "크기";
 "storage.scan.sort.note" = "스캔 중에는 발견순으로 표시되며, 완료 후 정렬이 1회 적용됩니다.";
 "storage.results.header" = "결과";
-"storage.alert.delete.title" = "정말 삭제하시겠습니까?";
+"storage.alert.delete.title" = "휴지통으로 이동할까요?";
 "storage.msg.manual" = "'%@' 폴더를 분석 중입니다…";
 "storage.msg.auto" = "조건 변경으로 다시 분석 중입니다…";
 "storage.msg.canceled" = "분석이 취소되었습니다.";
 "storage.msg.no_items" = "'%@' 폴더에 조건에 맞는 하위 항목이 없습니다.";
 "storage.msg.completed" = "'%@' 폴더 분석이 완료되었습니다. (폴더 %ld개 / 파일 %ld개)";
 "storage.msg.access_denied" = "폴더 접근 권한이 만료되었습니다. 폴더를 다시 선택해 주세요.";
-"storage.scope.select_home_msg" = "Disk Usage의 Home Folder 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다.";
-"storage.scope.select_home_title" = "Home Folder 선택";
-"storage.scope.select_apps_msg" = "Disk Usage의 Applications 구간 계산을 위해 폴더를 선택합니다. (/Applications, ~/Applications 등 복수 선택 가능)";
+"storage.scope.select_home_msg" = "디스크 사용량의 홈 폴더 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다.";
+"storage.scope.select_home_title" = "홈 폴더 선택";
+"storage.scope.select_apps_msg" = "디스크 사용량의 Applications 구간 계산을 위해 폴더를 선택합니다. (/Applications, ~/Applications 등 복수 선택 가능)";
 "storage.scope.select_apps_title" = "Applications 폴더 선택";
-"storage.scope.guide" = "※ Home/Applications 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다. 선택하지 않으면 'Other Used'로만 표시됩니다.";
-"storage.scan.default_msg" = "스캔 결과가 없습니다. 상단의 'Select Folder & Scan' 버튼을 눌러 분석을 시작하세요.";
+"storage.scope.guide" = "※ 홈/Applications 구간은 사용자가 선택한 폴더 범위에서만 계산됩니다. 선택하지 않으면 '기타 사용'으로만 표시됩니다.";
+"storage.scan.default_msg" = "스캔 결과가 없습니다. 상단의 '폴더 선택 후 스캔' 버튼을 눌러 분석을 시작하세요.";
 "storage.scope.home_needed" = "권한 필요: Home 폴더를 선택해 주세요.";
 "storage.scope.apps_needed" = "권한 필요: Applications 폴더를 선택해 주세요.";
 "storage.usage.format" = "%2$@ 중 %1$@ 사용됨";
@@ -103,19 +103,19 @@
 "apps.btn.details" = "세부 정보";
 "apps.scope.apps_folder" = "Applications 폴더 선택";
 "apps.scope.apps_msg" = "앱 목록을 구성할 폴더를 선택하세요. (예: /Applications 또는 ~/Applications)\n선택한 폴더 범위 안에서만 TriClean이 앱 목록을 스캔합니다.";
-"apps.scope.library_folder" = "Home Library(~/Library) 선택";
-"apps.scope.library_msg" = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 Home Library 범위 안에서만 TriClean이 관련 파일을 탐지합니다.";
+"apps.scope.library_folder" = "홈 라이브러리(~/Library) 선택";
+"apps.scope.library_msg" = "관련 파일(Preferences/Caches/Containers 등) 분석 범위를 지정합니다.\n선택한 홈 라이브러리 범위 안에서만 TriClean이 관련 파일을 탐지합니다.";
 "apps.scope.reset" = "권한 초기화…";
 "apps.list.title" = "설치된 앱";
 "apps.list.loading" = "설치된 앱 목록을 불러오는 중…";
-"apps.list.guide_select" = "먼저 상단에서 Applications 폴더를 선택한 뒤 Scan을 눌러 주세요.";
+"apps.list.guide_select" = "먼저 상단에서 Applications 폴더를 선택한 뒤 스캔을 눌러 주세요.";
 "apps.list.empty" = "표시할 앱이 없습니다. (검색 조건/선택 폴더를 확인해 주세요)";
 "apps.type.system" = "시스템 앱";
 "apps.type.user" = "사용자 앱";
 "apps.type.protected" = "보호됨";
 "apps.type.appstore" = "App Store";
 "apps.details.selected" = "선택한 앱";
-"apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 Home Library(~/Library)를 선택해 주세요.";
+"apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 홈 라이브러리(~/Library)를 선택해 주세요.";
 "apps.details.scanning" = "관련 파일 검색 중…";
 "apps.details.no_related" = "관련 파일이 없거나 찾지 못했습니다.";
 "apps.details.found_count" = "관련 파일 (%ld)";
@@ -123,17 +123,17 @@
 "apps.details.guide" = "테이블에서 앱을 선택해 세부 정보를 확인하거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정해 관련 파일(캐시, 설정 등)을 검토합니다.";
 "apps.alert.uninstall.title" = "선택한 앱 번들을 휴지통으로 이동";
 "apps.alert.fail.title" = "자동 이동 실패 (권한 제한)";
-"apps.alert.fail.msg" = "%ld개 앱은 macOS 보안 정책(Admin 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
+"apps.alert.fail.msg" = "%ld개 앱은 macOS 보안 정책(관리자 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
 "apps.alert.related.title" = "관련 파일 정리";
 "apps.alert.reset.title" = "권한 초기화";
 "apps.alert.reset.msg" = "선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔이 가능합니다.";
 "apps.status.scoped_error" = "Applications 폴더 접근 권한(Security-Scoped)이 없습니다.";
 "apps.manual.title" = "앱 파일 직접 선택";
 "apps.manual.msg" = "관련 파일을 분석할 앱(.app)을 선택해 주세요.";
-"apps.status.library_selected" = "Home Library가 선택되었습니다: %@";
-"apps.status.library_guide" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
-"apps.status.library_needed" = "권한 필요: Home Library(~/Library) 폴더를 선택해 주세요.";
-"apps.status.library_scoped_error" = "Home Library 폴더 접근 권한(Security-Scoped)이 없습니다.";
+"apps.status.library_selected" = "홈 라이브러리가 선택되었습니다: %@";
+"apps.status.library_guide" = "권한 필요: 홈 라이브러리(~/Library) 폴더를 선택해 주세요.";
+"apps.status.library_needed" = "권한 필요: 홈 라이브러리(~/Library) 폴더를 선택해 주세요.";
+"apps.status.library_scoped_error" = "홈 라이브러리 폴더 접근 권한(Security-Scoped)이 없습니다.";
 "apps.status.loaded_count" = "%ld개의 앱을 불러왔습니다.";
 "apps.status.reset_success" = "초기화가 완료되었습니다.";
 "apps.status.no_permission" = "접근 권한이 없습니다.";
@@ -150,7 +150,7 @@
 "apps.help.partial_protected" = "선택한 항목 중 일부는 시스템 앱, 보호 앱 또는 App Store 앱이라 건너뜁니다.";
 "apps.help.move_trash" = "선택한 일반 앱 번들(App Store 앱 제외)을 휴지통으로 이동합니다.";
 "apps.help.removing" = "이동 중…";
-"apps.scope.library_analysis" = "Home Library(~/Library) — 관련 파일 스캔";
+"apps.scope.library_analysis" = "홈 라이브러리(~/Library) — 관련 파일 스캔";
 "apps.status.folder_selected" = "폴더 선택됨: %@";
 "apps.status.bookmark_fail" = "폴더 권한 저장 실패: %@";
 "apps.status.app_bookmark_fail" = "앱 권한 저장 실패: %@";
@@ -172,7 +172,7 @@
 "settings.menubar_unit" = "메뉴 막대 단위";
 "settings.menubar_unit_desc" = "메뉴바와 사이드바에 표시되는 메모리 단위를 선택합니다.";
 "settings.app_activation" = "앱 활성화";
-"settings.app_activation_desc" = "Significant Memory Usage에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.";
+"settings.app_activation_desc" = "'메모리 사용량 상위 앱'에서 앱 아이콘을 클릭했을 때, 앱을 앞으로 가져오는 방식(단일 창/모든 창)을 선택합니다.";
 "settings.app_activation.single" = "단일";
 "settings.app_activation.all" = "전체";
 "settings.about" = "정보";
@@ -180,12 +180,12 @@
 
 /* ✅ [수정 v2] Settings Help — "모니터링 전용" 명확화 */
 "settings.help.clean_title" = "메모리 추정치: 표시 방식";
-"settings.help.clean_desc" = "• 메모리 수치는 host_statistics64 등 macOS 공개 API를 바탕으로 계산한 추정치입니다.\n• TriClean에 표시되는 값은 Activity Monitor와 차이가 있을 수 있습니다.\n• 새로고침은 표시값만 갱신하며 시스템 메모리 상태를 변경하지 않습니다.\n• 이 앱은 메모리를 최적화하거나 해제하지 않으며, 모니터링 용도로만 사용됩니다.";
-"settings.help.search_title" = "Apps 검색: Spotlight 인덱싱/제외 설정 영향";
+"settings.help.clean_desc" = "• 메모리 수치는 host_statistics64 등 macOS 공개 API를 바탕으로 계산한 추정치입니다.\n• TriClean에 표시되는 값은 활성 상태 보기와 차이가 있을 수 있습니다.\n• 새로고침은 표시값만 갱신하며 시스템 메모리 상태를 변경하지 않습니다.\n• 이 앱은 메모리를 최적화하거나 해제하지 않으며, 모니터링 용도로만 사용됩니다.";
+"settings.help.search_title" = "앱 검색: Spotlight 인덱싱/제외 설정 영향";
 "settings.help.search_desc" = "• Spotlight 인덱싱이 꺼져 있거나 폴더가 제외되어 있으면 검색 결과가 비어 있을 수 있습니다.\n• 샌드박스 환경에서는 앱이 접근 가능한 경로만 대상으로 검색할 수 있습니다.";
 
 /* Menu Bar */
-"menubar.memory.title" = "TriClean – Memory";
+"menubar.memory.title" = "TriClean – 메모리";
 "menubar.open_triclean" = "TriClean 열기";
 
 /* Debug */
@@ -216,7 +216,7 @@
 "store.btn.retry" = "다시 시도";
 
 // MARK: - Menubar
-"menu.buy_pro" = "TriClean Pro 구매하기...";
+"menu.buy_pro" = "평생 이용권 구매…";
 
 // MARK: - Paywall (Links)
 "paywall.link.privacy" = "개인정보";
@@ -228,7 +228,7 @@
 "paywall.error.unknown" = "알 수 없는 오류가 발생했습니다.";
 
 /* StoreManager 상품 로드 오류 */
-"store.error.product_not_found"   = "상품을 찾지 못했습니다. Product ID 또는 StoreKit 설정을 확인하세요.";
+"store.error.product_not_found"   = "App Store에서 상품 정보를 불러올 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.";
 "store.error.load_failed_detail"  = "상품 로드 실패: %@";
 
 // MARK: - Onboarding
@@ -239,7 +239,7 @@
 "onboarding.memory.title" = "메모리 모니터링";
 "onboarding.memory.desc" = "macOS 공개 API를 바탕으로 메모리 사용량과 구성 추정치를 확인하세요. 이 앱은 시스템 메모리를 변경하지 않습니다.";
 "onboarding.apps.title" = "앱 관련 파일 검토";
-"onboarding.apps.desc" = "앱 번들과 Home Library 안의 관련 파일 위치를 확인하세요. App Store 앱은 참고용으로만 표시됩니다.";
+"onboarding.apps.desc" = "앱 번들과 홈 라이브러리 안의 관련 파일 위치를 확인하세요. App Store 앱은 참고용으로만 표시됩니다.";
 "onboarding.btn.next" = "다음";
 "onboarding.btn.back" = "이전";
 "onboarding.btn.start" = "시작하기";
@@ -272,8 +272,8 @@
 "junk.section.alert.message" = "%@을(를) 휴지통으로 이동합니다.\nFinder에서 복원할 수 있습니다.";
 "junk.category.alert.title" = "%@ 정리";
 "junk.category.alert.message" = "선택한 %1$ld개 항목(%2$@)을 휴지통으로 이동합니다.\nFinder에서 복원할 수 있습니다.";
-"junk.scope.title" = "Home Library(~/Library) 선택";
-"junk.scope.message" = "정크 파일 스캔을 위해 Home Library 폴더를 선택하세요.";
+"junk.scope.title" = "홈 라이브러리(~/Library) 선택";
+"junk.scope.message" = "정크 파일 스캔을 위해 홈 라이브러리 폴더를 선택하세요.";
 "junk.progress.preparing" = "스캔 준비 중…";
 "junk.progress.scanning_format" = "%@ 스캔 중…";
 "junk.risk.safe" = "권장";
@@ -295,7 +295,7 @@
 "junk.category.saved_app_state.desc" = "앱이 마지막으로 열려 있던 창 상태입니다. 삭제 시 기본 상태로 시작될 수 있습니다.";
 "junk.category.crash_reports.title" = "충돌 보고서";
 "junk.category.crash_reports.desc" = "앱 크래시 리포트입니다. 분석이 필요 없다면 정리할 수 있습니다.";
-"junk.category.http_storage.title" = "HTTP Storage";
+"junk.category.http_storage.title" = "HTTP 저장소";
 "junk.category.http_storage.desc" = "앱의 HTTP 캐시 및 저장소입니다.";
 
 /* Storage UX */
@@ -377,7 +377,7 @@
 "duplicate.empty.none_title" = "중복 파일이 없습니다";
 "duplicate.empty.none_body" = "선택한 폴더에서 중복 파일을 찾지 못했습니다.";
 "duplicate.empty.waiting_title" = "스캔 대기 중";
-"duplicate.empty.waiting_body" = "Scan 버튼을 눌러 중복 파일을 찾아보세요.";
+"duplicate.empty.waiting_body" = "스캔 버튼을 눌러 중복 파일을 찾아보세요.";
 "duplicate.summary.groups" = "중복 그룹";
 "duplicate.summary.selected_files" = "선택 파일";
 "duplicate.summary.selected_space" = "선택 용량";
@@ -397,18 +397,18 @@
 "duplicate.file.help.delete" = "정리 대상으로 선택되었습니다. 클릭하면 보존으로 바뀝니다.";
 "duplicate.file.reveal" = "Finder에서 보기";
 "duplicate.file.keep" = "보존";
-"duplicate.file.delete" = "삭제";
+"duplicate.file.delete" = "휴지통으로";
 "duplicate.delete_confirm.title" = "중복 파일 정리";
 "duplicate.delete_confirm.message" = "선택한 중복 파일 %ld개(%@)를 휴지통으로 이동합니다. 각 그룹에서는 최소 1개 파일이 보존됩니다.";
 "duplicate.cleanup_result.title" = "정리 완료";
 "duplicate.cleanup_result.body" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다.";
 "duplicate.cleanup_result.body_with_failures" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다. %ld개 항목은 이동하지 못했습니다.";
-"duplicate.status.collecting" = "파일 목록 수집 중...";
+"duplicate.status.collecting" = "파일 목록 수집 중…";
 "duplicate.status.found_files" = "%ld개 파일 발견";
-"duplicate.status.grouping_by_size" = "크기별 그룹화 중...";
+"duplicate.status.grouping_by_size" = "크기별 그룹화 중…";
 "duplicate.status.same_size_candidates" = "%ld개 파일이 같은 크기입니다";
 "duplicate.status.partial_hash_matches" = "%ld개 그룹의 부분 해시가 일치합니다";
-"duplicate.status.hashing_full_progress" = "전체 해시 비교 중... %ld/%ld";
+"duplicate.status.hashing_full_progress" = "전체 해시 비교 중… %ld/%ld";
 "duplicate.status.no_duplicates_found" = "중복 파일을 찾지 못했습니다.";
 "duplicate.status.scan_complete" = "%ld개 중복 그룹 발견 (%@ 확보 가능)";
 "duplicate.status.selection_summary" = "%ld개 그룹 · %ld개 파일 선택 · %@ 확보 가능";
@@ -430,10 +430,10 @@
 
 /* Duplicate scan phase */
 "duplicate.phase.idle" = "대기";
-"duplicate.phase.collecting" = "파일 수집 중...";
-"duplicate.phase.grouping" = "크기별 그룹화 중...";
-"duplicate.phase.partial_hash" = "부분 해시 비교 중...";
-"duplicate.phase.full_hash" = "전체 해시 비교 중...";
+"duplicate.phase.collecting" = "파일 수집 중…";
+"duplicate.phase.grouping" = "크기별 그룹화 중…";
+"duplicate.phase.partial_hash" = "부분 해시 비교 중…";
+"duplicate.phase.full_hash" = "전체 해시 비교 중…";
 "duplicate.phase.done" = "완료";
 
 /* Smart Scan */
@@ -459,16 +459,16 @@
 "smartscan.memory.title" = "메모리";
 "smartscan.memory.caption" = "%@ 사용 중 / 총 %@";
 "smartscan.junk.title" = "정크 파일";
-"smartscan.junk.caption_permission" = "Storage 화면에서 ~/Library 접근 권한을 먼저 허용하세요.";
+"smartscan.junk.caption_permission" = "저장 공간 화면에서 ~/Library 접근 권한을 먼저 허용하세요.";
 "smartscan.junk.caption_scanning" = "정크 파일을 확인하는 중입니다.";
 "smartscan.junk.caption_found" = "%ld개 카테고리에서 정리 후보를 찾았습니다.";
 "smartscan.junk.caption_ready" = "권한이 준비되었습니다. 스캔을 시작하세요.";
 "smartscan.duplicates.title" = "중복 파일";
-"smartscan.duplicates.caption_permission" = "Duplicates 화면에서 스캔할 폴더를 먼저 선택하세요.";
+"smartscan.duplicates.caption_permission" = "중복 파일 화면에서 스캔할 폴더를 먼저 선택하세요.";
 "smartscan.duplicates.caption_found" = "%ld개 중복 그룹을 찾았습니다.";
 "smartscan.duplicates.caption_ready" = "폴더가 준비되었습니다. 스캔을 시작하세요.";
 "smartscan.reclaimable.storage_ratio" = "저장공간의 %@";
-"smartscan.apps.caption_permission" = "Apps 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
+"smartscan.apps.caption_permission" = "앱 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
 "smartscan.apps.caption_scanning" = "앱 목록을 불러오는 중입니다.";
 "smartscan.apps.caption_found" = "%ld개 앱 확인 · 제거 가능 %ld개";
 "smartscan.apps.caption_ready" = "권한이 준비되었습니다. 앱 목록을 확인하세요.";

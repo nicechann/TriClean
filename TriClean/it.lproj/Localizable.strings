@@ -67,7 +67,7 @@
 "storage.scan.sort.size" = "Dimensione";
 "storage.scan.sort.note" = "Durante la scansione gli elementi appaiono nell'ordine in cui vengono trovati. L'ordinamento viene applicato al termine.";
 "storage.results.header" = "Risultati";
-"storage.alert.delete.title" = "Vuoi davvero eliminare?";
+"storage.alert.delete.title" = "Spostare nel Cestino?";
 "storage.msg.manual" = "Analisi della cartella «%@» in corso…";
 "storage.msg.auto" = "Nuova analisi per modifica delle condizioni…";
 "storage.msg.canceled" = "Scansione annullata.";
@@ -153,13 +153,13 @@
 "junk.section.ready_desc" = "Scansiona l'ambito ~/Library selezionato per controllare cache, log e residui eliminabili.";
 "junk.section.wrong_path_warning" = "Questo percorso non è ~/Library. Potrebbe non essere trovato alcun file inutile.";
 "junk.section.wrong_path_title" = "Cartella selezionata non corretta";
-"junk.section.wrong_path_desc" = "I file inutili si trovano in ~/Library. Tocca «Cambia» per selezionare la tua cartella ~/Library.";
+"junk.section.wrong_path_desc" = "I file inutili si trovano in ~/Library. Fai clic su «Cambia» per selezionare la tua cartella ~/Library.";
 "junk.item.select_all" = "Seleziona tutto";
 "junk.item.deselect_all" = "Deseleziona tutto";
 "junk.item.show_more" = "Mostra altri %ld elementi";
 "junk.item.show_less" = "Mostra solo i primi 30 elementi";
 "junk.section.access_title" = "Accesso alla cartella scaduto";
-"junk.section.access_desc" = "TriClean non può più accedere a ~/Library. Tocca «Cambia» e seleziona di nuovo la cartella.";
+"junk.section.access_desc" = "TriClean non può più accedere a ~/Library. Fai clic su «Cambia» e seleziona di nuovo la cartella.";
 "junk.progress.cleaning" = "Spostamento di %ld elementi selezionati nel Cestino…";
 "junk.progress.clean_done" = "%ld elementi spostati nel Cestino.";
 "junk.progress.clean_failed" = "Impossibile spostare nel Cestino i file inutili selezionati.";
@@ -291,7 +291,7 @@
 "duplicate.empty.waiting_title" = "Pronto per la scansione";
 "duplicate.empty.waiting_body" = "Fai clic su Scansiona per cercare i file duplicati.";
 "duplicate.empty.access_title" = "Accesso alla cartella scaduto";
-"duplicate.empty.access_body" = "TriClean non può più accedere a questa cartella. Tocca «Cambia cartella» qui sopra e selezionala di nuovo.";
+"duplicate.empty.access_body" = "TriClean non può più accedere a questa cartella. Fai clic su «Cambia cartella» qui sopra e selezionala di nuovo.";
 "duplicate.summary.groups" = "Gruppi di duplicati";
 "duplicate.summary.selected_files" = "File selezionati";
 "duplicate.summary.selected_space" = "Spazio selezionato";
@@ -318,7 +318,7 @@
 "duplicate.file.help.delete" = "Contrassegnato per la pulizia. Fai clic per mantenere invece questo file.";
 "duplicate.file.reveal" = "Mostra nel Finder";
 "duplicate.file.keep" = "Mantieni";
-"duplicate.file.delete" = "Elimina";
+"duplicate.file.delete" = "Nel Cestino";
 "duplicate.delete_confirm.title" = "Pulisci i file duplicati";
 "duplicate.delete_confirm.message" = "%ld file duplicati selezionati (%@) verranno spostati nel Cestino. In ogni gruppo viene conservato almeno un file.";
 "duplicate.cleanup_result.title" = "Pulizia completata";
@@ -492,7 +492,7 @@
 /* MARK: - 메뉴바 */
 "menubar.memory.title" = "TriClean – Memoria";
 "menubar.open_triclean" = "Apri TriClean";
-"menu.buy_pro" = "Acquista TriClean Pro…";
+"menu.buy_pro" = "Ottieni l'accesso a vita…";
 
 /* MARK: - 온보딩 */
 "onboarding.welcome.title" = "Benvenuto in TriClean";
@@ -536,7 +536,7 @@
 "store.status.loading_products" = "Caricamento dei prodotti…";
 "store.error.load_failed" = "Caricamento dei prodotti non riuscito.";
 "store.error.load_failed_detail" = "Caricamento del prodotto non riuscito: %@";
-"store.error.product_not_found" = "Prodotto non trovato. Verifica il Product ID o la configurazione StoreKit.";
+"store.error.product_not_found" = "Impossibile caricare le informazioni sul prodotto dall'App Store. Controlla la connessione e riprova.";
 "store.error.product_unavailable" = "Impossibile caricare le informazioni sul prodotto dall'App Store. Controlla la connessione e riprova.";
 "store.error.no_purchase_to_restore" = "Nessun acquisto precedente trovato per questo account Apple.";
 "store.btn.retry" = "Riprova";
@@ -553,7 +553,7 @@
 "junk.cleanup.result.success_message" = "%ld elementi spostati nel Cestino.";
 "junk.cleanup.result.partial_message" = "%1$ld elementi spostati nel Cestino. Non riusciti: %2$ld; ignorati dopo modifiche: %3$ld.";
 "junk.cleanup.result.failed_message" = "Nessun elemento è stato spostato nel Cestino. Non riusciti: %1$ld; ignorati dopo modifiche: %2$ld.";
-"junk.cleanup.result.access_denied" = "Non è stato possibile attivare il permesso per la cartella Libreria. Seleziona di nuovo la cartella Libreria con “Modifica…” e riprova.";
+"junk.cleanup.result.access_denied" = "Non è stato possibile attivare il permesso per la cartella Libreria. Seleziona di nuovo la cartella Libreria con «Cambia…» e riprova.";
 "junk.cleanup.result.error_detail" = "Primo errore: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

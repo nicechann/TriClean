@@ -309,7 +309,9 @@ final class AppsViewModel: ObservableObject {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library", isDirectory: true)
+        // 샌드박스에서 `homeDirectoryForCurrentUser`는 앱 컨테이너를 가리킨다. 그 안의 Library를
+        // 그대로 열면 관련 파일이 0개로 나와 기능이 고장 난 것처럼 보이므로 실제 ~/Library에서 연다.
+        panel.directoryURL = JunkScannerViewModel.userLibraryURL
 
         if panel.runModal() == .OK, let url = panel.url {
             do {
@@ -962,7 +964,9 @@ final class AppsViewModel: ObservableObject {
         let candidates = selectedDeletable.filter { !runningIDs.contains($0.id) }
 
         if candidates.isEmpty && !runningApps.isEmpty {
-            lastFailedApps = runningApps
+            // 실행 중인 앱은 "실패"가 아니라 건너뛴 것이다. 실패 목록(Finder에서 직접 삭제 안내)에
+            // 넣으면 실행 중인 앱을 사용자가 직접 휴지통에 넣도록 유도하게 된다.
+            lastFailedApps = []
             lastStatusIsError = true
             lastStatusMessage = "apps.status.running_skipped".localized(with: runningApps.count)
             completion(nil)
@@ -995,7 +999,8 @@ final class AppsViewModel: ObservableObject {
 
         let sanitized = DeletionSafety.sanitize(candidates, scopes: deletionScopes, url: \.url)
         let acceptedIDs = Set(sanitized.accepted.map(\.id))
-        let rejectedApps = runningApps + candidates.filter { !acceptedIDs.contains($0.id) }
+        // 실행 중인 앱은 실패 개수·실패 알림에 넣지 않고 `runningNote`로만 알린다.
+        let rejectedApps = candidates.filter { !acceptedIDs.contains($0.id) }
         let runningNote = runningApps.isEmpty
             ? ""
             : " " + "apps.status.running_skipped".localized(with: runningApps.count)
@@ -1038,14 +1043,18 @@ final class AppsViewModel: ObservableObject {
                 self.lastStatusMessage = "apps.status.uninstall_all_fail".localized + runningNote
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
-                self.lastStatusIsError = false
-                self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count)
+                self.lastStatusIsError = !runningApps.isEmpty
+                self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count) + runningNote
                 completion(nil)
             } else if !succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
                 self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count) + runningNote
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             } else {
+                if !runningApps.isEmpty {
+                    self.lastStatusIsError = true
+                    self.lastStatusMessage = "apps.status.running_skipped".localized(with: runningApps.count)
+                }
                 completion(nil)
             }
         }
