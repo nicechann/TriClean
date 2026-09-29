@@ -591,3 +591,6 @@
 "access.error.home" = "Wybierz swój folder domowy. Gdy otworzy się okno, po prostu kliknij „Zezwól”.";
 "access.error.library" = "Wybierz folder Biblioteka (~/Library). Gdy otworzy się okno, po prostu kliknij „Zezwól”.";
 "access.error.save" = "Nie udało się zapisać uprawnienia. Spróbuj ponownie.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Przeniesiono do Kosza elementów: %ld. Aby faktycznie zwolnić miejsce na dysku, otwórz Kosz w Docku i kliknij „Opróżnij”.";

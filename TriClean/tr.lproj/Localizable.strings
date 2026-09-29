@@ -589,3 +589,6 @@
 "access.error.home" = "Lütfen ana klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
 "access.error.library" = "Lütfen Kitaplık (~/Library) klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
 "access.error.save" = "İzin kaydedilemedi. Lütfen yeniden deneyin.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Çöp Sepeti'ne taşınan öğe: %ld. Disk alanını gerçekten boşaltmak için Dock'taki Çöp Sepeti'ni açıp “Boşalt”a tıklayın.";

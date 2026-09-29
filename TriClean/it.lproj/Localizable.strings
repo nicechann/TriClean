@@ -589,3 +589,6 @@
 "access.error.home" = "Seleziona la cartella Inizio. Quando si apre la finestra, fai semplicemente clic su «Consenti».";
 "access.error.library" = "Seleziona la cartella Libreria (~/Library). Quando si apre la finestra, fai semplicemente clic su «Consenti».";
 "access.error.save" = "Impossibile salvare l’autorizzazione. Riprova.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Elementi spostati nel Cestino: %ld. Per liberare davvero spazio su disco, apri il Cestino nel Dock e fai clic su «Svuota».";

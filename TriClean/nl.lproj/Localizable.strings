@@ -589,3 +589,6 @@
 "access.error.home" = "Selecteer je thuismap. Klik gewoon op ‘Sta toe’ zodra het venster opent.";
 "access.error.library" = "Selecteer je bibliotheekmap (~/Library). Klik gewoon op ‘Sta toe’ zodra het venster opent.";
 "access.error.save" = "Kan de toestemming niet bewaren. Probeer het opnieuw.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Naar de prullenmand verplaatst: %ld. Open de prullenmand in het Dock en klik op ‘Leeg’ om echt schijfruimte vrij te maken.";

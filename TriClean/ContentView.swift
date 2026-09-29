@@ -76,7 +76,8 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320)
 
         } detail: {
-            switch selection ?? .smartScan {
+            Group {
+                switch selection ?? .smartScan {
             case .smartScan:    SmartScanView { target in selection = target }
             case .storage:      StorageView()
             case .memory:       MemoryView()
@@ -85,7 +86,10 @@ struct ContentView: View {
             case .duplicates:   DuplicateFinderView()
             case .photos:       PhotosView()
             case .settings:     SettingsView()
+                }
             }
+            // 정리 후 "휴지통을 비워야 공간이 확보된다"는 공통 안내
+            .safeAreaInset(edge: .top, spacing: 0) { TrashReminderBanner() }
         }
         .onAppear {
             if selection == nil { selection = .smartScan }

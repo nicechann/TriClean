@@ -651,3 +651,6 @@
 "access.error.home" = "Sélectionnez votre dossier de départ. Lorsque la fenêtre s’ouvre, cliquez simplement sur « Autoriser ».";
 "access.error.library" = "Sélectionnez votre dossier Bibliothèque (~/Library). Lorsque la fenêtre s’ouvre, cliquez simplement sur « Autoriser ».";
 "access.error.save" = "Impossible d’enregistrer l’autorisation. Veuillez réessayer.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Éléments placés dans la corbeille : %ld. Pour libérer réellement de l’espace disque, ouvrez la corbeille dans le Dock et cliquez sur « Vider ».";

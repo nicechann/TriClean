@@ -651,3 +651,6 @@
 "access.error.home" = "Selecciona tu carpeta de inicio. Cuando se abra la ventana, haz clic en «Permitir».";
 "access.error.library" = "Selecciona tu carpeta Biblioteca (~/Library). Cuando se abra la ventana, haz clic en «Permitir».";
 "access.error.save" = "No se pudo guardar el permiso. Inténtalo de nuevo.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Movidos a la Papelera: %ld. Para liberar realmente espacio en disco, abre la Papelera del Dock y haz clic en «Vaciar».";

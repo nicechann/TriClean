@@ -651,3 +651,6 @@
 "access.error.home" = "Bitte wählen Sie Ihren Benutzerordner. Wenn das Fenster geöffnet ist, klicken Sie einfach auf „Erlauben“.";
 "access.error.library" = "Bitte wählen Sie Ihren Library-Ordner (~/Library). Wenn das Fenster geöffnet ist, klicken Sie einfach auf „Erlauben“.";
 "access.error.save" = "Die Berechtigung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "In den Papierkorb verschoben: %ld. Um tatsächlich Speicherplatz freizugeben, öffnen Sie den Papierkorb im Dock und klicken Sie auf „Entleeren“.";

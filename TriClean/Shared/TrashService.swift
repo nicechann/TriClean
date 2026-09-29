@@ -146,6 +146,12 @@ nonisolated enum TrashService {
             }
         }
 
+        // 휴지통을 비워야 공간이 확보된다는 공통 안내를 띄운다(TrashReminderBanner).
+        let movedCount = succeeded.count
+        if movedCount > 0 {
+            await MainActor.run { TrashReminder.shared.recordMoved(movedCount) }
+        }
+
         return Outcome(
             succeeded: succeeded,
             failed: failed,

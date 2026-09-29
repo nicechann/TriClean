@@ -589,3 +589,6 @@
 "access.error.home" = "Selecione sua pasta de início. Quando a janela abrir, basta clicar em “Permitir”.";
 "access.error.library" = "Selecione sua pasta Biblioteca (~/Library). Quando a janela abrir, basta clicar em “Permitir”.";
 "access.error.save" = "Não foi possível salvar a permissão. Tente novamente.";
+
+/* 휴지통 안내 배너 */
+"trash.reminder.message" = "Itens movidos para o Lixo: %ld. Para liberar espaço em disco de verdade, abra o Lixo no Dock e clique em “Esvaziar”.";
