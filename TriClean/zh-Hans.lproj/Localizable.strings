@@ -21,7 +21,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "存储空间";
 "sidebar.memory" = "内存";
-"sidebar.apps" = "应用";
+"sidebar.apps" = "卸载应用";
 "sidebar.settings" = "设置";
 "sidebar.section.system" = "系统";
 "sidebar.section.cleanup" = "清理";
@@ -384,13 +384,13 @@
 "smartscan.duplicates.caption_found" = "找到 %ld 个重复文件组。";
 "smartscan.duplicates.caption_ready" = "文件夹已就绪，可以开始扫描。";
 "smartscan.reclaimable.storage_ratio" = "存储空间的%@";
-"smartscan.apps.caption_permission" = "请先在「应用」中授予应用程序文件夹访问权限。";
+"smartscan.apps.caption_permission" = "请先在「卸载应用」中授予应用程序文件夹访问权限。";
 "smartscan.apps.caption_scanning" = "正在载入应用列表。";
 "smartscan.apps.caption_found" = "已检查 %ld 个应用 · 其中 %ld 个可移除";
 "smartscan.apps.caption_ready" = "权限已就绪，可以查看你的应用。";
 "smartscan.actions.title" = "快速前往";
 "smartscan.actions.storage" = "存储空间";
-"smartscan.actions.apps" = "应用";
+"smartscan.actions.apps" = "卸载应用";
 "smartscan.actions.duplicates" = "重复文件";
 "smartscan.actions.memory" = "内存";
 "smartscan.details.title" = "扫描项目";

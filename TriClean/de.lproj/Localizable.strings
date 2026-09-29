@@ -26,7 +26,7 @@
 /* Sidebar */
 "sidebar.storage" = "Speicher";
 "sidebar.memory" = "Arbeitsspeicher";
-"sidebar.apps" = "Apps";
+"sidebar.apps" = "Apps deinstallieren";
 "sidebar.settings" = "Einstellungen";
 
 /* Memory View */
@@ -459,13 +459,13 @@
 "smartscan.duplicates.caption_found" = "%ld Duplikat-Gruppen gefunden.";
 "smartscan.duplicates.caption_ready" = "Ordner ist bereit. Starten Sie einen Scan.";
 "smartscan.reclaimable.storage_ratio" = "%@ des Speichers";
-"smartscan.apps.caption_permission" = "Erlauben Sie zuerst im Apps-Bereich den Zugriff auf den Applications-Ordner.";
+"smartscan.apps.caption_permission" = "Erlauben Sie zuerst unter „Apps deinstallieren“ den Zugriff auf den Applications-Ordner.";
 "smartscan.apps.caption_scanning" = "App-Liste wird geladen.";
 "smartscan.apps.caption_found" = "%ld Apps geprüft · %ld entfernbar";
 "smartscan.apps.caption_ready" = "Berechtigung ist bereit. Prüfen Sie Ihre Apps.";
 "smartscan.actions.title" = "Schnellzugriff";
 "smartscan.actions.storage" = "Speicher";
-"smartscan.actions.apps" = "Apps";
+"smartscan.actions.apps" = "Apps deinstallieren";
 "smartscan.actions.duplicates" = "Duplikate";
 "smartscan.actions.memory" = "Arbeitsspeicher";
 "smartscan.details.title" = "Scan-Elemente";

@@ -25,7 +25,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "Depolama";
 "sidebar.memory" = "Bellek";
-"sidebar.apps" = "Uygulamalar";
+"sidebar.apps" = "Uygulama kaldırma";
 "sidebar.settings" = "Ayarlar";
 "sidebar.section.system" = "Sistem";
 "sidebar.section.cleanup" = "Temizlik";
@@ -388,13 +388,13 @@
 "smartscan.duplicates.caption_found" = "%ld kopya grubu bulundu.";
 "smartscan.duplicates.caption_ready" = "Klasör hazır. Bir tarama başlatın.";
 "smartscan.reclaimable.storage_ratio" = "Depolamanın %@";
-"smartscan.apps.caption_permission" = "Önce Uygulamalar bölümünde Uygulamalar klasörü erişimine izin verin.";
+"smartscan.apps.caption_permission" = "Önce “Uygulama kaldırma” bölümünde Uygulamalar klasörü erişimine izin verin.";
 "smartscan.apps.caption_scanning" = "Uygulama listesi yükleniyor.";
 "smartscan.apps.caption_found" = "%ld uygulama kontrol edildi · %ld kaldırılabilir";
 "smartscan.apps.caption_ready" = "İzin hazır. Uygulamalarınızı inceleyin.";
 "smartscan.actions.title" = "Hızlı erişim";
 "smartscan.actions.storage" = "Depolama";
-"smartscan.actions.apps" = "Uygulamalar";
+"smartscan.actions.apps" = "Uygulama kaldırma";
 "smartscan.actions.duplicates" = "Kopyalar";
 "smartscan.actions.memory" = "Bellek";
 "smartscan.details.title" = "Taranan öğeler";

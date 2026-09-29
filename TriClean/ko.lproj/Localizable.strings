@@ -29,7 +29,7 @@
 /* Sidebar */
 "sidebar.storage" = "저장 공간";
 "sidebar.memory" = "메모리";
-"sidebar.apps" = "앱";
+"sidebar.apps" = "앱 삭제";
 "sidebar.settings" = "설정";
 
 /* Memory View */
@@ -468,13 +468,13 @@
 "smartscan.duplicates.caption_found" = "%ld개 중복 그룹을 찾았습니다.";
 "smartscan.duplicates.caption_ready" = "폴더가 준비되었습니다. 스캔을 시작하세요.";
 "smartscan.reclaimable.storage_ratio" = "저장공간의 %@";
-"smartscan.apps.caption_permission" = "앱 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
+"smartscan.apps.caption_permission" = "앱 삭제 화면에서 Applications 폴더 접근 권한을 먼저 허용하세요.";
 "smartscan.apps.caption_scanning" = "앱 목록을 불러오는 중입니다.";
 "smartscan.apps.caption_found" = "%ld개 앱 확인 · 제거 가능 %ld개";
 "smartscan.apps.caption_ready" = "권한이 준비되었습니다. 앱 목록을 확인하세요.";
 "smartscan.actions.title" = "빠른 이동";
 "smartscan.actions.storage" = "저장공간";
-"smartscan.actions.apps" = "앱";
+"smartscan.actions.apps" = "앱 삭제";
 "smartscan.actions.duplicates" = "중복 파일";
 "smartscan.actions.memory" = "메모리";
 "smartscan.details.title" = "스캔 항목";

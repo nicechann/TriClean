@@ -21,7 +21,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "Armazenamento";
 "sidebar.memory" = "Memória";
-"sidebar.apps" = "Apps";
+"sidebar.apps" = "Desinstalar apps";
 "sidebar.settings" = "Ajustes";
 "sidebar.section.system" = "Sistema";
 "sidebar.section.cleanup" = "Limpeza";
@@ -384,13 +384,13 @@
 "smartscan.duplicates.caption_found" = "%ld grupos de duplicados encontrados.";
 "smartscan.duplicates.caption_ready" = "Pasta pronta. Inicie um escaneamento.";
 "smartscan.reclaimable.storage_ratio" = "%@ do armazenamento";
-"smartscan.apps.caption_permission" = "Permita primeiro o acesso à pasta Aplicativos em Apps.";
+"smartscan.apps.caption_permission" = "Permita primeiro o acesso à pasta Aplicativos em “Desinstalar apps”.";
 "smartscan.apps.caption_scanning" = "Carregando a lista de apps.";
 "smartscan.apps.caption_found" = "%ld apps verificados · %ld removíveis";
 "smartscan.apps.caption_ready" = "Permissão pronta. Revise seus apps.";
 "smartscan.actions.title" = "Acesso rápido";
 "smartscan.actions.storage" = "Armazenamento";
-"smartscan.actions.apps" = "Apps";
+"smartscan.actions.apps" = "Desinstalar apps";
 "smartscan.actions.duplicates" = "Duplicados";
 "smartscan.actions.memory" = "Memória";
 "smartscan.details.title" = "Itens escaneados";

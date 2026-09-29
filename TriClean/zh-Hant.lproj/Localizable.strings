@@ -21,7 +21,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "儲存空間";
 "sidebar.memory" = "記憶體";
-"sidebar.apps" = "應用程式";
+"sidebar.apps" = "解除安裝應用程式";
 "sidebar.settings" = "設定";
 "sidebar.section.system" = "系統";
 "sidebar.section.cleanup" = "清理";
@@ -384,13 +384,13 @@
 "smartscan.duplicates.caption_found" = "找到 %ld 個重複檔案群組。";
 "smartscan.duplicates.caption_ready" = "資料夾已就緒，可以開始掃描。";
 "smartscan.reclaimable.storage_ratio" = "儲存空間的%@";
-"smartscan.apps.caption_permission" = "請先在「應用程式」中授予「應用程式」資料夾存取權限。";
+"smartscan.apps.caption_permission" = "請先在「解除安裝應用程式」中授予「應用程式」資料夾存取權限。";
 "smartscan.apps.caption_scanning" = "正在載入應用程式列表。";
 "smartscan.apps.caption_found" = "已檢查 %ld 個應用程式 · 其中 %ld 個可移除";
 "smartscan.apps.caption_ready" = "權限已就緒，可以檢視你的應用程式。";
 "smartscan.actions.title" = "快速前往";
 "smartscan.actions.storage" = "儲存空間";
-"smartscan.actions.apps" = "應用程式";
+"smartscan.actions.apps" = "解除安裝應用程式";
 "smartscan.actions.duplicates" = "重複檔案";
 "smartscan.actions.memory" = "記憶體";
 "smartscan.details.title" = "掃描項目";

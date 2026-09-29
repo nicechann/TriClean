@@ -21,7 +21,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "Opslag";
 "sidebar.memory" = "Geheugen";
-"sidebar.apps" = "Apps";
+"sidebar.apps" = "Apps verwijderen";
 "sidebar.settings" = "Instellingen";
 "sidebar.section.system" = "Systeem";
 "sidebar.section.cleanup" = "Opruimen";
@@ -384,13 +384,13 @@
 "smartscan.duplicates.caption_found" = "Gevonden: %ld duplicaatgroepen.";
 "smartscan.duplicates.caption_ready" = "Map is gereed. Start een scan.";
 "smartscan.reclaimable.storage_ratio" = "%@ van opslag";
-"smartscan.apps.caption_permission" = "Geef eerst toegang tot de map Programma's bij Apps.";
+"smartscan.apps.caption_permission" = "Geef eerst toegang tot de map Programma's bij ‘Apps verwijderen’.";
 "smartscan.apps.caption_scanning" = "App-lijst laden.";
 "smartscan.apps.caption_found" = "%ld apps gecontroleerd · %ld verwijderbaar";
 "smartscan.apps.caption_ready" = "Toegang is gereed. Bekijk je apps.";
 "smartscan.actions.title" = "Snel naar";
 "smartscan.actions.storage" = "Opslag";
-"smartscan.actions.apps" = "Apps";
+"smartscan.actions.apps" = "Apps verwijderen";
 "smartscan.actions.duplicates" = "Duplicaten";
 "smartscan.actions.memory" = "Geheugen";
 "smartscan.details.title" = "Gescande onderdelen";

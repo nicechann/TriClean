@@ -26,7 +26,7 @@
 /* Sidebar */
 "sidebar.storage" = "ストレージ";
 "sidebar.memory" = "メモリ";
-"sidebar.apps" = "App";
+"sidebar.apps" = "アプリ削除";
 "sidebar.settings" = "設定";
 
 /* Memory View */
@@ -459,13 +459,13 @@
 "smartscan.duplicates.caption_found" = "%ld 個の重複グループが見つかりました。";
 "smartscan.duplicates.caption_ready" = "フォルダの準備ができました。スキャンを開始してください。";
 "smartscan.reclaimable.storage_ratio" = "ストレージの%@";
-"smartscan.apps.caption_permission" = "まずアプリ画面でApplicationsフォルダへのアクセスを許可してください。";
+"smartscan.apps.caption_permission" = "まず「アプリ削除」画面でApplicationsフォルダへのアクセスを許可してください。";
 "smartscan.apps.caption_scanning" = "アプリ一覧を読み込んでいます。";
 "smartscan.apps.caption_found" = "%ld 個のアプリを確認 · 削除可能 %ld 個";
 "smartscan.apps.caption_ready" = "アクセス許可の準備ができました。アプリ一覧を確認してください。";
 "smartscan.actions.title" = "クイックアクセス";
 "smartscan.actions.storage" = "ストレージ";
-"smartscan.actions.apps" = "アプリ";
+"smartscan.actions.apps" = "アプリ削除";
 "smartscan.actions.duplicates" = "重複ファイル";
 "smartscan.actions.memory" = "メモリ";
 "smartscan.details.title" = "スキャン項目";

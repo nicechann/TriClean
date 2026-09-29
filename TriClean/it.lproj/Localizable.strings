@@ -21,7 +21,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "Archiviazione";
 "sidebar.memory" = "Memoria";
-"sidebar.apps" = "App";
+"sidebar.apps" = "Disinstalla app";
 "sidebar.settings" = "Impostazioni";
 "sidebar.section.system" = "Sistema";
 "sidebar.section.cleanup" = "Pulizia";
@@ -384,13 +384,13 @@
 "smartscan.duplicates.caption_found" = "%ld gruppi di duplicati trovati.";
 "smartscan.duplicates.caption_ready" = "Cartella pronta. Avvia una scansione.";
 "smartscan.reclaimable.storage_ratio" = "%@ dello spazio";
-"smartscan.apps.caption_permission" = "Consenti prima l'accesso alla cartella Applicazioni in App.";
+"smartscan.apps.caption_permission" = "Consenti prima l'accesso alla cartella Applicazioni in «Disinstalla app».";
 "smartscan.apps.caption_scanning" = "Caricamento dell'elenco delle app.";
 "smartscan.apps.caption_found" = "%ld app controllate · %ld rimovibili";
 "smartscan.apps.caption_ready" = "Autorizzazione pronta. Controlla le tue app.";
 "smartscan.actions.title" = "Accesso rapido";
 "smartscan.actions.storage" = "Archiviazione";
-"smartscan.actions.apps" = "App";
+"smartscan.actions.apps" = "Disinstalla app";
 "smartscan.actions.duplicates" = "Duplicati";
 "smartscan.actions.memory" = "Memoria";
 "smartscan.details.title" = "Elementi analizzati";

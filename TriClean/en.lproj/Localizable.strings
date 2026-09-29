@@ -29,7 +29,7 @@
 /* Sidebar */
 "sidebar.storage" = "Storage";
 "sidebar.memory" = "Memory";
-"sidebar.apps" = "Apps";
+"sidebar.apps" = "App Uninstaller";
 "sidebar.settings" = "Settings";
 
 /* Memory View */
@@ -467,13 +467,13 @@
 "smartscan.duplicates.caption_found" = "%ld duplicate groups found.";
 "smartscan.duplicates.caption_ready" = "Folder is ready. Start a scan.";
 "smartscan.reclaimable.storage_ratio" = "%@ of storage";
-"smartscan.apps.caption_permission" = "Allow Applications folder access in Apps first.";
+"smartscan.apps.caption_permission" = "Allow Applications folder access in App Uninstaller first.";
 "smartscan.apps.caption_scanning" = "Loading app list.";
 "smartscan.apps.caption_found" = "%ld apps checked · %ld removable";
 "smartscan.apps.caption_ready" = "Permission is ready. Review your apps.";
 "smartscan.actions.title" = "Quick Access";
 "smartscan.actions.storage" = "Storage";
-"smartscan.actions.apps" = "Apps";
+"smartscan.actions.apps" = "App Uninstaller";
 "smartscan.actions.duplicates" = "Duplicates";
 "smartscan.actions.memory" = "Memory";
 "smartscan.details.title" = "Scan Items";

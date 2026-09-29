@@ -27,7 +27,7 @@
 /* MARK: - 사이드바 */
 "sidebar.storage" = "Хранилище";
 "sidebar.memory" = "Память";
-"sidebar.apps" = "Программы";
+"sidebar.apps" = "Удаление программ";
 "sidebar.settings" = "Настройки";
 "sidebar.section.system" = "Система";
 "sidebar.section.cleanup" = "Очистка";
@@ -390,13 +390,13 @@
 "smartscan.duplicates.caption_found" = "Найдено групп дубликатов: %ld.";
 "smartscan.duplicates.caption_ready" = "Папка готова. Начните сканирование.";
 "smartscan.reclaimable.storage_ratio" = "%@ хранилища";
-"smartscan.apps.caption_permission" = "Сначала разрешите доступ к папке «Программы» в разделе «Программы».";
+"smartscan.apps.caption_permission" = "Сначала разрешите доступ к папке «Программы» в разделе «Удаление программ».";
 "smartscan.apps.caption_scanning" = "Загрузка списка программ.";
 "smartscan.apps.caption_found" = "Проверено программ: %ld · удаляемых: %ld";
 "smartscan.apps.caption_ready" = "Разрешение получено. Просмотрите свои программы.";
 "smartscan.actions.title" = "Быстрый переход";
 "smartscan.actions.storage" = "Хранилище";
-"smartscan.actions.apps" = "Программы";
+"smartscan.actions.apps" = "Удаление программ";
 "smartscan.actions.duplicates" = "Дубликаты";
 "smartscan.actions.memory" = "Память";
 "smartscan.details.title" = "Проверяемые разделы";

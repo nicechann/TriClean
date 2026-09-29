@@ -26,7 +26,7 @@
 /* Sidebar */
 "sidebar.storage" = "Stockage";
 "sidebar.memory" = "Mémoire";
-"sidebar.apps" = "Apps";
+"sidebar.apps" = "Désinstaller des apps";
 "sidebar.settings" = "Réglages";
 
 /* Memory View */
@@ -459,13 +459,13 @@
 "smartscan.duplicates.caption_found" = "%ld groupes de doublons trouvés.";
 "smartscan.duplicates.caption_ready" = "Le dossier est prêt. Lancez une analyse.";
 "smartscan.reclaimable.storage_ratio" = "%@ du stockage";
-"smartscan.apps.caption_permission" = "Autorisez d’abord l’accès au dossier Applications dans Apps.";
+"smartscan.apps.caption_permission" = "Autorisez d’abord l’accès au dossier Applications dans « Désinstaller des apps ».";
 "smartscan.apps.caption_scanning" = "Chargement de la liste des apps.";
 "smartscan.apps.caption_found" = "%ld apps vérifiées · %ld supprimables";
 "smartscan.apps.caption_ready" = "L’autorisation est prête. Consultez vos apps.";
 "smartscan.actions.title" = "Accès rapide";
 "smartscan.actions.storage" = "Stockage";
-"smartscan.actions.apps" = "Apps";
+"smartscan.actions.apps" = "Désinstaller des apps";
 "smartscan.actions.duplicates" = "Doublons";
 "smartscan.actions.memory" = "Mémoire";
 "smartscan.details.title" = "Éléments analysés";
