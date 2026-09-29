@@ -191,8 +191,26 @@ final class AppsViewModel: ObservableObject {
 
     init() {
         applicationsFolderURL = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder)
-        userLibraryFolderURL  = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsUserLibraryFolder)
+        userLibraryFolderURL  = Self.resolveValidatedUserLibraryFolder()
         manualAppBundleURL    = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsManualAppBundle)
+    }
+
+    /// 저장된 앱 관련 파일 스코프는 실제 `~/Library`여야 한다.
+    /// 이전 버전에서 다른 폴더가 저장된 사용자는 권한을 다시 받도록 잘못된 북마크를 제거한다.
+    private static func resolveValidatedUserLibraryFolder() -> URL? {
+        let bookmarks = SecurityScopedBookmarkStore.shared
+        guard let url = bookmarks.resolveURL(for: .appsUserLibraryFolder) else { return nil }
+        guard let token = SecurityScopedAccessToken(url: url) else {
+            bookmarks.clear(.appsUserLibraryFolder)
+            return nil
+        }
+        defer { token.stop() }
+
+        guard DeletionSafety.isSameItem(url, JunkScannerViewModel.userLibraryURL) else {
+            bookmarks.clear(.appsUserLibraryFolder)
+            return nil
+        }
+        return url
     }
 
     /// 설정·온보딩의 공통 권한 설정(`FolderAccessSetup`)에서 새로 받은 폴더를 반영한다.
@@ -200,7 +218,7 @@ final class AppsViewModel: ObservableObject {
     func reloadSharedFolderAccess() {
         guard !isLoadingInstalledApps, !isScanning, !isRemoving else { return }
         if userLibraryFolderURL == nil {
-            userLibraryFolderURL = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsUserLibraryFolder)
+            userLibraryFolderURL = Self.resolveValidatedUserLibraryFolder()
         }
         if applicationsFolderURL == nil,
            let url = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder) {
@@ -329,6 +347,12 @@ final class AppsViewModel: ObservableObject {
         panel.directoryURL = JunkScannerViewModel.userLibraryURL
 
         if panel.runModal() == .OK, let url = panel.url {
+            guard DeletionSafety.isSameItem(url, JunkScannerViewModel.userLibraryURL) else {
+                lastStatusIsError = true
+                lastStatusMessage = "access.error.library".localized
+                return
+            }
+
             do {
                 try SecurityScopedBookmarkStore.shared.save(url: url, for: .appsUserLibraryFolder)
                 userLibraryFolderURL = url
@@ -484,12 +508,12 @@ final class AppsViewModel: ObservableObject {
     // MARK: - Load Installed Apps
 
     func loadInstalledApps() {
-        guard let root = applicationsFolderURL?.standardizedFileURL else {
+        guard let scopedRoot = applicationsFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.folder_needed".localized
             return
         }
-        guard let token = SecurityScopedAccessToken(url: root) else {
+        guard let token = SecurityScopedAccessToken(url: scopedRoot) else {
             SecurityScopedBookmarkStore.shared.clear(.appsApplicationsFolder)
             applicationsFolderURL = nil
             installedApps = []
@@ -502,7 +526,8 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        let rootStd = root.standardizedFileURL
+        // 보안 스코프는 북마크에서 복원한 원본 URL로 열고, 표준화 URL은 비교·순회에만 쓴다.
+        let rootStd = scopedRoot.standardizedFileURL
 
         loadInstalledAppsTask?.cancel()
         loadGeneration &+= 1
@@ -673,12 +698,12 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func scanRelatedFiles(for appName: String, bundleID: String?) {
-        guard let library = userLibraryFolderURL?.standardizedFileURL else {
+        guard let scopedLibrary = userLibraryFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
-        guard let token = SecurityScopedAccessToken(url: library) else {
+        guard let token = SecurityScopedAccessToken(url: scopedLibrary) else {
             SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
             userLibraryFolderURL = nil
             relatedItems = []
@@ -687,8 +712,18 @@ final class AppsViewModel: ObservableObject {
             lastStatusMessage = "apps.status.library_scoped_error".localized
             return
         }
+        guard DeletionSafety.isSameItem(scopedLibrary, JunkScannerViewModel.userLibraryURL) else {
+            token.stop()
+            SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
+            userLibraryFolderURL = nil
+            relatedItems = []
+            lastStatusIsError = true
+            lastStatusMessage = "access.error.library".localized
+            return
+        }
 
-        let libraryStd = library.standardizedFileURL
+        // 보안 스코프는 북마크에서 복원한 원본 URL로 열고, 표준화 URL은 비교·순회에만 쓴다.
+        let libraryStd = scopedLibrary.standardizedFileURL
         let currentAppPath = selectedApp?.appPath
 
         relatedScanTask?.cancel()
@@ -974,7 +1009,14 @@ final class AppsViewModel: ObservableObject {
             NSWorkspace.shared.runningApplications.compactMap { $0.bundleURL.map(DeletionSafety.resolvedPath(for:)) }
         )
         let selectedDeletable = deletableSelectedApps
-        let runningApps = selectedDeletable.filter { runningPaths.contains(DeletionSafety.resolvedPath(for: $0.url)) }
+        let runningApps = selectedDeletable.filter { app in
+            let appPath = DeletionSafety.resolvedPath(for: app.url)
+            let appScopePath = DeletionSafety.scopePath(for: app.url)
+            // 메인 앱뿐 아니라 앱 번들 내부의 Login Item/Helper가 실행 중이어도 건너뛴다.
+            return runningPaths.contains { runningPath in
+                runningPath == appPath || runningPath.hasPrefix(appScopePath)
+            }
+        }
         let runningIDs = Set(runningApps.map(\.id))
         let candidates = selectedDeletable.filter { !runningIDs.contains($0.id) }
 
@@ -1001,15 +1043,15 @@ final class AppsViewModel: ObservableObject {
         // 보안 스코프를 먼저 연 뒤 경로 경계·존재 여부를 삭제 직전에 재검증합니다.
         var scopeTokens: [SecurityScopedAccessToken] = []
         var deletionScopes: [DeletionSafety.Scope] = []
-        if let url = applicationsFolderURL?.standardizedFileURL,
-           let token = SecurityScopedAccessToken(url: url) {
+        if let scopedURL = applicationsFolderURL,
+           let token = SecurityScopedAccessToken(url: scopedURL) {
             scopeTokens.append(token)
-            deletionScopes.append(.descendants(of: url))
+            deletionScopes.append(.descendants(of: scopedURL.standardizedFileURL))
         }
-        if let url = manualAppBundleURL?.standardizedFileURL,
-           let token = SecurityScopedAccessToken(url: url) {
+        if let scopedURL = manualAppBundleURL,
+           let token = SecurityScopedAccessToken(url: scopedURL) {
             scopeTokens.append(token)
-            deletionScopes.append(.exact(url))
+            deletionScopes.append(.exact(scopedURL.standardizedFileURL))
         }
 
         let sanitized = DeletionSafety.sanitize(candidates, scopes: deletionScopes, url: \.url)
@@ -1098,16 +1140,27 @@ final class AppsViewModel: ObservableObject {
 
         let candidates = relatedItems.filter { $0.selected }
         guard !candidates.isEmpty else { return }
-        guard let libraryRoot = userLibraryFolderURL?.standardizedFileURL else {
+        guard let scopedLibraryRoot = userLibraryFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
-        guard let scopeToken = SecurityScopedAccessToken(url: libraryRoot) else {
+        guard let scopeToken = SecurityScopedAccessToken(url: scopedLibraryRoot) else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
             return
         }
+        guard DeletionSafety.isSameItem(scopedLibraryRoot, JunkScannerViewModel.userLibraryURL) else {
+            scopeToken.stop()
+            SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
+            userLibraryFolderURL = nil
+            lastStatusIsError = true
+            lastStatusMessage = "access.error.library".localized
+            return
+        }
+
+        // 보안 스코프는 원본 URL로 연 뒤, 경로 검증에는 표준화된 루트를 사용한다.
+        let libraryRoot = scopedLibraryRoot.standardizedFileURL
 
         // 관련 파일은 항상 `Library/<하위폴더>/<항목>` 이하에 있다.
         // `Library/Caches`처럼 하위폴더 자체나 `Library/Keychains` 같은 1단계 항목은 거부한다.

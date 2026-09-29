@@ -638,7 +638,7 @@
 
 /* 폴더 접근 권한 (온보딩·설정 공통) */
 "access.title" = "Ordnerzugriff";
-"access.desc" = "TriClean liest nur Ordner, die Sie erlauben. Erlauben Sie diese drei Ordner einmal, dann sind alle Funktionen sofort nutzbar. Sie können dies jederzeit in den Einstellungen wiederholen.";
+"access.desc" = "TriClean greift nur auf Ordner zu, die Sie erlauben. Erlauben Sie diese drei Ordner einmal, dann sind alle Funktionen sofort nutzbar. Sie können dies jederzeit in den Einstellungen wiederholen.";
 "access.home.title" = "Benutzerordner";
 "access.home.desc" = "Wird von Speicher, Duplikate, Große Dateien und Fotos verwendet.";
 "access.apps.title" = "Programme-Ordner";

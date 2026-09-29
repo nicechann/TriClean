@@ -56,10 +56,33 @@ final class StorageViewModel: ObservableObject {
 
     private let bookmarks = SecurityScopedBookmarkStore.shared
 
+    /// 실제 사용자 홈 폴더. 샌드박스의 `homeDirectoryForCurrentUser`는 앱 컨테이너를 가리킬 수 있다.
+    private static var userHomeURL: URL {
+        JunkScannerViewModel.userLibraryURL.deletingLastPathComponent()
+    }
+
+    /// 저장된 홈 폴더 북마크는 실제 사용자 홈이어야 한다.
+    /// 이전 버전에서 다른 폴더가 저장된 경우 권한을 다시 받도록 잘못된 북마크를 제거한다.
+    private static func resolveValidatedHomeFolder() -> URL? {
+        let bookmarks = SecurityScopedBookmarkStore.shared
+        guard let url = bookmarks.resolveURL(for: .storageHomeFolder) else { return nil }
+        guard let token = SecurityScopedAccessToken(url: url) else {
+            bookmarks.clear(.storageHomeFolder)
+            return nil
+        }
+        defer { token.stop() }
+
+        guard DeletionSafety.isSameItem(url, userHomeURL) else {
+            bookmarks.clear(.storageHomeFolder)
+            return nil
+        }
+        return url
+    }
+
     // MARK: - Init
 
     init() {
-        homeScopeURL = bookmarks.resolveURL(for: .storageHomeFolder)
+        homeScopeURL = Self.resolveValidatedHomeFolder()
         appsScopeURLs = bookmarks.resolveURLs(for: .storageApplicationsFolders)
     }
 
@@ -72,6 +95,15 @@ final class StorageViewModel: ObservableObject {
 
     /// 화면이 나타날 때 호출. 권한(선택)이 있는 스코프만 보수적으로 계산한다.
     func onAppear() {
+        // 설정·온보딩의 공통 권한 화면에서 이 ViewModel 생성 이후 권한을 받을 수 있으므로
+        // 화면에 다시 들어올 때 비어 있는 스코프만 저장소에서 새로 읽는다.
+        if homeScopeURL == nil {
+            homeScopeURL = Self.resolveValidatedHomeFolder()
+        }
+        if appsScopeURLs.isEmpty {
+            appsScopeURLs = bookmarks.resolveURLs(for: .storageApplicationsFolders)
+        }
+
         loadDiskInfo()
 
         if isHomeSelected { scanHomeFolder() }
@@ -197,9 +229,17 @@ final class StorageViewModel: ObservableObject {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
+        panel.directoryURL = Self.userHomeURL
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard DeletionSafety.isSameItem(url, Self.userHomeURL) else {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "access.error.home".localized
+            alert.addButton(withTitle: "common.close".localized)
+            alert.runModal()
+            return
+        }
 
         bookmarks.trySave(url: url, for: .storageHomeFolder)
         homeScopeURL = url

@@ -646,7 +646,7 @@
 
 /* 폴더 접근 권한 (온보딩·설정 공통) */
 "access.title" = "Folder Access";
-"access.desc" = "TriClean only reads folders you allow. Allow these three folders once and every feature is ready to use. You can do this again in Settings at any time.";
+"access.desc" = "TriClean only accesses folders you allow. Allow these three folders once and every feature is ready to use. You can do this again in Settings at any time.";
 "access.home.title" = "Home Folder";
 "access.home.desc" = "Used by Storage, Duplicates, Large Files and Photos.";
 "access.apps.title" = "Applications Folder";
@@ -661,4 +661,4 @@
 "access.error.save" = "Could not save the permission. Please try again.";
 
 /* 휴지통 안내 배너 */
-"trash.reminder.message" = "Moved %ld items to Trash. To actually free up disk space, click the Trash in the Dock and choose Empty.";
+"trash.reminder.message" = "Items moved to Trash: %ld. To actually free up disk space, click the Trash in the Dock and choose Empty.";

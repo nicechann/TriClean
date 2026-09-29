@@ -576,7 +576,7 @@
 
 /* 폴더 접근 권한 (온보딩·설정 공통) */
 "access.title" = "Acesso a pastas";
-"access.desc" = "O TriClean lê apenas as pastas que você permitir. Permita estas três pastas uma vez e todos os recursos ficam prontos. Você pode repetir isso a qualquer momento em Ajustes.";
+"access.desc" = "O TriClean acessa apenas as pastas que você permitir. Permita estas três pastas uma vez e todos os recursos ficam prontos. Você pode repetir isso a qualquer momento em Ajustes.";
 "access.home.title" = "Pasta de início";
 "access.home.desc" = "Usada por Armazenamento, Duplicados, Arquivos grandes e Fotos.";
 "access.apps.title" = "Pasta Aplicativos";

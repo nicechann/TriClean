@@ -74,7 +74,18 @@ enum FolderAccessSetup {
     }
 
     static func isGranted(_ item: Item) -> Bool {
-        bookmarks.resolveURL(for: item.primaryKey) != nil
+        guard let url = bookmarks.resolveURL(for: item.primaryKey),
+              let token = SecurityScopedAccessToken(url: url) else { return false }
+        defer { token.stop() }
+
+        switch item {
+        case .home:
+            return DeletionSafety.isSameItem(url, userHomeURL)
+        case .applications:
+            return true
+        case .library:
+            return DeletionSafety.isSameItem(url, JunkScannerViewModel.userLibraryURL)
+        }
     }
 
     /// 패널을 띄워 폴더를 받고, 그 폴더를 쓰는 모든 기능의 북마크에 저장한다.

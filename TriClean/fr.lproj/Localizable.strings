@@ -638,7 +638,7 @@
 
 /* 폴더 접근 권한 (온보딩·설정 공통) */
 "access.title" = "Accès aux dossiers";
-"access.desc" = "TriClean ne lit que les dossiers que vous autorisez. Autorisez ces trois dossiers une fois et toutes les fonctions sont prêtes. Vous pouvez recommencer à tout moment dans Réglages.";
+"access.desc" = "TriClean n’accède qu’aux dossiers que vous autorisez. Autorisez ces trois dossiers une fois et toutes les fonctions sont prêtes. Vous pouvez recommencer à tout moment dans Réglages.";
 "access.home.title" = "Dossier de départ";
 "access.home.desc" = "Utilisé par Stockage, Doublons, Fichiers volumineux et Photos.";
 "access.apps.title" = "Dossier Applications";
