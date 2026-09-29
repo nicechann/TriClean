@@ -80,7 +80,7 @@
 "storage.msg.no_items" = "Brak elementów w „%@” spełniających kryteria.";
 "storage.msg.completed" = "Analiza „%@” zakończona. (Folderów: %ld / plików: %ld)";
 "storage.msg.access_denied" = "Dostęp do folderu wygasł. Wybierz folder ponownie.";
-"storage.scope.select_home_msg" = "Wykorzystanie dysku dla folderu domowego jest obliczane wyłącznie w zakresie wybranego folderu.";
+"storage.scope.select_home_msg" = "Wybierz folder domowy, aby obliczyć jego wykorzystanie dysku.";
 "storage.scope.select_home_title" = "Wybierz folder domowy";
 "storage.scope.select_apps_title" = "Wybierz folder Aplikacje";
 "storage.scope.select_apps_msg" = "Wybierz foldery, dla których ma zostać obliczone wykorzystanie dysku przez aplikacje. (Można wybrać wiele, np. /Applications, ~/Applications)";

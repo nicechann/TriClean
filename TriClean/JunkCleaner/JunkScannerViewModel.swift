@@ -152,8 +152,10 @@ final class JunkScannerViewModel: ObservableObject {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.directoryURL = homeLibrary
-        // ~/Library를 기본 선택 상태로 (사용자가 Open만 누르면 됨)
+        // ~/Library를 기본 선택 상태로 (사용자가 ‘허용’만 누르면 됨)
         panel.nameFieldStringValue = "Library"
+        // 오류 안내(access.error.*)가 "‘허용’을 누르세요"라고 하므로 버튼 이름을 맞춘다.
+        panel.prompt = "access.panel.prompt".localized
         
         if panel.runModal() == .OK, let url = panel.url {
             guard isLibraryLike(url) else {

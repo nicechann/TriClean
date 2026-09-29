@@ -216,11 +216,13 @@ final class AppsViewModel: ObservableObject {
     /// 설정·온보딩의 공통 권한 설정(`FolderAccessSetup`)에서 새로 받은 폴더를 반영한다.
     /// 사용자가 이 화면에서 이미 골라둔 폴더나 진행 중인 작업은 건드리지 않는다.
     func reloadSharedFolderAccess() {
-        guard !isLoadingInstalledApps, !isScanning, !isRemoving else { return }
+        guard !isScanning, !isRemoving else { return }
+        // 라이브러리는 앱 목록 로딩과 무관하다. 응용 프로그램 권한 직후 목록을 읽는 동안
+        // 라이브러리 권한을 받아도 바로 반영되도록 로딩 여부로 막지 않는다.
         if userLibraryFolderURL == nil {
             userLibraryFolderURL = Self.resolveValidatedUserLibraryFolder()
         }
-        if applicationsFolderURL == nil,
+        if applicationsFolderURL == nil, !isLoadingInstalledApps,
            let url = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder) {
             applicationsFolderURL = url
             // 이 화면은 목록을 자동으로 읽지 않으므로, 권한을 받은 직전에 한 번 읽어 둔다.
@@ -345,6 +347,8 @@ final class AppsViewModel: ObservableObject {
         // 샌드박스에서 `homeDirectoryForCurrentUser`는 앱 컨테이너를 가리킨다. 그 안의 Library를
         // 그대로 열면 관련 파일이 0개로 나와 기능이 고장 난 것처럼 보이므로 실제 ~/Library에서 연다.
         panel.directoryURL = JunkScannerViewModel.userLibraryURL
+        // 오류 안내(access.error.*)가 "‘허용’을 누르세요"라고 하므로 버튼 이름을 맞춘다.
+        panel.prompt = "access.panel.prompt".localized
 
         if panel.runModal() == .OK, let url = panel.url {
             guard DeletionSafety.isSameItem(url, JunkScannerViewModel.userLibraryURL) else {
@@ -718,7 +722,7 @@ final class AppsViewModel: ObservableObject {
             userLibraryFolderURL = nil
             relatedItems = []
             lastStatusIsError = true
-            lastStatusMessage = "access.error.library".localized
+            lastStatusMessage = "apps.status.library_needed".localized
             return
         }
 
@@ -1155,7 +1159,7 @@ final class AppsViewModel: ObservableObject {
             SecurityScopedBookmarkStore.shared.clear(.appsUserLibraryFolder)
             userLibraryFolderURL = nil
             lastStatusIsError = true
-            lastStatusMessage = "access.error.library".localized
+            lastStatusMessage = "apps.status.library_needed".localized
             return
         }
 

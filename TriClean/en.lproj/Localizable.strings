@@ -80,7 +80,7 @@
 "storage.msg.no_items" = "No items found in '%@' matching the criteria.";
 "storage.msg.completed" = "Analysis of '%@' completed. (%ld folders / %ld files)";
 "storage.msg.access_denied" = "Folder access expired. Please re-select the folder.";
-"storage.scope.select_home_msg" = "Disk Usage for Home Folder is calculated only within the selected folder scope.";
+"storage.scope.select_home_msg" = "Select your home folder to calculate its disk usage.";
 "storage.scope.select_home_title" = "Select Home Folder";
 "storage.scope.select_apps_title" = "Select Applications Folder";
 "storage.scope.select_apps_msg" = "Select folders to calculate Disk Usage for Applications. (Multiple selections allowed, e.g., /Applications, ~/Applications)";

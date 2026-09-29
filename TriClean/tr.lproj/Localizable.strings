@@ -78,7 +78,7 @@
 "storage.msg.no_items" = "“%@” içinde ölçütlere uyan öğe yok.";
 "storage.msg.completed" = "“%@” incelemesi tamamlandı. (Klasör: %ld / dosya: %ld)";
 "storage.msg.access_denied" = "Klasör erişimi sona erdi. Lütfen klasörü yeniden seçin.";
-"storage.scope.select_home_msg" = "Ana Klasör'ün disk kullanımı yalnızca seçilen klasör kapsamında hesaplanır.";
+"storage.scope.select_home_msg" = "Disk kullanımını hesaplamak için Ana Klasör'ü seçin.";
 "storage.scope.select_home_title" = "Ana Klasör'ü seç";
 "storage.scope.select_apps_title" = "Uygulamalar klasörünü seç";
 "storage.scope.select_apps_msg" = "Uygulamaların disk kullanımını hesaplamak için klasörleri seçin. (Çoklu seçim yapılabilir, örneğin /Applications, ~/Applications)";
@@ -577,7 +577,7 @@
 /* 폴더 접근 권한 (온보딩·설정 공통) */
 "access.title" = "Klasör erişimi";
 "access.desc" = "TriClean yalnızca izin verdiğiniz klasörlere erişir. Bu üç klasöre bir kez izin verin, tüm özellikler hemen kullanıma hazır olsun. Bunu istediğiniz zaman Ayarlar’dan yeniden yapabilirsiniz.";
-"access.home.title" = "Ana klasör";
+"access.home.title" = "Ana Klasör";
 "access.home.desc" = "Depolama, Kopyalar, Büyük dosyalar ve Fotoğraflar tarafından kullanılır.";
 "access.apps.title" = "Uygulamalar klasörü";
 "access.apps.desc" = "“Uygulama kaldırma” ve Depolama tarafından kullanılır.";
@@ -586,7 +586,7 @@
 "access.grant" = "İzin ver…";
 "access.granted" = "İzin verildi";
 "access.panel.prompt" = "İzin ver";
-"access.error.home" = "Lütfen ana klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
+"access.error.home" = "Lütfen Ana Klasör'ünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
 "access.error.library" = "Lütfen Kitaplık (~/Library) klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
 "access.error.save" = "İzin kaydedilemedi. Lütfen yeniden deneyin.";
 

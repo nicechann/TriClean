@@ -74,7 +74,7 @@
 "storage.msg.no_items" = "Nessun elemento in «%@» corrisponde ai criteri.";
 "storage.msg.completed" = "Analisi di «%@» completata. (%ld cartelle / %ld file)";
 "storage.msg.access_denied" = "Accesso alla cartella scaduto. Seleziona di nuovo la cartella.";
-"storage.scope.select_home_msg" = "L'utilizzo del disco per la cartella Inizio viene calcolato solo entro l'ambito della cartella selezionata.";
+"storage.scope.select_home_msg" = "Seleziona la cartella Inizio per calcolarne l’utilizzo del disco.";
 "storage.scope.select_home_title" = "Seleziona la cartella Inizio";
 "storage.scope.select_apps_title" = "Seleziona la cartella Applicazioni";
 "storage.scope.select_apps_msg" = "Seleziona le cartelle per calcolare l'utilizzo del disco delle applicazioni. (Selezione multipla consentita, ad esempio /Applications, ~/Applications)";

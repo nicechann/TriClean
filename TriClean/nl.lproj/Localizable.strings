@@ -74,7 +74,7 @@
 "storage.msg.no_items" = "Geen items in ‘%@’ die aan de criteria voldoen.";
 "storage.msg.completed" = "Analyse van ‘%@’ voltooid. (%ld mappen / %ld bestanden)";
 "storage.msg.access_denied" = "Maptoegang verlopen. Selecteer de map opnieuw.";
-"storage.scope.select_home_msg" = "Het schijfgebruik van de thuismap wordt alleen berekend binnen het bereik van de geselecteerde map.";
+"storage.scope.select_home_msg" = "Selecteer je thuismap om het schijfgebruik ervan te berekenen.";
 "storage.scope.select_home_title" = "Selecteer de thuismap";
 "storage.scope.select_apps_title" = "Selecteer de map Programma's";
 "storage.scope.select_apps_msg" = "Selecteer de mappen om het schijfgebruik van programma's te berekenen. (Meerdere selecties toegestaan, bijvoorbeeld /Applications, ~/Applications)";

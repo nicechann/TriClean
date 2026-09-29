@@ -230,6 +230,8 @@ final class StorageViewModel: ObservableObject {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.directoryURL = Self.userHomeURL
+        // 오류 안내(access.error.*)가 "‘허용’을 누르세요"라고 하므로 버튼 이름을 맞춘다.
+        panel.prompt = "access.panel.prompt".localized
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         guard DeletionSafety.isSameItem(url, Self.userHomeURL) else {
