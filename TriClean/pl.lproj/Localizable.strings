@@ -575,3 +575,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Pokaż na pasku menu";
 "settings.menubar_show_desc" = "Wyświetla użycie pamięci na pasku menu. Jeśli wyłączysz tę opcję, otwórz TriClean z Docka, aby włączyć ją ponownie w Ustawieniach.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Dostęp do folderów";
+"access.desc" = "TriClean odczytuje tylko foldery, na które zezwolisz. Zezwól raz na te trzy foldery, a wszystkie funkcje będą od razu gotowe. W każdej chwili możesz to powtórzyć w Ustawieniach.";
+"access.home.title" = "Folder domowy";
+"access.home.desc" = "Używany przez Pamięć masową, Duplikaty, Duże pliki i Zdjęcia.";
+"access.apps.title" = "Folder Aplikacje";
+"access.apps.desc" = "Używany przez „Odinstaluj aplikacje” i Pamięć masową.";
+"access.library.title" = "Biblioteka (~/Library)";
+"access.library.desc" = "Używana do pozostałości aplikacji i czyszczenia zbędnych plików.";
+"access.grant" = "Zezwól…";
+"access.granted" = "Dozwolone";
+"access.panel.prompt" = "Zezwól";
+"access.error.home" = "Wybierz swój folder domowy. Gdy otworzy się okno, po prostu kliknij „Zezwól”.";
+"access.error.library" = "Wybierz folder Biblioteka (~/Library). Gdy otworzy się okno, po prostu kliknij „Zezwól”.";
+"access.error.save" = "Nie udało się zapisać uprawnienia. Spróbuj ponownie.";

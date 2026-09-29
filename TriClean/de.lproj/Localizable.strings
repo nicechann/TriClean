@@ -635,3 +635,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "In der Menüleiste anzeigen";
 "settings.menubar_show_desc" = "Zeigt die Arbeitsspeicherauslastung in der Menüleiste an. Wenn Sie dies deaktivieren, öffnen Sie TriClean über das Dock, um die Anzeige in den Einstellungen wieder einzuschalten.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Ordnerzugriff";
+"access.desc" = "TriClean liest nur Ordner, die Sie erlauben. Erlauben Sie diese drei Ordner einmal, dann sind alle Funktionen sofort nutzbar. Sie können dies jederzeit in den Einstellungen wiederholen.";
+"access.home.title" = "Benutzerordner";
+"access.home.desc" = "Wird von Speicher, Duplikate, Große Dateien und Fotos verwendet.";
+"access.apps.title" = "Programme-Ordner";
+"access.apps.desc" = "Wird von „Apps deinstallieren“ und Speicher verwendet.";
+"access.library.title" = "Library (~/Library)";
+"access.library.desc" = "Wird für App-Reste und die Bereinigung von Datenmüll verwendet.";
+"access.grant" = "Erlauben …";
+"access.granted" = "Erlaubt";
+"access.panel.prompt" = "Erlauben";
+"access.error.home" = "Bitte wählen Sie Ihren Benutzerordner. Wenn das Fenster geöffnet ist, klicken Sie einfach auf „Erlauben“.";
+"access.error.library" = "Bitte wählen Sie Ihren Library-Ordner (~/Library). Wenn das Fenster geöffnet ist, klicken Sie einfach auf „Erlauben“.";
+"access.error.save" = "Die Berechtigung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.";

@@ -36,14 +36,25 @@ struct OnboardingView: View {
              descKey:  "onboarding.apps.desc"),
     ]
 
+    /// 소개 단계 다음에 붙는 마지막 "폴더 접근 권한" 단계까지 포함한 전체 단계 수.
+    /// 기능마다 따로 폴더를 고르던 흐름 대신, 여기서 세 폴더를 한 번에 받는다.
+    private var stepCount: Int { steps.count + 1 }
+    private var isAccessStep: Bool { step == steps.count }
+
     var body: some View {
         VStack(spacing: 0) {
 
             // MARK: - Content area
             ZStack {
-                ForEach(steps.indices, id: \.self) { i in
+                ForEach(0..<stepCount, id: \.self) { i in
                     if i == step {
-                        stepContent(steps[i])
+                        Group {
+                            if i < steps.count {
+                                stepContent(steps[i])
+                            } else {
+                                accessContent
+                            }
+                        }
                             .transition(
                                 isGoingForward
                                 ? .asymmetric(
@@ -58,12 +69,12 @@ struct OnboardingView: View {
                     }
                 }
             }
-            .frame(height: 300)
+            .frame(height: isAccessStep ? 400 : 300)
             .clipped()
 
             // MARK: - Dot indicator
             HStack(spacing: 8) {
-                ForEach(steps.indices, id: \.self) { i in
+                ForEach(0..<stepCount, id: \.self) { i in
                     Capsule()
                         .fill(i == step ? Color.accentColor : Color.secondary.opacity(0.3))
                         .frame(width: i == step ? 20 : 8, height: 8)
@@ -89,7 +100,7 @@ struct OnboardingView: View {
 
                 Spacer()
 
-                if step < steps.count - 1 {
+                if step < stepCount - 1 {
                     Button("onboarding.btn.next".localized) {
                         isGoingForward = true
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
@@ -113,6 +124,34 @@ struct OnboardingView: View {
             .padding(.bottom, 28)
         }
         .frame(width: 480)
+    }
+
+    // MARK: - Folder access step
+    private var accessContent: some View {
+        VStack(spacing: 14) {
+            Spacer(minLength: 0)
+
+            Image(systemName: "lock.open")
+                .appIconFont(30, weight: .semibold)
+                .foregroundStyle(Color.accentColor)
+
+            Text("access.title".localized)
+                .appFont(.title2, weight: .bold)
+                .multilineTextAlignment(.center)
+
+            Text("access.desc".localized)
+                .appFont(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 400)
+                .fixedSize(horizontal: false, vertical: true)
+
+            FolderAccessSetupView()
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 32)
     }
 
     // MARK: - Step content builder
@@ -149,4 +188,9 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView(isPresented: .constant(true))
+        .environmentObject(JunkScannerViewModel())
+        .environmentObject(DuplicateScannerViewModel())
+        .environmentObject(AppsViewModel())
+        .environmentObject(PhotoScannerViewModel())
+        .environmentObject(LargeFilesViewModel())
 }

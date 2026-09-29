@@ -147,6 +147,21 @@ struct SettingsView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 12) {
 
+                    // Folder access — 온보딩을 건너뛰었거나 권한이 만료된 경우 여기서 한 번에 다시 받는다.
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("access.desc".localized)
+                                .appFont(.callout)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            FolderAccessSetupView()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
+                    } label: {
+                        Text("access.title".localized)
+                    }
+
                     // Display
                     GroupBox {
                         Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {

@@ -573,3 +573,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Menü Çubuğunda Göster";
 "settings.menubar_show_desc" = "Bellek kullanımını menü çubuğunda gösterir. Kapatırsanız Dock’tan TriClean’i açıp Ayarlar’dan yeniden etkinleştirebilirsiniz.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Klasör erişimi";
+"access.desc" = "TriClean yalnızca izin verdiğiniz klasörleri okur. Bu üç klasöre bir kez izin verin, tüm özellikler hemen kullanıma hazır olsun. Bunu istediğiniz zaman Ayarlar’dan yeniden yapabilirsiniz.";
+"access.home.title" = "Ana klasör";
+"access.home.desc" = "Depolama, Kopyalar, Büyük dosyalar ve Fotoğraflar tarafından kullanılır.";
+"access.apps.title" = "Uygulamalar klasörü";
+"access.apps.desc" = "“Uygulama kaldırma” ve Depolama tarafından kullanılır.";
+"access.library.title" = "Kitaplık (~/Library)";
+"access.library.desc" = "Uygulama kalıntıları ve gereksiz dosya temizliği için kullanılır.";
+"access.grant" = "İzin ver…";
+"access.granted" = "İzin verildi";
+"access.panel.prompt" = "İzin ver";
+"access.error.home" = "Lütfen ana klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
+"access.error.library" = "Lütfen Kitaplık (~/Library) klasörünüzü seçin. Pencere açıldığında “İzin ver”e tıklamanız yeterli.";
+"access.error.save" = "İzin kaydedilemedi. Lütfen yeniden deneyin.";

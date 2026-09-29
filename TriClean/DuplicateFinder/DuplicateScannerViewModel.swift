@@ -104,6 +104,13 @@ final class DuplicateScannerViewModel: ObservableObject {
         scanFolderURL = bookmarks.resolveURL(for: .duplicateScanFolder)
     }
 
+    /// 설정·온보딩의 공통 권한 설정(`FolderAccessSetup`)에서 새로 받은 폴더를 반영한다.
+    /// 사용자가 이 화면에서 이미 골라둔 폴더나 진행 중인 작업은 건드리지 않는다.
+    func reloadSharedFolderAccess() {
+        guard scanFolderURL == nil, !isScanning, !isDeleting else { return }
+        scanFolderURL = bookmarks.resolveURL(for: .duplicateScanFolder)
+    }
+
     // MARK: - 폴더 선택
 
     func selectFolder() {

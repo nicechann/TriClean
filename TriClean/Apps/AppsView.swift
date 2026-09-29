@@ -195,6 +195,21 @@ final class AppsViewModel: ObservableObject {
         manualAppBundleURL    = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsManualAppBundle)
     }
 
+    /// 설정·온보딩의 공통 권한 설정(`FolderAccessSetup`)에서 새로 받은 폴더를 반영한다.
+    /// 사용자가 이 화면에서 이미 골라둔 폴더나 진행 중인 작업은 건드리지 않는다.
+    func reloadSharedFolderAccess() {
+        guard !isLoadingInstalledApps, !isScanning, !isRemoving else { return }
+        if userLibraryFolderURL == nil {
+            userLibraryFolderURL = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsUserLibraryFolder)
+        }
+        if applicationsFolderURL == nil,
+           let url = SecurityScopedBookmarkStore.shared.resolveURL(for: .appsApplicationsFolder) {
+            applicationsFolderURL = url
+            // 이 화면은 목록을 자동으로 읽지 않으므로, 권한을 받은 직전에 한 번 읽어 둔다.
+            loadInstalledApps()
+        }
+    }
+
     // MARK: - Derived
 
     var filteredInstalledApps: [AppsInstalledApp] {

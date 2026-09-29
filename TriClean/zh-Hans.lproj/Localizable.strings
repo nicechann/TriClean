@@ -573,3 +573,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "在菜单栏中显示";
 "settings.menubar_show_desc" = "在菜单栏中显示内存使用情况。关闭后，可从 Dock 打开 TriClean，并在设置中重新开启。";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "文件夹访问权限";
+"access.desc" = "TriClean 只读取你允许的文件夹。将以下三个文件夹各允许一次，所有功能即可立即使用。你可以随时在设置中重新操作。";
+"access.home.title" = "个人文件夹";
+"access.home.desc" = "用于存储空间、重复文件、大文件和照片。";
+"access.apps.title" = "应用程序文件夹";
+"access.apps.desc" = "用于卸载应用和存储空间。";
+"access.library.title" = "资源库（~/Library）";
+"access.library.desc" = "用于应用残留文件和垃圾清理。";
+"access.grant" = "允许…";
+"access.granted" = "已允许";
+"access.panel.prompt" = "允许";
+"access.error.home" = "请选择你的个人文件夹。窗口打开后，直接点击“允许”即可。";
+"access.error.library" = "请选择你的资源库（~/Library）文件夹。窗口打开后，直接点击“允许”即可。";
+"access.error.save" = "无法保存权限。请重试。";

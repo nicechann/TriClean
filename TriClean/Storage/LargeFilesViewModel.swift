@@ -117,6 +117,13 @@ final class LargeFilesViewModel: ObservableObject {
         }
     }
 
+    /// 설정·온보딩의 공통 권한 설정(`FolderAccessSetup`)에서 새로 받은 폴더를 반영한다.
+    /// 사용자가 이 화면에서 이미 골라둔 폴더나 진행 중인 작업은 건드리지 않는다.
+    func reloadSharedFolderAccess() {
+        guard selectedFolderURL == nil, canScan else { return }
+        selectedFolderURL = bookmarks.resolveURL(for: .largeFilesScanFolder)
+    }
+
     /// 화면 진입 시점의 최소 크기를 자동 재스캔 기준값으로 고정한다.
     func onAppear() {
         autoScanBaseline = minFolderSizeMB

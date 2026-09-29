@@ -174,6 +174,13 @@ struct TriCleanApp: App {
             // ✅ 첫 실행 온보딩
             .sheet(isPresented: $showOnboarding) {
                 OnboardingView(isPresented: $showOnboarding)
+                    // 권한 설정 단계가 새로 받은 폴더를 공유 ViewModel에 반영한다.
+                    // 시트의 환경 상속에 기대지 않고 명시적으로 주입한다.
+                    .environmentObject(junkViewModel)
+                    .environmentObject(duplicateViewModel)
+                    .environmentObject(appsViewModel)
+                    .environmentObject(photoViewModel)
+                    .environmentObject(largeFilesViewModel)
                     .appFont(.body)
                     .environment(\.appTypography, typography)
             }

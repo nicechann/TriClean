@@ -635,3 +635,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Afficher dans la barre des menus";
 "settings.menubar_show_desc" = "Affiche l’utilisation de la mémoire dans la barre des menus. Si vous désactivez cette option, ouvrez TriClean depuis le Dock pour la réactiver dans les réglages.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Accès aux dossiers";
+"access.desc" = "TriClean ne lit que les dossiers que vous autorisez. Autorisez ces trois dossiers une fois et toutes les fonctions sont prêtes. Vous pouvez recommencer à tout moment dans Réglages.";
+"access.home.title" = "Dossier de départ";
+"access.home.desc" = "Utilisé par Stockage, Doublons, Fichiers volumineux et Photos.";
+"access.apps.title" = "Dossier Applications";
+"access.apps.desc" = "Utilisé par « Désinstaller des apps » et Stockage.";
+"access.library.title" = "Bibliothèque (~/Library)";
+"access.library.desc" = "Utilisé pour les restes d’apps et le nettoyage des fichiers inutiles.";
+"access.grant" = "Autoriser…";
+"access.granted" = "Autorisé";
+"access.panel.prompt" = "Autoriser";
+"access.error.home" = "Sélectionnez votre dossier de départ. Lorsque la fenêtre s’ouvre, cliquez simplement sur « Autoriser ».";
+"access.error.library" = "Sélectionnez votre dossier Bibliothèque (~/Library). Lorsque la fenêtre s’ouvre, cliquez simplement sur « Autoriser ».";
+"access.error.save" = "Impossible d’enregistrer l’autorisation. Veuillez réessayer.";

@@ -573,3 +573,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Toon in menubalk";
 "settings.menubar_show_desc" = "Toont het geheugengebruik in de menubalk. Als je dit uitschakelt, open je TriClean vanuit het Dock om het in Instellingen weer in te schakelen.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Maptoegang";
+"access.desc" = "TriClean leest alleen mappen die je toestaat. Sta deze drie mappen één keer toe en alle functies zijn meteen klaar. Je kunt dit altijd opnieuw doen via Instellingen.";
+"access.home.title" = "Thuismap";
+"access.home.desc" = "Gebruikt door Opslag, Duplicaten, Grote bestanden en Foto's.";
+"access.apps.title" = "Map Programma's";
+"access.apps.desc" = "Gebruikt door ‘Apps verwijderen’ en Opslag.";
+"access.library.title" = "Bibliotheek (~/Library)";
+"access.library.desc" = "Gebruikt voor app-restanten en het opruimen van overbodige bestanden.";
+"access.grant" = "Sta toe…";
+"access.granted" = "Toegestaan";
+"access.panel.prompt" = "Sta toe";
+"access.error.home" = "Selecteer je thuismap. Klik gewoon op ‘Sta toe’ zodra het venster opent.";
+"access.error.library" = "Selecteer je bibliotheekmap (~/Library). Klik gewoon op ‘Sta toe’ zodra het venster opent.";
+"access.error.save" = "Kan de toestemming niet bewaren. Probeer het opnieuw.";

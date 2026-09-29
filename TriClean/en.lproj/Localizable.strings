@@ -643,3 +643,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Show in Menu Bar";
 "settings.menubar_show_desc" = "Displays memory usage in the menu bar. If you turn this off, open TriClean from the Dock to turn it back on in Settings.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Folder Access";
+"access.desc" = "TriClean only reads folders you allow. Allow these three folders once and every feature is ready to use. You can do this again in Settings at any time.";
+"access.home.title" = "Home Folder";
+"access.home.desc" = "Used by Storage, Duplicates, Large Files and Photos.";
+"access.apps.title" = "Applications Folder";
+"access.apps.desc" = "Used by App Uninstaller and Storage.";
+"access.library.title" = "Library (~/Library)";
+"access.library.desc" = "Used for app leftovers and junk cleanup.";
+"access.grant" = "Allow…";
+"access.granted" = "Allowed";
+"access.panel.prompt" = "Allow";
+"access.error.home" = "Please select your home folder. When the window opens, just click “Allow”.";
+"access.error.library" = "Please select your Library (~/Library) folder. When the window opens, just click “Allow”.";
+"access.error.save" = "Could not save the permission. Please try again.";

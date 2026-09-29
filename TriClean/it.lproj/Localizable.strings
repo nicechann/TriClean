@@ -573,3 +573,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Mostra nella barra dei menu";
 "settings.menubar_show_desc" = "Mostra l’uso della memoria nella barra dei menu. Se la disattivi, apri TriClean dal Dock per riattivarla nelle impostazioni.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Accesso alle cartelle";
+"access.desc" = "TriClean legge solo le cartelle che autorizzi. Autorizza queste tre cartelle una volta e tutte le funzioni saranno pronte. Puoi ripetere l’operazione in qualsiasi momento da Impostazioni.";
+"access.home.title" = "Cartella Inizio";
+"access.home.desc" = "Usata da Archiviazione, Duplicati, File grandi e Foto.";
+"access.apps.title" = "Cartella Applicazioni";
+"access.apps.desc" = "Usata da «Disinstalla app» e Archiviazione.";
+"access.library.title" = "Libreria (~/Library)";
+"access.library.desc" = "Usata per i residui delle app e la pulizia dei file inutili.";
+"access.grant" = "Consenti…";
+"access.granted" = "Consentito";
+"access.panel.prompt" = "Consenti";
+"access.error.home" = "Seleziona la cartella Inizio. Quando si apre la finestra, fai semplicemente clic su «Consenti».";
+"access.error.library" = "Seleziona la cartella Libreria (~/Library). Quando si apre la finestra, fai semplicemente clic su «Consenti».";
+"access.error.save" = "Impossibile salvare l’autorizzazione. Riprova.";

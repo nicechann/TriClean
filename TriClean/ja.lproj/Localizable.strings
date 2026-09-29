@@ -635,3 +635,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "メニューバーに表示";
 "settings.menubar_show_desc" = "メニューバーにメモリ使用量を表示します。オフにした場合は、DockからTriCleanを開き、設定で再度オンにできます。";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "フォルダへのアクセス";
+"access.desc" = "TriCleanは許可したフォルダだけを読み取ります。次の3つのフォルダを一度ずつ許可すると、すべての機能をすぐに使えます。設定からいつでもやり直せます。";
+"access.home.title" = "ホームフォルダ";
+"access.home.desc" = "ストレージ、重複ファイル、大容量ファイル、写真で使用します。";
+"access.apps.title" = "アプリケーションフォルダ";
+"access.apps.desc" = "アプリ削除とストレージで使用します。";
+"access.library.title" = "ライブラリ（~/Library）";
+"access.library.desc" = "アプリ関連ファイルと不要ファイルの整理に使用します。";
+"access.grant" = "許可…";
+"access.granted" = "許可済み";
+"access.panel.prompt" = "許可";
+"access.error.home" = "ホームフォルダを選択してください。ウインドウが開いたら、そのまま「許可」をクリックしてください。";
+"access.error.library" = "ライブラリ（~/Library）フォルダを選択してください。ウインドウが開いたら、そのまま「許可」をクリックしてください。";
+"access.error.save" = "アクセス権を保存できませんでした。もう一度お試しください。";

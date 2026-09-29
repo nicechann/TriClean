@@ -573,3 +573,19 @@
 /* MARK: - Menu Bar 표시 토글 */
 "settings.menubar_show" = "Mostrar na barra de menus";
 "settings.menubar_show_desc" = "Mostra o uso de memória na barra de menus. Se você desativar esta opção, abra o TriClean pelo Dock para ativá-la novamente nos Ajustes.";
+
+/* 폴더 접근 권한 (온보딩·설정 공통) */
+"access.title" = "Acesso a pastas";
+"access.desc" = "O TriClean lê apenas as pastas que você permitir. Permita estas três pastas uma vez e todos os recursos ficam prontos. Você pode repetir isso a qualquer momento em Ajustes.";
+"access.home.title" = "Pasta de início";
+"access.home.desc" = "Usada por Armazenamento, Duplicados, Arquivos grandes e Fotos.";
+"access.apps.title" = "Pasta Aplicativos";
+"access.apps.desc" = "Usada por “Desinstalar apps” e Armazenamento.";
+"access.library.title" = "Biblioteca (~/Library)";
+"access.library.desc" = "Usada para restos de apps e limpeza de arquivos desnecessários.";
+"access.grant" = "Permitir…";
+"access.granted" = "Permitido";
+"access.panel.prompt" = "Permitir";
+"access.error.home" = "Selecione sua pasta de início. Quando a janela abrir, basta clicar em “Permitir”.";
+"access.error.library" = "Selecione sua pasta Biblioteca (~/Library). Quando a janela abrir, basta clicar em “Permitir”.";
+"access.error.save" = "Não foi possível salvar a permissão. Tente novamente.";
