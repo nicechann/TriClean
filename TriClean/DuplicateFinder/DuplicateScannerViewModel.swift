@@ -123,7 +123,8 @@ final class DuplicateScannerViewModel: ObservableObject {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
+        // 샌드박스의 컨테이너 홈이 아니라 실제 사용자 홈에서 선택을 시작한다.
+        panel.directoryURL = FolderAccessSetup.userHomeURL
 
         if panel.runModal() == .OK, let url = panel.url {
             bookmarks.trySave(url: url, for: .duplicateScanFolder)

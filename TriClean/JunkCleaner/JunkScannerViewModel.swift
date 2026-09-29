@@ -156,6 +156,15 @@ final class JunkScannerViewModel: ObservableObject {
         panel.nameFieldStringValue = "Library"
         
         if panel.runModal() == .OK, let url = panel.url {
+            guard isLibraryLike(url) else {
+                let alert = NSAlert()
+                alert.alertStyle = .warning
+                alert.messageText = "access.error.library".localized
+                alert.addButton(withTitle: "common.close".localized)
+                alert.runModal()
+                return
+            }
+
             bookmarks.trySave(url: url, for: .junkLibraryFolder)
             // 이전 범위의 스캔·결과가 새 범위 아래에 남지 않도록 무효화한다.
             scanTask?.cancel()

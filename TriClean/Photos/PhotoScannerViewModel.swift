@@ -160,7 +160,8 @@ final class PhotoScannerViewModel: ObservableObject {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
+        // 샌드박스의 컨테이너 홈이 아니라 실제 사용자 Pictures 폴더에서 시작한다.
+        panel.directoryURL = FolderAccessSetup.userHomeURL
             .appendingPathComponent("Pictures", isDirectory: true)
 
         if panel.runModal() == .OK, let url = panel.url {

@@ -124,8 +124,8 @@
 "junk.section.alert.message" = "將 %@ 移到垃圾桶。\n你可以從 Finder 回復。";
 "junk.category.alert.title" = "清理%@";
 "junk.category.alert.message" = "將選取的 %1$ld 個項目（%2$@）移到垃圾桶。\n你可以在 Finder 中復原。";
-"junk.scope.title" = "選擇個人專屬資料庫（~/Library）";
-"junk.scope.message" = "選擇要掃描垃圾檔案的個人專屬資料庫資料夾。";
+"junk.scope.title" = "選擇個人專屬資源庫（~/Library）";
+"junk.scope.message" = "選擇要掃描垃圾檔案的個人專屬資源庫資料夾。";
 "junk.progress.preparing" = "正在準備掃描…";
 "junk.progress.scanning_format" = "正在掃描 %@…";
 "junk.risk.safe" = "建議";
@@ -175,10 +175,10 @@
 "apps.btn.details" = "詳細資訊";
 "apps.scope.apps_folder" = "選擇「應用程式」資料夾";
 "apps.scope.apps_msg" = "選擇要掃描應用程式的資料夾（例如 /Applications 或 ~/Applications）。\nTriClean 只會在所選範圍內掃描。";
-"apps.scope.library_folder" = "選擇個人專屬資料庫（~/Library）";
-"apps.scope.library_msg" = "設定關聯檔案（偏好設定／快取）的搜尋範圍。\nTriClean 只會在所選資料庫內偵測殘留檔案。";
+"apps.scope.library_folder" = "選擇個人專屬資源庫（~/Library）";
+"apps.scope.library_msg" = "設定關聯檔案（偏好設定／快取）的搜尋範圍。\nTriClean 只會在所選資源庫內偵測殘留檔案。";
 "apps.scope.reset" = "重置存取權限…";
-"apps.scope.library_analysis" = "個人專屬資料庫（~/Library）— 掃描關聯檔案";
+"apps.scope.library_analysis" = "個人專屬資源庫（~/Library）— 掃描關聯檔案";
 "apps.list.title" = "已安裝的應用程式";
 "apps.list.loading" = "正在載入已安裝的應用程式…";
 "apps.list.guide_select" = "請先選擇「應用程式」資料夾，然後點按「掃描」。";
@@ -188,7 +188,7 @@
 "apps.type.protected" = "受保護";
 "apps.type.appstore" = "App Store";
 "apps.details.selected" = "所選應用程式";
-"apps.details.library_guide" = "請在上方選擇個人專屬資料庫（~/Library）以分析關聯檔案。";
+"apps.details.library_guide" = "請在上方選擇個人專屬資源庫（~/Library）以分析關聯檔案。";
 "apps.details.scanning" = "正在搜尋關聯檔案…";
 "apps.details.no_related" = "找不到關聯檔案。";
 "apps.details.found_count" = "關聯檔案（%ld）";
@@ -208,10 +208,10 @@
 "apps.status.scoped_error" = "沒有「應用程式」資料夾的存取權限（Security-Scoped）。";
 "apps.manual.msg" = "選擇要檢視關聯檔案的應用程式（.app）。";
 "apps.manual.title" = "手動選擇應用程式";
-"apps.status.library_selected" = "已選擇個人專屬資料庫：%@";
-"apps.status.library_guide" = "需要存取權限：請選擇個人專屬資料庫（~/Library）。";
-"apps.status.library_needed" = "需要存取權限：請選擇個人專屬資料庫（~/Library）。";
-"apps.status.library_scoped_error" = "沒有個人專屬資料庫資料夾的存取權限（Security-Scoped）。";
+"apps.status.library_selected" = "已選擇個人專屬資源庫：%@";
+"apps.status.library_guide" = "需要存取權限：請選擇個人專屬資源庫（~/Library）。";
+"apps.status.library_needed" = "需要存取權限：請選擇個人專屬資源庫（~/Library）。";
+"apps.status.library_scoped_error" = "沒有個人專屬資源庫資料夾的存取權限（Security-Scoped）。";
 "apps.status.loaded_count" = "已載入 %ld 個應用程式。";
 "apps.status.reset_success" = "重置完成。";
 "apps.status.no_permission" = "沒有存取權限。";
@@ -502,7 +502,7 @@
 "onboarding.memory.title" = "記憶體監視";
 "onboarding.memory.desc" = "使用 macOS 公開 API 檢視記憶體用量和組成的估算值。本應用程式不會修改系統記憶體。";
 "onboarding.apps.title" = "應用程式檔案確認";
-"onboarding.apps.desc" = "檢視個人專屬資料庫中的應用程式套件和關聯檔案。App Store 應用程式僅供參考顯示。";
+"onboarding.apps.desc" = "檢視個人專屬資源庫中的應用程式套件和關聯檔案。App Store 應用程式僅供參考顯示。";
 "onboarding.btn.next" = "下一步";
 "onboarding.btn.back" = "上一步";
 "onboarding.btn.start" = "開始使用";
@@ -581,13 +581,13 @@
 "access.home.desc" = "用於儲存空間、重複檔案、大型檔案和照片。";
 "access.apps.title" = "應用程式檔案夾";
 "access.apps.desc" = "用於解除安裝應用程式和儲存空間。";
-"access.library.title" = "資料庫（~/Library）";
+"access.library.title" = "資源庫（~/Library）";
 "access.library.desc" = "用於應用程式殘留檔案和垃圾清理。";
 "access.grant" = "允許…";
 "access.granted" = "已允許";
 "access.panel.prompt" = "允許";
 "access.error.home" = "請選擇你的個人專屬檔案夾。視窗開啟後，直接點按「允許」即可。";
-"access.error.library" = "請選擇你的資料庫（~/Library）檔案夾。視窗開啟後，直接點按「允許」即可。";
+"access.error.library" = "請選擇你的資源庫（~/Library）檔案夾。視窗開啟後，直接點按「允許」即可。";
 "access.error.save" = "無法儲存權限。請再試一次。";
 
 /* 휴지통 안내 배너 */
