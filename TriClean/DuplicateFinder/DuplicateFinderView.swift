@@ -244,6 +244,7 @@ struct DuplicateFinderView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .disabled(viewModel.isDeleting)
                 .help("duplicate.action.apply_recommended.help".localized)
 
                 Button {
@@ -253,7 +254,7 @@ struct DuplicateFinderView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .disabled(!viewModel.canDeleteSelected)
+                .disabled(!viewModel.canDeleteSelected || viewModel.isDeleting)
                 .help("duplicate.action.clear_selection.help".localized)
 
                 Button {
@@ -490,6 +491,7 @@ struct DuplicateFinderView: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .disabled(viewModel.isDeleting)
 
                         Button("duplicate.group.keep_newest".localized) {
                             if storeManager.isPurchased {
@@ -500,6 +502,7 @@ struct DuplicateFinderView: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .disabled(viewModel.isDeleting)
 
                         Spacer()
 
@@ -517,6 +520,7 @@ struct DuplicateFinderView: View {
                                     .foregroundStyle(file.isKeep ? .green : .red)
                             }
                             .buttonStyle(.plain)
+                            .disabled(viewModel.isDeleting)
                             .help(
                                 file.isKeep
                                     ? "duplicate.file.help.keep".localized

@@ -159,6 +159,9 @@ final class DuplicateScannerViewModel: ObservableObject {
         let generation = scanGeneration
 
         isScanning = true
+        // Smart Scan 등으로 다시 스캔해도 사용자가 검토해 둔 보존/삭제 선택이 기본값으로
+        // 돌아가지 않도록, 파일 구성이 같은 그룹에 이전 선택을 이어 붙인다.
+        let previousGroups = groups
         groups = []
         progress = 0
         totalFilesScanned = 0
@@ -329,7 +332,7 @@ final class DuplicateScannerViewModel: ObservableObject {
                 return
             }
 
-            groups = finalGroups
+            groups = Self.carryOverKeepChoices(from: previousGroups, into: finalGroups)
             finishScan(generation: generation)
         }
     }
@@ -368,8 +371,13 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     // MARK: - 보존/삭제 토글
+    //
+    // ⚠️ 삭제 중에는 선택을 바꾸지 않는다. 삭제는 시작 시점의 스냅샷으로 진행되므로,
+    //    진행 중에 [A 보존, B 보존, C 삭제] → [A 삭제, B 삭제, C 보존]으로 바꾸면
+    //    C는 원래대로 휴지통으로 가고 보존본이 하나도 없는 [A, B] 그룹이 남는다.
 
     func toggleKeep(groupID: UUID, fileID: UUID) {
+        guard !isDeleting else { return }
         guard let gIdx = groups.firstIndex(where: { $0.id == groupID }),
               let fIdx = groups[gIdx].files.firstIndex(where: { $0.id == fileID })
         else { return }
@@ -386,21 +394,25 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     func applyRecommendedSelection() {
+        guard !isDeleting else { return }
         guard let rootURL = scanFolderURL?.standardizedFileURL else { return }
 
-        for groupIndex in groups.indices {
-            var files = groups[groupIndex].files
-            let recommendedIndex = Self.recommendedKeepIndex(for: files, rootURL: rootURL)
-            for fileIndex in files.indices {
-                files[fileIndex].isKeep = (fileIndex == recommendedIndex)
+        // `@Published` 배열을 원소마다 고치면 매번 배열 복사와 변경 알림이 일어나므로
+        // 로컬 사본을 고친 뒤 한 번만 대입한다.
+        var updated = groups
+        for groupIndex in updated.indices {
+            let recommendedIndex = Self.recommendedKeepIndex(for: updated[groupIndex].files, rootURL: rootURL)
+            for fileIndex in updated[groupIndex].files.indices {
+                updated[groupIndex].files[fileIndex].isKeep = (fileIndex == recommendedIndex)
             }
-            groups[groupIndex].files = files
         }
+        groups = updated
 
         updateSelectionStatusMessage(fallback: "duplicate.status.recommended_applied".localized)
     }
 
     func keepNewest(in groupID: UUID) {
+        guard !isDeleting else { return }
         guard let groupIndex = groups.firstIndex(where: { $0.id == groupID }) else { return }
         guard let newestIndex = groups[groupIndex].files.indices.max(by: {
             (groups[groupIndex].files[$0].modificationDate ?? .distantPast) <
@@ -412,6 +424,7 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     func keepOldest(in groupID: UUID) {
+        guard !isDeleting else { return }
         guard let groupIndex = groups.firstIndex(where: { $0.id == groupID }) else { return }
         guard let oldestIndex = groups[groupIndex].files.indices.min(by: {
             (groups[groupIndex].files[$0].modificationDate ?? .distantFuture) <
@@ -443,11 +456,14 @@ final class DuplicateScannerViewModel: ObservableObject {
     }
 
     func clearDeleteSelection() {
-        for groupIndex in groups.indices {
-            for fileIndex in groups[groupIndex].files.indices {
-                groups[groupIndex].files[fileIndex].isKeep = true
+        guard !isDeleting else { return }
+        var updated = groups
+        for groupIndex in updated.indices {
+            for fileIndex in updated[groupIndex].files.indices {
+                updated[groupIndex].files[fileIndex].isKeep = true
             }
         }
+        groups = updated
 
         updateSelectionStatusMessage(fallback: "duplicate.status.selection_cleared".localized)
     }
@@ -908,6 +924,34 @@ final class DuplicateScannerViewModel: ObservableObject {
             duplicateFiles[index].isKeep = (index == keepIndex)
         }
         return duplicateFiles
+    }
+
+    /// 이전 결과에서 파일 경로 구성이 **완전히 같은** 그룹의 보존/삭제 선택을 새 그룹에 옮긴다.
+    /// 구성이 달라진 그룹(파일 추가·삭제)은 추천 선택을 그대로 쓴다. 이전 선택에 보존본이 없으면
+    /// 옮기지 않아 "그룹당 최소 1개 보존" 불변식을 지킨다.
+    nonisolated static func carryOverKeepChoices(
+        from previous: [DuplicateGroup],
+        into groups: [DuplicateGroup]
+    ) -> [DuplicateGroup] {
+        guard !previous.isEmpty else { return groups }
+
+        var choicesByMembers: [Set<String>: [String: Bool]] = [:]
+        for group in previous where group.files.contains(where: \.isKeep) {
+            let members = Set(group.files.map(\.path))
+            choicesByMembers[members] = Dictionary(
+                group.files.map { ($0.path, $0.isKeep) },
+                uniquingKeysWith: { first, _ in first }
+            )
+        }
+
+        return groups.map { group in
+            guard let choices = choicesByMembers[Set(group.files.map(\.path))] else { return group }
+            var carried = group
+            for index in carried.files.indices {
+                carried.files[index].isKeep = choices[carried.files[index].path] ?? carried.files[index].isKeep
+            }
+            return carried
+        }
     }
 
     // 테스트에서 접근할 수 있도록 internal (호출부는 여전히 내부 전용)

@@ -388,6 +388,52 @@ final class PhotoScannerViewModel: ObservableObject {
         }
     }
 
+    /// 유사 그룹에서 남길 사진(keeper)을 앞에 두는 정렬 기준.
+    ///
+    /// ⚠️ 예전에는 할당 크기가 큰 파일을 남겼다. 그러면 원본 HEIC(2.5MB)보다 큰 JPEG 내보내기본
+    ///    (4.8MB)이 남고 EXIF·깊이 정보를 가진 원본이 삭제 대상이 됐다. 크기는 원본 여부를 말해주지 않는다.
+    ///  1. 해상도(픽셀 수)가 큰 쪽
+    ///  2. 원본에 가까운 포맷(RAW > HEIC/HEIF > PNG/TIFF > JPEG > 기타)
+    ///  3. 이름에 사본 표기가 없는 쪽
+    ///  4. 수정 시각이 이른 쪽(원본이 먼저 만들어진다)
+    ///  5. 크기가 큰 쪽, 마지막으로 경로순(결과를 결정적으로 만든다)
+    nonisolated static func isPreferredKeeper(_ lhs: PhotoItem, _ rhs: PhotoItem) -> Bool {
+        let lhsPixels = lhs.pixelWidth * lhs.pixelHeight
+        let rhsPixels = rhs.pixelWidth * rhs.pixelHeight
+        if lhsPixels != rhsPixels { return lhsPixels > rhsPixels }
+
+        let lhsFormat = originalFormatRank(lhs.url)
+        let rhsFormat = originalFormatRank(rhs.url)
+        if lhsFormat != rhsFormat { return lhsFormat > rhsFormat }
+
+        let lhsCopy = hasCopyMarker(lhs.url)
+        let rhsCopy = hasCopyMarker(rhs.url)
+        if lhsCopy != rhsCopy { return !lhsCopy }
+
+        let lhsDate = lhs.modificationDate ?? .distantFuture
+        let rhsDate = rhs.modificationDate ?? .distantFuture
+        if lhsDate != rhsDate { return lhsDate < rhsDate }
+
+        if lhs.sizeBytes != rhs.sizeBytes { return lhs.sizeBytes > rhs.sizeBytes }
+        return lhs.path < rhs.path
+    }
+
+    nonisolated private static func originalFormatRank(_ url: URL) -> Int {
+        switch url.pathExtension.lowercased() {
+        case "dng", "cr2", "cr3", "nef", "arw", "raf", "orf", "rw2", "srw", "pef": return 4
+        case "heic", "heif": return 3
+        case "png", "tif", "tiff": return 2
+        case "jpg", "jpeg": return 1
+        default: return 0
+        }
+    }
+
+    nonisolated private static func hasCopyMarker(_ url: URL) -> Bool {
+        let name = url.deletingPathExtension().lastPathComponent.lowercased()
+        let markers = ["copy", "사본", "복사본", "コピー", "kopie", "copia", "copie", "副本", "複本", "(1)", "(2)"]
+        return markers.contains { name.contains($0) }
+    }
+
     // MARK: - 유사 사진 분석 (4단계, 주문형, dHash + 해밍 거리)
 
     func analyzeSimilar() {
@@ -484,11 +530,15 @@ final class PhotoScannerViewModel: ObservableObject {
                 self.similarProgress = 1
                 let byID = Dictionary(self.items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
                 self.similarGroups = groupIDs.compactMap { ids in
-                    let groupItems = ids.compactMap { byID[$0] }.sorted { $0.sizeBytes > $1.sizeBytes }
+                    // 첫 장이 보존본(keeper)이 된다. 정렬 기준은 `isPreferredKeeper` 참고.
+                    let groupItems = ids.compactMap { byID[$0] }.sorted(by: Self.isPreferredKeeper)
                     guard groupItems.count >= 2 else { return nil }
                     return PhotoGroup(id: groupItems.first?.id ?? ids.first ?? UUID().uuidString, items: groupItems)
                 }
                 .sorted { $0.count > $1.count }
+                // 그룹이 생기기 전(전체·흐릿함·스크린샷 탭)에 선택해 둔 사진 중 보존본으로 정해진 것은
+                // 선택을 해제한다. 그대로 두면 삭제 시 그룹 전체가 조용히 "제외"된다.
+                self.selectedIDs.subtract(self.similarKeeperIDs)
                 self.isSimilarAnalyzed = true
                 self.isAnalyzingSimilar = false
             }

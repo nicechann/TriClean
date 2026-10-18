@@ -89,6 +89,9 @@ nonisolated struct AppsRelatedItem: Identifiable, Hashable, Sendable {
     let isDirectory: Bool
     let sizeBytes: Int64
     let fileIdentity: FileIdentitySnapshot?
+    /// 앱이 제거된 뒤 기본 선택해도 되는 항목인지(번들 ID 정확 일치 + 저위험 하위 폴더).
+    /// 스캔 시점에는 앱이 아직 설치돼 있으므로 바로 선택하지 않고 이 표시만 남긴다.
+    let isDefaultSelectable: Bool
 
     let id: String
     let path: String
@@ -103,12 +106,14 @@ nonisolated struct AppsRelatedItem: Identifiable, Hashable, Sendable {
         selected: Bool,
         isDirectory: Bool,
         sizeBytes: Int64 = 0,
-        fileIdentity: FileIdentitySnapshot? = nil
+        fileIdentity: FileIdentitySnapshot? = nil,
+        isDefaultSelectable: Bool = false
     ) {
         self.url = url
         self.selected = selected
         self.isDirectory = isDirectory
         self.sizeBytes = sizeBytes
+        self.isDefaultSelectable = isDefaultSelectable
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
 
         let rawPath = url.path(percentEncoded: false)
@@ -397,15 +402,6 @@ final class AppsViewModel: ObservableObject {
 
     // MARK: - Task cancellation
 
-    private func cancelInstalledAppsLoadIfNeeded() {
-        guard loadInstalledAppsTask != nil || isLoadingInstalledApps else { return }
-
-        loadInstalledAppsTask?.cancel()
-        loadInstalledAppsTask = nil
-        loadGeneration &+= 1
-        isLoadingInstalledApps = false
-    }
-
     private func cancelRelatedScanIfNeeded() {
         guard relatedScanTask != nil || isScanning else { return }
 
@@ -458,9 +454,8 @@ final class AppsViewModel: ObservableObject {
     }
 
     private func handleManuallySelectedApp(at appURL: URL) {
-        // 수동 선택 결과가 뒤늦게 끝난 앱 목록 스캔에 의해 덮어써지지 않도록
-        // 진행 중인 목록 스캔을 먼저 무효화한다.
-        cancelInstalledAppsLoadIfNeeded()
+        // 진행 중인 앱 목록 스캔은 취소하지 않는다. 취소하면 목록이 이전 폴더 기준으로 굳는다.
+        // 대신 스캔 완료 시 수동 선택 앱과 그 Details를 보존한다(`loadInstalledApps`).
 
         guard let token = SecurityScopedAccessToken(url: appURL) else {
             lastStatusIsError = true
@@ -567,12 +562,30 @@ final class AppsViewModel: ObservableObject {
 
             guard applicationsFolderURL?.standardizedFileURL == rootStd else { return }
 
-            installedApps = sorted
-            selectedInstalledAppIDs.removeAll()
-            selectedApp = nil
-            relatedItems = []
+            // 로드 중에 수동으로 고른 앱이 목록 폴더 밖에 있으면 새 목록에 다시 넣고,
+            // 그 앱의 Details를 보고 있었다면 선택과 잔여 파일 목록을 유지한다.
+            let manualApps = manualAppBundleURL.map { manualURL in
+                installedApps.filter { DeletionSafety.isSameItem($0.url, manualURL) }
+            } ?? []
+            var merged = sorted
+            for app in manualApps where !merged.contains(where: { $0.id == app.id }) {
+                merged.append(app)
+            }
+            merged.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            installedApps = merged
+
+            let manualIDs = Set(manualApps.map(\.id))
+            if let selectedApp, manualIDs.contains(selectedApp.appPath) {
+                selectedInstalledAppIDs.formIntersection(manualIDs)
+            } else {
+                // Details를 닫으므로 그 앱의 관련 파일 스캔도 멈춘다(결과는 어차피 버려진다).
+                cancelRelatedScanIfNeeded()
+                selectedInstalledAppIDs.removeAll()
+                selectedApp = nil
+                relatedItems = []
+            }
             lastStatusIsError = false
-            lastStatusMessage = "apps.status.loaded_count".localized(with: sorted.count)
+            lastStatusMessage = "apps.status.loaded_count".localized(with: merged.count)
         }
     }
 
@@ -698,28 +711,90 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        scanRelatedFiles(
-            for: app.name,
-            bundleID: app.bundleID,
-            preselectSafeItems: Self.mayPreselectRelatedItems(of: app, among: installedApps)
-        )
+        scanRelatedFiles(for: app.name, bundleID: app.bundleID)
+    }
+
+    // MARK: - 관련 파일 기본 선택 정책
+
+    enum RelatedDefaultSelection: Equatable {
+        /// 앱이 아직 설치돼 있어 아무것도 기본 선택하지 않았다.
+        case appStillInstalled
+        /// 같은 번들 ID를 쓰는 다른 앱이 있거나 ID를 신뢰할 수 없어 기본 선택하지 않았다.
+        case shared
+        /// 저위험 항목을 기본 선택했다.
+        case applied
+    }
+
+    /// 관련 파일은 **앱이 제거된 뒤에만** 저위험 항목(Caches·WebKit·HTTPStorages 등)을 기본 선택한다.
+    ///
+    /// - 앱이 아직 설치돼 있으면 그 항목들은 지금 쓰이는 로그인·세션·캐시다. 기본 선택하면
+    ///   "Details를 열고 정리"만으로 설치된 앱(제거할 수 없는 root 소유 앱 포함)의 데이터가 지워진다.
+    /// - 앱 목록(`installedApps`)은 사용자가 고른 폴더만 담으므로, 같은 번들 ID를 쓰는 다른 설치본은
+    ///   LaunchServices로 시스템 전체에서 함께 찾는다(~/Applications, 외장 디스크의 사본 등).
+    @discardableResult
+    private func applyDefaultRelatedSelection() -> RelatedDefaultSelection {
+        guard let selectedApp else { return .appStillInstalled }
+        guard !installedApps.contains(where: { $0.id == selectedApp.appPath }) else {
+            return .appStillInstalled
+        }
+
+        let otherInstallPaths = selectedApp.bundleID.map { bundleID in
+            NSWorkspace.shared.urlsForApplications(withBundleIdentifier: bundleID)
+                .map { $0.path(percentEncoded: false) }
+        } ?? []
+
+        guard Self.mayPreselectRelatedItems(
+            bundleID: selectedApp.bundleID,
+            removedAppPath: selectedApp.appPath,
+            installedApps: installedApps,
+            otherInstallPaths: otherInstallPaths
+        ) else { return .shared }
+
+        for index in relatedItems.indices where relatedItems[index].isDefaultSelectable {
+            relatedItems[index].selected = true
+        }
+        return .applied
     }
 
     /// 번들 ID로 찾은 Caches·WebKit·HTTPStorages 등은 그 ID를 쓰는 **모든** 앱의 데이터다.
-    /// Xcode와 Xcode-beta처럼 같은 ID를 쓰는 앱이 함께 설치돼 있거나 Apple 앱이면
-    /// 남아 있는 앱의 쿠키·세션까지 지워지므로 기본 선택하지 않고 사용자가 직접 고르게 한다.
+    /// Xcode와 Xcode-beta처럼 같은 ID를 쓰는 다른 설치본이 남아 있거나, Apple 앱이거나,
+    /// 역DNS 형식이 아닌 ID(`Google`처럼 공용 폴더 이름과 겹칠 수 있음)이면 기본 선택하지 않는다.
     nonisolated static func mayPreselectRelatedItems(
-        of app: AppsInstalledApp,
-        among installedApps: [AppsInstalledApp]
+        bundleID: String?,
+        removedAppPath: String,
+        installedApps: [AppsInstalledApp],
+        otherInstallPaths: [String]
     ) -> Bool {
-        guard let key = app.bundleID?.lowercased() else { return true }
+        guard let bundleID, isWellFormedBundleID(bundleID) else { return false }
+        let key = bundleID.lowercased()
         if key.hasPrefix("com.apple.") { return false }
-        return !installedApps.contains { other in
-            other.id != app.id && other.bundleID?.lowercased() == key
+
+        let removedPath = DeletionSafety.resolvedPath(for: URL(fileURLWithPath: removedAppPath))
+        if installedApps.contains(where: { other in
+            other.bundleID?.lowercased() == key
+                && DeletionSafety.resolvedPath(for: other.url) != removedPath
+        }) {
+            return false
+        }
+
+        // 방금 휴지통으로 옮긴 앱도 LaunchServices에 잠시 남아 있으므로 휴지통 경로는 제외한다.
+        return !otherInstallPaths.contains { path in
+            let url = URL(fileURLWithPath: path)
+            return DeletionSafety.resolvedPath(for: url) != removedPath
+                && !url.pathComponents.contains(where: { $0 == ".Trash" || $0 == ".Trashes" })
         }
     }
 
-    private func scanRelatedFiles(for appName: String, bundleID: String?, preselectSafeItems: Bool) {
+    /// `com.example.App`처럼 점으로 구분된 역DNS 형식만 허용한다.
+    nonisolated static func isWellFormedBundleID(_ bundleID: String) -> Bool {
+        let parts = bundleID.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count >= 2 else { return false }
+        return parts.allSatisfy { part in
+            !part.isEmpty && part.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") }
+        }
+    }
+
+    private func scanRelatedFiles(for appName: String, bundleID: String?) {
         guard let scopedLibrary = userLibraryFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
@@ -768,12 +843,7 @@ final class AppsViewModel: ObservableObject {
 
             // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
             let worker = Task.detached(priority: .userInitiated) {
-                AppsViewModel.findRelatedItems(
-                    in: libraryStd,
-                    appName: appName,
-                    bundleID: bundleID,
-                    preselectSafeItems: preselectSafeItems
-                )
+                AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
             }
             let found = await withTaskCancellationHandler {
                 await worker.value
@@ -789,10 +859,16 @@ final class AppsViewModel: ObservableObject {
             lastStatusIsError = false
             if found.isEmpty {
                 lastStatusMessage = "apps.status.scan_empty".localized
-            } else if preselectSafeItems {
-                lastStatusMessage = "apps.status.scan_found".localized(with: found.count)
             } else {
-                lastStatusMessage = "apps.status.scan_found_shared".localized(with: found.count)
+                // 앱 제거가 스캔보다 먼저 끝났다면 여기서 기본 선택이 적용된다.
+                switch applyDefaultRelatedSelection() {
+                case .applied:
+                    lastStatusMessage = "apps.status.scan_found".localized(with: found.count)
+                case .appStillInstalled:
+                    lastStatusMessage = "apps.status.scan_found_installed".localized(with: found.count)
+                case .shared:
+                    lastStatusMessage = "apps.status.scan_found_shared".localized(with: found.count)
+                }
             }
         }
     }
@@ -810,12 +886,7 @@ final class AppsViewModel: ObservableObject {
         url.standardizedFileURL.deletingLastPathComponent().path == dir.standardizedFileURL.path
     }
 
-    nonisolated private static func findRelatedItems(
-        in libraryRoot: URL,
-        appName: String,
-        bundleID: String?,
-        preselectSafeItems: Bool
-    ) -> [AppsRelatedItem] {
+    nonisolated private static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
         guard !isCurrentTaskCancelled() else { return [] }
 
         var dict: [String: AppsRelatedItem] = [:]
@@ -884,9 +955,10 @@ final class AppsViewModel: ObservableObject {
                     let isHighRisk = highRiskSubs.contains(sub)
                     upsert(AppsRelatedItem(
                         url: targetURL,
-                        selected: preselectSafeItems && !isHighRisk,
+                        selected: false,
                         isDirectory: isDir,
-                        sizeBytes: sizeBytes
+                        sizeBytes: sizeBytes,
+                        isDefaultSelectable: !isHighRisk
                     ))
                 }
             }
@@ -1125,10 +1197,17 @@ final class AppsViewModel: ObservableObject {
             self.lastFailedApps = failed
 
             let successIDs = Set(succeeded.map(\.id))
+            var relatedNote = ""
             if !successIDs.isEmpty {
                 self.installedApps.removeAll { successIDs.contains($0.id) }
                 self.selectedInstalledAppIDs.subtract(successIDs)
                 // selectedApp/relatedItems는 유지해 앱 제거 직후 잔여 파일 정리를 계속할 수 있게 합니다.
+                // Details를 연 앱이 제거됐다면 이제 저위험 잔여 파일을 기본 선택합니다.
+                if let selected = self.selectedApp, successIDs.contains(selected.appPath),
+                   !self.relatedItems.isEmpty,
+                   self.applyDefaultRelatedSelection() == .shared {
+                    relatedNote = " " + "apps.status.scan_found_shared".localized(with: self.relatedItems.count)
+                }
             }
 
             if succeeded.isEmpty && !failed.isEmpty {
@@ -1137,11 +1216,11 @@ final class AppsViewModel: ObservableObject {
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
                 self.lastStatusIsError = !runningApps.isEmpty
-                self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count) + runningNote
+                self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count) + runningNote + relatedNote
                 completion(nil)
             } else if !succeeded.isEmpty && !failed.isEmpty {
                 self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count) + runningNote
+                self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count) + runningNote + relatedNote
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             } else {
                 if !runningApps.isEmpty {

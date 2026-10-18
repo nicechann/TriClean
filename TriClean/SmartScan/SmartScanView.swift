@@ -498,7 +498,13 @@ struct SmartScanView: View {
             duplicateViewModel.scan()
         }
 
-        if appsViewModel.applicationsFolderURL != nil, !appsViewModel.isLoadingInstalledApps, !appsViewModel.isRemoving {
+        // 앱 목록을 다시 읽으면 Details·선택·잔여 파일 목록이 닫힌다. 사용자가 앱을 검토 중이면
+        // (선택했거나 Details를 열었거나 관련 파일을 찾는 중) 목록 갱신을 건너뛴다.
+        let isReviewingApps = appsViewModel.selectedApp != nil
+            || !appsViewModel.selectedInstalledAppIDs.isEmpty
+            || appsViewModel.isScanning
+        if appsViewModel.applicationsFolderURL != nil, !appsViewModel.isLoadingInstalledApps,
+           !appsViewModel.isRemoving, !isReviewingApps {
             appsViewModel.loadInstalledApps()
         }
     }

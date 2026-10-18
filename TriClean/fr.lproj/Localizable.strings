@@ -164,6 +164,7 @@
 "apps.status.system_reference_only" = "Les apps système sont affichées à titre indicatif uniquement ; leurs données ne sont pas analysées.";
 "apps.status.running_skipped" = "%ld app(s) en cours d'exécution ont été ignorées. Quittez-les puis réessayez.";
 "apps.status.scan_found_shared" = "%ld éléments liés trouvés. Ils peuvent être partagés avec une autre app installée ou le système ; aucun n'est donc présélectionné. Vérifiez-les avant de les supprimer.";
+"apps.status.scan_found_installed" = "%ld éléments liés trouvés. L'app est toujours installée ; aucun n'est donc présélectionné. Désinstallez d'abord l'app ou sélectionnez les éléments vous-même.";
 "apps.status.related_app_running" = "%@ (ou une app qui partage ses données) est en cours d'exécution. Quittez-la puis réessayez.";
 
 /* Settings View */

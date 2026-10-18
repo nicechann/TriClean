@@ -45,22 +45,54 @@ final class AppsRelatedPathTests: XCTestCase {
         )
     }
 
-    func testPreselectsWhenBundleIDIsUnique() {
-        let target = app("/Applications/Foo.app", bundleID: "com.example.foo")
-        let others = [target, app("/Applications/Bar.app", bundleID: "com.example.bar")]
-        XCTAssertTrue(AppsViewModel.mayPreselectRelatedItems(of: target, among: others))
+    private func mayPreselect(
+        _ bundleID: String?,
+        removed: String = "/Applications/Foo.app",
+        installed: [AppsInstalledApp] = [],
+        launchServices: [String] = []
+    ) -> Bool {
+        AppsViewModel.mayPreselectRelatedItems(
+            bundleID: bundleID,
+            removedAppPath: removed,
+            installedApps: installed,
+            otherInstallPaths: launchServices
+        )
     }
 
-    func testDoesNotPreselectWhenAnotherAppSharesBundleID() {
+    func testPreselectsWhenNoOtherInstallShareBundleID() {
+        let others = [app("/Applications/Bar.app", bundleID: "com.example.bar")]
+        XCTAssertTrue(mayPreselect("com.example.foo", installed: others))
+    }
+
+    func testDoesNotPreselectWhenListedAppSharesBundleID() {
         // Xcode와 Xcode-beta처럼 같은 ID를 쓰는 앱이 남아 있으면 그 앱의 쿠키·캐시까지 지워진다.
-        let beta = app("/Applications/Foo-beta.app", bundleID: "com.example.Foo")
         let stable = app("/Applications/Foo.app", bundleID: "com.example.foo")
-        XCTAssertFalse(AppsViewModel.mayPreselectRelatedItems(of: beta, among: [beta, stable]))
+        XCTAssertFalse(mayPreselect("com.example.Foo", removed: "/Applications/Foo-beta.app", installed: [stable]))
     }
 
-    func testDoesNotPreselectAppleBundleIDs() {
-        let copy = app("/Applications/Safari Copy.app", bundleID: "com.apple.Safari")
-        XCTAssertFalse(AppsViewModel.mayPreselectRelatedItems(of: copy, among: [copy]))
+    func testDoesNotPreselectWhenLaunchServicesFindsAnotherInstall() {
+        // 앱 목록은 사용자가 고른 폴더만 담는다. 목록 밖(~/Applications 등)의 설치본도 막아야 한다.
+        XCTAssertFalse(mayPreselect("com.example.foo", launchServices: ["/Users/me/Applications/Foo.app"]))
+    }
+
+    func testIgnoresRemovedAppAndTrashedCopiesFromLaunchServices() {
+        XCTAssertTrue(mayPreselect("com.example.foo", launchServices: [
+            "/Applications/Foo.app",
+            "/Users/me/.Trash/Foo.app",
+            "/Volumes/Ext/.Trashes/501/Foo.app"
+        ]))
+    }
+
+    func testDoesNotPreselectAppleOrMalformedBundleIDs() {
+        for bundleID in ["com.apple.Safari", "Google", "com..foo", ".com.foo", "com.foo/bar", "com.foo bar", nil] {
+            XCTAssertFalse(mayPreselect(bundleID), "should not preselect \(String(describing: bundleID))")
+        }
+    }
+
+    func testWellFormedBundleIDs() {
+        for bundleID in ["com.example.App", "org.mozilla.firefox", "com.example.app-helper", "io.foo_bar.Baz2"] {
+            XCTAssertTrue(AppsViewModel.isWellFormedBundleID(bundleID), bundleID)
+        }
     }
 
     func testRunningCheckMatchesBundleIDCaseInsensitively() {

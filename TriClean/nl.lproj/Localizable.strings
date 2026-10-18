@@ -236,6 +236,7 @@
 "apps.status.system_reference_only" = "Systeemapps worden alleen ter referentie weergegeven; hun gegevens worden niet gescand.";
 "apps.status.running_skipped" = "%ld actieve app(s) overgeslagen. Stop ze en probeer het opnieuw.";
 "apps.status.scan_found_shared" = "Gevonden: %ld gerelateerde items. Ze worden mogelijk gedeeld met een andere geïnstalleerde app of het systeem en zijn daarom niet vooraf geselecteerd. Controleer ze voordat je ze verwijdert.";
+"apps.status.scan_found_installed" = "Gevonden: %ld gerelateerde items. De app is nog geïnstalleerd en daarom is niets vooraf geselecteerd. Verwijder eerst de app of selecteer zelf items.";
 "apps.status.related_app_running" = "%@ (of een app die dezelfde gegevens gebruikt) is actief. Stop de app en probeer het opnieuw.";
 "apps.status.related_invalid" = "Er kunnen geen gerelateerde bestanden worden verwijderd. Gewijzigd en overgeslagen: %ld items.";
 "apps.status.uninstall_invalid" = "Er kunnen geen apps worden verwijderd. Gewijzigd of buiten de toegestane locatie: %ld apps.";

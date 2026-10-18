@@ -97,6 +97,8 @@ nonisolated struct JunkItem: Identifiable, Hashable, Sendable {
     let sizeBytes: Int64
     let categoryID: String
     let fileIdentity: FileIdentitySnapshot?
+    /// 이 항목을 찾은 카테고리 경로(`~/Library/Caches` 등). 항목은 이 경로 자신이거나 바로 아래 항목이다.
+    let scanRoot: URL
     var isSelected: Bool
 
     init(
@@ -105,10 +107,12 @@ nonisolated struct JunkItem: Identifiable, Hashable, Sendable {
         sizeBytes: Int64,
         categoryID: String,
         fileIdentity: FileIdentitySnapshot? = nil,
+        scanRoot: URL? = nil,
         isSelected: Bool = true
     ) {
         self.id = id
         self.url = url
+        self.scanRoot = scanRoot ?? url
         self.sizeBytes = sizeBytes
         self.categoryID = categoryID
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)

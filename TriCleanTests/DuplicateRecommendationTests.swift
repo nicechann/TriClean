@@ -85,3 +85,49 @@ final class DuplicateRecommendationTests: XCTestCase {
         XCTAssertEqual(first, second)
     }
 }
+
+/// 재스캔(Smart Scan 포함)해도 사용자가 고른 보존/삭제 선택이 추천값으로 돌아가지 않아야 한다.
+final class DuplicateKeepCarryOverTests: XCTestCase {
+
+    private func group(_ files: [(String, Bool)]) -> DuplicateGroup {
+        DuplicateGroup(
+            hash: "h",
+            fileSize: 10,
+            files: files.map { path, keep in
+                DuplicateFile(url: URL(fileURLWithPath: path), modificationDate: nil, isKeep: keep)
+            }
+        )
+    }
+
+    private func keeps(_ group: DuplicateGroup) -> [String: Bool] {
+        Dictionary(uniqueKeysWithValues: group.files.map { ($0.path, $0.isKeep) })
+    }
+
+    func test_파일구성이_같은그룹은_이전선택을_이어받는다() {
+        let previous = [group([("/r/a.jpg", false), ("/r/b.jpg", true)])]
+        let rescanned = [group([("/r/a.jpg", true), ("/r/b.jpg", false)])]
+
+        let carried = DuplicateScannerViewModel.carryOverKeepChoices(from: previous, into: rescanned)
+
+        XCTAssertEqual(keeps(carried[0]), ["/r/a.jpg": false, "/r/b.jpg": true])
+    }
+
+    func test_파일구성이_달라진그룹은_추천선택을_그대로쓴다() {
+        let previous = [group([("/r/a.jpg", false), ("/r/b.jpg", true)])]
+        let rescanned = [group([("/r/a.jpg", true), ("/r/b.jpg", false), ("/r/c.jpg", false)])]
+
+        let carried = DuplicateScannerViewModel.carryOverKeepChoices(from: previous, into: rescanned)
+
+        XCTAssertEqual(keeps(carried[0]), ["/r/a.jpg": true, "/r/b.jpg": false, "/r/c.jpg": false])
+    }
+
+    func test_보존본이_없던_이전선택은_이어받지않는다() {
+        let previous = [group([("/r/a.jpg", false), ("/r/b.jpg", false)])]
+        let rescanned = [group([("/r/a.jpg", true), ("/r/b.jpg", false)])]
+
+        let carried = DuplicateScannerViewModel.carryOverKeepChoices(from: previous, into: rescanned)
+
+        XCTAssertEqual(carried[0].keepCount, 1)
+        XCTAssertEqual(keeps(carried[0])["/r/a.jpg"], true)
+    }
+}

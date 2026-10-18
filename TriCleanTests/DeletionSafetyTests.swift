@@ -121,6 +121,34 @@ final class DeletionSafetyTests: XCTestCase {
         XCTAssertEqual(result.rejectedCount, 1)
     }
 
+    // MARK: - 심볼릭 링크 없는 실제 경로
+
+    func test_실제_하위경로는_심볼릭링크없음으로_판정한다() throws {
+        let file = try makeFile(scope.appendingPathComponent("Developer/DerivedData/Proj/build.log"))
+        XCTAssertTrue(DeletionSafety.isFreeOfSymlinks(file, below: scope))
+    }
+
+    func test_중간경로가_스코프안의_다른폴더를_가리키는_링크면_거부한다() throws {
+        // DerivedData → Application Support/X 처럼 스코프 안을 가리키는 링크는 isContained를 통과한다.
+        let realData = scope.appendingPathComponent("Application Support/X", isDirectory: true)
+        let precious = try makeFile(realData.appendingPathComponent("db.sqlite"))
+        let developer = scope.appendingPathComponent("Developer", isDirectory: true)
+        try FileManager.default.createDirectory(at: developer, withIntermediateDirectories: true)
+        let derivedData = developer.appendingPathComponent("DerivedData")
+        try FileManager.default.createSymbolicLink(at: derivedData, withDestinationURL: realData)
+        let viaLink = derivedData.appendingPathComponent(precious.lastPathComponent)
+
+        XCTAssertTrue(DeletionSafety.isContained(viaLink, inScope: scope))
+        XCTAssertFalse(DeletionSafety.isFreeOfSymlinks(derivedData, below: scope))
+        XCTAssertFalse(DeletionSafety.isFreeOfSymlinks(viaLink, below: scope))
+    }
+
+    func test_없는경로와_스코프밖_경로는_거부한다() throws {
+        XCTAssertFalse(DeletionSafety.isFreeOfSymlinks(scope.appendingPathComponent("missing/item"), below: scope))
+        XCTAssertFalse(DeletionSafety.isFreeOfSymlinks(try makeFile(sibling.appendingPathComponent("a.log")), below: scope))
+        XCTAssertFalse(DeletionSafety.isFreeOfSymlinks(scope, below: scope))
+    }
+
     func test_직접_선택한_단일_항목은_exact_정책으로만_허용된다() throws {
         let app = scope.appendingPathComponent("Manual.app")
         try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)

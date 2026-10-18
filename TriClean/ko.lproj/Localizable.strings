@@ -167,6 +167,7 @@
 "apps.status.system_reference_only" = "시스템 앱은 참고용으로만 표시되며 관련 데이터는 스캔하지 않습니다.";
 "apps.status.running_skipped" = "실행 중인 앱 %ld개는 제외했습니다. 앱을 종료한 뒤 다시 시도하세요.";
 "apps.status.scan_found_shared" = "관련 항목 %ld개를 찾았습니다. 설치된 다른 앱이나 시스템과 공유될 수 있어 기본 선택하지 않았습니다. 확인 후 직접 선택하세요.";
+"apps.status.scan_found_installed" = "관련 항목 %ld개를 찾았습니다. 앱이 아직 설치되어 있어 기본 선택하지 않았습니다. 앱을 먼저 제거하거나 직접 선택하세요.";
 "apps.status.related_app_running" = "%@(또는 같은 데이터를 쓰는 앱)이 실행 중입니다. 앱을 종료한 뒤 다시 시도하세요.";
 
 /* Settings View */

@@ -236,6 +236,7 @@
 "apps.status.system_reference_only" = "Le app di sistema sono mostrate solo a titolo informativo; i loro dati non vengono analizzati.";
 "apps.status.running_skipped" = "%ld app in esecuzione sono state saltate. Chiudile e riprova.";
 "apps.status.scan_found_shared" = "Trovati %ld elementi correlati. Potrebbero essere condivisi con un'altra app installata o con il sistema, quindi nessuno è preselezionato. Controllali prima di rimuoverli.";
+"apps.status.scan_found_installed" = "Trovati %ld elementi correlati. L'app è ancora installata, quindi nessuno è preselezionato. Disinstalla prima l'app o seleziona gli elementi manualmente.";
 "apps.status.related_app_running" = "%@ (o un'app che ne condivide i dati) è in esecuzione. Chiudila e riprova.";
 "apps.status.related_invalid" = "Nessun file correlato può essere rimosso. Elementi modificati e ignorati: %ld.";
 "apps.status.uninstall_invalid" = "Nessuna app può essere rimossa. App modificate o al di fuori della posizione consentita: %ld.";

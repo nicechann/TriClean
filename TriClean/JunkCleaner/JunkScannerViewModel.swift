@@ -195,6 +195,9 @@ final class JunkScannerViewModel: ObservableObject {
         isScanning = true
         accessDenied = false
         cleanupNotice = nil
+        // Smart Scan 등으로 다시 스캔해도 사용자가 해제·선택해 둔 항목이 카테고리 기본값으로
+        // 돌아가지 않도록 경로별 선택을 기억했다가 새 결과에 이어 붙인다.
+        let previousSelection = Self.selectionByPath(in: results)
         results = []
         scanProgress = "junk.progress.preparing".localized
         
@@ -242,8 +245,11 @@ final class JunkScannerViewModel: ObservableObject {
                 
                 for relativePath in category.relativePaths {
                     let targetURL = libraryStd.appendingPathComponent(relativePath)
-                    
-                    guard FileManager.default.fileExists(atPath: targetURL.path) else {
+
+                    // 카테고리 경로나 그 중간 경로가 심볼릭 링크면 건너뛴다(없는 경로도 여기서 걸러진다).
+                    // 링크를 따라가면 `DerivedData` → `Application Support/X` 같은 링크 대상의
+                    // 내용이 "안전" 항목으로 기본 선택된다. 정리 시에도 같은 검사를 다시 한다.
+                    guard DeletionSafety.isFreeOfSymlinks(targetURL, below: libraryStd) else {
                         continue
                     }
                     
@@ -293,7 +299,7 @@ final class JunkScannerViewModel: ObservableObject {
                     return
                 }
 
-                self.results = scanResults
+                self.results = Self.carryOverSelections(previousSelection, into: scanResults)
                 self.lastScanDate = Date()
                 self.scanProgress = ""
             }
@@ -342,13 +348,13 @@ final class JunkScannerViewModel: ObservableObject {
         if !isDir.boolValue {
             let size = (try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
             guard size > 0 else { return [] }
-            return [JunkItem(url: url, sizeBytes: size, categoryID: categoryID, isSelected: defaultSelected)]
+            return [JunkItem(url: url, sizeBytes: size, categoryID: categoryID, scanRoot: url, isSelected: defaultSelected)]
         }
         
         // 폴더인 경우 — 하위 아이템별로 크기 계산
         guard let contents = try? fm.contentsOfDirectory(
             at: url,
-            includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey],
+            includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         ) else { return [] }
         
@@ -360,6 +366,11 @@ final class JunkScannerViewModel: ObservableObject {
             guard !excludedChildNames.contains(itemURL.lastPathComponent) else {
                 continue
             }
+            // 링크 자식은 링크 대상의 크기로 잡히지만 정체성(lstat)이 없어 정리 때 항상 제외된다.
+            // 기본 선택된 채 매번 "제외됨"으로 남지 않도록 목록에서 뺀다.
+            if (try? itemURL.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) == true {
+                continue
+            }
 
             let itemSize = folderSize(at: itemURL)
             guard !Task.isCancelled else { break }
@@ -369,6 +380,7 @@ final class JunkScannerViewModel: ObservableObject {
                 url: itemURL,
                 sizeBytes: itemSize,
                 categoryID: categoryID,
+                scanRoot: url,
                 isSelected: defaultSelected
             ))
         }
@@ -446,6 +458,7 @@ final class JunkScannerViewModel: ObservableObject {
     nonisolated struct CleanTarget: Sendable {
         let id: UUID
         let url: URL
+        let scanRoot: URL
         let fileIdentity: FileIdentitySnapshot?
         let identityValidationPolicy: JunkCategory.IdentityValidationPolicy
     }
@@ -468,6 +481,33 @@ final class JunkScannerViewModel: ObservableObject {
 
     func dismissCleanupNotice() {
         cleanupNotice = nil
+    }
+
+    nonisolated static func selectionByPath(in results: [JunkScanResult]) -> [String: Bool] {
+        var selection: [String: Bool] = [:]
+        for result in results {
+            for item in result.items {
+                selection[item.url.standardizedFileURL.path] = item.isSelected
+            }
+        }
+        return selection
+    }
+
+    /// 이전 스캔에도 있던 경로는 그때의 선택 상태를, 새로 나타난 경로는 카테고리 기본값을 쓴다.
+    nonisolated static func carryOverSelections(
+        _ previous: [String: Bool],
+        into results: [JunkScanResult]
+    ) -> [JunkScanResult] {
+        guard !previous.isEmpty else { return results }
+        return results.map { result in
+            var carried = result
+            for index in carried.items.indices {
+                if let wasSelected = previous[carried.items[index].url.standardizedFileURL.path] {
+                    carried.items[index].isSelected = wasSelected
+                }
+            }
+            return carried
+        }
     }
 
     /// 확인창의 개수 표시(`selectedItems`)와 실제 정리 대상(`cleanTargets`)이 같은 범위를
@@ -497,6 +537,7 @@ final class JunkScannerViewModel: ObservableObject {
                 CleanTarget(
                     id: item.id,
                     url: item.url.standardizedFileURL,
+                    scanRoot: item.scanRoot.standardizedFileURL,
                     fileIdentity: item.fileIdentity,
                     identityValidationPolicy: result.category.identityValidationPolicy
                 )
@@ -625,6 +666,15 @@ final class JunkScannerViewModel: ObservableObject {
         cleanupNotice = JunkCleanupNotice(kind: kind, title: title, message: message)
     }
 
+    /// 정리 대상이 카테고리 경로 자신이거나 그 바로 아래 항목이고, Library부터 대상까지
+    /// 어떤 경로 구성요소도 심볼릭 링크가 아닌지 확인한다(스캔 이후 링크로 바뀐 경우 포함).
+    nonisolated static func isWithinRealScanRoot(_ target: CleanTarget, library: URL) -> Bool {
+        let rootPath = target.scanRoot.standardizedFileURL.path
+        let url = target.url.standardizedFileURL
+        guard url.path == rootPath || url.deletingLastPathComponent().path == rootPath else { return false }
+        return DeletionSafety.isFreeOfSymlinks(url, below: library)
+    }
+
     nonisolated private static func moveTargetsToTrash(
         _ candidates: [CleanTarget],
         securityScopedBy securityScopedURL: URL,
@@ -645,9 +695,14 @@ final class JunkScannerViewModel: ObservableObject {
         }
         defer { securityScopedURL.stopAccessingSecurityScopedResource() }
 
+        // 스코프(~/Library) 경계만으로는 카테고리 루트가 링크인 경우를 막지 못하므로,
+        // 각 항목이 자신을 찾은 카테고리 경로의 실제 하위 항목인지 먼저 확인한다.
+        let rooted = candidates.filter { Self.isWithinRealScanRoot($0, library: validationScope) }
+        let outsideRootCount = candidates.count - rooted.count
+
         // 권한이 활성화된 상태에서 경로 경계·존재 여부·항목 정체성을 삭제 직전에 검사합니다.
         let outcome = await TrashService.sanitizeAndMoveToTrash(
-            candidates,
+            rooted,
             scopes: [.descendants(of: validationScope)],
             url: \.url,
             identity: \.fileIdentity,
@@ -660,7 +715,7 @@ final class JunkScannerViewModel: ObservableObject {
         return CleanOutcome(
             succeededIDs: Set(outcome.succeeded.map(\.id)),
             failedCount: outcome.failedCount,
-            excludedCount: outcome.excludedCount,
+            excludedCount: outcome.excludedCount + outsideRootCount,
             accessDenied: false,
             firstFailure: outcome.firstFailure
         )

@@ -240,6 +240,7 @@
 "apps.status.system_reference_only" = "Sistem uygulamaları yalnızca bilgi amaçlı gösterilir; verileri taranmaz.";
 "apps.status.running_skipped" = "Çalışan %ld uygulama atlandı. Uygulamalardan çıkıp yeniden deneyin.";
 "apps.status.scan_found_shared" = "%ld ilgili öğe bulundu. Yüklü başka bir uygulama veya sistemle paylaşılıyor olabilecekleri için hiçbiri önceden seçilmedi. Kaldırmadan önce gözden geçirin.";
+"apps.status.scan_found_installed" = "%ld ilgili öğe bulundu. Uygulama hâlâ yüklü olduğu için hiçbiri önceden seçilmedi. Önce uygulamayı kaldırın veya öğeleri kendiniz seçin.";
 "apps.status.related_app_running" = "%@ (veya aynı verileri kullanan bir uygulama) çalışıyor. Uygulamadan çıkıp yeniden deneyin.";
 "apps.status.related_invalid" = "Kaldırılabilecek ilgili dosya yok. Değiştiği için atlanan: %ld.";
 "apps.status.uninstall_invalid" = "Kaldırılabilecek uygulama yok. Değişen veya izin verilen konum dışında olan: %ld.";

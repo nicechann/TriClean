@@ -236,6 +236,7 @@
 "apps.status.system_reference_only" = "Apps do sistema são exibidos apenas para referência; seus dados não são analisados.";
 "apps.status.running_skipped" = "%ld app(s) em execução foram ignorados. Encerre-os e tente novamente.";
 "apps.status.scan_found_shared" = "%ld itens relacionados encontrados. Eles podem ser compartilhados com outro app instalado ou com o sistema, então nenhum foi pré-selecionado. Revise antes de remover.";
+"apps.status.scan_found_installed" = "%ld itens relacionados encontrados. O app ainda está instalado, então nenhum foi pré-selecionado. Desinstale o app primeiro ou selecione os itens você mesmo.";
 "apps.status.related_app_running" = "%@ (ou um app que compartilha seus dados) está em execução. Encerre-o e tente novamente.";
 "apps.status.related_invalid" = "Nenhum arquivo relacionado pode ser removido. Itens alterados e ignorados: %ld.";
 "apps.status.uninstall_invalid" = "Nenhum app pode ser removido. Apps alterados ou fora do local permitido: %ld.";

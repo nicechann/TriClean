@@ -164,6 +164,7 @@
 "apps.status.system_reference_only" = "システムAppは参照のみ表示され、関連データはスキャンされません。";
 "apps.status.running_skipped" = "実行中のApp %ld個を除外しました。Appを終了してから再度お試しください。";
 "apps.status.scan_found_shared" = "%ld 個の関連項目が見つかりました。ほかのAppやシステムと共有されている可能性があるため、あらかじめ選択していません。確認してから選択してください。";
+"apps.status.scan_found_installed" = "%ld 個の関連項目が見つかりました。Appがまだインストールされているため、あらかじめ選択していません。先にAppを削除するか、項目を自分で選択してください。";
 "apps.status.related_app_running" = "%@(または同じデータを使うApp)が実行中です。Appを終了してから再度お試しください。";
 
 /* Settings View */

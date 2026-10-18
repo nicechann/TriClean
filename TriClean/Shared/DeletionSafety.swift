@@ -55,6 +55,31 @@ nonisolated enum DeletionSafety {
         isContained(url, in: scopePath(for: scope))
     }
 
+    /// `base` 아래의 경로 구성요소(대상 자신 포함)가 모두 존재하고 심볼릭 링크가 아닌지 확인한다.
+    ///
+    /// `isContained`는 링크를 해석한 **최종 위치**만 보므로, 정크 카테고리 루트(`DerivedData` 등)나
+    /// 중간 경로가 Library 안의 다른 폴더(`Application Support/X`)를 가리키는 링크여도 통과한다.
+    /// 정리 대상을 그 카테고리의 실제 폴더로 한정하려면 이 검사를 함께 써야 한다.
+    /// `base` 자체는 검사하지 않으며(사용자가 고른 스코프), 경로는 표기 그대로 비교한다.
+    nonisolated static func isFreeOfSymlinks(_ url: URL, below base: URL) -> Bool {
+        let baseComponents = base.standardizedFileURL.pathComponents
+        let components = url.standardizedFileURL.pathComponents
+        guard components.count > baseComponents.count,
+              Array(components.prefix(baseComponents.count)) == baseComponents else { return false }
+
+        var current = base.standardizedFileURL
+        for component in components.dropFirst(baseComponents.count) {
+            current.appendPathComponent(component)
+            var info = stat()
+            let result: Int32 = current.withUnsafeFileSystemRepresentation { path in
+                guard let path else { return -1 }
+                return lstat(path, &info)
+            }
+            guard result == 0, info.st_mode & S_IFMT != S_IFLNK else { return false }
+        }
+        return true
+    }
+
     /// 두 URL이 심볼릭 링크 해석 후 같은 파일 경로를 가리키는지 확인합니다.
     nonisolated static func isSameItem(_ lhs: URL, _ rhs: URL) -> Bool {
         resolvedPath(for: lhs) == resolvedPath(for: rhs)
