@@ -51,6 +51,33 @@ final class JunkSelectionScopeTests: XCTestCase {
         XCTAssertEqual(Set(selected.map(\.categoryID)), ["cache", "logs"])
     }
 
+    func test_카테고리정리대상은_확인창과_같은범위만_포함한다() {
+        let cache = makeResult(id: "cache", selected: [true, false, true])
+        let logs = makeResult(id: "logs", selected: [true, true])
+
+        let targets = JunkScannerViewModel.cleanTargets(in: [cache, logs], categoryID: "cache")
+        let confirmed = JunkScannerViewModel.selectedItems(in: [cache, logs], categoryID: "cache")
+
+        XCTAssertEqual(targets.map(\.id), confirmed.map(\.id))
+        XCTAssertEqual(Set(targets.map(\.id)), Set(cache.items.filter(\.isSelected).map(\.id)))
+    }
+
+    func test_전체정리대상은_카테고리별_재검증정책을_유지한다() {
+        let cache = makeResult(
+            id: "cache",
+            selected: [true],
+            policy: .allowDirectoryContentChanges
+        )
+        let state = makeResult(id: "state", selected: [true], policy: .strict)
+
+        let targets = JunkScannerViewModel.cleanTargets(in: [cache, state])
+        let policyByID = Dictionary(uniqueKeysWithValues: targets.map { ($0.id, $0.identityValidationPolicy) })
+
+        XCTAssertEqual(targets.count, 2)
+        XCTAssertEqual(policyByID[cache.items[0].id], .allowDirectoryContentChanges)
+        XCTAssertEqual(policyByID[state.items[0].id], .strict)
+    }
+
     func test_목록은_기본30개와_전체보기를_전환한다() {
         let result = makeResult(id: "cache", selected: Array(repeating: true, count: 37))
 
@@ -58,13 +85,18 @@ final class JunkSelectionScopeTests: XCTestCase {
         XCTAssertEqual(result.displayedItems(showAll: true).count, 37)
     }
 
-    private func makeResult(id: String, selected: [Bool]) -> JunkScanResult {
+    private func makeResult(
+        id: String,
+        selected: [Bool],
+        policy: JunkCategory.IdentityValidationPolicy = .strict
+    ) -> JunkScanResult {
         let category = JunkCategory(
             id: id,
             name: id,
             icon: "doc",
             description: id,
             relativePaths: [id],
+            identityValidationPolicy: policy,
             riskLevel: .safe
         )
         let items = selected.enumerated().map { index, isSelected in

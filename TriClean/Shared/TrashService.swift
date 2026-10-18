@@ -52,6 +52,19 @@ nonisolated enum TrashService {
         var excludedCount: Int { excluded.count }
     }
 
+    /// 실제 휴지통 이동 수단.
+    /// 테스트는 사용자 휴지통을 건드리지 않는 대체 구현을 넣어, 이동 직전·폴백 직전
+    /// 재검증 순서와 succeeded/failed/excluded 집계를 실제 삭제 루프로 검증한다.
+    nonisolated struct Mover: Sendable {
+        let trashItem: @Sendable (URL) throws -> Void
+        let recycle: @Sendable (URL) async -> Failure?
+
+        static let system = Mover(
+            trashItem: { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+            recycle: { await TrashService.recycleUsingWorkspace($0) }
+        )
+    }
+
     /// 경로 경계 검사와 정체성 재검증을 함께 수행한 뒤 휴지통으로 옮긴다.
     nonisolated static func sanitizeAndMoveToTrash<Item: Sendable>(
         _ candidates: [Item],
@@ -59,7 +72,8 @@ nonisolated enum TrashService {
         url: (Item) -> URL,
         identity: (Item) -> FileIdentitySnapshot?,
         allowsDirectoryContentChanges: (Item) -> Bool = { _ in false },
-        logCategory: String
+        logCategory: String,
+        mover: Mover = .system
     ) async -> Outcome<Item> {
         let partitioned = DeletionSafety.partition(candidates, scopes: scopes, url: url)
 
@@ -68,7 +82,8 @@ nonisolated enum TrashService {
             url: url,
             identity: identity,
             allowsDirectoryContentChanges: allowsDirectoryContentChanges,
-            logCategory: logCategory
+            logCategory: logCategory,
+            mover: mover
         )
 
         return Outcome(
@@ -91,10 +106,10 @@ nonisolated enum TrashService {
         url: (Item) -> URL,
         identity: (Item) -> FileIdentitySnapshot?,
         allowsDirectoryContentChanges: (Item) -> Bool = { _ in false },
-        logCategory: String
+        logCategory: String,
+        mover: Mover = .system
     ) async -> Outcome<Item> {
         let logger = Logger(subsystem: "com.nicechann.TriClean", category: logCategory)
-        let fm = FileManager.default
 
         var succeeded: [Item] = []
         var failed: [Item] = []
@@ -115,7 +130,7 @@ nonisolated enum TrashService {
             }
 
             do {
-                try fm.trashItem(at: targetURL, resultingItemURL: nil)
+                try mover.trashItem(targetURL)
                 succeeded.append(target)
             } catch {
                 let trashFailure = Failure(url: targetURL, error: error)
@@ -134,7 +149,7 @@ nonisolated enum TrashService {
                     continue
                 }
 
-                if let workspaceFailure = await recycleUsingWorkspace(targetURL) {
+                if let workspaceFailure = await mover.recycle(targetURL) {
                     logger.error(
                         "NSWorkspace recycle failed path=\(workspaceFailure.path, privacy: .private) domain=\(workspaceFailure.domain, privacy: .public) code=\(workspaceFailure.code) message=\(workspaceFailure.message, privacy: .private)"
                     )
@@ -177,7 +192,7 @@ nonisolated enum TrashService {
 
     /// 성공 시 nil, 실패 시 오류 정보를 반환합니다. AppKit 접근이므로 MainActor에서 수행합니다.
     @MainActor
-    private static func recycleUsingWorkspace(_ url: URL) async -> Failure? {
+    fileprivate static func recycleUsingWorkspace(_ url: URL) async -> Failure? {
         await withCheckedContinuation { continuation in
             NSWorkspace.shared.recycle([url]) { _, error in
                 if let error {

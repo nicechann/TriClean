@@ -235,6 +235,8 @@
 "apps.status.appstore_reference_only" = "Apps da App Store são exibidos apenas para referência.";
 "apps.status.system_reference_only" = "Apps do sistema são exibidos apenas para referência; seus dados não são analisados.";
 "apps.status.running_skipped" = "%ld app(s) em execução foram ignorados. Encerre-os e tente novamente.";
+"apps.status.scan_found_shared" = "%ld itens relacionados encontrados. Eles podem ser compartilhados com outro app instalado ou com o sistema, então nenhum foi pré-selecionado. Revise antes de remover.";
+"apps.status.related_app_running" = "%@ (ou um app que compartilha seus dados) está em execução. Encerre-o e tente novamente.";
 "apps.status.related_invalid" = "Nenhum arquivo relacionado pode ser removido. Itens alterados e ignorados: %ld.";
 "apps.status.uninstall_invalid" = "Nenhum app pode ser removido. Apps alterados ou fora do local permitido: %ld.";
 "apps.status.related_summary" = "Itens relacionados movidos: %1$ld. Falhas: %2$ld; ignorados após revalidação: %3$ld.";

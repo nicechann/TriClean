@@ -698,10 +698,28 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
-        scanRelatedFiles(for: app.name, bundleID: app.bundleID)
+        scanRelatedFiles(
+            for: app.name,
+            bundleID: app.bundleID,
+            preselectSafeItems: Self.mayPreselectRelatedItems(of: app, among: installedApps)
+        )
     }
 
-    private func scanRelatedFiles(for appName: String, bundleID: String?) {
+    /// 번들 ID로 찾은 Caches·WebKit·HTTPStorages 등은 그 ID를 쓰는 **모든** 앱의 데이터다.
+    /// Xcode와 Xcode-beta처럼 같은 ID를 쓰는 앱이 함께 설치돼 있거나 Apple 앱이면
+    /// 남아 있는 앱의 쿠키·세션까지 지워지므로 기본 선택하지 않고 사용자가 직접 고르게 한다.
+    nonisolated static func mayPreselectRelatedItems(
+        of app: AppsInstalledApp,
+        among installedApps: [AppsInstalledApp]
+    ) -> Bool {
+        guard let key = app.bundleID?.lowercased() else { return true }
+        if key.hasPrefix("com.apple.") { return false }
+        return !installedApps.contains { other in
+            other.id != app.id && other.bundleID?.lowercased() == key
+        }
+    }
+
+    private func scanRelatedFiles(for appName: String, bundleID: String?, preselectSafeItems: Bool) {
         guard let scopedLibrary = userLibraryFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
@@ -750,7 +768,12 @@ final class AppsViewModel: ObservableObject {
 
             // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
             let worker = Task.detached(priority: .userInitiated) {
-                AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
+                AppsViewModel.findRelatedItems(
+                    in: libraryStd,
+                    appName: appName,
+                    bundleID: bundleID,
+                    preselectSafeItems: preselectSafeItems
+                )
             }
             let found = await withTaskCancellationHandler {
                 await worker.value
@@ -764,9 +787,13 @@ final class AppsViewModel: ObservableObject {
 
             relatedItems = found
             lastStatusIsError = false
-            lastStatusMessage = found.isEmpty
-                ? "apps.status.scan_empty".localized
-                : "apps.status.scan_found".localized(with: found.count)
+            if found.isEmpty {
+                lastStatusMessage = "apps.status.scan_empty".localized
+            } else if preselectSafeItems {
+                lastStatusMessage = "apps.status.scan_found".localized(with: found.count)
+            } else {
+                lastStatusMessage = "apps.status.scan_found_shared".localized(with: found.count)
+            }
         }
     }
 
@@ -783,7 +810,12 @@ final class AppsViewModel: ObservableObject {
         url.standardizedFileURL.deletingLastPathComponent().path == dir.standardizedFileURL.path
     }
 
-    nonisolated private static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
+    nonisolated private static func findRelatedItems(
+        in libraryRoot: URL,
+        appName: String,
+        bundleID: String?,
+        preselectSafeItems: Bool
+    ) -> [AppsRelatedItem] {
         guard !isCurrentTaskCancelled() else { return [] }
 
         var dict: [String: AppsRelatedItem] = [:]
@@ -852,7 +884,7 @@ final class AppsViewModel: ObservableObject {
                     let isHighRisk = highRiskSubs.contains(sub)
                     upsert(AppsRelatedItem(
                         url: targetURL,
-                        selected: !isHighRisk,
+                        selected: preselectSafeItems && !isHighRisk,
                         isDirectory: isDir,
                         sizeBytes: sizeBytes
                     ))
@@ -1144,6 +1176,21 @@ final class AppsViewModel: ObservableObject {
 
         let candidates = relatedItems.filter { $0.selected }
         guard !candidates.isEmpty else { return }
+
+        // 앱이 실행 중이면 사용 중인 WebKit(IndexedDB)·HTTPStorages(쿠키)·Caches를 지우게 되어
+        // 로그아웃·데이터 손상이 생긴다. 번들 ID로 확인하므로 같은 ID를 쓰는 다른 앱
+        // (예: Xcode-beta를 지운 뒤 남은 Xcode)과 TriClean 자신도 여기서 걸러진다.
+        // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 삭제 직전에 확인한다.
+        if let selectedApp, let bundleID = selectedApp.bundleID,
+           Self.isBundleIDRunning(
+               bundleID,
+               runningBundleIDs: NSWorkspace.shared.runningApplications.map(\.bundleIdentifier)
+           ) {
+            lastStatusIsError = true
+            lastStatusMessage = "apps.status.related_app_running".localized(with: selectedApp.name)
+            return
+        }
+
         guard let scopedLibraryRoot = userLibraryFolderURL else {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.library_needed".localized
@@ -1215,6 +1262,12 @@ final class AppsViewModel: ObservableObject {
                     sanitized.rejectedCount
                 )
             }
+        }
+    }
+
+    nonisolated static func isBundleIDRunning(_ bundleID: String, runningBundleIDs: [String?]) -> Bool {
+        runningBundleIDs.contains { running in
+            running?.caseInsensitiveCompare(bundleID) == .orderedSame
         }
     }
 

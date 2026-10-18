@@ -163,6 +163,8 @@
 "apps.status.appstore_reference_only" = "Las apps del App Store se muestran solo como referencia.";
 "apps.status.system_reference_only" = "Las apps del sistema se muestran solo como referencia; sus datos no se analizan.";
 "apps.status.running_skipped" = "Se omitieron %ld app(s) en ejecución. Ciérralas e inténtalo de nuevo.";
+"apps.status.scan_found_shared" = "Se encontraron %ld elementos relacionados. Pueden estar compartidos con otra app instalada o con el sistema, por lo que no se ha preseleccionado ninguno. Revísalos antes de eliminarlos.";
+"apps.status.related_app_running" = "%@ (o una app que comparte sus datos) está en ejecución. Ciérrala e inténtalo de nuevo.";
 
 /* Settings View */
 "settings.display" = "Visualización";

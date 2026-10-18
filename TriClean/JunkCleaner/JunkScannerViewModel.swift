@@ -443,7 +443,7 @@ final class JunkScannerViewModel: ObservableObject {
     
     // MARK: - 삭제
 
-    nonisolated private struct CleanTarget: Sendable {
+    nonisolated struct CleanTarget: Sendable {
         let id: UUID
         let url: URL
         let fileIdentity: FileIdentitySnapshot?
@@ -470,18 +470,38 @@ final class JunkScannerViewModel: ObservableObject {
         cleanupNotice = nil
     }
 
+    /// 확인창의 개수 표시(`selectedItems`)와 실제 정리 대상(`cleanTargets`)이 같은 범위를
+    /// 쓰도록 카테고리 필터를 한 곳에 둔다. 둘이 따로 구현되면 확인창에는 카테고리 개수만
+    /// 보이면서 실제로는 모든 카테고리가 정리되는 회귀가 테스트에 걸리지 않는다.
+    nonisolated private static func scopedResults(
+        _ results: [JunkScanResult],
+        categoryID: String?
+    ) -> [JunkScanResult] {
+        guard let categoryID else { return results }
+        return results.filter { $0.id == categoryID }
+    }
+
     nonisolated static func selectedItems(
         in results: [JunkScanResult],
         categoryID: String? = nil
     ) -> [JunkItem] {
-        let scopedResults: [JunkScanResult]
-        if let categoryID {
-            scopedResults = results.filter { $0.id == categoryID }
-        } else {
-            scopedResults = results
-        }
+        scopedResults(results, categoryID: categoryID).flatMap { $0.items.filter(\.isSelected) }
+    }
 
-        return scopedResults.flatMap { $0.items.filter(\.isSelected) }
+    nonisolated static func cleanTargets(
+        in results: [JunkScanResult],
+        categoryID: String? = nil
+    ) -> [CleanTarget] {
+        scopedResults(results, categoryID: categoryID).flatMap { result in
+            result.items.filter(\.isSelected).map { item in
+                CleanTarget(
+                    id: item.id,
+                    url: item.url.standardizedFileURL,
+                    fileIdentity: item.fileIdentity,
+                    identityValidationPolicy: result.category.identityValidationPolicy
+                )
+            }
+        }
     }
 
     /// 삭제 직전에는 저장된 북마크에서 security-scoped URL을 다시 복원합니다.
@@ -508,23 +528,7 @@ final class JunkScannerViewModel: ObservableObject {
         }
         guard !isCleaning else { return }
 
-        let scopedResults: [JunkScanResult]
-        if let categoryID {
-            scopedResults = results.filter { $0.id == categoryID }
-        } else {
-            scopedResults = results
-        }
-
-        let candidates = scopedResults.flatMap { result in
-            result.items.filter(\.isSelected).map { item in
-                CleanTarget(
-                    id: item.id,
-                    url: item.url.standardizedFileURL,
-                    fileIdentity: item.fileIdentity,
-                    identityValidationPolicy: result.category.identityValidationPolicy
-                )
-            }
-        }
+        let candidates = Self.cleanTargets(in: results, categoryID: categoryID)
         guard !candidates.isEmpty else { return }
 
         cleanupNotice = nil

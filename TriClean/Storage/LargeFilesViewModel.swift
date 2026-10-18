@@ -523,7 +523,8 @@ final class LargeFilesViewModel: ObservableObject {
                     .fileAllocatedSizeKey,
                     .totalFileAllocatedSizeKey,
                     .fileSizeKey,
-                    .isPackageKey
+                    .isPackageKey,
+                    .isHiddenKey
                 ]
 
                 for folderURL in topFolders {
@@ -532,10 +533,14 @@ final class LargeFilesViewModel: ObservableObject {
                     let folder = folderURL.standardizedFileURL
                     if ignoredFolderURLs.contains(folder) { continue }
 
+                    // ⚠️ 폴더 행을 삭제하면 숨김 항목(.git, dotfile 등)까지 폴더째 휴지통으로 간다.
+                    //    `.skipsHiddenFiles`로 순회하면 그 크기가 합계에서 빠져, 사용자는 "250 MB"를
+                    //    지운다고 보고 실제로는 수 GB를 지우게 된다. 합계에는 숨김 항목을 포함하고,
+                    //    숨김 항목을 개별 삭제 행으로 노출하지만 않는다.
                     guard let enumerator = fm.enumerator(
                         at: folder,
                         includingPropertiesForKeys: scanKeys,
-                        options: [.skipsHiddenFiles],
+                        options: [],
                         errorHandler: { _, _ in true }
                     ) else {
                         continue
@@ -545,6 +550,7 @@ final class LargeFilesViewModel: ObservableObject {
                     var children: [FolderInfo] = []
                     children.reserveCapacity(64)
 
+                    // 패키지·숨김 폴더 내부 파일은 합계에만 넣고 개별 행으로는 노출하지 않는다.
                     var packagePrefixes: [String] = []
                     packagePrefixes.reserveCapacity(8)
 
@@ -573,7 +579,7 @@ final class LargeFilesViewModel: ObservableObject {
 
                             guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else { return }
 
-                            if values.isDirectory == true && values.isPackage == true {
+                            if values.isDirectory == true && (values.isPackage == true || values.isHidden == true) {
                                 let prefix = url.path.hasSuffix("/") ? url.path : (url.path + "/")
                                 packagePrefixes.append(prefix)
                                 return
@@ -584,7 +590,7 @@ final class LargeFilesViewModel: ObservableObject {
                             let size = Int64(Self.fileSize(from: values))
                             total += size
 
-                            guard size >= minBytes, !isPackageRoot else { return }
+                            guard size >= minBytes, !isPackageRoot, values.isHidden != true else { return }
 
                             let path = url.path
                             for prefix in packagePrefixes where path.hasPrefix(prefix) {

@@ -239,6 +239,8 @@
 "apps.status.appstore_reference_only" = "App Store uygulamaları yalnızca bilgi amaçlı gösterilir.";
 "apps.status.system_reference_only" = "Sistem uygulamaları yalnızca bilgi amaçlı gösterilir; verileri taranmaz.";
 "apps.status.running_skipped" = "Çalışan %ld uygulama atlandı. Uygulamalardan çıkıp yeniden deneyin.";
+"apps.status.scan_found_shared" = "%ld ilgili öğe bulundu. Yüklü başka bir uygulama veya sistemle paylaşılıyor olabilecekleri için hiçbiri önceden seçilmedi. Kaldırmadan önce gözden geçirin.";
+"apps.status.related_app_running" = "%@ (veya aynı verileri kullanan bir uygulama) çalışıyor. Uygulamadan çıkıp yeniden deneyin.";
 "apps.status.related_invalid" = "Kaldırılabilecek ilgili dosya yok. Değiştiği için atlanan: %ld.";
 "apps.status.uninstall_invalid" = "Kaldırılabilecek uygulama yok. Değişen veya izin verilen konum dışında olan: %ld.";
 "apps.status.related_summary" = "Taşınan ilgili öğe: %1$ld. Başarısız: %2$ld; yeniden doğrulama sonrası atlanan: %3$ld.";

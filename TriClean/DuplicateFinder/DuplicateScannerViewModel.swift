@@ -283,8 +283,14 @@ final class DuplicateScannerViewModel: ObservableObject {
                         for file in slice {
                             if Task.isCancelled { break }
                             processed += 1
-                            if let hash = Self.fullHash(of: file.url) {
-                                hashed.append(HashedFile(hash: hash, file: file))
+                            if let result = Self.stableContentHash(
+                                of: file.url,
+                                expectedSize: file.size,
+                                hash: Self.fullHash(of:)
+                            ) {
+                                var stamped = file
+                                stamped.identity = result.identity
+                                hashed.append(HashedFile(hash: result.hash, file: stamped))
                             }
                         }
 
@@ -306,7 +312,7 @@ final class DuplicateScannerViewModel: ObservableObject {
 
             guard generation == scanGeneration, !Task.isCancelled else { return }
 
-            // 그룹 구성은 파일마다 lstat을 수행하므로(하드링크 판별·정체성 스냅샷)
+            // 그룹 구성(정렬·하드링크 판별·보존 추천)은 파일 수에 비례하므로
             // 메인 액터가 아니라 백그라운드에서 처리한다.
             let groupWorker = Task.detached(priority: .utility) { [fullHashMap, rootURL] in
                 Self.buildDuplicateGroups(from: fullHashMap, rootURL: rootURL)
@@ -690,6 +696,8 @@ final class DuplicateScannerViewModel: ObservableObject {
         /// for sparse/compressed files and would split identical files before hashing.
         let size: Int64
         let modDate: Date?
+        /// 전체 해시를 읽은 시점의 정체성. 삭제 직전 재검증의 기준이 된다.
+        var identity: FileIdentitySnapshot? = nil
     }
 
     /// 전체 해시 병렬 계산 결과 단위.
@@ -857,11 +865,10 @@ final class DuplicateScannerViewModel: ObservableObject {
 
         for file in files {
             guard !Task.isCancelled else { break }
-            if let identityKey = fileIdentityKey(of: file.url) {
-                if seenIdentityKeys.insert(identityKey).inserted {
-                    uniqueFiles.append(file)
-                }
-            } else {
+            // 전체 해시 단계에서 정체성을 확인한 파일만 여기까지 오므로 identity는 항상 있다.
+            // 해시 시점의 (device, inode)를 그대로 써서 다시 lstat하지 않는다.
+            guard let identity = file.identity else { continue }
+            if seenIdentityKeys.insert("\(identity.device):\(identity.inode)").inserted {
                 uniqueFiles.append(file)
             }
         }
@@ -869,15 +876,21 @@ final class DuplicateScannerViewModel: ObservableObject {
         return uniqueFiles
     }
 
-    private nonisolated static func fileIdentityKey(of url: URL) -> String? {
-        var info = stat()
-        let result: Int32 = url.withUnsafeFileSystemRepresentation { path in
-            guard let path else { return -1 }
-            return lstat(path, &info)
-        }
-
-        guard result == 0 else { return nil }
-        return "\(UInt64(info.st_dev)):\(UInt64(info.st_ino))"
+    /// 해시를 읽은 내용과 삭제 직전 재검증 기준(정체성 스냅샷)이 같은 시점의 파일을
+    /// 가리키도록, 해시 직전·직후에 정체성을 찍어 둘이 같을 때만 결과를 인정한다.
+    ///
+    /// ⚠️ 스냅샷을 해시가 끝난 뒤(그룹 구성 시점)에 찍으면, 해시를 계산하는 몇 분 사이에
+    ///    편집·저장된 파일이 "바뀐 상태" 기준으로 재검증을 통과해 내용이 다른 유일한
+    ///    편집본이 중복으로 삭제될 수 있다. 수집 이후 크기가 달라진 파일도 제외한다.
+    nonisolated static func stableContentHash(
+        of url: URL,
+        expectedSize: Int64,
+        hash: (URL) -> String?
+    ) -> (hash: String, identity: FileIdentitySnapshot)? {
+        guard let before = FileIdentitySnapshot.capture(url), before.size == expectedSize else { return nil }
+        guard let digest = hash(url) else { return nil }
+        guard FileIdentitySnapshot.capture(url) == before else { return nil }
+        return (digest, before)
     }
 
     private nonisolated static func makeDuplicateFiles(from files: [FileCandidate], rootURL: URL) -> [DuplicateFile] {
@@ -885,6 +898,7 @@ final class DuplicateScannerViewModel: ObservableObject {
             DuplicateFile(
                 url: file.url,
                 modificationDate: file.modDate,
+                fileIdentity: file.identity,
                 isKeep: false
             )
         }

@@ -241,6 +241,8 @@
 "apps.status.appstore_reference_only" = "Aplikacje z App Store są wyświetlane wyłącznie informacyjnie.";
 "apps.status.system_reference_only" = "Aplikacje systemowe są wyświetlane wyłącznie informacyjnie; ich dane nie są skanowane.";
 "apps.status.running_skipped" = "Pominięto uruchomione aplikacje: %ld. Zamknij je i spróbuj ponownie.";
+"apps.status.scan_found_shared" = "Znaleziono elementów powiązanych: %ld. Mogą być współdzielone z inną zainstalowaną aplikacją lub systemem, więc żaden nie został wstępnie zaznaczony. Sprawdź je przed usunięciem.";
+"apps.status.related_app_running" = "Aplikacja %@ (lub aplikacja korzystająca z tych samych danych) jest uruchomiona. Zamknij ją i spróbuj ponownie.";
 "apps.status.related_invalid" = "Nie można usunąć żadnych plików powiązanych. Pominiętych z powodu zmian: %ld.";
 "apps.status.uninstall_invalid" = "Nie można usunąć żadnych aplikacji. Zmienionych lub poza dozwoloną lokalizacją: %ld.";
 "apps.status.related_summary" = "Przeniesiono elementów powiązanych: %1$ld. Niepowodzeń: %2$ld; pominiętych po ponownej weryfikacji: %3$ld.";

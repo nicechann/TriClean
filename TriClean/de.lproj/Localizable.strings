@@ -163,6 +163,8 @@
 "apps.status.appstore_reference_only" = "App-Store-Apps werden nur zur Information angezeigt.";
 "apps.status.system_reference_only" = "System-Apps werden nur zur Information angezeigt; ihre Daten werden nicht gescannt.";
 "apps.status.running_skipped" = "%ld laufende App(s) wurden übersprungen. Beenden Sie sie und versuchen Sie es erneut.";
+"apps.status.scan_found_shared" = "%ld zugehörige Elemente gefunden. Sie werden möglicherweise mit einer anderen installierten App oder dem System geteilt und sind daher nicht vorausgewählt. Bitte vor dem Entfernen prüfen.";
+"apps.status.related_app_running" = "%@ (oder eine App, die dieselben Daten nutzt) läuft. Beenden Sie sie und versuchen Sie es erneut.";
 
 /* Settings View */
 "settings.display" = "Anzeige";

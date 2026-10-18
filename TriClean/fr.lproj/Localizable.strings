@@ -163,6 +163,8 @@
 "apps.status.appstore_reference_only" = "Les apps de l'App Store sont affichées à titre indicatif uniquement.";
 "apps.status.system_reference_only" = "Les apps système sont affichées à titre indicatif uniquement ; leurs données ne sont pas analysées.";
 "apps.status.running_skipped" = "%ld app(s) en cours d'exécution ont été ignorées. Quittez-les puis réessayez.";
+"apps.status.scan_found_shared" = "%ld éléments liés trouvés. Ils peuvent être partagés avec une autre app installée ou le système ; aucun n'est donc présélectionné. Vérifiez-les avant de les supprimer.";
+"apps.status.related_app_running" = "%@ (ou une app qui partage ses données) est en cours d'exécution. Quittez-la puis réessayez.";
 
 /* Settings View */
 "settings.display" = "Affichage";
