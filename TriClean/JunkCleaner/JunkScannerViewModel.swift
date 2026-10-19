@@ -346,7 +346,8 @@ final class JunkScannerViewModel: ObservableObject {
         guard fm.fileExists(atPath: url.path, isDirectory: &isDir) else { return [] }
         
         if !isDir.boolValue {
-            let size = (try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+            // 폴더 항목과 같은 기준(할당 크기)으로 잰다.
+            let size = ItemSize.allocatedBytes(at: url)
             guard size > 0 else { return [] }
             return [JunkItem(url: url, sizeBytes: size, categoryID: categoryID, scanRoot: url, isSelected: defaultSelected)]
         }
@@ -372,7 +373,8 @@ final class JunkScannerViewModel: ObservableObject {
                 continue
             }
 
-            let itemSize = folderSize(at: itemURL)
+            // 숨김 하위 항목(.git 등)까지 포함한 실제 이동 범위의 크기. 링크는 따라가지 않는다.
+            let itemSize = ItemSize.allocatedBytes(at: itemURL)
             guard !Task.isCancelled else { break }
             guard itemSize > 1024 else { continue } // 1KB 미만 스킵
             
@@ -388,45 +390,6 @@ final class JunkScannerViewModel: ObservableObject {
         return items
     }
     
-    /// 폴더 전체 크기 (재귀)
-    nonisolated private static func folderSize(at url: URL) -> Int64 {
-        guard !Task.isCancelled else { return 0 }
-        let fm = FileManager.default
-        var isDir: ObjCBool = false
-        guard fm.fileExists(atPath: url.path, isDirectory: &isDir) else { return 0 }
-        
-        if !isDir.boolValue {
-            return (try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
-        }
-        
-        var total: Int64 = 0
-        guard let enumerator = fm.enumerator(
-            at: url,
-            includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey],
-            options: [.skipsHiddenFiles],
-            errorHandler: { _, _ in true }
-        ) else { return 0 }
-        
-        for case let fileURL as URL in enumerator {
-            guard !Task.isCancelled else {
-                enumerator.skipDescendants()
-                break
-            }
-            guard let values = try? fileURL.resourceValues(
-                forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey]
-            ) else { continue }
-            
-            if values.isRegularFile == true {
-                total += Int64(Self.fileSize(from: values))
-            }
-        }
-        
-        return total
-    }
-    
-    nonisolated private static func fileSize(from values: URLResourceValues) -> Int {
-        values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
-    }
 
     // MARK: - 선택 토글
     

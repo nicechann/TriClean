@@ -82,6 +82,8 @@ final class PhotoScannerViewModel: ObservableObject {
     nonisolated struct PhotoDeletePreparation: Sendable {
         let targets: [PhotoItem]
         let excludedItemCount: Int
+        /// 유사 그룹에 속한 대상별로, 삭제 후에도 남아야 하는 사진(선택되지 않은 그룹 구성원).
+        var survivorsByTarget: [String: [PhotoItem]] = [:]
     }
 
     private var collectTask: Task<[PhotoItem], Never>? = nil   // 실제 취소 가능한 수집 작업
@@ -388,6 +390,21 @@ final class PhotoScannerViewModel: ObservableObject {
         }
     }
 
+    /// 분석 결과(id 묶음)를 현재 사진 목록 기준의 그룹으로 만든다(삭제·새 스캔으로 사라진 항목 제외).
+    /// 각 그룹의 첫 장이 보존본(keeper)이다. 정렬 기준은 `isPreferredKeeper` 참고.
+    func applySimilarGroups(_ groupIDs: [[String]]) {
+        let byID = Dictionary(items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        similarGroups = groupIDs.compactMap { ids in
+            let groupItems = ids.compactMap { byID[$0] }.sorted(by: Self.isPreferredKeeper)
+            guard groupItems.count >= 2 else { return nil }
+            return PhotoGroup(id: groupItems.first?.id ?? ids.first ?? UUID().uuidString, items: groupItems)
+        }
+        .sorted { $0.count > $1.count }
+        // 그룹이 생기기 전(전체·흐릿함·스크린샷 탭)에 선택해 둔 사진 중 보존본으로 정해진 것은
+        // 선택을 해제한다. 그대로 두면 삭제 시 그룹 전체가 조용히 "제외"된다.
+        selectedIDs.subtract(similarKeeperIDs)
+    }
+
     /// 유사 그룹에서 남길 사진(keeper)을 앞에 두는 정렬 기준.
     ///
     /// ⚠️ 예전에는 할당 크기가 큰 파일을 남겼다. 그러면 원본 HEIC(2.5MB)보다 큰 JPEG 내보내기본
@@ -528,17 +545,7 @@ final class PhotoScannerViewModel: ObservableObject {
                 }
 
                 self.similarProgress = 1
-                let byID = Dictionary(self.items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
-                self.similarGroups = groupIDs.compactMap { ids in
-                    // 첫 장이 보존본(keeper)이 된다. 정렬 기준은 `isPreferredKeeper` 참고.
-                    let groupItems = ids.compactMap { byID[$0] }.sorted(by: Self.isPreferredKeeper)
-                    guard groupItems.count >= 2 else { return nil }
-                    return PhotoGroup(id: groupItems.first?.id ?? ids.first ?? UUID().uuidString, items: groupItems)
-                }
-                .sorted { $0.count > $1.count }
-                // 그룹이 생기기 전(전체·흐릿함·스크린샷 탭)에 선택해 둔 사진 중 보존본으로 정해진 것은
-                // 선택을 해제한다. 그대로 두면 삭제 시 그룹 전체가 조용히 "제외"된다.
-                self.selectedIDs.subtract(self.similarKeeperIDs)
+                self.applySimilarGroups(groupIDs)
                 self.isSimilarAnalyzed = true
                 self.isAnalyzingSimilar = false
             }
@@ -748,7 +755,8 @@ final class PhotoScannerViewModel: ObservableObject {
                 preparation.targets,
                 url: \.url,
                 identity: \.fileIdentity,
-                logCategory: "PhotoCleanup"
+                logCategory: "PhotoCleanup",
+                preflight: { Self.survivorPreflight(for: $0, preparation: preparation) }
             )
 
             let result = Set(outcome.succeeded.map(\.id))
@@ -783,6 +791,7 @@ final class PhotoScannerViewModel: ObservableObject {
     ) -> PhotoDeletePreparation {
         let selectedIDs = Set(selected.map(\.id))
         var unsafeSelectedIDs = Set<String>()
+        var survivorsByTarget: [String: [PhotoItem]] = [:]
 
         // 스캔 이후 같은 경로의 파일이 교체된 경우 새 파일을 삭제하지 않습니다.
         for item in selected where item.fileIdentity?.matchesCurrentFile(at: item.url) != true {
@@ -801,6 +810,9 @@ final class PhotoScannerViewModel: ObservableObject {
 
             if !hasValidSurvivor {
                 unsafeSelectedIDs.formUnion(selectedInGroup.map(\.id))
+            } else {
+                let survivors = group.items.filter { !selectedIDs.contains($0.id) }
+                for item in selectedInGroup { survivorsByTarget[item.id] = survivors }
             }
         }
 
@@ -813,8 +825,20 @@ final class PhotoScannerViewModel: ObservableObject {
 
         return PhotoDeletePreparation(
             targets: targets,
-            excludedItemCount: unsafeSelectedIDs.count + rejectedCount
+            excludedItemCount: unsafeSelectedIDs.count + rejectedCount,
+            survivorsByTarget: survivorsByTarget
         )
+    }
+
+    /// 사진을 하나씩 옮기는 사이 보존본이 외부에서 지워지거나 바뀔 수 있으므로, 유사 그룹 사진은
+    /// 이동 직전마다 같은 그룹에 실제로 남는 사진이 하나라도 있는지 다시 확인한다.
+    nonisolated static func survivorPreflight(
+        for item: PhotoItem,
+        preparation: PhotoDeletePreparation
+    ) -> TrashService.Preflight {
+        guard let survivors = preparation.survivorsByTarget[item.id] else { return .proceed }
+        let hasSurvivor = survivors.contains { $0.fileIdentity?.matchesCurrentFile(at: $0.url) == true }
+        return hasSurvivor ? .proceed : .skip
     }
 
     private func removeItems(_ ids: Set<String>) {

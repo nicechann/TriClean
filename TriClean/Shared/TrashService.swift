@@ -40,16 +40,43 @@ nonisolated enum TrashService {
     /// 삭제 결과.
     /// - succeeded: 휴지통으로 옮겨진 항목
     /// - failed: 시도했으나 실패한 항목
-    /// - excluded: 경계 검사·정체성 재검증에서 제외되어 시도조차 하지 않은 항목
+    /// - excluded: 경계 검사·정체성 재검증·사전 점검에서 제외되어 시도조차 하지 않은 항목
+    /// - interrupted: 사전 점검이 중단(`.stop`)을 요청해 처리하지 않고 남긴 항목
     nonisolated struct Outcome<Item>: Sendable where Item: Sendable {
         let succeeded: [Item]
         let failed: [Item]
         let excluded: [Item]
+        let interrupted: [Item]
         let firstFailure: Failure?
+
+        init(
+            succeeded: [Item],
+            failed: [Item],
+            excluded: [Item],
+            interrupted: [Item] = [],
+            firstFailure: Failure?
+        ) {
+            self.succeeded = succeeded
+            self.failed = failed
+            self.excluded = excluded
+            self.interrupted = interrupted
+            self.firstFailure = firstFailure
+        }
 
         var succeededCount: Int { succeeded.count }
         var failedCount: Int { failed.count }
         var excludedCount: Int { excluded.count }
+        var interruptedCount: Int { interrupted.count }
+    }
+
+    /// 항목마다 휴지통 이동 직전(그리고 폴백 직전)에 호출하는 화면별 추가 점검 결과.
+    /// - proceed: 계속 진행
+    /// - skip: 이 항목만 건너뛰고 excluded로 집계(예: 경로가 심볼릭 링크로 바뀜, 보존본이 사라짐)
+    /// - stop: 이 항목과 남은 항목을 모두 처리하지 않고 interrupted로 집계(예: 대상 앱이 실행됨)
+    nonisolated enum Preflight: Equatable, Sendable {
+        case proceed
+        case skip
+        case stop
     }
 
     /// 실제 휴지통 이동 수단.
@@ -73,6 +100,7 @@ nonisolated enum TrashService {
         identity: (Item) -> FileIdentitySnapshot?,
         allowsDirectoryContentChanges: (Item) -> Bool = { _ in false },
         logCategory: String,
+        preflight: (Item) async -> Preflight = { _ in .proceed },
         mover: Mover = .system
     ) async -> Outcome<Item> {
         let partitioned = DeletionSafety.partition(candidates, scopes: scopes, url: url)
@@ -83,6 +111,7 @@ nonisolated enum TrashService {
             identity: identity,
             allowsDirectoryContentChanges: allowsDirectoryContentChanges,
             logCategory: logCategory,
+            preflight: preflight,
             mover: mover
         )
 
@@ -90,6 +119,7 @@ nonisolated enum TrashService {
             succeeded: outcome.succeeded,
             failed: outcome.failed,
             excluded: partitioned.rejected + outcome.excluded,
+            interrupted: outcome.interrupted,
             firstFailure: outcome.firstFailure
         )
     }
@@ -97,16 +127,18 @@ nonisolated enum TrashService {
     /// 이미 경계 검사를 마친 대상을 휴지통으로 옮긴다.
     ///
     /// 각 항목마다 다음 순서를 지킨다.
-    ///  1. 휴지통 이동 직전에 스캔 당시와 같은 항목인지 확인(다른 항목을 처리하는
+    ///  1. 화면별 사전 점검(`preflight`). `.stop`이면 이 항목부터 남은 항목을 모두 중단한다
+    ///  2. 휴지통 이동 직전에 스캔 당시와 같은 항목인지 확인(다른 항목을 처리하는
     ///     사이 같은 경로가 교체될 수 있으므로 루프 안에서 매번 검사한다)
-    ///  2. `FileManager.trashItem`
-    ///  3. 실패 시 다시 정체성을 확인한 뒤에만 `NSWorkspace.recycle` 폴백
+    ///  3. `FileManager.trashItem`
+    ///  4. 실패 시 사전 점검과 정체성을 다시 확인한 뒤에만 `NSWorkspace.recycle` 폴백
     nonisolated static func moveToTrash<Item: Sendable>(
         _ targets: [Item],
         url: (Item) -> URL,
         identity: (Item) -> FileIdentitySnapshot?,
         allowsDirectoryContentChanges: (Item) -> Bool = { _ in false },
         logCategory: String,
+        preflight: (Item) async -> Preflight = { _ in .proceed },
         mover: Mover = .system
     ) async -> Outcome<Item> {
         let logger = Logger(subsystem: "com.nicechann.TriClean", category: logCategory)
@@ -114,10 +146,22 @@ nonisolated enum TrashService {
         var succeeded: [Item] = []
         var failed: [Item] = []
         var excluded: [Item] = []
+        var interrupted: [Item] = []
         var firstFailure: Failure?
 
-        for target in targets {
+        itemLoop: for (index, target) in targets.enumerated() {
             let targetURL = url(target).standardizedFileURL
+
+            switch await preflight(target) {
+            case .proceed:
+                break
+            case .skip:
+                excluded.append(target)
+                continue itemLoop
+            case .stop:
+                interrupted.append(contentsOf: targets[index...])
+                break itemLoop
+            }
 
             guard isIdentityCurrent(
                 target,
@@ -138,7 +182,18 @@ nonisolated enum TrashService {
                     "FileManager trash failed path=\(trashFailure.path, privacy: .private) domain=\(trashFailure.domain, privacy: .public) code=\(trashFailure.code) message=\(trashFailure.message, privacy: .private)"
                 )
 
-                // 폴백 직전에도 같은 항목인지 다시 확인한다.
+                // 폴백 직전에도 사전 점검과 정체성을 다시 확인한다.
+                switch await preflight(target) {
+                case .proceed:
+                    break
+                case .skip:
+                    excluded.append(target)
+                    continue itemLoop
+                case .stop:
+                    interrupted.append(contentsOf: targets[index...])
+                    break itemLoop
+                }
+
                 guard isIdentityCurrent(
                     target,
                     url: url,
@@ -171,6 +226,7 @@ nonisolated enum TrashService {
             succeeded: succeeded,
             failed: failed,
             excluded: excluded,
+            interrupted: interrupted,
             firstFailure: firstFailure
         )
     }

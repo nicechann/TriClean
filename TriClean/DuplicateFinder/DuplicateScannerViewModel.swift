@@ -533,25 +533,25 @@ final class DuplicateScannerViewModel: ObservableObject {
     // MARK: - 삭제
 
     /// 삭제 작업의 단위 (백그라운드 Task에서 사용)
-    nonisolated private struct DeleteTarget: Sendable {
+    nonisolated struct DeleteTarget: Sendable {
         let fileID: UUID
         let url: URL
         let perFileSize: Int64
         let fileIdentity: FileIdentitySnapshot?
     }
 
-    nonisolated private struct KeeperSnapshot: Sendable {
+    nonisolated struct KeeperSnapshot: Sendable {
         let url: URL
         let fileIdentity: FileIdentitySnapshot?
     }
 
     /// 삭제 결과의 단위
-    nonisolated private struct DeleteGroupSnapshot: Sendable {
+    nonisolated struct DeleteGroupSnapshot: Sendable {
         let keeper: KeeperSnapshot?
         let targets: [DeleteTarget]
     }
 
-    nonisolated private struct DeleteOutcome: Sendable {
+    nonisolated struct DeleteOutcome: Sendable {
         let succeeded: Set<UUID>
         let deletedCount: Int
         let failedCount: Int
@@ -628,11 +628,13 @@ final class DuplicateScannerViewModel: ObservableObject {
         }
     }
 
-    nonisolated private static func prepareAndPerformDeletion(
+    nonisolated static func prepareAndPerformDeletion(
         snapshots: [DeleteGroupSnapshot],
-        folder: URL
+        folder: URL,
+        mover: TrashService.Mover = .system
     ) async -> DeleteOutcome {
         var candidates: [DeleteTarget] = []
+        var keeperByTarget: [UUID: KeeperSnapshot] = [:]
         var excludedCount = 0
 
         for snapshot in snapshots {
@@ -648,14 +650,24 @@ final class DuplicateScannerViewModel: ObservableObject {
             }
             excludedCount += snapshot.targets.count - currentTargets.count
             candidates.append(contentsOf: currentTargets)
+            for target in currentTargets { keeperByTarget[target.fileID] = keeper }
         }
 
+        // 보존본은 위에서 한 번 확인했지만, 사본을 하나씩 옮기는 사이 외부(동기화·다른 앱)에서
+        // 지워지거나 바뀔 수 있다. 사본마다 이동 직전에 다시 확인해 원본까지 사라지지 않게 한다.
         let trashed = await TrashService.sanitizeAndMoveToTrash(
             candidates,
             scopes: [.descendants(of: folder)],
             url: \.url,
             identity: \.fileIdentity,
-            logCategory: "DuplicateCleanup"
+            logCategory: "DuplicateCleanup",
+            preflight: { target in
+                guard let keeper = keeperByTarget[target.fileID],
+                      keeper.fileIdentity?.matchesCurrentFile(at: keeper.url) == true
+                else { return .skip }
+                return .proceed
+            },
+            mover: mover
         )
 
         return DeleteOutcome(

@@ -737,6 +737,11 @@ final class AppsViewModel: ObservableObject {
         guard !installedApps.contains(where: { $0.id == selectedApp.appPath }) else {
             return .appStillInstalled
         }
+        // 목록에서 빠졌어도 원래 경로에 번들이 남아 있거나(제거 실패·다시 설치) 확인할 수 없으면
+        // (권한 거부, 외장 디스크 분리) 설치된 것으로 보고 기본 선택하지 않는다.
+        guard Self.bundlePresence(atPath: selectedApp.appPath) == .absent else {
+            return .appStillInstalled
+        }
 
         let otherInstallPaths = selectedApp.bundleID.map { bundleID in
             NSWorkspace.shared.urlsForApplications(withBundleIdentifier: bundleID)
@@ -785,6 +790,38 @@ final class AppsViewModel: ObservableObject {
         }
     }
 
+    nonisolated enum BundlePresence: Equatable, Sendable {
+        case present
+        case absent
+        case unknown
+    }
+
+    /// 원래 경로에 앱 번들이 있는지. "없음"은 상위 폴더가 실제로 있고 그 안에 항목이 없을 때만
+    /// 확정한다. 권한 오류나 상위 폴더가 사라진 경우(분리된 외장 디스크 등)는 `.unknown`이다.
+    nonisolated static func bundlePresence(atPath path: String) -> BundlePresence {
+        func lstatResult(_ url: URL) -> (code: Int32, errno: Int32) {
+            var info = stat()
+            let code: Int32 = url.withUnsafeFileSystemRepresentation { raw in
+                guard let raw else { return -1 }
+                return lstat(raw, &info)
+            }
+            return (code, code == 0 ? 0 : Darwin.errno)
+        }
+
+        let url = URL(fileURLWithPath: path).standardizedFileURL
+        let bundle = lstatResult(url)
+        if bundle.code == 0 { return .present }
+        guard bundle.errno == ENOENT else { return .unknown }
+
+        var isDirectory: ObjCBool = false
+        let parent = url.deletingLastPathComponent()
+        guard lstatResult(parent).code == 0,
+              FileManager.default.fileExists(atPath: parent.path, isDirectory: &isDirectory),
+              isDirectory.boolValue
+        else { return .unknown }
+        return .absent
+    }
+
     /// `com.example.App`처럼 점으로 구분된 역DNS 형식만 허용한다.
     nonisolated static func isWellFormedBundleID(_ bundleID: String) -> Bool {
         let parts = bundleID.split(separator: ".", omittingEmptySubsequences: false)
@@ -821,8 +858,35 @@ final class AppsViewModel: ObservableObject {
 
         // 보안 스코프는 북마크에서 복원한 원본 URL로 열고, 표준화 URL은 비교·순회에만 쓴다.
         let libraryStd = scopedLibrary.standardizedFileURL
-        let currentAppPath = selectedApp?.appPath
 
+        beginRelatedScan(
+            appPath: selectedApp?.appPath,
+            libraryRoot: libraryStd,
+            onFinish: { token.stop() }
+        ) {
+            // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
+            let worker = Task.detached(priority: .userInitiated) {
+                AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
+            }
+            return await withTaskCancellationHandler {
+                await worker.value
+            } onCancel: {
+                worker.cancel()
+            }
+        }
+    }
+
+    /// 관련 파일 스캔의 시작·취소·결과 반영을 맡는다. 결과는 다음을 모두 만족할 때만 반영한다.
+    /// - 그 사이 새 스캔이 시작되거나 취소(Details 닫기·다른 앱 선택)되지 않았다(세대 번호)
+    /// - Library 권한이 바뀌지 않았다(`libraryRoot`가 주어진 경우)
+    /// - 여전히 같은 앱의 Details를 보고 있다
+    @discardableResult
+    func beginRelatedScan(
+        appPath: String?,
+        libraryRoot: URL?,
+        onFinish: @escaping () -> Void = {},
+        find: @escaping @Sendable () async -> [AppsRelatedItem]
+    ) -> Task<Void, Never> {
         relatedScanTask?.cancel()
         relatedScanGeneration &+= 1
         let generation = relatedScanGeneration
@@ -831,9 +895,9 @@ final class AppsViewModel: ObservableObject {
         lastStatusIsError = false
         lastStatusMessage = "apps.status.scanning".localized
 
-        relatedScanTask = Task { [self] in
+        let task = Task { [self] in
             defer {
-                token.stop()
+                onFinish()
                 // 이미 새 스캔이 시작됐다면 그쪽 상태를 건드리지 않는다.
                 if generation == relatedScanGeneration {
                     isScanning = false
@@ -841,19 +905,13 @@ final class AppsViewModel: ObservableObject {
                 }
             }
 
-            // detached 작업은 부모 Task 취소를 자동 상속하지 않으므로 직접 전달한다.
-            let worker = Task.detached(priority: .userInitiated) {
-                AppsViewModel.findRelatedItems(in: libraryStd, appName: appName, bundleID: bundleID)
-            }
-            let found = await withTaskCancellationHandler {
-                await worker.value
-            } onCancel: {
-                worker.cancel()
-            }
+            let found = await find()
 
             guard generation == relatedScanGeneration, !Task.isCancelled else { return }
-            guard userLibraryFolderURL?.standardizedFileURL == libraryStd else { return }
-            guard selectedApp?.appPath == currentAppPath else { return }
+            if let libraryRoot {
+                guard userLibraryFolderURL?.standardizedFileURL == libraryRoot else { return }
+            }
+            guard selectedApp?.appPath == appPath else { return }
 
             relatedItems = found
             lastStatusIsError = false
@@ -871,6 +929,21 @@ final class AppsViewModel: ObservableObject {
                 }
             }
         }
+        relatedScanTask = task
+        return task
+    }
+
+    /// Details(컴팩트 화면의 시트)를 닫으면 그 앱의 관련 파일 스캔을 멈춘다.
+    /// 닫기 버튼과 바깥 클릭·Esc 등 모든 dismiss 경로에서 호출된다(`.sheet(onDismiss:)`).
+    /// 스캔이 끝나지 않은 Details는 다시 열 때 처음부터 스캔하므로 화면 상태도 비운다.
+    /// 앱 목록·체크한 앱·수동 선택 앱에는 손대지 않는다.
+    func relatedDetailsDismissed() {
+        guard isScanning, !isRemoving else { return }
+        cancelRelatedScanIfNeeded()
+        selectedApp = nil
+        relatedItems = []
+        lastStatusIsError = false
+        lastStatusMessage = nil
     }
 
     /// 번들 ID·앱 이름은 앱의 Info.plist에서 오는 신뢰할 수 없는 값이다.
@@ -886,7 +959,7 @@ final class AppsViewModel: ObservableObject {
         url.standardizedFileURL.deletingLastPathComponent().path == dir.standardizedFileURL.path
     }
 
-    nonisolated private static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
+    nonisolated static func findRelatedItems(in libraryRoot: URL, appName: String, bundleID: String?) -> [AppsRelatedItem] {
         guard !isCurrentTaskCancelled() else { return [] }
 
         var dict: [String: AppsRelatedItem] = [:]
@@ -921,6 +994,8 @@ final class AppsViewModel: ObservableObject {
             // ✅ Spotlight 결과: 경로/유형이 사전에 분류되지 않으므로 안전하게 기본 선택 해제
             for item in runSpotlightQuery(in: libraryRoot, bundleID: bundleID) {
                 if isCurrentTaskCancelled() { return [] }
+                // Spotlight 결과도 Library부터 항목까지 링크가 없는 실제 경로만 받는다.
+                guard DeletionSafety.isFreeOfSymlinks(item.url, below: libraryRoot) else { continue }
 
                 let safe = AppsRelatedItem(
                     url: item.url,
@@ -949,7 +1024,9 @@ final class AppsViewModel: ObservableObject {
                 if let s = suffix { targetName += s }
                 let targetURL = dir.appendingPathComponent(targetName)
 
-                if isDirectChild(targetURL, of: dir), fm.fileExists(atPath: targetURL.path) {
+                // 하위 폴더(`Caches` 등)나 항목 자신이 심볼릭 링크면 링크 대상이 이 앱의 데이터라는
+                // 보장이 없다. 존재 확인도 링크를 따라가지 않는 이 검사로 대신한다.
+                if isDirectChild(targetURL, of: dir), DeletionSafety.isFreeOfSymlinks(targetURL, below: libraryRoot) {
                     let isDir = (try? targetURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
                     let sizeBytes = fileSize(at: targetURL)
                     let isHighRisk = highRiskSubs.contains(sub)
@@ -978,6 +1055,7 @@ final class AppsViewModel: ObservableObject {
                 let targetURL = dir.appendingPathComponent(appName)
                 var isDir: ObjCBool = false
                 if isDirectChild(targetURL, of: dir),
+                   DeletionSafety.isFreeOfSymlinks(targetURL, below: libraryRoot),
                    fm.fileExists(atPath: targetURL.path, isDirectory: &isDir), isDir.boolValue {
                     let sizeBytes = fileSize(at: targetURL)
                     insertIfAbsent(AppsRelatedItem(
@@ -1035,49 +1113,9 @@ final class AppsViewModel: ObservableObject {
         return found
     }
 
+    /// 숨김 하위 항목까지 포함한 할당 크기. 링크는 따라가지 않는다(`ItemSize` 참고).
     nonisolated private static func fileSize(at url: URL) -> Int64 {
-        guard !isCurrentTaskCancelled() else { return 0 }
-
-        let keys: Set<URLResourceKey> = [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]
-
-        if let values = try? url.resourceValues(forKeys: keys) {
-            if values.isDirectory == true {
-                return directorySize(at: url)
-            }
-            if let total = values.totalFileAllocatedSize { return Int64(total) }
-            if let allocated = values.fileAllocatedSize { return Int64(allocated) }
-            if let fileSize = values.fileSize { return Int64(fileSize) }
-        }
-        return 0
-    }
-
-    nonisolated private static func directorySize(at url: URL) -> Int64 {
-        let fm = FileManager.default
-        guard let enumerator = fm.enumerator(
-            at: url,
-            includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey],
-            options: [.skipsHiddenFiles],
-            errorHandler: { _, _ in true }
-        ) else {
-            return 0
-        }
-
-        var total: Int64 = 0
-        for case let fileURL as URL in enumerator {
-            if isCurrentTaskCancelled() { return 0 }
-
-            if let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .fileSizeKey]) {
-                if values.isDirectory == true { continue }
-                if let allocated = values.totalFileAllocatedSize {
-                    total += Int64(allocated)
-                } else if let fileAllocated = values.fileAllocatedSize {
-                    total += Int64(fileAllocated)
-                } else if let fileSize = values.fileSize {
-                    total += Int64(fileSize)
-                }
-            }
-        }
-        return total
+        ItemSize.allocatedBytes(at: url)
     }
 
     // MARK: - Selection helpers
@@ -1260,11 +1298,8 @@ final class AppsViewModel: ObservableObject {
         // 로그아웃·데이터 손상이 생긴다. 번들 ID로 확인하므로 같은 ID를 쓰는 다른 앱
         // (예: Xcode-beta를 지운 뒤 남은 Xcode)과 TriClean 자신도 여기서 걸러진다.
         // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 삭제 직전에 확인한다.
-        if let selectedApp, let bundleID = selectedApp.bundleID,
-           Self.isBundleIDRunning(
-               bundleID,
-               runningBundleIDs: NSWorkspace.shared.runningApplications.map(\.bundleIdentifier)
-           ) {
+        // 삭제가 진행되는 동안에도 항목마다 다시 확인한다(`performRelatedRemoval`).
+        if let selectedApp, let bundleID = selectedApp.bundleID, Self.isAppRunningNow(bundleID) {
             lastStatusIsError = true
             lastStatusMessage = "apps.status.related_app_running".localized(with: selectedApp.name)
             return
@@ -1301,8 +1336,12 @@ final class AppsViewModel: ObservableObject {
         let shallowCount = candidates.count - deepEnough.count
 
         // 보안 스코프를 연 상태에서 실제 삭제 대상을 재검증합니다.
+        // `sanitize`는 링크를 해석한 최종 위치만 보므로, Library부터 항목까지 중간 경로에
+        // 심볼릭 링크가 끼어 있는 항목은 따로 거른다(정크 정리와 같은 정책).
         let checked = DeletionSafety.sanitize(deepEnough, scope: libraryRoot, url: \.url)
-        let sanitized = (accepted: checked.accepted, rejectedCount: checked.rejectedCount + shallowCount)
+        let realPathItems = checked.accepted.filter { DeletionSafety.isFreeOfSymlinks($0.url, below: libraryRoot) }
+        let symlinkedCount = checked.accepted.count - realPathItems.count
+        let sanitized = (accepted: realPathItems, rejectedCount: checked.rejectedCount + shallowCount + symlinkedCount)
         guard !sanitized.accepted.isEmpty else {
             scopeToken.stop()
             lastStatusIsError = true
@@ -1310,38 +1349,71 @@ final class AppsViewModel: ObservableObject {
             return
         }
 
+        // 삭제 대상은 이 시점에 확정한다. 진행 중에는 선택 UI를 잠그고(`isRemoving`),
+        // 완료 후에는 실제로 옮겨진 항목만 목록에서 뺀다.
+        let targets = sanitized.accepted
+        let bundleID = selectedApp?.bundleID
+        let appName = selectedApp?.name ?? ""
+
         isRemoving = true
         lastStatusMessage = nil
 
         Task {
             defer { scopeToken.stop() }
 
-            let (succeeded, failed) = await Task.detached(priority: .userInitiated) {
-                await AppsViewModel.performRelatedRemoval(targets: sanitized.accepted)
+            let outcome = await Task.detached(priority: .userInitiated) {
+                await AppsViewModel.performRelatedRemoval(
+                    targets: targets,
+                    libraryRoot: libraryRoot,
+                    bundleID: bundleID,
+                    isAppRunning: { await AppsViewModel.isAppRunningNow($0) }
+                )
             }.value
 
             self.isRemoving = false
 
-            let successIDs = Set(succeeded.map(\.id))
+            let successIDs = Set(outcome.succeeded.map(\.id))
             if !successIDs.isEmpty {
                 self.relatedItems.removeAll { successIDs.contains($0.id) }
             }
 
-            if failed.isEmpty && sanitized.rejectedCount == 0 {
-                self.lastStatusIsError = false
-                self.lastStatusMessage = "apps.status.related_success".localized(with: succeeded.count)
-            } else if succeeded.isEmpty {
-                self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.related_none".localized
-            } else {
-                self.lastStatusIsError = true
-                self.lastStatusMessage = "apps.status.related_summary".localized(
-                    with: succeeded.count,
-                    failed.count,
-                    sanitized.rejectedCount
-                )
-            }
+            self.lastStatusIsError = !(outcome.failed.isEmpty && outcome.excluded.isEmpty
+                && outcome.interrupted.isEmpty && sanitized.rejectedCount == 0)
+            self.lastStatusMessage = Self.relatedRemovalMessage(
+                succeeded: outcome.succeededCount,
+                failed: outcome.failedCount,
+                skipped: sanitized.rejectedCount + outcome.excludedCount,
+                interrupted: outcome.interruptedCount,
+                appName: appName
+            )
         }
+    }
+
+    /// 관련 파일 정리 결과 문구. 실행 감지로 중단된 경우 이미 옮긴 수와 함께 중단 사유를 붙인다.
+    nonisolated static func relatedRemovalMessage(
+        succeeded: Int,
+        failed: Int,
+        skipped: Int,
+        interrupted: Int,
+        appName: String
+    ) -> String {
+        let summary: String
+        if failed == 0 && skipped == 0 {
+            summary = succeeded > 0 ? "apps.status.related_success".localized(with: succeeded) : ""
+        } else if succeeded == 0 && interrupted == 0 {
+            summary = "apps.status.related_none".localized
+        } else {
+            summary = "apps.status.related_summary".localized(with: succeeded, failed, skipped)
+        }
+
+        guard interrupted > 0 else { return summary }
+        let runningNote = "apps.status.related_app_running".localized(with: appName)
+        return summary.isEmpty ? runningNote : summary + " " + runningNote
+    }
+
+    /// 지금 이 번들 ID의 앱이 실행 중인지. `NSWorkspace`는 메인 스레드에서 읽는다.
+    static func isAppRunningNow(_ bundleID: String) -> Bool {
+        isBundleIDRunning(bundleID, runningBundleIDs: NSWorkspace.shared.runningApplications.map(\.bundleIdentifier))
     }
 
     nonisolated static func isBundleIDRunning(_ bundleID: String, runningBundleIDs: [String?]) -> Bool {
@@ -1350,9 +1422,16 @@ final class AppsViewModel: ObservableObject {
         }
     }
 
-    nonisolated private static func performRelatedRemoval(
-        targets: [AppsRelatedItem]
-    ) async -> ([AppsRelatedItem], [AppsRelatedItem]) {
+    /// 관련 파일을 휴지통으로 옮긴다. 항목마다 이동 직전(그리고 폴백 직전)에
+    /// - 대상 앱이 실행되면 남은 항목을 모두 중단하고(`interrupted`),
+    /// - 스캔 이후 경로 중간이 심볼릭 링크로 바뀐 항목은 건너뛴다(`excluded`).
+    nonisolated static func performRelatedRemoval(
+        targets: [AppsRelatedItem],
+        libraryRoot: URL,
+        bundleID: String?,
+        isAppRunning: (String) async -> Bool,
+        mover: TrashService.Mover = .system
+    ) async -> TrashService.Outcome<AppsRelatedItem> {
         // ~/Library/Caches/<bundleID> 같은 관련 폴더는 사용자가 목록에서 항목을 고르는 사이에도
         // 해당 앱이 파일을 쓰면서 크기·수정 시각이 달라진다. 엄격 비교를 유지하면 정상 대상이
         // 이유 없이 "제외됨"으로 빠지므로, 디렉터리에 한해 내용 변경을 허용한다.
@@ -1363,10 +1442,14 @@ final class AppsViewModel: ObservableObject {
             url: \.url,
             identity: \.fileIdentity,
             allowsDirectoryContentChanges: { $0.isDirectory },
-            logCategory: "AppsRelatedRemoval"
+            logCategory: "AppsRelatedRemoval",
+            preflight: { item in
+                if let bundleID, await isAppRunning(bundleID) { return .stop }
+                return DeletionSafety.isFreeOfSymlinks(item.url, below: libraryRoot) ? .proceed : .skip
+            },
+            mover: mover
         )
-
-        return (outcome.succeeded, outcome.failed + outcome.excluded)
+        return outcome
     }
 
     func failedAppNamesForAlert(maxCount: Int = 6) -> String {
@@ -1413,7 +1496,10 @@ struct AppsView: View {
         }
         .padding()
         .alert(item: $activeAlert) { makeAlert($0) }
-        .sheet(isPresented: $showCompactDetailsSheet) {
+        .sheet(isPresented: $showCompactDetailsSheet, onDismiss: {
+            // 닫기 버튼·Esc·바깥 클릭 등 어떤 경로로 닫혀도 진행 중인 관련 파일 스캔을 멈춘다.
+            viewModel.relatedDetailsDismissed()
+        }) {
             compactDetailsSheet
         }
         .sheet(isPresented: $showPaywall) {
@@ -1979,7 +2065,10 @@ struct AppsView: View {
 
                         Table(viewModel.relatedItems) {
                             TableColumn("") { item in
-                                Toggle("", isOn: binding(for: item)).labelsHidden()
+                                Toggle("", isOn: binding(for: item))
+                                    .labelsHidden()
+                                    // 삭제 대상은 시작 시점에 확정된다. 진행 중 선택 변경을 막는다.
+                                    .disabled(viewModel.isRemoving)
                             }
                             .width(24)
 
@@ -2110,6 +2199,7 @@ struct AppsView: View {
         Binding(
             get: { viewModel.relatedItems.first(where: { $0.id == item.id })?.selected ?? false },
             set: { newValue in
+                guard !viewModel.isRemoving else { return }
                 if let idx = viewModel.relatedItems.firstIndex(where: { $0.id == item.id }) {
                     viewModel.relatedItems[idx].selected = newValue
                 }
