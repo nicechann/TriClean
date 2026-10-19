@@ -123,7 +123,7 @@
 "apps.details.guide" = "테이블에서 앱을 선택해 세부 정보를 확인하거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정해 관련 파일(캐시, 설정 등)을 검토합니다.";
 "apps.alert.uninstall.title" = "선택한 앱 번들을 휴지통으로 이동";
 "apps.alert.fail.title" = "자동 이동 실패 (권한 제한)";
-"apps.alert.fail.msg" = "%ld개 앱은 macOS 보안 정책(관리자 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Cmd+Backspace로 직접 삭제해주세요.";
+"apps.alert.fail.msg" = "%ld개 앱은 macOS 보안 정책(관리자 권한)으로 인해 자동 이동이 불가능합니다.%@\n\n'Finder에서 보기'를 누른 후, Finder에서 Command(⌘)-Delete를 눌러 휴지통으로 이동해 주세요.";
 "apps.alert.related.title" = "관련 파일 정리";
 "apps.alert.reset.title" = "권한 초기화";
 "apps.alert.reset.msg" = "선택한 폴더/앱 권한(북마크)을 초기화합니다. 이후 다시 폴더를 선택해야 스캔이 가능합니다.";
@@ -159,7 +159,7 @@
 "apps.status.scan_empty" = "관련 파일을 찾지 못했습니다.";
 "apps.status.scan_found" = "관련 항목 %ld개를 찾았습니다.";
 "apps.status.related_success" = "관련 항목 %ld개를 휴지통으로 이동했습니다.";
-"apps.status.related_none" = "이동할 항목이 없습니다.";
+"apps.status.related_none" = "휴지통으로 이동된 항목이 없습니다.";
 "apps.status.uninstall_success" = "앱 번들 %ld개를 휴지통으로 이동했습니다.";
 "apps.status.uninstall_partial_fail" = "앱 번들 %ld개는 이동, %ld개는 실패했습니다.";
 "apps.status.uninstall_all_fail" = "선택한 앱 번들을 휴지통으로 이동할 수 없습니다(권한 필요).";
@@ -404,8 +404,8 @@
 "duplicate.delete_confirm.title" = "중복 파일 정리";
 "duplicate.delete_confirm.message" = "선택한 중복 파일 %ld개(%@)를 휴지통으로 이동합니다. 각 그룹에서는 최소 1개 파일이 보존됩니다.";
 "duplicate.cleanup_result.title" = "정리 완료";
-"duplicate.cleanup_result.body" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다.";
-"duplicate.cleanup_result.body_with_failures" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 예상 확보 용량은 %@입니다. %ld개 항목은 이동하지 못했습니다.";
+"duplicate.cleanup_result.body" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 휴지통을 비우면 약 %@의 공간이 확보됩니다.";
+"duplicate.cleanup_result.body_with_failures" = "중복 파일 %ld개를 휴지통으로 이동했습니다. 휴지통을 비우면 약 %@의 공간이 확보됩니다. %ld개 항목은 이동하지 못했습니다.";
 "duplicate.status.collecting" = "파일 목록 수집 중…";
 "duplicate.status.found_files" = "%ld개 파일 발견";
 "duplicate.status.grouping_by_size" = "크기별 그룹화 중…";
@@ -419,7 +419,7 @@
 "duplicate.status.recommended_applied" = "각 그룹에서 1개 파일은 남기고, 나머지를 정리 대상으로 자동 선택했습니다.";
 "duplicate.status.keep_newest_applied" = "선택한 그룹에서 가장 최신 파일을 보존하도록 변경했습니다.";
 "duplicate.status.keep_oldest_applied" = "선택한 그룹에서 가장 오래된 파일을 보존하도록 변경했습니다.";
-"duplicate.status.cleanup_done" = "%ld개 중복 파일을 휴지통으로 이동했습니다. %@를 확보했습니다.";
+"duplicate.status.cleanup_done" = "%ld개 중복 파일(%@)을 휴지통으로 이동했습니다. 휴지통을 비우면 공간이 확보됩니다.";
 "duplicate.status.cleanup_failed" = "선택한 중복 파일을 휴지통으로 이동하지 못했습니다.";
 
 "duplicate.action.clear_selection" = "선택 해제";
@@ -598,7 +598,7 @@
 "store.error.no_purchase_to_restore" = "현재 Apple 계정에서 복원할 이전 구매 내역을 찾지 못했습니다.";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "%1$ld개 중복 파일을 휴지통으로 이동했습니다. %2$@를 확보했습니다. 실패 %3$ld개, 변경되어 제외 %4$ld개입니다.";
+"duplicate.status.cleanup_summary" = "%1$ld개 중복 파일(%2$@)을 휴지통으로 이동했습니다. 휴지통을 비우면 공간이 확보됩니다. 실패 %3$ld개, 변경되어 제외 %4$ld개입니다.";
 "junk.progress.clean_summary" = "%1$ld개 항목을 휴지통으로 이동했습니다. 실패 %2$ld개, 변경되어 제외 %3$ld개입니다.";
 "apps.status.uninstall_invalid" = "삭제할 수 있는 앱이 없습니다. 앱 %ld개가 변경되었거나 허용 범위를 벗어났습니다.";
 "apps.status.related_summary" = "관련 항목 %1$ld개를 이동했습니다. 실패 %2$ld개, 변경되어 제외 %3$ld개입니다.";
@@ -627,7 +627,7 @@
 "junk.cleanup.result.success_message" = "%ld개 항목을 휴지통으로 이동했습니다.";
 "junk.cleanup.result.partial_message" = "%1$ld개 항목을 휴지통으로 이동했습니다. 실패 %2$ld개, 변경되어 제외 %3$ld개입니다.";
 "junk.cleanup.result.failed_message" = "휴지통으로 이동한 항목이 없습니다. 실패 %1$ld개, 변경되어 제외 %2$ld개입니다.";
-"junk.cleanup.result.access_denied" = "Library 폴더 접근 권한을 사용할 수 없습니다. ‘변경…’에서 Library 폴더를 다시 선택한 후 재시도하세요.";
+"junk.cleanup.result.access_denied" = "라이브러리 폴더 접근 권한을 사용할 수 없습니다. ‘변경…’에서 라이브러리(~/Library) 폴더를 다시 선택한 후 재시도하세요.";
 "junk.cleanup.result.error_detail" = "첫 번째 오류: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

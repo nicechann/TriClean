@@ -329,8 +329,8 @@
 "duplicate.delete_confirm.title" = "Kopya dosyaları temizle";
 "duplicate.delete_confirm.message" = "Seçilen %ld kopya dosya (%@) Çöp Sepeti'ne taşınacak. Her grupta en az bir dosya korunur.";
 "duplicate.cleanup_result.title" = "Temizlik tamamlandı";
-"duplicate.cleanup_result.body" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Tahmini geri kazanılan alan: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Tahmini geri kazanılan alan: %@. %ld öğe taşınamadı.";
+"duplicate.cleanup_result.body" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Çöp Sepeti'ni boşalttığınızda yaklaşık %@ alan açılır.";
+"duplicate.cleanup_result.body_with_failures" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Çöp Sepeti'ni boşalttığınızda yaklaşık %@ alan açılır. %ld öğe taşınamadı.";
 "duplicate.status.collecting" = "Dosyalar toplanıyor…";
 "duplicate.status.found_files" = "%ld dosya bulundu";
 "duplicate.status.grouping_by_size" = "Dosyalar boyuta göre gruplanıyor…";
@@ -344,11 +344,11 @@
 "duplicate.status.recommended_applied" = "Her grupta bir dosya saklandı, geri kalanı temizlik için otomatik seçildi.";
 "duplicate.status.keep_newest_applied" = "Seçilen grupta en yeni dosya saklandı.";
 "duplicate.status.keep_oldest_applied" = "Seçilen grupta en eski dosya saklandı.";
-"duplicate.status.cleanup_done" = "%ld kopya dosya Çöp Sepeti'ne taşındı (%@ geri kazanıldı).";
+"duplicate.status.cleanup_done" = "%ld kopya dosya (%@) Çöp Sepeti'ne taşındı. Alanı boşaltmak için Çöp Sepeti'ni boşaltın.";
 "duplicate.status.cleanup_failed" = "TriClean, seçilen kopya dosyaları Çöp Sepeti'ne taşıyamadı.";
 "duplicate.status.cleanup_running" = "Kopyalar Çöp Sepeti'ne taşınıyor…";
 "duplicate.status.revalidate_needed" = "Saklanacak dosya doğrulanamadığı için atlanan grup: %ld. Lütfen yeniden tarayın.";
-"duplicate.status.cleanup_summary" = "Çöp Sepeti'ne taşınan kopya dosya: %1$ld, geri kazanılan %2$@. Başarısız: %3$ld; yeniden doğrulama sonrası atlanan: %4$ld.";
+"duplicate.status.cleanup_summary" = "Çöp Sepeti'ne taşınan kopya dosya: %1$ld (%2$@). Alanı boşaltmak için Çöp Sepeti'ni boşaltın. Başarısız: %3$ld; yeniden doğrulama sonrası atlanan: %4$ld.";
 "duplicate.status.selection_cleared" = "Tüm temizlik seçimleri temizlendi.";
 "duplicate.status.access_denied" = "Klasör erişimi sona erdi. Lütfen klasörü yeniden seçin.";
 "duplicate.phase.idle" = "Boşta";
@@ -556,7 +556,7 @@
 "junk.cleanup.result.success_message" = "%ld öğe Çöp Sepeti’ne taşındı.";
 "junk.cleanup.result.partial_message" = "%1$ld öğe Çöp Sepeti’ne taşındı. Başarısız: %2$ld; değişiklik sonrası atlanan: %3$ld.";
 "junk.cleanup.result.failed_message" = "Hiçbir öğe Çöp Sepeti’ne taşınmadı. Başarısız: %1$ld; değişiklik sonrası atlanan: %2$ld.";
-"junk.cleanup.result.access_denied" = "Library klasörü izni etkinleştirilemedi. “Değiştir…” ile Library klasörünü yeniden seçip tekrar deneyin.";
+"junk.cleanup.result.access_denied" = "Kitaplık klasörü izni etkinleştirilemedi. “Değiştir…” ile Kitaplık (~/Library) klasörünü yeniden seçip tekrar deneyin.";
 "junk.cleanup.result.error_detail" = "İlk hata: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

@@ -197,7 +197,7 @@
 "apps.details.appstore_note" = "Apps da App Store não podem ser removidos nesta tela. Exclua-os diretamente pelo Launchpad (pressione e mantenha) ou pelo Finder.";
 "apps.details.modified" = "Modificado: %@";
 "apps.alert.uninstall.title" = "Mover os pacotes de apps selecionados para o Lixo";
-"apps.alert.uninstall.msg" = "Mover %1$ld pacotes removíveis dos %2$ld apps selecionados para o Lixo? Apps da App Store são excluídos, e os itens movidos podem ser restaurados no Lixo do Finder.";
+"apps.alert.uninstall.msg" = "Mover %1$ld pacotes removíveis dos %2$ld apps selecionados para o Lixo? Apps da App Store não são incluídos, e os itens movidos podem ser restaurados no Lixo do Finder.";
 "apps.alert.fail.title" = "Falha ao mover (permissão)";
 "apps.alert.fail.msg" = "Não foi possível mover automaticamente %ld apps devido às políticas de segurança do macOS (é necessário ser administrador).%@\nUse “Mostrar no Finder” e exclua manualmente.";
 "apps.alert.fail.list" = "\n\nFalhas: %@";
@@ -325,8 +325,8 @@
 "duplicate.delete_confirm.title" = "Limpar arquivos duplicados";
 "duplicate.delete_confirm.message" = "%ld arquivos duplicados selecionados (%@) serão movidos para o Lixo. Pelo menos um arquivo é preservado em cada grupo.";
 "duplicate.cleanup_result.title" = "Limpeza concluída";
-"duplicate.cleanup_result.body" = "%ld arquivos duplicados foram movidos para o Lixo. Espaço recuperado estimado: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld arquivos duplicados foram movidos para o Lixo. Espaço recuperado estimado: %@. Não foi possível mover %ld itens.";
+"duplicate.cleanup_result.body" = "%ld arquivos duplicados foram movidos para o Lixo. Ao esvaziar o Lixo, cerca de %@ serão liberados.";
+"duplicate.cleanup_result.body_with_failures" = "%ld arquivos duplicados foram movidos para o Lixo. Ao esvaziar o Lixo, cerca de %@ serão liberados. Não foi possível mover %ld itens.";
 "duplicate.status.collecting" = "Coletando arquivos…";
 "duplicate.status.found_files" = "%ld arquivos encontrados";
 "duplicate.status.grouping_by_size" = "Agrupando arquivos por tamanho…";
@@ -340,11 +340,11 @@
 "duplicate.status.recommended_applied" = "Um arquivo foi mantido em cada grupo, e os demais foram selecionados automaticamente para limpeza.";
 "duplicate.status.keep_newest_applied" = "O arquivo mais recente foi mantido no grupo selecionado.";
 "duplicate.status.keep_oldest_applied" = "O arquivo mais antigo foi mantido no grupo selecionado.";
-"duplicate.status.cleanup_done" = "%ld arquivos duplicados movidos para o Lixo (%@ recuperados).";
+"duplicate.status.cleanup_done" = "%ld arquivos duplicados (%@) movidos para o Lixo. Esvazie o Lixo para liberar o espaço.";
 "duplicate.status.cleanup_failed" = "O TriClean não conseguiu mover os arquivos duplicados selecionados para o Lixo.";
 "duplicate.status.cleanup_running" = "Movendo duplicados para o Lixo…";
 "duplicate.status.revalidate_needed" = "Grupos ignorados porque não foi possível verificar o arquivo a manter: %ld. Escaneie novamente.";
-"duplicate.status.cleanup_summary" = "Arquivos duplicados movidos para o Lixo: %1$ld, espaço recuperado %2$@. Falhas: %3$ld; ignorados após revalidação: %4$ld.";
+"duplicate.status.cleanup_summary" = "Arquivos duplicados movidos para o Lixo: %1$ld (%2$@). Esvazie o Lixo para liberar o espaço. Falhas: %3$ld; ignorados após revalidação: %4$ld.";
 "duplicate.status.selection_cleared" = "Todas as seleções de limpeza foram removidas.";
 "duplicate.status.access_denied" = "Acesso à pasta expirou. Selecione a pasta novamente.";
 "duplicate.phase.idle" = "Inativo";
@@ -556,7 +556,7 @@
 "junk.cleanup.result.success_message" = "%ld itens foram movidos para o Lixo.";
 "junk.cleanup.result.partial_message" = "%1$ld itens foram movidos para o Lixo. Falhas: %2$ld; ignorados após alterações: %3$ld.";
 "junk.cleanup.result.failed_message" = "Nenhum item foi movido para o Lixo. Falhas: %1$ld; ignorados após alterações: %2$ld.";
-"junk.cleanup.result.access_denied" = "Não foi possível ativar a permissão da pasta Library. Selecione novamente a pasta Library em “Alterar…” e tente outra vez.";
+"junk.cleanup.result.access_denied" = "Não foi possível ativar a permissão da pasta Biblioteca. Selecione novamente a pasta Biblioteca (~/Library) em “Alterar…” e tente outra vez.";
 "junk.cleanup.result.error_detail" = "Primeiro erro: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

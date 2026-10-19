@@ -325,8 +325,8 @@
 "duplicate.delete_confirm.title" = "Dubbele bestanden opruimen";
 "duplicate.delete_confirm.message" = "%ld geselecteerde dubbele bestanden (%@) worden naar de prullenmand verplaatst. In elke groep blijft ten minste één bestand behouden.";
 "duplicate.cleanup_result.title" = "Opruimen voltooid";
-"duplicate.cleanup_result.body" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Geschatte teruggewonnen ruimte: %@.";
-"duplicate.cleanup_result.body_with_failures" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Geschatte teruggewonnen ruimte: %@. Kon %ld items niet verplaatsen.";
+"duplicate.cleanup_result.body" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Als je de prullenmand leegt, komt ongeveer %@ vrij.";
+"duplicate.cleanup_result.body_with_failures" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Als je de prullenmand leegt, komt ongeveer %@ vrij. Kon %ld items niet verplaatsen.";
 "duplicate.status.collecting" = "Bestanden verzamelen…";
 "duplicate.status.found_files" = "Gevonden: %ld bestanden";
 "duplicate.status.grouping_by_size" = "Bestanden groeperen op grootte…";
@@ -340,11 +340,11 @@
 "duplicate.status.recommended_applied" = "In elke groep is één bestand bewaard en de rest is automatisch geselecteerd om op te ruimen.";
 "duplicate.status.keep_newest_applied" = "Het nieuwste bestand in de geselecteerde groep is bewaard.";
 "duplicate.status.keep_oldest_applied" = "Het oudste bestand in de geselecteerde groep is bewaard.";
-"duplicate.status.cleanup_done" = "Naar de prullenmand verplaatst: %ld dubbele bestanden (%@ teruggewonnen).";
+"duplicate.status.cleanup_done" = "Naar de prullenmand verplaatst: %ld dubbele bestanden (%@). Leeg de prullenmand om de ruimte vrij te maken.";
 "duplicate.status.cleanup_failed" = "TriClean kon de geselecteerde dubbele bestanden niet naar de prullenmand verplaatsen.";
 "duplicate.status.cleanup_running" = "Duplicaten naar de prullenmand verplaatsen…";
 "duplicate.status.revalidate_needed" = "Overgeslagen groepen omdat het te bewaren bestand niet kon worden gecontroleerd: %ld. Scan opnieuw.";
-"duplicate.status.cleanup_summary" = "Naar de prullenmand verplaatst: %1$ld dubbele bestanden, %2$@ teruggewonnen. Mislukt: %3$ld; overgeslagen na hercontrole: %4$ld.";
+"duplicate.status.cleanup_summary" = "Naar de prullenmand verplaatst: %1$ld dubbele bestanden (%2$@). Leeg de prullenmand om de ruimte vrij te maken. Mislukt: %3$ld; overgeslagen na hercontrole: %4$ld.";
 "duplicate.status.selection_cleared" = "Alle opruimselecties zijn gewist.";
 "duplicate.status.access_denied" = "Maptoegang verlopen. Selecteer de map opnieuw.";
 "duplicate.phase.idle" = "Inactief";
@@ -556,7 +556,7 @@
 "junk.cleanup.result.success_message" = "%ld onderdelen naar de prullenmand verplaatst.";
 "junk.cleanup.result.partial_message" = "%1$ld onderdelen naar de prullenmand verplaatst. Mislukt: %2$ld; overgeslagen na wijzigingen: %3$ld.";
 "junk.cleanup.result.failed_message" = "Er zijn geen onderdelen naar de prullenmand verplaatst. Mislukt: %1$ld; overgeslagen na wijzigingen: %2$ld.";
-"junk.cleanup.result.access_denied" = "De toestemming voor de Library-map kon niet worden geactiveerd. Selecteer de Library-map opnieuw via ‘Wijzig…’ en probeer het opnieuw.";
+"junk.cleanup.result.access_denied" = "De toestemming voor de bibliotheekmap kon niet worden geactiveerd. Selecteer de bibliotheekmap (~/Library) opnieuw via ‘Wijzig…’ en probeer het opnieuw.";
 "junk.cleanup.result.error_detail" = "Eerste fout: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

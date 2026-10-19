@@ -403,8 +403,8 @@
 "duplicate.delete_confirm.title" = "Clean Duplicate Files";
 "duplicate.delete_confirm.message" = "%ld selected duplicate files (%@) will be moved to Trash. At least one file is preserved in each group.";
 "duplicate.cleanup_result.title" = "Cleanup Complete";
-"duplicate.cleanup_result.body" = "%ld duplicate files were moved to Trash. Estimated recovered space: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld duplicate files were moved to Trash. Estimated recovered space: %@. %ld items could not be moved.";
+"duplicate.cleanup_result.body" = "%ld duplicate files were moved to Trash. About %@ will be freed when you empty the Trash.";
+"duplicate.cleanup_result.body_with_failures" = "%ld duplicate files were moved to Trash. About %@ will be freed when you empty the Trash. %ld items could not be moved.";
 "duplicate.status.collecting" = "Collecting files…";
 "duplicate.status.found_files" = "%ld files found";
 "duplicate.status.grouping_by_size" = "Grouping files by size…";
@@ -418,7 +418,7 @@
 "duplicate.status.recommended_applied" = "One file was kept in each group, and the rest were automatically selected for cleanup.";
 "duplicate.status.keep_newest_applied" = "Kept the newest file in the selected group.";
 "duplicate.status.keep_oldest_applied" = "Kept the oldest file in the selected group.";
-"duplicate.status.cleanup_done" = "%ld duplicate files moved to Trash (%@ recovered).";
+"duplicate.status.cleanup_done" = "%ld duplicate files moved to Trash (%@). Empty the Trash to free up the space.";
 "duplicate.status.cleanup_failed" = "TriClean could not move the selected duplicate files to Trash.";
 
 "duplicate.action.clear_selection" = "Clear Selection";
@@ -597,7 +597,7 @@
 "store.error.no_purchase_to_restore" = "No previous purchase was found for this Apple Account.";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "Moved %1$ld duplicate files to Trash and recovered %2$@. Failed: %3$ld; skipped after revalidation: %4$ld.";
+"duplicate.status.cleanup_summary" = "Moved %1$ld duplicate files (%2$@) to Trash. Empty the Trash to free up the space. Failed: %3$ld; skipped after revalidation: %4$ld.";
 "junk.progress.clean_summary" = "Moved %1$ld items to Trash. Failed: %2$ld; skipped after revalidation: %3$ld.";
 "apps.status.uninstall_invalid" = "No apps can be removed. %ld app(s) changed or were outside the allowed location.";
 "apps.status.related_summary" = "Moved %1$ld related items. Failed: %2$ld; skipped after revalidation: %3$ld.";

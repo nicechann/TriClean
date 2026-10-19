@@ -339,7 +339,7 @@
 "apps.safety.title" = "Examiner avant le nettoyage";
 "apps.safety.desc" = "TriClean place les bundles d'apps et fichiers liés sélectionnés dans la corbeille. Aucune suppression définitive immédiate, et les apps de l'App Store ne peuvent pas être supprimées depuis cet écran.";
 "apps.selection.none" = "%ld apps visibles dans le filtre actuel";
-"apps.selection.summary" = "%1$ld sélectionnées · %2$ld supprimables";
+"apps.selection.summary" = "%1$ld sélectionnées · %2$ld à placer dans la corbeille";
 "apps.table.app" = "App";
 "apps.table.bundle" = "Identifiant de bundle";
 "apps.table.location" = "Emplacement";
@@ -395,8 +395,8 @@
 "duplicate.delete_confirm.title" = "Nettoyer les fichiers en double";
 "duplicate.delete_confirm.message" = "%ld fichiers en double sélectionnés (%@) seront placés dans la corbeille. Au moins un fichier est conservé dans chaque groupe.";
 "duplicate.cleanup_result.title" = "Nettoyage terminé";
-"duplicate.cleanup_result.body" = "%ld fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld fichiers en double ont été placés dans la corbeille. Espace récupéré estimé : %@. %ld éléments n'ont pas pu être déplacés.";
+"duplicate.cleanup_result.body" = "%ld fichiers en double ont été placés dans la corbeille. Environ %@ seront libérés une fois la corbeille vidée.";
+"duplicate.cleanup_result.body_with_failures" = "%ld fichiers en double ont été placés dans la corbeille. Environ %@ seront libérés une fois la corbeille vidée. %ld éléments n'ont pas pu être déplacés.";
 "duplicate.status.collecting" = "Collecte des fichiers…";
 "duplicate.status.found_files" = "%ld fichiers trouvés";
 "duplicate.status.grouping_by_size" = "Regroupement des fichiers par taille…";
@@ -410,7 +410,7 @@
 "duplicate.status.recommended_applied" = "Un fichier a été conservé dans chaque groupe et le reste a été automatiquement sélectionné pour le nettoyage.";
 "duplicate.status.keep_newest_applied" = "Le fichier le plus récent du groupe sélectionné a été conservé.";
 "duplicate.status.keep_oldest_applied" = "Le fichier le plus ancien du groupe sélectionné a été conservé.";
-"duplicate.status.cleanup_done" = "%ld fichiers en double placés dans la corbeille (%@ récupérés).";
+"duplicate.status.cleanup_done" = "%ld fichiers en double (%@) placés dans la corbeille. Videz la corbeille pour libérer l’espace.";
 "duplicate.status.cleanup_failed" = "TriClean n'a pas pu placer les fichiers en double sélectionnés dans la corbeille.";
 
 "duplicate.action.clear_selection" = "Effacer la sélection";
@@ -589,7 +589,7 @@
 "store.error.no_purchase_to_restore" = "Aucun achat antérieur à restaurer n’a été trouvé pour ce compte Apple.";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "%1$ld fichiers en double ont été placés dans la corbeille et %2$@ ont été libérés. Échecs : %3$ld ; ignorés après vérification : %4$ld.";
+"duplicate.status.cleanup_summary" = "%1$ld fichiers en double (%2$@) ont été placés dans la corbeille. Videz la corbeille pour libérer l’espace. Échecs : %3$ld ; ignorés après vérification : %4$ld.";
 "junk.progress.clean_summary" = "%1$ld éléments ont été placés dans la corbeille. Échecs : %2$ld ; ignorés après vérification : %3$ld.";
 "apps.status.uninstall_invalid" = "Aucune app ne peut être supprimée. %ld app(s) ont changé ou se trouvent hors de l’emplacement autorisé.";
 "apps.status.related_summary" = "%1$ld éléments liés ont été déplacés. Échecs : %2$ld ; ignorés après vérification : %3$ld.";

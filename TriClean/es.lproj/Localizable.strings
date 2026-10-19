@@ -281,8 +281,8 @@
 "junk.category.system_logs.desc" = "Archivos de registro de apps que normalmente solo son necesarios para depuración.";
 "junk.category.xcode_derived.title" = "Xcode DerivedData";
 "junk.category.xcode_derived.desc" = "Caché de compilación de Xcode. Es seguro eliminarlo cuando no lo necesitas.";
-"junk.category.xcode_archives.title" = "Archivos Xcode";
-"junk.category.xcode_archives.desc" = "Archivos de apps almacenados de compilaciones anteriores. Elimínalos si ya no los necesitas.";
+"junk.category.xcode_archives.title" = "Archivados de Xcode";
+"junk.category.xcode_archives.desc" = "Archivados de apps guardados de compilaciones anteriores. Elimínalos si ya no los necesitas.";
 "junk.category.safari_cache.title" = "Caché de Safari";
 "junk.category.safari_cache.desc" = "Caché del navegador Safari. Las cargas iniciales de páginas pueden ser ligeramente más lentas tras eliminarlo.";
 "junk.category.mail_downloads.title" = "Descargas de Mail";
@@ -339,7 +339,7 @@
 "apps.safety.title" = "Revisa de forma segura antes de la limpieza";
 "apps.safety.desc" = "TriClean mueve los paquetes de apps seleccionados y los archivos relacionados a la Papelera. No elimina elementos de forma permanente de inmediato, y las apps del App Store no pueden eliminarse desde esta pantalla.";
 "apps.selection.none" = "%ld apps visibles en el filtro actual";
-"apps.selection.summary" = "%1$ld seleccionadas · %2$ld eliminables";
+"apps.selection.summary" = "%1$ld seleccionadas · %2$ld se pueden mover a la Papelera";
 "apps.table.app" = "App";
 "apps.table.bundle" = "ID de paquete";
 "apps.table.location" = "Ubicación";
@@ -395,8 +395,8 @@
 "duplicate.delete_confirm.title" = "Limpiar archivos duplicados";
 "duplicate.delete_confirm.message" = "%ld archivos duplicados seleccionados (%@) se moverán a la Papelera. Se conserva al menos un archivo en cada grupo.";
 "duplicate.cleanup_result.title" = "Limpieza completada";
-"duplicate.cleanup_result.body" = "Se movieron %ld archivos duplicados a la Papelera. Espacio recuperado estimado: %@.";
-"duplicate.cleanup_result.body_with_failures" = "Se movieron %ld archivos duplicados a la Papelera. Espacio recuperado estimado: %@. %ld elementos no pudieron moverse.";
+"duplicate.cleanup_result.body" = "Se movieron %ld archivos duplicados a la Papelera. Al vaciar la Papelera se liberarán unos %@.";
+"duplicate.cleanup_result.body_with_failures" = "Se movieron %ld archivos duplicados a la Papelera. Al vaciar la Papelera se liberarán unos %@. %ld elementos no pudieron moverse.";
 "duplicate.status.collecting" = "Recopilando archivos…";
 "duplicate.status.found_files" = "%ld archivos encontrados";
 "duplicate.status.grouping_by_size" = "Agrupando archivos por tamaño…";
@@ -410,7 +410,7 @@
 "duplicate.status.recommended_applied" = "Se conservó un archivo en cada grupo y los demás se seleccionaron automáticamente para limpieza.";
 "duplicate.status.keep_newest_applied" = "Se conservó el archivo más reciente del grupo seleccionado.";
 "duplicate.status.keep_oldest_applied" = "Se conservó el archivo más antiguo del grupo seleccionado.";
-"duplicate.status.cleanup_done" = "Se movieron %ld archivos duplicados a la Papelera (%@ recuperados).";
+"duplicate.status.cleanup_done" = "Se movieron %ld archivos duplicados (%@) a la Papelera. Vacía la Papelera para liberar el espacio.";
 "duplicate.status.cleanup_failed" = "TriClean no pudo mover los archivos duplicados seleccionados a la Papelera.";
 
 "duplicate.action.clear_selection" = "Borrar selección";
@@ -589,7 +589,7 @@
 "store.error.no_purchase_to_restore" = "No se encontró ninguna compra anterior para restaurar con esta cuenta de Apple.";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "Se movieron %1$ld archivos duplicados a la Papelera y se liberaron %2$@. Fallaron: %3$ld; omitidos tras verificar: %4$ld.";
+"duplicate.status.cleanup_summary" = "Se movieron %1$ld archivos duplicados (%2$@) a la Papelera. Vacía la Papelera para liberar el espacio. Fallaron: %3$ld; omitidos tras verificar: %4$ld.";
 "junk.progress.clean_summary" = "Se movieron %1$ld elementos a la Papelera. Fallaron: %2$ld; omitidos tras verificar: %3$ld.";
 "apps.status.uninstall_invalid" = "No se puede eliminar ninguna app. %ld app(s) cambiaron o están fuera de la ubicación permitida.";
 "apps.status.related_summary" = "Se movieron %1$ld elementos relacionados. Fallaron: %2$ld; omitidos tras verificar: %3$ld.";
@@ -618,7 +618,7 @@
 "junk.cleanup.result.success_message" = "Se movieron %ld elementos a la papelera.";
 "junk.cleanup.result.partial_message" = "Se movieron %1$ld elementos a la papelera. Fallidos: %2$ld; omitidos tras cambios: %3$ld.";
 "junk.cleanup.result.failed_message" = "No se movió ningún elemento a la papelera. Fallidos: %1$ld; omitidos tras cambios: %2$ld.";
-"junk.cleanup.result.access_denied" = "No se pudo activar el permiso de la carpeta Library. Selecciona de nuevo la carpeta Library mediante “Cambiar…” y vuelve a intentarlo.";
+"junk.cleanup.result.access_denied" = "No se pudo activar el permiso de la carpeta Biblioteca. Selecciona de nuevo la carpeta Biblioteca (~/Library) mediante «Cambiar…» y vuelve a intentarlo.";
 "junk.cleanup.result.error_detail" = "Primer error: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

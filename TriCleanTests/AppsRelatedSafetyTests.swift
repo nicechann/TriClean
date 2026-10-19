@@ -205,6 +205,34 @@ final class AppsRelatedSafetyTests: XCTestCase {
         XCTAssertEqual(normal, "apps.status.related_success".localized(with: 2))
     }
 
+    // MARK: - 중복 실행 방지
+
+    func test_제거가_진행중이면_두번째_실행을_막는다() {
+        // 창이 여러 개면 확인창도 창마다 뜬다. 진행 중에 들어온 실행은 아무것도 하지 않아야 한다.
+        let vm = AppsViewModel()
+        vm.isRemoving = true
+        vm.lastStatusMessage = "marker"
+
+        vm.removeSelectedRelatedItems()
+        XCTAssertEqual(vm.lastStatusMessage, "marker")
+
+        var completed = false
+        var alert: AppsActiveAlert? = .removeRelatedFiles
+        vm.uninstallSelectedInstalledApps { result in
+            alert = result
+            completed = true
+        }
+        XCTAssertTrue(completed)
+        XCTAssertNil(alert)
+        XCTAssertEqual(vm.lastStatusMessage, "marker")
+        XCTAssertTrue(vm.isRemoving)
+    }
+
+    func test_테스트용_StoreKit_설정파일은_앱번들에_포함되지않는다() {
+        let appBundle = Bundle(for: AppsViewModel.self)
+        XCTAssertNil(appBundle.url(forResource: "TriClean", withExtension: "storekit"))
+    }
+
     // MARK: - 설치 상태
 
     func test_원래경로의_번들존재여부를_확정할수있을때만_없음으로본다() throws {

@@ -331,8 +331,8 @@
 "duplicate.delete_confirm.title" = "Wyczyść zduplikowane pliki";
 "duplicate.delete_confirm.message" = "Zaznaczonych zduplikowanych plików do przeniesienia do Kosza: %ld (%@). W każdej grupie zostanie zachowany co najmniej jeden plik.";
 "duplicate.cleanup_result.title" = "Porządkowanie zakończone";
-"duplicate.cleanup_result.body" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Szacowane odzyskane miejsce: %@.";
-"duplicate.cleanup_result.body_with_failures" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Szacowane odzyskane miejsce: %@. Nie udało się przenieść elementów: %ld.";
+"duplicate.cleanup_result.body" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Po opróżnieniu Kosza zostanie zwolnione ok. %@.";
+"duplicate.cleanup_result.body_with_failures" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Po opróżnieniu Kosza zostanie zwolnione ok. %@. Nie udało się przenieść elementów: %ld.";
 "duplicate.status.collecting" = "Zbieranie plików…";
 "duplicate.status.found_files" = "Znaleziono plików: %ld";
 "duplicate.status.grouping_by_size" = "Grupowanie plików według rozmiaru…";
@@ -346,11 +346,11 @@
 "duplicate.status.recommended_applied" = "W każdej grupie zachowano jeden plik, a pozostałe zaznaczono automatycznie do usunięcia.";
 "duplicate.status.keep_newest_applied" = "W wybranej grupie zachowano najnowszy plik.";
 "duplicate.status.keep_oldest_applied" = "W wybranej grupie zachowano najstarszy plik.";
-"duplicate.status.cleanup_done" = "Przeniesiono do Kosza zduplikowanych plików: %ld (odzyskano %@).";
+"duplicate.status.cleanup_done" = "Przeniesiono do Kosza zduplikowanych plików: %ld (%@). Opróżnij Kosz, aby zwolnić miejsce.";
 "duplicate.status.cleanup_failed" = "TriClean nie mógł przenieść wybranych zduplikowanych plików do Kosza.";
 "duplicate.status.cleanup_running" = "Przenoszenie duplikatów do Kosza…";
 "duplicate.status.revalidate_needed" = "Pominiętych grup, w których nie udało się zweryfikować pliku do zachowania: %ld. Przeskanuj ponownie.";
-"duplicate.status.cleanup_summary" = "Przeniesiono do Kosza zduplikowanych plików: %1$ld, odzyskano %2$@. Niepowodzeń: %3$ld; pominiętych po ponownej weryfikacji: %4$ld.";
+"duplicate.status.cleanup_summary" = "Przeniesiono do Kosza zduplikowanych plików: %1$ld (%2$@). Opróżnij Kosz, aby zwolnić miejsce. Niepowodzeń: %3$ld; pominiętych po ponownej weryfikacji: %4$ld.";
 "duplicate.status.selection_cleared" = "Wyczyszczono wszystkie zaznaczenia do usunięcia.";
 "duplicate.status.access_denied" = "Dostęp do folderu wygasł. Wybierz folder ponownie.";
 "duplicate.phase.idle" = "Bezczynny";
@@ -558,7 +558,7 @@
 "junk.cleanup.result.success_message" = "Przeniesiono do Kosza elementów: %ld.";
 "junk.cleanup.result.partial_message" = "Przeniesiono do Kosza elementów: %1$ld. Niepowodzenia: %2$ld; pominięto po zmianach: %3$ld.";
 "junk.cleanup.result.failed_message" = "Nie przeniesiono żadnych elementów do Kosza. Niepowodzenia: %1$ld; pominięto po zmianach: %2$ld.";
-"junk.cleanup.result.access_denied" = "Nie udało się aktywować uprawnienia do folderu Library. Wybierz ponownie folder Library za pomocą „Zmień…” i spróbuj jeszcze raz.";
+"junk.cleanup.result.access_denied" = "Nie udało się aktywować uprawnienia do folderu Biblioteka. Wybierz ponownie folder Biblioteka (~/Library) za pomocą „Zmień…” i spróbuj jeszcze raz.";
 "junk.cleanup.result.error_detail" = "Pierwszy błąd: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

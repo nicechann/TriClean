@@ -801,11 +801,12 @@ final class AppsViewModel: ObservableObject {
     nonisolated static func bundlePresence(atPath path: String) -> BundlePresence {
         func lstatResult(_ url: URL) -> (code: Int32, errno: Int32) {
             var info = stat()
-            let code: Int32 = url.withUnsafeFileSystemRepresentation { raw in
-                guard let raw else { return -1 }
-                return lstat(raw, &info)
+            // errno는 lstat 직후 클로저 안에서 읽는다(버퍼 해제 등이 덮어쓸 수 있다).
+            return url.withUnsafeFileSystemRepresentation { raw -> (code: Int32, errno: Int32) in
+                guard let raw else { return (-1, EINVAL) }
+                let code = lstat(raw, &info)
+                return (code, code == 0 ? 0 : Darwin.errno)
             }
-            return (code, code == 0 ? 0 : Darwin.errno)
         }
 
         let url = URL(fileURLWithPath: path).standardizedFileURL
@@ -1142,6 +1143,12 @@ final class AppsViewModel: ObservableObject {
     }
 
     func uninstallSelectedInstalledApps(completion: @escaping (AppsActiveAlert?) -> Void) {
+        // 창이 여러 개면 확인창도 창마다 뜬다. 진행 중인 제거가 있으면 두 번째 실행을 막는다.
+        // (그대로 두면 이미 옮긴 앱이 "실패"로 보고되고, 먼저 끝난 쪽이 UI 잠금을 풀어 버린다.)
+        guard !isRemoving else {
+            completion(nil)
+            return
+        }
         guard StoreManager.shared.isPurchased else {
             lastStatusIsError = false
             lastStatusMessage = "paywall.free_mode.notice".localized
@@ -1285,6 +1292,7 @@ final class AppsViewModel: ObservableObject {
     }
 
     func removeSelectedRelatedItems() {
+        guard !isRemoving else { return }
         guard StoreManager.shared.isPurchased else {
             lastStatusIsError = false
             lastStatusMessage = "paywall.free_mode.notice".localized
@@ -1498,6 +1506,9 @@ struct AppsView: View {
         .alert(item: $activeAlert) { makeAlert($0) }
         .sheet(isPresented: $showCompactDetailsSheet, onDismiss: {
             // 닫기 버튼·Esc·바깥 클릭 등 어떤 경로로 닫혀도 진행 중인 관련 파일 스캔을 멈춘다.
+            // onDismiss는 닫힘 애니메이션이 끝난 뒤에 온다. 그 사이 다른 앱의 Details를 다시 열었다면
+            // (시트가 다시 표시 요청됨) 새 스캔을 취소하지 않는다.
+            guard !showCompactDetailsSheet else { return }
             viewModel.relatedDetailsDismissed()
         }) {
             compactDetailsSheet

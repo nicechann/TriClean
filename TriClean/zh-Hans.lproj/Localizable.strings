@@ -325,8 +325,8 @@
 "duplicate.delete_confirm.title" = "清理重复文件";
 "duplicate.delete_confirm.message" = "已选择的 %ld 个重复文件（%@）将被移到废纸篓。每组会至少保留一个文件。";
 "duplicate.cleanup_result.title" = "清理完成";
-"duplicate.cleanup_result.body" = "已将 %ld 个重复文件移到废纸篓。预计回收空间：%@。";
-"duplicate.cleanup_result.body_with_failures" = "已将 %ld 个重复文件移到废纸篓。预计回收空间：%@。有 %ld 个项目无法移动。";
+"duplicate.cleanup_result.body" = "已将 %ld 个重复文件移到废纸篓。清倒废纸篓后约可释放 %@。";
+"duplicate.cleanup_result.body_with_failures" = "已将 %ld 个重复文件移到废纸篓。清倒废纸篓后约可释放 %@。有 %ld 个项目无法移动。";
 "duplicate.status.collecting" = "正在收集文件…";
 "duplicate.status.found_files" = "找到 %ld 个文件";
 "duplicate.status.grouping_by_size" = "正在按大小分组…";
@@ -340,11 +340,11 @@
 "duplicate.status.recommended_applied" = "每组保留了一个文件，其余已自动选择待清理。";
 "duplicate.status.keep_newest_applied" = "已在所选组中保留最新的文件。";
 "duplicate.status.keep_oldest_applied" = "已在所选组中保留最旧的文件。";
-"duplicate.status.cleanup_done" = "已将 %ld 个重复文件移到废纸篓（回收 %@）。";
+"duplicate.status.cleanup_done" = "已将 %ld 个重复文件（%@）移到废纸篓。清倒废纸篓后即可释放空间。";
 "duplicate.status.cleanup_failed" = "TriClean 无法将所选重复文件移到废纸篓。";
 "duplicate.status.cleanup_running" = "正在将重复文件移到废纸篓…";
 "duplicate.status.revalidate_needed" = "有 %ld 组因无法确认要保留的文件而被跳过。请重新扫描。";
-"duplicate.status.cleanup_summary" = "已将 %1$ld 个重复文件移到废纸篓，回收 %2$@。失败 %3$ld 个；重新校验后跳过 %4$ld 个。";
+"duplicate.status.cleanup_summary" = "已将 %1$ld 个重复文件（%2$@）移到废纸篓。清倒废纸篓后即可释放空间。失败 %3$ld 个；重新校验后跳过 %4$ld 个。";
 "duplicate.status.selection_cleared" = "已清除所有待清理选择。";
 "duplicate.status.access_denied" = "文件夹访问权限已失效。请重新选择文件夹。";
 "duplicate.phase.idle" = "待机";
@@ -556,7 +556,7 @@
 "junk.cleanup.result.success_message" = "已将 %ld 个项目移到废纸篓。";
 "junk.cleanup.result.partial_message" = "已将 %1$ld 个项目移到废纸篓。失败：%2$ld；因发生变化而跳过：%3$ld。";
 "junk.cleanup.result.failed_message" = "没有项目被移到废纸篓。失败：%1$ld；因发生变化而跳过：%2$ld。";
-"junk.cleanup.result.access_denied" = "无法启用 Library 文件夹权限。请通过“更改…”重新选择 Library 文件夹，然后重试。";
+"junk.cleanup.result.access_denied" = "无法启用资源库文件夹权限。请通过「更改…」重新选择资源库（~/Library）文件夹，然后重试。";
 "junk.cleanup.result.error_detail" = "第一个错误：%@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

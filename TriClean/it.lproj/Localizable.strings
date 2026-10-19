@@ -325,8 +325,8 @@
 "duplicate.delete_confirm.title" = "Pulisci i file duplicati";
 "duplicate.delete_confirm.message" = "%ld file duplicati selezionati (%@) verranno spostati nel Cestino. In ogni gruppo viene conservato almeno un file.";
 "duplicate.cleanup_result.title" = "Pulizia completata";
-"duplicate.cleanup_result.body" = "%ld file duplicati sono stati spostati nel Cestino. Spazio recuperato stimato: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld file duplicati sono stati spostati nel Cestino. Spazio recuperato stimato: %@. Non è stato possibile spostare %ld elementi.";
+"duplicate.cleanup_result.body" = "%ld file duplicati sono stati spostati nel Cestino. Svuotando il Cestino verranno liberati circa %@.";
+"duplicate.cleanup_result.body_with_failures" = "%ld file duplicati sono stati spostati nel Cestino. Svuotando il Cestino verranno liberati circa %@. Non è stato possibile spostare %ld elementi.";
 "duplicate.status.collecting" = "Raccolta dei file…";
 "duplicate.status.found_files" = "%ld file trovati";
 "duplicate.status.grouping_by_size" = "Raggruppamento dei file per dimensione…";
@@ -340,11 +340,11 @@
 "duplicate.status.recommended_applied" = "In ogni gruppo è stato mantenuto un file e gli altri sono stati selezionati automaticamente per la pulizia.";
 "duplicate.status.keep_newest_applied" = "Nel gruppo selezionato è stato mantenuto il file più recente.";
 "duplicate.status.keep_oldest_applied" = "Nel gruppo selezionato è stato mantenuto il file più vecchio.";
-"duplicate.status.cleanup_done" = "%ld file duplicati spostati nel Cestino (%@ recuperati).";
+"duplicate.status.cleanup_done" = "%ld file duplicati (%@) spostati nel Cestino. Svuota il Cestino per liberare lo spazio.";
 "duplicate.status.cleanup_failed" = "TriClean non è riuscito a spostare nel Cestino i file duplicati selezionati.";
 "duplicate.status.cleanup_running" = "Spostamento dei duplicati nel Cestino…";
 "duplicate.status.revalidate_needed" = "Gruppi ignorati perché non è stato possibile verificare il file da mantenere: %ld. Esegui di nuovo la scansione.";
-"duplicate.status.cleanup_summary" = "File duplicati spostati nel Cestino: %1$ld, spazio recuperato %2$@. Non riusciti: %3$ld; ignorati dopo la riverifica: %4$ld.";
+"duplicate.status.cleanup_summary" = "File duplicati spostati nel Cestino: %1$ld (%2$@). Svuota il Cestino per liberare lo spazio. Non riusciti: %3$ld; ignorati dopo la riverifica: %4$ld.";
 "duplicate.status.selection_cleared" = "Tutte le selezioni per la pulizia sono state azzerate.";
 "duplicate.status.access_denied" = "Accesso alla cartella scaduto. Seleziona di nuovo la cartella.";
 "duplicate.phase.idle" = "Inattivo";

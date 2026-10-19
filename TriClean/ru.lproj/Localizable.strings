@@ -331,8 +331,8 @@
 "duplicate.delete_confirm.title" = "Очистить дубликаты файлов";
 "duplicate.delete_confirm.message" = "Выбранных дубликатов для перемещения в Корзину: %ld (%@). В каждой группе будет сохранён хотя бы один файл.";
 "duplicate.cleanup_result.title" = "Очистка завершена";
-"duplicate.cleanup_result.body" = "Перемещено в Корзину дубликатов: %ld. Ориентировочно освобождено: %@.";
-"duplicate.cleanup_result.body_with_failures" = "Перемещено в Корзину дубликатов: %ld. Ориентировочно освобождено: %@. Не удалось переместить объектов: %ld.";
+"duplicate.cleanup_result.body" = "Перемещено в Корзину дубликатов: %ld. После очистки Корзины освободится около %@.";
+"duplicate.cleanup_result.body_with_failures" = "Перемещено в Корзину дубликатов: %ld. После очистки Корзины освободится около %@. Не удалось переместить объектов: %ld.";
 "duplicate.status.collecting" = "Сбор файлов…";
 "duplicate.status.found_files" = "Найдено файлов: %ld";
 "duplicate.status.grouping_by_size" = "Группировка файлов по размеру…";
@@ -346,11 +346,11 @@
 "duplicate.status.recommended_applied" = "В каждой группе сохранён один файл, остальные автоматически выбраны для очистки.";
 "duplicate.status.keep_newest_applied" = "В выбранной группе сохранён самый новый файл.";
 "duplicate.status.keep_oldest_applied" = "В выбранной группе сохранён самый старый файл.";
-"duplicate.status.cleanup_done" = "Перемещено в Корзину дубликатов: %ld (освобождено %@).";
+"duplicate.status.cleanup_done" = "Перемещено в Корзину дубликатов: %ld (%@). Очистите Корзину, чтобы освободить место.";
 "duplicate.status.cleanup_failed" = "TriClean не смог переместить выбранные дубликаты в Корзину.";
 "duplicate.status.cleanup_running" = "Перемещение дубликатов в Корзину…";
 "duplicate.status.revalidate_needed" = "Пропущено групп, в которых не удалось подтвердить сохраняемый файл: %ld. Выполните сканирование заново.";
-"duplicate.status.cleanup_summary" = "Перемещено в Корзину дубликатов: %1$ld, освобождено %2$@. Не удалось: %3$ld; пропущено после повторной проверки: %4$ld.";
+"duplicate.status.cleanup_summary" = "Перемещено в Корзину дубликатов: %1$ld (%2$@). Очистите Корзину, чтобы освободить место. Не удалось: %3$ld; пропущено после повторной проверки: %4$ld.";
 "duplicate.status.selection_cleared" = "Выбор для очистки полностью снят.";
 "duplicate.status.access_denied" = "Доступ к папке истёк. Выберите папку заново.";
 "duplicate.phase.idle" = "Ожидание";
@@ -558,7 +558,7 @@
 "junk.cleanup.result.success_message" = "В Корзину перемещено объектов: %ld.";
 "junk.cleanup.result.partial_message" = "В Корзину перемещено: %1$ld. Ошибок: %2$ld; пропущено после изменений: %3$ld.";
 "junk.cleanup.result.failed_message" = "Ни один объект не был перемещён в Корзину. Ошибок: %1$ld; пропущено после изменений: %2$ld.";
-"junk.cleanup.result.access_denied" = "Не удалось активировать доступ к папке Library. Снова выберите папку Library через «Изменить…» и повторите попытку.";
+"junk.cleanup.result.access_denied" = "Не удалось активировать доступ к папке «Библиотека». Снова выберите папку «Библиотека» (~/Library) через «Изменить…» и повторите попытку.";
 "junk.cleanup.result.error_detail" = "Первая ошибка: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

@@ -339,7 +339,7 @@
 "apps.safety.title" = "Vor der Bereinigung sicher überprüfen";
 "apps.safety.desc" = "TriClean verschiebt ausgewählte App-Bundles und zugehörige Dateien in den Papierkorb. Es werden keine Elemente sofort dauerhaft gelöscht, und App-Store-Apps können hier nicht entfernt werden.";
 "apps.selection.none" = "%ld Apps im aktuellen Filter sichtbar";
-"apps.selection.summary" = "%1$ld ausgewählt · %2$ld entfernbar";
+"apps.selection.summary" = "%1$ld ausgewählt · %2$ld in den Papierkorb verschiebbar";
 "apps.table.app" = "App";
 "apps.table.bundle" = "Bundle-ID";
 "apps.table.location" = "Speicherort";
@@ -380,10 +380,10 @@
 "duplicate.selection.card_body" = "TriClean behält in jeder Gruppe eine wahrscheinlich originale Datei und wählt die übrigen automatisch zur Bereinigung aus. Pfad, Dateiname, Ordnerlage und Änderungsdatum dienen als Hinweise – prüfen Sie die Elemente vor dem Verschieben in den Papierkorb.";
 "duplicate.action.apply_recommended" = "Bereinigung automatisch auswählen";
 "duplicate.action.apply_recommended.help" = "Behält in jeder Duplikatgruppe eine wahrscheinlich originale Datei und wählt die übrigen automatisch zur Bereinigung aus.";
-"duplicate.footer.summary" = "%ld Gruppen · %ld Dateien ausgewählt · %@ wiederherstellbar";
+"duplicate.footer.summary" = "%ld Gruppen · %ld Dateien ausgewählt · %@ freigebbar";
 "duplicate.footer.delete" = "Duplikate bereinigen (%ld, %@)";
 "duplicate.group.header" = "%ld übereinstimmende Dateien · %@ je";
-"duplicate.group.subheader" = "%ld zur Bereinigung ausgewählt · %@ wiederherstellbar";
+"duplicate.group.subheader" = "%ld zur Bereinigung ausgewählt · %@ freigebbar";
 "duplicate.group.keep_oldest" = "Älteste behalten";
 "duplicate.group.keep_newest" = "Neueste behalten";
 "duplicate.group.keep_hint" = "Mindestens eine Datei muss in jeder Gruppe verbleiben.";
@@ -395,8 +395,8 @@
 "duplicate.delete_confirm.title" = "Doppelte Dateien bereinigen";
 "duplicate.delete_confirm.message" = "%ld ausgewählte doppelte Dateien (%@) werden in den Papierkorb verschoben. Mindestens eine Datei in jeder Gruppe bleibt erhalten.";
 "duplicate.cleanup_result.title" = "Bereinigung abgeschlossen";
-"duplicate.cleanup_result.body" = "%ld doppelte Dateien wurden in den Papierkorb verschoben. Geschätzter freigegebener Speicher: %@.";
-"duplicate.cleanup_result.body_with_failures" = "%ld doppelte Dateien wurden in den Papierkorb verschoben. Geschätzter freigegebener Speicher: %@. %ld Elemente konnten nicht verschoben werden.";
+"duplicate.cleanup_result.body" = "%ld doppelte Dateien wurden in den Papierkorb verschoben. Wenn Sie den Papierkorb leeren, werden etwa %@ freigegeben.";
+"duplicate.cleanup_result.body_with_failures" = "%ld doppelte Dateien wurden in den Papierkorb verschoben. Wenn Sie den Papierkorb leeren, werden etwa %@ freigegeben. %ld Elemente konnten nicht verschoben werden.";
 "duplicate.status.collecting" = "Dateien werden gesammelt…";
 "duplicate.status.found_files" = "%ld Dateien gefunden";
 "duplicate.status.grouping_by_size" = "Dateien werden nach Größe gruppiert…";
@@ -404,13 +404,13 @@
 "duplicate.status.partial_hash_matches" = "%ld Gruppen stimmen beim Teil-Hash überein";
 "duplicate.status.hashing_full_progress" = "Gesamt-Hashes vergleichen… %ld/%ld";
 "duplicate.status.no_duplicates_found" = "Keine doppelten Dateien gefunden.";
-"duplicate.status.scan_complete" = "%ld Duplikat-Gruppen gefunden (%@ wiederherstellbar)";
-"duplicate.status.selection_summary" = "%ld Gruppen · %ld Dateien ausgewählt · %@ wiederherstellbar";
+"duplicate.status.scan_complete" = "%ld Duplikat-Gruppen gefunden (%@ freigebbar)";
+"duplicate.status.selection_summary" = "%ld Gruppen · %ld Dateien ausgewählt · %@ freigebbar";
 "duplicate.status.nothing_selected" = "Keine doppelten Dateien zur Bereinigung ausgewählt.";
 "duplicate.status.recommended_applied" = "In jeder Gruppe wurde eine Datei behalten und der Rest automatisch zur Bereinigung ausgewählt.";
 "duplicate.status.keep_newest_applied" = "Die neueste Datei in der ausgewählten Gruppe wurde behalten.";
 "duplicate.status.keep_oldest_applied" = "Die älteste Datei in der ausgewählten Gruppe wurde behalten.";
-"duplicate.status.cleanup_done" = "%ld doppelte Dateien in den Papierkorb verschoben (%@ wiederhergestellt).";
+"duplicate.status.cleanup_done" = "%ld doppelte Dateien (%@) in den Papierkorb verschoben. Leeren Sie den Papierkorb, um den Speicher freizugeben.";
 "duplicate.status.cleanup_failed" = "TriClean konnte die ausgewählten doppelten Dateien nicht in den Papierkorb verschieben.";
 
 "duplicate.action.clear_selection" = "Auswahl aufheben";
@@ -589,7 +589,7 @@
 "store.error.no_purchase_to_restore" = "Für diesen Apple Account wurde kein früherer Kauf zum Wiederherstellen gefunden.";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "%1$ld doppelte Dateien wurden in den Papierkorb verschoben und %2$@ freigegeben. Fehlgeschlagen: %3$ld; nach erneuter Prüfung übersprungen: %4$ld.";
+"duplicate.status.cleanup_summary" = "%1$ld doppelte Dateien (%2$@) wurden in den Papierkorb verschoben. Leeren Sie den Papierkorb, um den Speicher freizugeben. Fehlgeschlagen: %3$ld; nach erneuter Prüfung übersprungen: %4$ld.";
 "junk.progress.clean_summary" = "%1$ld Elemente wurden in den Papierkorb verschoben. Fehlgeschlagen: %2$ld; nach erneuter Prüfung übersprungen: %3$ld.";
 "apps.status.uninstall_invalid" = "Keine Apps können entfernt werden. %ld App(s) wurden geändert oder liegen außerhalb des zulässigen Bereichs.";
 "apps.status.related_summary" = "%1$ld zugehörige Elemente wurden verschoben. Fehlgeschlagen: %2$ld; nach erneuter Prüfung übersprungen: %3$ld.";

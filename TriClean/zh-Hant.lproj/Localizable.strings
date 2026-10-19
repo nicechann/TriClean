@@ -325,8 +325,8 @@
 "duplicate.delete_confirm.title" = "清理重複檔案";
 "duplicate.delete_confirm.message" = "所選的 %ld 個重複檔案（%@）將被移到垃圾桶。每個群組會至少保留一個檔案。";
 "duplicate.cleanup_result.title" = "清理完成";
-"duplicate.cleanup_result.body" = "已將 %ld 個重複檔案移到垃圾桶。預計回收空間：%@。";
-"duplicate.cleanup_result.body_with_failures" = "已將 %ld 個重複檔案移到垃圾桶。預計回收空間：%@。有 %ld 個項目無法移動。";
+"duplicate.cleanup_result.body" = "已將 %ld 個重複檔案移到垃圾桶。清空垃圾桶後約可釋放 %@。";
+"duplicate.cleanup_result.body_with_failures" = "已將 %ld 個重複檔案移到垃圾桶。清空垃圾桶後約可釋放 %@。有 %ld 個項目無法移動。";
 "duplicate.status.collecting" = "正在收集檔案…";
 "duplicate.status.found_files" = "找到 %ld 個檔案";
 "duplicate.status.grouping_by_size" = "正在依大小分組…";
@@ -340,11 +340,11 @@
 "duplicate.status.recommended_applied" = "每個群組保留了一個檔案，其餘已自動選擇待清理。";
 "duplicate.status.keep_newest_applied" = "已在所選群組中保留最新的檔案。";
 "duplicate.status.keep_oldest_applied" = "已在所選群組中保留最舊的檔案。";
-"duplicate.status.cleanup_done" = "已將 %ld 個重複檔案移到垃圾桶（回收 %@）。";
+"duplicate.status.cleanup_done" = "已將 %ld 個重複檔案（%@）移到垃圾桶。清空垃圾桶後即可釋放空間。";
 "duplicate.status.cleanup_failed" = "TriClean 無法將所選重複檔案移到垃圾桶。";
 "duplicate.status.cleanup_running" = "正在將重複檔案移到垃圾桶…";
 "duplicate.status.revalidate_needed" = "有 %ld 個群組因無法確認要保留的檔案而被跳過。請重新掃描。";
-"duplicate.status.cleanup_summary" = "已將 %1$ld 個重複檔案移到垃圾桶，回收 %2$@。失敗 %3$ld 個；重新驗證後跳過 %4$ld 個。";
+"duplicate.status.cleanup_summary" = "已將 %1$ld 個重複檔案（%2$@）移到垃圾桶。清空垃圾桶後即可釋放空間。失敗 %3$ld 個；重新驗證後跳過 %4$ld 個。";
 "duplicate.status.selection_cleared" = "已清除所有待清理的選擇。";
 "duplicate.status.access_denied" = "資料夾存取權限已失效。請重新選擇資料夾。";
 "duplicate.phase.idle" = "待機";
@@ -556,7 +556,7 @@
 "junk.cleanup.result.success_message" = "已將 %ld 個項目移到垃圾桶。";
 "junk.cleanup.result.partial_message" = "已將 %1$ld 個項目移到垃圾桶。失敗：%2$ld；因發生變更而略過：%3$ld。";
 "junk.cleanup.result.failed_message" = "沒有項目被移到垃圾桶。失敗：%1$ld；因發生變更而略過：%2$ld。";
-"junk.cleanup.result.access_denied" = "無法啟用 Library 資料夾權限。請透過「更改…」重新選取 Library 資料夾，然後再試一次。";
+"junk.cleanup.result.access_denied" = "無法啟用資源庫資料夾權限。請透過「更改…」重新選取資源庫（~/Library）資料夾，然後再試一次。";
 "junk.cleanup.result.error_detail" = "第一個錯誤：%@";
 
 /* MARK: - Typography (글자 크기 · 서체) */

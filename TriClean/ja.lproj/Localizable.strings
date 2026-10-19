@@ -395,8 +395,8 @@
 "duplicate.delete_confirm.title" = "重複ファイルをクリーン";
 "duplicate.delete_confirm.message" = "選択した %ld 個の重複ファイル (%@) をゴミ箱に移動します。各グループに少なくとも1つのファイルが残ります。";
 "duplicate.cleanup_result.title" = "クリーンアップ完了";
-"duplicate.cleanup_result.body" = "%ld 個の重複ファイルをゴミ箱に移動しました。回収容量の推定: %@。";
-"duplicate.cleanup_result.body_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました。回収容量の推定: %@。%ld 件は移動できませんでした。";
+"duplicate.cleanup_result.body" = "%ld 個の重複ファイルをゴミ箱に移動しました。ゴミ箱を空にすると約 %@ の空き容量が増えます。";
+"duplicate.cleanup_result.body_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました。ゴミ箱を空にすると約 %@ の空き容量が増えます。%ld 件は移動できませんでした。";
 "duplicate.status.collecting" = "ファイルを収集中…";
 "duplicate.status.found_files" = "%ld 個のファイルを検出";
 "duplicate.status.grouping_by_size" = "サイズ別にグループ化中…";
@@ -410,7 +410,7 @@
 "duplicate.status.recommended_applied" = "各グループで1つを保持し、残りをクリーンアップ対象として自動選択しました。";
 "duplicate.status.keep_newest_applied" = "選択したグループの最新ファイルを保持しました。";
 "duplicate.status.keep_oldest_applied" = "選択したグループの最古ファイルを保持しました。";
-"duplicate.status.cleanup_done" = "%ld 個の重複ファイルをゴミ箱に移動しました (%@ 回収)。";
+"duplicate.status.cleanup_done" = "%ld 個の重複ファイル (%@) をゴミ箱に移動しました。ゴミ箱を空にすると空き容量が増えます。";
 "duplicate.status.cleanup_failed" = "TriCleanは選択した重複ファイルをゴミ箱に移動できませんでした。";
 
 "duplicate.action.clear_selection" = "選択解除";
@@ -589,7 +589,7 @@
 "store.error.no_purchase_to_restore" = "このApple Accountで復元できる以前の購入が見つかりませんでした。";
 
 // Deletion revalidation summaries
-"duplicate.status.cleanup_summary" = "%1$ld 個の重複ファイルをゴミ箱に移動し、%2$@ を確保しました。失敗 %3$ld 件、再検証で除外 %4$ld 件です。";
+"duplicate.status.cleanup_summary" = "%1$ld 個の重複ファイル (%2$@) をゴミ箱に移動しました。ゴミ箱を空にすると空き容量が増えます。失敗 %3$ld 件、再検証で除外 %4$ld 件です。";
 "junk.progress.clean_summary" = "%1$ld 個の項目をゴミ箱に移動しました。失敗 %2$ld 件、再検証で除外 %3$ld 件です。";
 "apps.status.uninstall_invalid" = "削除できるAppがありません。%ld 個のAppが変更されたか、許可された範囲外です。";
 "apps.status.related_summary" = "関連項目を %1$ld 個移動しました。失敗 %2$ld 件、再検証で除外 %3$ld 件です。";
@@ -618,7 +618,7 @@
 "junk.cleanup.result.success_message" = "%ld項目をゴミ箱に移動しました。";
 "junk.cleanup.result.partial_message" = "%1$ld項目をゴミ箱に移動しました。失敗: %2$ld、変更により除外: %3$ld。";
 "junk.cleanup.result.failed_message" = "ゴミ箱に移動された項目はありません。失敗: %1$ld、変更により除外: %2$ld。";
-"junk.cleanup.result.access_denied" = "Libraryフォルダのアクセス権を有効にできませんでした。「変更…」からLibraryフォルダを再選択して、もう一度お試しください。";
+"junk.cleanup.result.access_denied" = "ライブラリフォルダのアクセス権を有効にできませんでした。「変更…」からライブラリ（~/Library）フォルダを再選択して、もう一度お試しください。";
 "junk.cleanup.result.error_detail" = "最初のエラー: %@";
 
 /* MARK: - Typography (글자 크기 · 서체) */
