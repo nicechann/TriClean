@@ -25,10 +25,10 @@ struct UpgradeBottomBanner: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("upgrade.bottom.title".localized)
                     .appFont(.subheadline, weight: .bold)
+                // ⚠️ 세로 고정(`.fixedSize(horizontal: false, vertical: true)`) 금지 — TrashReminderBanner 주석 참고.
                 Text(description ?? "upgrade.bottom.desc".localized)
                     .appFont(.callout)
                     .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 12)

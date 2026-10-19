@@ -48,9 +48,13 @@ struct TrashReminderBanner: View {
             HStack(spacing: 10) {
                 Image(systemName: "trash")
                     .foregroundStyle(Color.accentColor)
+                // ⚠️ `.fixedSize(horizontal: false, vertical: true)`를 붙이지 말 것.
+                //    NavigationSplitView는 창 최소 높이를 구할 때 아주 좁은 폭으로 이 배너를 재는데,
+                //    세로 고정 텍스트는 그 폭에서 글자마다 줄을 바꿔 수백 pt 높이를 요구한다.
+                //    하단 업그레이드 배너(무료 모드)와 겹치면 루트 콘텐츠가 창보다 커져
+                //    위아래가 잘리고 사이드바 항목이 통째로 사라졌다. 줄바꿈은 기본 Text로 충분하다.
                 Text("trash.reminder.message".localized(with: reminder.movedCount))
                     .appFont(.callout)
-                    .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
                 Button {
                     reminder.dismiss()
