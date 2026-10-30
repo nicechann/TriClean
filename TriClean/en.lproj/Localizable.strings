@@ -74,6 +74,8 @@
 "storage.scan.sort.note" = "Displayed in discovery order during scan. Sort applies once finished.";
 "storage.results.header" = "Results";
 "storage.alert.delete.title" = "Move to Trash?";
+"storage.msg.protected_skipped" = "Skipped %ld protected item(s). Folders like Documents, Pictures, or Library and the Photos library can't be moved to Trash from here.";
+"storage.help.protected" = "Protected folder — can't be moved to Trash from here";
 "storage.msg.manual" = "Analyzing '%@' folder…";
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
@@ -92,7 +94,6 @@
 "storage.msg.analyzing_home_apps" = "Analyzing Home & Applications…";
 "storage.alert.delete.msg_folder" = "'%@' folder will be moved to Trash. You can restore it from Finder.";
 "storage.alert.delete.msg_file" = "'%@' file will be moved to Trash. You can restore it from Finder.";
-"storage.alert.delete.msg_multi" = "%ld selected items will be moved to Trash. You can restore them from Finder.";
 
 /* ✅ [v2] Apps View — "uninstall/remove" → "review related files" focus */
 "apps.header.uninstall" = "Installed Apps";
@@ -271,9 +272,9 @@
 "junk.section.clean_all" = "Clean All Selected";
 "junk.section.last_scan" = "Last scan: %@";
 "junk.section.alert.title" = "Clean Selected Junk Files";
-"junk.section.alert.message" = "Move %@ to Trash.\nYou can restore it from Finder.";
 "junk.category.alert.title" = "Clean %@";
 "junk.category.alert.message" = "Move %1$ld selected items (%2$@) to Trash.\nYou can restore them from Finder.";
+"common.confirm_trash_count_size" = "Move %1$ld selected items (%2$@) to Trash.\nYou can restore them from Finder.";
 "junk.scope.title" = "Select Home Library (~/Library)";
 "junk.scope.message" = "Select the Home Library folder to scan for junk files.";
 "junk.progress.preparing" = "Preparing scan…";
@@ -405,6 +406,8 @@
 "duplicate.cleanup_result.title" = "Cleanup Complete";
 "duplicate.cleanup_result.body" = "%ld duplicate files were moved to Trash. About %@ will be freed when you empty the Trash.";
 "duplicate.cleanup_result.body_with_failures" = "%ld duplicate files were moved to Trash. About %@ will be freed when you empty the Trash. %ld items could not be moved.";
+"duplicate.cleanup_result.title_none" = "Nothing Moved to Trash";
+"duplicate.cleanup_result.body_none" = "No files were moved to Trash. Failed: %1$ld; skipped because files changed after the scan: %2$ld. Please scan again.";
 "duplicate.status.collecting" = "Collecting files…";
 "duplicate.status.found_files" = "%ld files found";
 "duplicate.status.grouping_by_size" = "Grouping files by size…";
@@ -544,7 +547,6 @@
 "photos.action.trash" = "Move to Trash";
 "photos.action.reveal" = "Show in Finder";
 "photos.delete.confirm.title" = "Move selected photos to Trash?";
-"photos.delete.confirm.msg" = "%ld items will be moved to the Trash. You can restore them from the Trash.";
 "photos.delete.confirm.button" = "Move to Trash";
 "photos.similar.select_extras" = "Select all but one";
 "photos.delete.status.moving" = "Moving %ld items to the Trash…";
@@ -589,7 +591,6 @@
 /* MARK: - Deletion safety validation (added in v1.4.4) */
 "junk.progress.clean_invalid" = "Nothing to remove. %ld item(s) changed and were skipped. Please scan again.";
 "duplicate.status.cleanup_running" = "Moving duplicates to Trash…";
-"duplicate.status.revalidate_needed" = "Skipped %ld group(s) because the file to keep could not be verified. Please scan again.";
 "apps.status.related_invalid" = "No related files can be removed. %ld item(s) changed and were skipped.";
 "apps.failed_names.overflow" = "%1$@ and %2$ld more";
 "photos.delete.status.invalid" = "No photos can be removed. Please reselect the folder and scan again.";

@@ -70,6 +70,8 @@
 "storage.scan.sort.note" = "Se muestran en orden de descubrimiento durante el análisis. El orden se aplica al finalizar.";
 "storage.results.header" = "Resultados";
 "storage.alert.delete.title" = "¿Mover a la Papelera?";
+"storage.msg.protected_skipped" = "Se omitieron %ld elementos protegidos. Las carpetas como Documentos, Imágenes o Biblioteca y la fototeca no se pueden mover a la Papelera desde aquí.";
+"storage.help.protected" = "Carpeta protegida: no se puede mover a la Papelera desde aquí";
 "storage.msg.manual" = "Analizando la carpeta «%@»…";
 "storage.msg.auto" = "Volviendo a analizar por cambio de criterio…";
 "storage.msg.canceled" = "Análisis cancelado.";
@@ -88,7 +90,6 @@
 "storage.msg.analyzing_home_apps" = "Analizando carpeta personal y Aplicaciones…";
 "storage.alert.delete.msg_folder" = "La carpeta «%@» se moverá a la Papelera. Puedes restaurarla desde el Finder.";
 "storage.alert.delete.msg_file" = "El archivo «%@» se moverá a la Papelera. Puedes restaurarlo desde el Finder.";
-"storage.alert.delete.msg_multi" = "%ld elementos seleccionados se moverán a la Papelera. Puedes restaurarlos desde el Finder.";
 
 /* Apps View */
 "apps.header.uninstall" = "Apps instaladas";
@@ -265,9 +266,9 @@
 "junk.section.clean_all" = "Limpiar todo lo seleccionado";
 "junk.section.last_scan" = "Último análisis: %@";
 "junk.section.alert.title" = "Limpiar archivos basura seleccionados";
-"junk.section.alert.message" = "Mover %@ a la Papelera.\nPuedes restaurarlos desde el Finder.";
 "junk.category.alert.title" = "Limpiar %@";
 "junk.category.alert.message" = "Mover los %1$ld elementos seleccionados (%2$@) a la papelera.\nPuedes restaurarlos desde Finder.";
+"common.confirm_trash_count_size" = "Mover los %1$ld elementos seleccionados (%2$@) a la papelera.\nPuedes restaurarlos desde Finder.";
 "junk.scope.title" = "Seleccionar Biblioteca personal (~/Library)";
 "junk.scope.message" = "Selecciona la carpeta Biblioteca personal para analizar archivos basura.";
 "junk.progress.preparing" = "Preparando análisis…";
@@ -397,6 +398,8 @@
 "duplicate.cleanup_result.title" = "Limpieza completada";
 "duplicate.cleanup_result.body" = "Se movieron %ld archivos duplicados a la Papelera. Al vaciar la Papelera se liberarán unos %@.";
 "duplicate.cleanup_result.body_with_failures" = "Se movieron %ld archivos duplicados a la Papelera. Al vaciar la Papelera se liberarán unos %@. %ld elementos no pudieron moverse.";
+"duplicate.cleanup_result.title_none" = "No se movió nada a la Papelera";
+"duplicate.cleanup_result.body_none" = "No se movió ningún archivo a la Papelera. Fallaron: %1$ld; omitidos porque cambiaron tras el escaneo: %2$ld. Vuelve a escanear.";
 "duplicate.status.collecting" = "Recopilando archivos…";
 "duplicate.status.found_files" = "%ld archivos encontrados";
 "duplicate.status.grouping_by_size" = "Agrupando archivos por tamaño…";
@@ -536,7 +539,6 @@
 "photos.action.trash" = "Mover a la papelera";
 "photos.action.reveal" = "Mostrar en Finder";
 "photos.delete.confirm.title" = "¿Mover las fotos seleccionadas a la papelera?";
-"photos.delete.confirm.msg" = "%ld elementos se moverán a la papelera. Puedes restaurarlos desde la papelera.";
 "photos.delete.confirm.button" = "Mover a la papelera";
 "photos.similar.select_extras" = "Todos menos uno";
 "photos.delete.status.moving" = "Moviendo %ld elementos a la papelera…";
@@ -581,7 +583,6 @@
 /* MARK: - Validación de seguridad de eliminación (añadido en v1.4.4) */
 "junk.progress.clean_invalid" = "No hay elementos para eliminar. Se omitieron %ld elemento(s) que cambiaron. Vuelve a analizar.";
 "duplicate.status.cleanup_running" = "Moviendo duplicados a la papelera…";
-"duplicate.status.revalidate_needed" = "Se omitieron %ld grupo(s) porque no se pudo verificar el archivo que se conserva. Vuelve a analizar.";
 "apps.status.related_invalid" = "No se puede eliminar ningún archivo relacionado. Se omitieron %ld elemento(s) que cambiaron.";
 "apps.failed_names.overflow" = "%1$@ y %2$ld más";
 "photos.delete.status.invalid" = "No se puede eliminar ninguna foto. Vuelve a seleccionar la carpeta y analiza de nuevo.";

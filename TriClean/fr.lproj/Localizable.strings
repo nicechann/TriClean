@@ -70,6 +70,8 @@
 "storage.scan.sort.note" = "Affichés dans l'ordre de découverte pendant l'analyse. Le tri est appliqué à la fin.";
 "storage.results.header" = "Résultats";
 "storage.alert.delete.title" = "Placer dans la corbeille ?";
+"storage.msg.protected_skipped" = "%ld éléments protégés ont été ignorés. Les dossiers comme Documents, Images ou Bibliothèque et la photothèque ne peuvent pas être placés dans la corbeille ici.";
+"storage.help.protected" = "Dossier protégé — impossible de le placer dans la corbeille ici";
 "storage.msg.manual" = "Analyse du dossier « %@ »…";
 "storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
 "storage.msg.canceled" = "Analyse annulée.";
@@ -88,7 +90,6 @@
 "storage.msg.analyzing_home_apps" = "Analyse du dossier personnel et des applications…";
 "storage.alert.delete.msg_folder" = "Le dossier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
 "storage.alert.delete.msg_file" = "Le fichier « %@ » sera placé dans la corbeille. Vous pouvez le restaurer depuis le Finder.";
-"storage.alert.delete.msg_multi" = "Les %ld éléments sélectionnés seront placés dans la corbeille. Vous pouvez les restaurer depuis le Finder.";
 
 /* Apps View */
 "apps.header.uninstall" = "Apps installées";
@@ -265,9 +266,9 @@
 "junk.section.clean_all" = "Nettoyer toute la sélection";
 "junk.section.last_scan" = "Dernière analyse : %@";
 "junk.section.alert.title" = "Nettoyer les fichiers inutiles sélectionnés";
-"junk.section.alert.message" = "Placer %@ dans la corbeille.\nVous pouvez les restaurer depuis le Finder.";
 "junk.category.alert.title" = "Nettoyer %@";
 "junk.category.alert.message" = "Déplacer les %1$ld éléments sélectionnés (%2$@) vers la corbeille.\nVous pouvez les restaurer depuis le Finder.";
+"common.confirm_trash_count_size" = "Déplacer les %1$ld éléments sélectionnés (%2$@) vers la corbeille.\nVous pouvez les restaurer depuis le Finder.";
 "junk.scope.title" = "Sélectionner Bibliothèque personnelle (~/Library)";
 "junk.scope.message" = "Sélectionnez le dossier Bibliothèque personnelle à analyser pour les fichiers inutiles.";
 "junk.progress.preparing" = "Préparation de l'analyse…";
@@ -397,6 +398,8 @@
 "duplicate.cleanup_result.title" = "Nettoyage terminé";
 "duplicate.cleanup_result.body" = "%ld fichiers en double ont été placés dans la corbeille. Environ %@ seront libérés une fois la corbeille vidée.";
 "duplicate.cleanup_result.body_with_failures" = "%ld fichiers en double ont été placés dans la corbeille. Environ %@ seront libérés une fois la corbeille vidée. %ld éléments n'ont pas pu être déplacés.";
+"duplicate.cleanup_result.title_none" = "Aucun élément placé dans la corbeille";
+"duplicate.cleanup_result.body_none" = "Aucun fichier n’a été placé dans la corbeille. Échecs : %1$ld ; ignorés car modifiés après l’analyse : %2$ld. Veuillez relancer l’analyse.";
 "duplicate.status.collecting" = "Collecte des fichiers…";
 "duplicate.status.found_files" = "%ld fichiers trouvés";
 "duplicate.status.grouping_by_size" = "Regroupement des fichiers par taille…";
@@ -536,7 +539,6 @@
 "photos.action.trash" = "Mettre à la corbeille";
 "photos.action.reveal" = "Afficher dans le Finder";
 "photos.delete.confirm.title" = "Mettre les photos sélectionnées à la corbeille ?";
-"photos.delete.confirm.msg" = "%ld éléments seront déplacés vers la corbeille. Vous pouvez les restaurer depuis la corbeille.";
 "photos.delete.confirm.button" = "Mettre à la corbeille";
 "photos.similar.select_extras" = "Tout sauf un";
 "photos.delete.status.moving" = "Déplacement de %ld éléments vers la corbeille…";
@@ -581,7 +583,6 @@
 /* MARK: - Validation de sécurité de suppression (ajouté en v1.4.4) */
 "junk.progress.clean_invalid" = "Aucun élément à supprimer. %ld élément(s) ont changé et ont été ignorés. Veuillez relancer l'analyse.";
 "duplicate.status.cleanup_running" = "Déplacement des doublons vers la corbeille…";
-"duplicate.status.revalidate_needed" = "%ld groupe(s) ignoré(s) car le fichier à conserver n'a pas pu être vérifié. Veuillez relancer l'analyse.";
 "apps.status.related_invalid" = "Aucun fichier associé ne peut être supprimé. %ld élément(s) ont changé et ont été ignorés.";
 "apps.failed_names.overflow" = "%1$@ et %2$ld autre(s)";
 "photos.delete.status.invalid" = "Aucune photo ne peut être supprimée. Veuillez resélectionner le dossier et relancer l'analyse.";

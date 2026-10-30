@@ -74,6 +74,8 @@
 "storage.scan.sort.note" = "Во время сканирования объекты отображаются в порядке обнаружения. Сортировка применяется после завершения.";
 "storage.results.header" = "Результаты";
 "storage.alert.delete.title" = "Переместить в Корзину?";
+"storage.msg.protected_skipped" = "Пропущено защищённых объектов: %ld. Такие папки, как «Документы», «Изображения» или «Библиотека», а также медиатеку «Фото» нельзя переместить в Корзину отсюда.";
+"storage.help.protected" = "Защищённая папка — её нельзя переместить в Корзину отсюда";
 "storage.msg.manual" = "Анализ папки «%@»…";
 "storage.msg.auto" = "Повторный анализ из-за изменения условий…";
 "storage.msg.canceled" = "Сканирование отменено.";
@@ -92,7 +94,6 @@
 "storage.msg.analyzing_home_apps" = "Анализ домашней папки и «Программ»…";
 "storage.alert.delete.msg_folder" = "Папка «%@» будет перемещена в Корзину. Её можно восстановить через Finder.";
 "storage.alert.delete.msg_file" = "Файл «%@» будет перемещён в Корзину. Его можно восстановить через Finder.";
-"storage.alert.delete.msg_multi" = "Выбранных объектов для перемещения в Корзину: %ld. Их можно восстановить через Finder.";
 "storage.status.header" = "Текущее сканирование";
 "storage.status.folder" = "Выбранная папка";
 "storage.status.folder_none" = "Папка не выбрана";
@@ -127,9 +128,9 @@
 "junk.section.clean_all" = "Очистить всё выбранное";
 "junk.section.last_scan" = "Последнее сканирование: %@";
 "junk.section.alert.title" = "Очистить выбранные ненужные файлы";
-"junk.section.alert.message" = "%@ будет перемещено в Корзину.\nВосстановить можно через Finder.";
 "junk.category.alert.title" = "Очистить «%@»";
 "junk.category.alert.message" = "Переместить выбранные объекты (%1$ld, %2$@) в Корзину.\nИх можно восстановить через Finder.";
+"common.confirm_trash_count_size" = "Переместить выбранные объекты (%1$ld, %2$@) в Корзину.\nИх можно восстановить через Finder.";
 "junk.scope.title" = "Выберите личную Библиотеку (~/Library)";
 "junk.scope.message" = "Выберите папку личной Библиотеки для поиска ненужных файлов.";
 "junk.progress.preparing" = "Подготовка к сканированию…";
@@ -333,6 +334,8 @@
 "duplicate.cleanup_result.title" = "Очистка завершена";
 "duplicate.cleanup_result.body" = "Перемещено в Корзину дубликатов: %ld. После очистки Корзины освободится около %@.";
 "duplicate.cleanup_result.body_with_failures" = "Перемещено в Корзину дубликатов: %ld. После очистки Корзины освободится около %@. Не удалось переместить объектов: %ld.";
+"duplicate.cleanup_result.title_none" = "Ничего не перемещено в Корзину";
+"duplicate.cleanup_result.body_none" = "Ни один файл не перемещён в Корзину. Не удалось: %1$ld; пропущено из-за изменений после сканирования: %2$ld. Повторите сканирование.";
 "duplicate.status.collecting" = "Сбор файлов…";
 "duplicate.status.found_files" = "Найдено файлов: %ld";
 "duplicate.status.grouping_by_size" = "Группировка файлов по размеру…";
@@ -349,7 +352,6 @@
 "duplicate.status.cleanup_done" = "Перемещено в Корзину дубликатов: %ld (%@). Очистите Корзину, чтобы освободить место.";
 "duplicate.status.cleanup_failed" = "TriClean не смог переместить выбранные дубликаты в Корзину.";
 "duplicate.status.cleanup_running" = "Перемещение дубликатов в Корзину…";
-"duplicate.status.revalidate_needed" = "Пропущено групп, в которых не удалось подтвердить сохраняемый файл: %ld. Выполните сканирование заново.";
 "duplicate.status.cleanup_summary" = "Перемещено в Корзину дубликатов: %1$ld (%2$@). Очистите Корзину, чтобы освободить место. Не удалось: %3$ld; пропущено после повторной проверки: %4$ld.";
 "duplicate.status.selection_cleared" = "Выбор для очистки полностью снят.";
 "duplicate.status.access_denied" = "Доступ к папке истёк. Выберите папку заново.";
@@ -460,7 +462,6 @@
 "photos.select.clear" = "Снять выбор";
 "photos.select.all" = "Выбрать все";
 "photos.delete.confirm.title" = "Переместить выбранные фото в Корзину?";
-"photos.delete.confirm.msg" = "Объектов для перемещения в Корзину: %ld. Их можно восстановить из Корзины.";
 "photos.delete.confirm.button" = "Переместить в Корзину";
 "photos.delete.status.moving" = "Перемещение объектов в Корзину: %ld…";
 "photos.delete.status.success" = "Перемещено в Корзину объектов: %ld.";

@@ -68,6 +68,8 @@
 "storage.scan.sort.note" = "Durante o escaneamento, os itens aparecem na ordem em que são encontrados. A ordenação é aplicada ao final.";
 "storage.results.header" = "Resultados";
 "storage.alert.delete.title" = "Mover para o Lixo?";
+"storage.msg.protected_skipped" = "%ld itens protegidos foram ignorados. Pastas como Documentos, Imagens ou Biblioteca e a fototeca não podem ser movidas para o Lixo aqui.";
+"storage.help.protected" = "Pasta protegida — não pode ser movida para o Lixo aqui";
 "storage.msg.manual" = "Analisando a pasta “%@”…";
 "storage.msg.auto" = "Reanalisando devido a alteração nas condições…";
 "storage.msg.canceled" = "Escaneamento cancelado.";
@@ -86,7 +88,6 @@
 "storage.msg.analyzing_home_apps" = "Analisando Início e Aplicativos…";
 "storage.alert.delete.msg_folder" = "A pasta “%@” será movida para o Lixo. Você pode restaurá-la no Finder.";
 "storage.alert.delete.msg_file" = "O arquivo “%@” será movido para o Lixo. Você pode restaurá-lo no Finder.";
-"storage.alert.delete.msg_multi" = "%ld itens selecionados serão movidos para o Lixo. Você pode restaurá-los no Finder.";
 "storage.status.header" = "Escaneamento atual";
 "storage.status.folder" = "Pasta selecionada";
 "storage.status.folder_none" = "Nenhuma pasta selecionada";
@@ -121,9 +122,9 @@
 "junk.section.clean_all" = "Limpar todos os selecionados";
 "junk.section.last_scan" = "Último escaneamento: %@";
 "junk.section.alert.title" = "Limpar os arquivos desnecessários selecionados";
-"junk.section.alert.message" = "Mover %@ para o Lixo.\nVocê pode restaurar no Finder.";
 "junk.category.alert.title" = "Limpar %@";
 "junk.category.alert.message" = "Mover os %1$ld itens selecionados (%2$@) para o Lixo.\nVocê pode restaurá-los pelo Finder.";
+"common.confirm_trash_count_size" = "Mover os %1$ld itens selecionados (%2$@) para o Lixo.\nVocê pode restaurá-los pelo Finder.";
 "junk.scope.title" = "Selecionar a Biblioteca pessoal (~/Library)";
 "junk.scope.message" = "Selecione a pasta Biblioteca pessoal para escanear arquivos desnecessários.";
 "junk.progress.preparing" = "Preparando o escaneamento…";
@@ -327,6 +328,8 @@
 "duplicate.cleanup_result.title" = "Limpeza concluída";
 "duplicate.cleanup_result.body" = "%ld arquivos duplicados foram movidos para o Lixo. Ao esvaziar o Lixo, cerca de %@ serão liberados.";
 "duplicate.cleanup_result.body_with_failures" = "%ld arquivos duplicados foram movidos para o Lixo. Ao esvaziar o Lixo, cerca de %@ serão liberados. Não foi possível mover %ld itens.";
+"duplicate.cleanup_result.title_none" = "Nada foi movido para o Lixo";
+"duplicate.cleanup_result.body_none" = "Nenhum arquivo foi movido para o Lixo. Falhas: %1$ld; ignorados porque mudaram após a verificação: %2$ld. Verifique novamente.";
 "duplicate.status.collecting" = "Coletando arquivos…";
 "duplicate.status.found_files" = "%ld arquivos encontrados";
 "duplicate.status.grouping_by_size" = "Agrupando arquivos por tamanho…";
@@ -343,7 +346,6 @@
 "duplicate.status.cleanup_done" = "%ld arquivos duplicados (%@) movidos para o Lixo. Esvazie o Lixo para liberar o espaço.";
 "duplicate.status.cleanup_failed" = "O TriClean não conseguiu mover os arquivos duplicados selecionados para o Lixo.";
 "duplicate.status.cleanup_running" = "Movendo duplicados para o Lixo…";
-"duplicate.status.revalidate_needed" = "Grupos ignorados porque não foi possível verificar o arquivo a manter: %ld. Escaneie novamente.";
 "duplicate.status.cleanup_summary" = "Arquivos duplicados movidos para o Lixo: %1$ld (%2$@). Esvazie o Lixo para liberar o espaço. Falhas: %3$ld; ignorados após revalidação: %4$ld.";
 "duplicate.status.selection_cleared" = "Todas as seleções de limpeza foram removidas.";
 "duplicate.status.access_denied" = "Acesso à pasta expirou. Selecione a pasta novamente.";
@@ -454,7 +456,6 @@
 "photos.select.clear" = "Desmarcar";
 "photos.select.all" = "Selecionar tudo";
 "photos.delete.confirm.title" = "Mover as fotos selecionadas para o Lixo?";
-"photos.delete.confirm.msg" = "%ld itens serão movidos para o Lixo. Você pode restaurá-los no Lixo.";
 "photos.delete.confirm.button" = "Mover para o Lixo";
 "photos.delete.status.moving" = "Movendo %ld itens para o Lixo…";
 "photos.delete.status.success" = "%ld itens movidos para o Lixo.";

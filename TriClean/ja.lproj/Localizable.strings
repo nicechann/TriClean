@@ -70,6 +70,8 @@
 "storage.scan.sort.note" = "スキャン中は検出順で表示され、完了後に並び替えが適用されます。";
 "storage.results.header" = "結果";
 "storage.alert.delete.title" = "ゴミ箱に入れますか？";
+"storage.msg.protected_skipped" = "保護された項目 %ld 件をスキップしました。書類・ピクチャ・ライブラリなどの標準フォルダや写真ライブラリは、ここからゴミ箱に入れることはできません。";
+"storage.help.protected" = "保護されたフォルダ — ここからゴミ箱に入れることはできません";
 "storage.msg.manual" = "「%@」フォルダを分析中…";
 "storage.msg.auto" = "条件が変更されたため再分析中…";
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
@@ -88,7 +90,6 @@
 "storage.msg.analyzing_home_apps" = "ホームとAppを分析中…";
 "storage.alert.delete.msg_folder" = "「%@」フォルダをゴミ箱に移動します。Finderから復元できます。";
 "storage.alert.delete.msg_file" = "「%@」ファイルをゴミ箱に移動します。Finderから復元できます。";
-"storage.alert.delete.msg_multi" = "選択した %ld 個の項目をゴミ箱に移動します。Finderから復元できます。";
 
 /* Apps View */
 "apps.header.uninstall" = "インストール済みのApp";
@@ -265,9 +266,9 @@
 "junk.section.clean_all" = "選択項目をすべて整理";
 "junk.section.last_scan" = "最終スキャン: %@";
 "junk.section.alert.title" = "選択した不要ファイルをクリーン";
-"junk.section.alert.message" = "%@ をゴミ箱に移動します。\nFinderから復元できます。";
 "junk.category.alert.title" = "%@を整理";
 "junk.category.alert.message" = "選択した%1$ld項目（%2$@）をゴミ箱に移動します。\nFinderから復元できます。";
+"common.confirm_trash_count_size" = "選択した%1$ld項目（%2$@）をゴミ箱に移動します。\nFinderから復元できます。";
 "junk.scope.title" = "ホームライブラリ (~/Library) を選択";
 "junk.scope.message" = "不要ファイルをスキャンするホームライブラリフォルダを選択してください。";
 "junk.progress.preparing" = "スキャンを準備中…";
@@ -397,6 +398,8 @@
 "duplicate.cleanup_result.title" = "クリーンアップ完了";
 "duplicate.cleanup_result.body" = "%ld 個の重複ファイルをゴミ箱に移動しました。ゴミ箱を空にすると約 %@ の空き容量が増えます。";
 "duplicate.cleanup_result.body_with_failures" = "%ld 個の重複ファイルをゴミ箱に移動しました。ゴミ箱を空にすると約 %@ の空き容量が増えます。%ld 件は移動できませんでした。";
+"duplicate.cleanup_result.title_none" = "ゴミ箱に移動できませんでした";
+"duplicate.cleanup_result.body_none" = "ゴミ箱に移動したファイルはありません。失敗 %1$ld 件、スキャン後に変更されたため除外 %2$ld 件です。もう一度スキャンしてください。";
 "duplicate.status.collecting" = "ファイルを収集中…";
 "duplicate.status.found_files" = "%ld 個のファイルを検出";
 "duplicate.status.grouping_by_size" = "サイズ別にグループ化中…";
@@ -536,7 +539,6 @@
 "photos.action.trash" = "ゴミ箱に移動";
 "photos.action.reveal" = "Finderで表示";
 "photos.delete.confirm.title" = "選択した写真をゴミ箱に移動しますか？";
-"photos.delete.confirm.msg" = "%ld 件の項目がゴミ箱に移動されます。ゴミ箱から復元できます。";
 "photos.delete.confirm.button" = "ゴミ箱に移動";
 "photos.similar.select_extras" = "1枚を残して選択";
 "photos.delete.status.moving" = "%ld 件の項目をゴミ箱に移動中…";
@@ -581,7 +583,6 @@
 /* MARK: - 削除の安全性検証 (v1.4.4 追加) */
 "junk.progress.clean_invalid" = "削除できる項目がありません。%ld 件が変更されたため除外されました。もう一度スキャンしてください。";
 "duplicate.status.cleanup_running" = "重複ファイルをゴミ箱に移動中…";
-"duplicate.status.revalidate_needed" = "保持するファイルを確認できなかったため %ld グループをスキップしました。もう一度スキャンしてください。";
 "apps.status.related_invalid" = "削除できる関連ファイルがありません。%ld 件が変更されたため除外されました。";
 "apps.failed_names.overflow" = "%1$@ 他 %2$ld 件";
 "photos.delete.status.invalid" = "削除できる写真がありません。フォルダを再選択してスキャンしてください。";

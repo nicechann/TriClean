@@ -16,40 +16,12 @@ struct PaywallView: View {
     @State private var showPurchaseErrorAlert: Bool = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            // 1. 상단 아이콘 및 타이틀
-            VStack(spacing: 12) {
-                Image(systemName: "star.fill")
-                    .appIconFont(64)
-                    .foregroundStyle(.yellow)
-                    .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
-
-                Text("paywall.title".localized)
-                    .appFont(size: 28, weight: .bold)
-
-                Text("paywall.subtitle".localized)
-                    .appFont(.body)
-                    .foregroundStyle(.secondary)
-
-                Text("paywall.free_mode.notice".localized)
-                    .appFont(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 12)
+        VStack(spacing: 20) {
+            // 큰 글자·긴 번역에서 시트가 화면보다 길어지면 구매·복원 버튼이 밀려났다.
+            // 소개 영역만 스크롤하고 버튼 영역은 항상 보이게 둔다.
+            ScrollView(.vertical) {
+                introSection
             }
-            .padding(.top, 20)
-
-            // 2. 기능 목록
-            VStack(alignment: .leading, spacing: 20) {
-                FeatureRow(icon: "sparkles",         title: "paywall.feat.memory".localized, desc: "paywall.feat.memory_desc".localized)
-                FeatureRow(icon: "internaldrive.fill", title: "paywall.feat.disk".localized,   desc: "paywall.feat.disk_desc".localized)
-                FeatureRow(icon: "app.fill",          title: "paywall.feat.apps".localized,   desc: "paywall.feat.apps_desc".localized)
-                FeatureRow(icon: "clock.fill",        title: "paywall.feat.auto".localized,   desc: "paywall.feat.auto_desc".localized)
-            }
-            .padding(.vertical, 10)
-
-            Spacer()
 
             // 3. 하단 버튼 영역
             VStack(spacing: 12) {
@@ -134,6 +106,7 @@ struct PaywallView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
+                .keyboardShortcut(.cancelAction)
 
                 // 하단 링크
                 HStack(spacing: 20) {
@@ -150,15 +123,12 @@ struct PaywallView: View {
             }
         }
         .padding(30)
-        // ✅ 다국어 장문에서도 콘텐츠가 잘리지 않도록 고정 높이 대신 최소 높이만 지정
+        // ⚠️ 세로 고정(`.fixedSize(horizontal: false, vertical: true)`)을 쓰지 않는다.
+        //    본문 전체 높이를 강제해 작은 화면·큰 글자에서 시트가 화면을 넘었다.
+        //    idealHeight로 평소 크기를 주고, 모자라면 위 ScrollView가 줄어든다.
         .frame(width: 450)
-        .frame(minHeight: 650)
-        .fixedSize(horizontal: false, vertical: true)
+        .frame(minHeight: 520, idealHeight: 720)
         .background(Color(nsColor: .windowBackgroundColor))
-        .cornerRadius(12)
-        .shadow(radius: 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.3))
         .onAppear {
             if storeManager.isPurchased { dismiss() }
         }
@@ -171,6 +141,44 @@ struct PaywallView: View {
         } message: {
             Text(purchaseErrorMessage ?? "paywall.error.unknown".localized)
         }
+    }
+
+    // 1~2. 소개(아이콘·타이틀·무료 범위 안내)와 기능 목록
+    private var introSection: some View {
+        VStack(spacing: 24) {
+            // 1. 상단 아이콘 및 타이틀
+            VStack(spacing: 12) {
+                Image(systemName: "star.fill")
+                    .appIconFont(64)
+                    .foregroundStyle(.yellow)
+                    .shadow(color: .orange.opacity(0.5), radius: 10, x: 0, y: 0)
+
+                Text("paywall.title".localized)
+                    .appFont(size: 28, weight: .bold)
+
+                Text("paywall.subtitle".localized)
+                    .appFont(.body)
+                    .foregroundStyle(.secondary)
+
+                Text("paywall.free_mode.notice".localized)
+                    .appFont(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 12)
+            }
+            .padding(.top, 20)
+
+            // 2. 기능 목록
+            VStack(alignment: .leading, spacing: 20) {
+                FeatureRow(icon: "sparkles",         title: "paywall.feat.memory".localized, desc: "paywall.feat.memory_desc".localized)
+                FeatureRow(icon: "internaldrive.fill", title: "paywall.feat.disk".localized,   desc: "paywall.feat.disk_desc".localized)
+                FeatureRow(icon: "app.fill",          title: "paywall.feat.apps".localized,   desc: "paywall.feat.apps_desc".localized)
+                FeatureRow(icon: "clock.fill",        title: "paywall.feat.auto".localized,   desc: "paywall.feat.auto_desc".localized)
+            }
+            .padding(.vertical, 10)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

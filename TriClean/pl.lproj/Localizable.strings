@@ -74,6 +74,8 @@
 "storage.scan.sort.note" = "Podczas skanowania elementy są wyświetlane w kolejności znajdowania. Sortowanie zostanie zastosowane po zakończeniu.";
 "storage.results.header" = "Wyniki";
 "storage.alert.delete.title" = "Przenieść do Kosza?";
+"storage.msg.protected_skipped" = "Pominięto chronione elementy: %ld. Folderów takich jak Dokumenty, Obrazki czy Biblioteka oraz biblioteki Zdjęć nie można stąd przenieść do Kosza.";
+"storage.help.protected" = "Folder chroniony – nie można go stąd przenieść do Kosza";
 "storage.msg.manual" = "Analizowanie folderu „%@”…";
 "storage.msg.auto" = "Ponowna analiza z powodu zmiany warunków…";
 "storage.msg.canceled" = "Skanowanie anulowane.";
@@ -92,7 +94,6 @@
 "storage.msg.analyzing_home_apps" = "Analizowanie folderu domowego i Aplikacji…";
 "storage.alert.delete.msg_folder" = "Folder „%@” zostanie przeniesiony do Kosza. Możesz go przywrócić z Findera.";
 "storage.alert.delete.msg_file" = "Plik „%@” zostanie przeniesiony do Kosza. Możesz go przywrócić z Findera.";
-"storage.alert.delete.msg_multi" = "Wybranych elementów do przeniesienia do Kosza: %ld. Możesz je przywrócić z Findera.";
 "storage.status.header" = "Bieżące skanowanie";
 "storage.status.folder" = "Wybrany folder";
 "storage.status.folder_none" = "Nie wybrano folderu";
@@ -127,9 +128,9 @@
 "junk.section.clean_all" = "Wyczyść wszystkie zaznaczone";
 "junk.section.last_scan" = "Ostatnie skanowanie: %@";
 "junk.section.alert.title" = "Usuń wybrane zbędne pliki";
-"junk.section.alert.message" = "Przenieś %@ do Kosza.\nMożesz je przywrócić z Findera.";
 "junk.category.alert.title" = "Wyczyść: %@";
 "junk.category.alert.message" = "Przenieś zaznaczone elementy (%1$ld, %2$@) do Kosza.\nMożesz je przywrócić w Finderze.";
+"common.confirm_trash_count_size" = "Przenieś zaznaczone elementy (%1$ld, %2$@) do Kosza.\nMożesz je przywrócić w Finderze.";
 "junk.scope.title" = "Wybierz Bibliotekę użytkownika (~/Library)";
 "junk.scope.message" = "Wybierz folder Biblioteki użytkownika, aby przeskanować go w poszukiwaniu zbędnych plików.";
 "junk.progress.preparing" = "Przygotowywanie skanowania…";
@@ -333,6 +334,8 @@
 "duplicate.cleanup_result.title" = "Porządkowanie zakończone";
 "duplicate.cleanup_result.body" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Po opróżnieniu Kosza zostanie zwolnione ok. %@.";
 "duplicate.cleanup_result.body_with_failures" = "Przeniesiono do Kosza zduplikowanych plików: %ld. Po opróżnieniu Kosza zostanie zwolnione ok. %@. Nie udało się przenieść elementów: %ld.";
+"duplicate.cleanup_result.title_none" = "Nic nie przeniesiono do Kosza";
+"duplicate.cleanup_result.body_none" = "Nie przeniesiono żadnych plików do Kosza. Niepowodzeń: %1$ld; pominiętych z powodu zmian po skanowaniu: %2$ld. Przeskanuj ponownie.";
 "duplicate.status.collecting" = "Zbieranie plików…";
 "duplicate.status.found_files" = "Znaleziono plików: %ld";
 "duplicate.status.grouping_by_size" = "Grupowanie plików według rozmiaru…";
@@ -349,7 +352,6 @@
 "duplicate.status.cleanup_done" = "Przeniesiono do Kosza zduplikowanych plików: %ld (%@). Opróżnij Kosz, aby zwolnić miejsce.";
 "duplicate.status.cleanup_failed" = "TriClean nie mógł przenieść wybranych zduplikowanych plików do Kosza.";
 "duplicate.status.cleanup_running" = "Przenoszenie duplikatów do Kosza…";
-"duplicate.status.revalidate_needed" = "Pominiętych grup, w których nie udało się zweryfikować pliku do zachowania: %ld. Przeskanuj ponownie.";
 "duplicate.status.cleanup_summary" = "Przeniesiono do Kosza zduplikowanych plików: %1$ld (%2$@). Opróżnij Kosz, aby zwolnić miejsce. Niepowodzeń: %3$ld; pominiętych po ponownej weryfikacji: %4$ld.";
 "duplicate.status.selection_cleared" = "Wyczyszczono wszystkie zaznaczenia do usunięcia.";
 "duplicate.status.access_denied" = "Dostęp do folderu wygasł. Wybierz folder ponownie.";
@@ -460,7 +462,6 @@
 "photos.select.clear" = "Odznacz";
 "photos.select.all" = "Zaznacz wszystko";
 "photos.delete.confirm.title" = "Przenieść zaznaczone zdjęcia do Kosza?";
-"photos.delete.confirm.msg" = "Elementów do przeniesienia do Kosza: %ld. Możesz je przywrócić z Kosza.";
 "photos.delete.confirm.button" = "Przenieś do Kosza";
 "photos.delete.status.moving" = "Przenoszenie elementów do Kosza: %ld…";
 "photos.delete.status.success" = "Przeniesiono do Kosza elementów: %ld.";

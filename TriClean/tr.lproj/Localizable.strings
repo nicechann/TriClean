@@ -72,6 +72,8 @@
 "storage.scan.sort.note" = "Tarama sırasında öğeler bulunma sırasına göre gösterilir. Sıralama tarama bittiğinde uygulanır.";
 "storage.results.header" = "Sonuçlar";
 "storage.alert.delete.title" = "Çöp Sepeti'ne taşınsın mı?";
+"storage.msg.protected_skipped" = "Korunan %ld öğe atlandı. Belgeler, Resimler veya Kitaplık gibi klasörler ve Fotoğraflar arşivi buradan Çöp Sepeti'ne taşınamaz.";
+"storage.help.protected" = "Korunan klasör — buradan Çöp Sepeti'ne taşınamaz";
 "storage.msg.manual" = "“%@” klasörü inceleniyor…";
 "storage.msg.auto" = "Koşullar değiştiği için yeniden inceleniyor…";
 "storage.msg.canceled" = "Tarama iptal edildi.";
@@ -90,7 +92,6 @@
 "storage.msg.analyzing_home_apps" = "Ana Klasör ve Uygulamalar inceleniyor…";
 "storage.alert.delete.msg_folder" = "“%@” klasörü Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
 "storage.alert.delete.msg_file" = "“%@” dosyası Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
-"storage.alert.delete.msg_multi" = "Seçilen %ld öğe Çöp Sepeti'ne taşınacak. Finder'dan geri yükleyebilirsiniz.";
 "storage.status.header" = "Geçerli tarama";
 "storage.status.folder" = "Seçilen klasör";
 "storage.status.folder_none" = "Klasör seçilmedi";
@@ -125,9 +126,9 @@
 "junk.section.clean_all" = "Seçilenlerin tümünü temizle";
 "junk.section.last_scan" = "Son tarama: %@";
 "junk.section.alert.title" = "Seçilen gereksiz dosyaları temizle";
-"junk.section.alert.message" = "%@ Çöp Sepeti'ne taşınacak.\nFinder'dan geri yükleyebilirsiniz.";
 "junk.category.alert.title" = "%@ öğesini temizle";
 "junk.category.alert.message" = "Seçilen %1$ld öğeyi (%2$@) Çöp Sepeti’ne taşı.\nFinder’dan geri yükleyebilirsiniz.";
+"common.confirm_trash_count_size" = "Seçilen %1$ld öğeyi (%2$@) Çöp Sepeti’ne taşı.\nFinder’dan geri yükleyebilirsiniz.";
 "junk.scope.title" = "Kişisel Kitaplık'ı (~/Library) seç";
 "junk.scope.message" = "Gereksiz dosyaları taramak için Kişisel Kitaplık klasörünü seçin.";
 "junk.progress.preparing" = "Tarama hazırlanıyor…";
@@ -331,6 +332,8 @@
 "duplicate.cleanup_result.title" = "Temizlik tamamlandı";
 "duplicate.cleanup_result.body" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Çöp Sepeti'ni boşalttığınızda yaklaşık %@ alan açılır.";
 "duplicate.cleanup_result.body_with_failures" = "%ld kopya dosya Çöp Sepeti'ne taşındı. Çöp Sepeti'ni boşalttığınızda yaklaşık %@ alan açılır. %ld öğe taşınamadı.";
+"duplicate.cleanup_result.title_none" = "Çöp Sepeti'ne hiçbir şey taşınmadı";
+"duplicate.cleanup_result.body_none" = "Çöp Sepeti'ne hiçbir dosya taşınmadı. Başarısız: %1$ld; taramadan sonra değiştiği için atlanan: %2$ld. Lütfen yeniden tarayın.";
 "duplicate.status.collecting" = "Dosyalar toplanıyor…";
 "duplicate.status.found_files" = "%ld dosya bulundu";
 "duplicate.status.grouping_by_size" = "Dosyalar boyuta göre gruplanıyor…";
@@ -347,7 +350,6 @@
 "duplicate.status.cleanup_done" = "%ld kopya dosya (%@) Çöp Sepeti'ne taşındı. Alanı boşaltmak için Çöp Sepeti'ni boşaltın.";
 "duplicate.status.cleanup_failed" = "TriClean, seçilen kopya dosyaları Çöp Sepeti'ne taşıyamadı.";
 "duplicate.status.cleanup_running" = "Kopyalar Çöp Sepeti'ne taşınıyor…";
-"duplicate.status.revalidate_needed" = "Saklanacak dosya doğrulanamadığı için atlanan grup: %ld. Lütfen yeniden tarayın.";
 "duplicate.status.cleanup_summary" = "Çöp Sepeti'ne taşınan kopya dosya: %1$ld (%2$@). Alanı boşaltmak için Çöp Sepeti'ni boşaltın. Başarısız: %3$ld; yeniden doğrulama sonrası atlanan: %4$ld.";
 "duplicate.status.selection_cleared" = "Tüm temizlik seçimleri temizlendi.";
 "duplicate.status.access_denied" = "Klasör erişimi sona erdi. Lütfen klasörü yeniden seçin.";
@@ -458,7 +460,6 @@
 "photos.select.clear" = "Seçimi kaldır";
 "photos.select.all" = "Tümünü seç";
 "photos.delete.confirm.title" = "Seçilen fotoğraflar Çöp Sepeti'ne taşınsın mı?";
-"photos.delete.confirm.msg" = "%ld öğe Çöp Sepeti'ne taşınacak. Çöp Sepeti'nden geri yükleyebilirsiniz.";
 "photos.delete.confirm.button" = "Çöp Sepeti'ne Taşı";
 "photos.delete.status.moving" = "%ld öğe Çöp Sepeti'ne taşınıyor…";
 "photos.delete.status.success" = "%ld öğe Çöp Sepeti'ne taşındı.";

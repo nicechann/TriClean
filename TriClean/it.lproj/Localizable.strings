@@ -68,6 +68,8 @@
 "storage.scan.sort.note" = "Durante la scansione gli elementi appaiono nell'ordine in cui vengono trovati. L'ordinamento viene applicato al termine.";
 "storage.results.header" = "Risultati";
 "storage.alert.delete.title" = "Spostare nel Cestino?";
+"storage.msg.protected_skipped" = "%ld elementi protetti sono stati ignorati. Cartelle come Documenti, Immagini o Libreria e la libreria di Foto non possono essere spostate nel Cestino da qui.";
+"storage.help.protected" = "Cartella protetta: non può essere spostata nel Cestino da qui";
 "storage.msg.manual" = "Analisi della cartella «%@» in corso…";
 "storage.msg.auto" = "Nuova analisi per modifica delle condizioni…";
 "storage.msg.canceled" = "Scansione annullata.";
@@ -86,7 +88,6 @@
 "storage.msg.analyzing_home_apps" = "Analisi di Inizio e Applicazioni…";
 "storage.alert.delete.msg_folder" = "La cartella «%@» verrà spostata nel Cestino. Puoi ripristinarla dal Finder.";
 "storage.alert.delete.msg_file" = "Il file «%@» verrà spostato nel Cestino. Puoi ripristinarlo dal Finder.";
-"storage.alert.delete.msg_multi" = "%ld elementi selezionati verranno spostati nel Cestino. Puoi ripristinarli dal Finder.";
 "storage.status.header" = "Scansione corrente";
 "storage.status.folder" = "Cartella selezionata";
 "storage.status.folder_none" = "Nessuna cartella selezionata";
@@ -121,9 +122,9 @@
 "junk.section.clean_all" = "Pulisci tutti gli elementi selezionati";
 "junk.section.last_scan" = "Ultima scansione: %@";
 "junk.section.alert.title" = "Pulisci i file inutili selezionati";
-"junk.section.alert.message" = "Sposta %@ nel Cestino.\nPuoi ripristinarli dal Finder.";
 "junk.category.alert.title" = "Pulisci %@";
 "junk.category.alert.message" = "Sposta nel Cestino i %1$ld elementi selezionati (%2$@).\nPuoi ripristinarli dal Finder.";
+"common.confirm_trash_count_size" = "Sposta nel Cestino i %1$ld elementi selezionati (%2$@).\nPuoi ripristinarli dal Finder.";
 "junk.scope.title" = "Seleziona la Libreria personale (~/Library)";
 "junk.scope.message" = "Seleziona la cartella Libreria personale in cui cercare i file inutili.";
 "junk.progress.preparing" = "Preparazione della scansione…";
@@ -327,6 +328,8 @@
 "duplicate.cleanup_result.title" = "Pulizia completata";
 "duplicate.cleanup_result.body" = "%ld file duplicati sono stati spostati nel Cestino. Svuotando il Cestino verranno liberati circa %@.";
 "duplicate.cleanup_result.body_with_failures" = "%ld file duplicati sono stati spostati nel Cestino. Svuotando il Cestino verranno liberati circa %@. Non è stato possibile spostare %ld elementi.";
+"duplicate.cleanup_result.title_none" = "Nessun elemento spostato nel Cestino";
+"duplicate.cleanup_result.body_none" = "Nessun file è stato spostato nel Cestino. Non riusciti: %1$ld; ignorati perché modificati dopo la scansione: %2$ld. Esegui di nuovo la scansione.";
 "duplicate.status.collecting" = "Raccolta dei file…";
 "duplicate.status.found_files" = "%ld file trovati";
 "duplicate.status.grouping_by_size" = "Raggruppamento dei file per dimensione…";
@@ -343,7 +346,6 @@
 "duplicate.status.cleanup_done" = "%ld file duplicati (%@) spostati nel Cestino. Svuota il Cestino per liberare lo spazio.";
 "duplicate.status.cleanup_failed" = "TriClean non è riuscito a spostare nel Cestino i file duplicati selezionati.";
 "duplicate.status.cleanup_running" = "Spostamento dei duplicati nel Cestino…";
-"duplicate.status.revalidate_needed" = "Gruppi ignorati perché non è stato possibile verificare il file da mantenere: %ld. Esegui di nuovo la scansione.";
 "duplicate.status.cleanup_summary" = "File duplicati spostati nel Cestino: %1$ld (%2$@). Svuota il Cestino per liberare lo spazio. Non riusciti: %3$ld; ignorati dopo la riverifica: %4$ld.";
 "duplicate.status.selection_cleared" = "Tutte le selezioni per la pulizia sono state azzerate.";
 "duplicate.status.access_denied" = "Accesso alla cartella scaduto. Seleziona di nuovo la cartella.";
@@ -454,7 +456,6 @@
 "photos.select.clear" = "Deseleziona";
 "photos.select.all" = "Seleziona tutto";
 "photos.delete.confirm.title" = "Spostare le foto selezionate nel Cestino?";
-"photos.delete.confirm.msg" = "%ld elementi verranno spostati nel Cestino. Puoi ripristinarli dal Cestino.";
 "photos.delete.confirm.button" = "Sposta nel Cestino";
 "photos.delete.status.moving" = "Spostamento di %ld elementi nel Cestino…";
 "photos.delete.status.success" = "%ld elementi spostati nel Cestino.";

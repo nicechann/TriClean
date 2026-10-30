@@ -192,6 +192,13 @@ struct TriCleanApp: App {
             }
         }
         .commands {
+            // ⚠️ 메인 창은 하나만 둔다. 스캐너 ViewModel은 앱 레벨에서 공유되므로, 창이 둘이면
+            //    한 창의 삭제 확인창이 떠 있는 사이 다른 창에서 바뀐 선택·스캔 결과가 그대로
+            //    실행 대상이 되고, 한 창의 탭 이동이 다른 창의 스캔을 취소한다.
+            //    "새 윈도우"(⌘N)를 없애고, 메뉴바 등에서 여는 경로는 기존 창을 앞으로 가져온다
+            //    (`openPaywallWindow`).
+            CommandGroup(replacing: .newItem) { }
+
             CommandGroup(after: .appInfo) {
                 if !storeManager.isPurchased {
                     Button("menu.buy_pro".localized) {

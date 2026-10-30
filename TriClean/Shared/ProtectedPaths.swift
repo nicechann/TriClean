@@ -1,0 +1,60 @@
+//
+//  ProtectedPaths.swift
+//  TriClean
+//
+//  사용자가 고른 폴더 안이라도 통째로 휴지통에 넣으면 안 되는 위치.
+//
+//  ⚠️ 대용량 파일 화면은 스캔 루트 바로 아래 폴더를 한 행으로 보여 주고, 온보딩의 "홈 허용"은
+//     스캔 루트를 홈 폴더로 기본 설정한다. 경계 검사(`.descendants(of: 루트)`)만으로는
+//     ~/Pictures(사진 보관함 포함)·~/Documents·~/Library 하위 1단계 폴더가 확인 한 번으로
+//     통째로 휴지통에 갈 수 있다. 이 규칙으로 표시 단계와 삭제 직전 모두 걸러낸다.
+//
+
+import Foundation
+import Darwin
+
+nonisolated enum ProtectedPaths {
+
+    /// macOS가 만들고 관리하는 홈 폴더 하위 기본 폴더.
+    static let standardHomeFolderNames: Set<String> = [
+        "Applications", "Desktop", "Documents", "Downloads", "Library",
+        "Movies", "Music", "Pictures", "Public"
+    ]
+
+    /// 앱이 관리하는 미디어 보관함 패키지. 폴더째 지우면 보관함 전체가 사라진다.
+    static let managedLibraryExtensions: Set<String> = [
+        "photoslibrary", "photolibrary", "migratedphotolibrary", "aplibrary",
+        "musiclibrary", "tvlibrary"
+    ]
+
+    /// 샌드박스 앱의 `NSHomeDirectory()`는 컨테이너 경로라서 실제 사용자 홈을 따로 구한다.
+    static var realHomeDirectory: URL {
+        if let entry = getpwuid(getuid()), let dir = entry.pointee.pw_dir {
+            return URL(fileURLWithPath: String(cString: dir), isDirectory: true)
+        }
+        return URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
+    }
+
+    /// 통째로 휴지통에 넣으면 안 되는 위치인지.
+    /// - 홈 폴더 자신, 홈 바로 아래의 기본 폴더(Documents·Pictures·Library 등)
+    /// - ~/Library 바로 아래 항목(Application Support·Containers·Preferences 등)
+    /// - 사진·음악·TV 보관함 패키지(어디에 있든)
+    ///
+    /// `resolvingSymlinks`가 false면 디스크를 읽지 않고 표기만으로 판단한다(목록 렌더링용).
+    /// 삭제 직전에는 반드시 true로 다시 검사한다.
+    static func isProtected(_ url: URL, home: URL = realHomeDirectory, resolvingSymlinks: Bool = true) -> Bool {
+        let target = resolvingSymlinks ? DeletionSafety.resolvedPath(for: url) : url.standardizedFileURL.path
+        let homePath = resolvingSymlinks ? DeletionSafety.resolvedPath(for: home) : home.standardizedFileURL.path
+
+        if managedLibraryExtensions.contains(url.pathExtension.lowercased()) { return true }
+        if target == homePath { return true }
+
+        let parent = (target as NSString).deletingLastPathComponent
+        if parent == homePath, standardHomeFolderNames.contains((target as NSString).lastPathComponent) {
+            return true
+        }
+
+        let libraryPath = (homePath as NSString).appendingPathComponent("Library")
+        return parent == libraryPath
+    }
+}

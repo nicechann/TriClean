@@ -68,6 +68,8 @@
 "storage.scan.sort.note" = "掃描過程中依發現順序顯示，完成後才套用排序。";
 "storage.results.header" = "結果";
 "storage.alert.delete.title" = "要移到垃圾桶嗎？";
+"storage.msg.protected_skipped" = "已跳過 %ld 個受保護的項目。「文件」「圖片」「資源庫」等標準資料夾和照片圖庫無法從這裡移到垃圾桶。";
+"storage.help.protected" = "受保護的資料夾 — 無法從這裡移到垃圾桶";
 "storage.msg.manual" = "正在分析「%@」資料夾…";
 "storage.msg.auto" = "條件已變更，正在重新分析…";
 "storage.msg.canceled" = "已取消掃描。";
@@ -86,7 +88,6 @@
 "storage.msg.analyzing_home_apps" = "正在分析個人專屬資料夾與應用程式…";
 "storage.alert.delete.msg_folder" = "資料夾「%@」將被移到垃圾桶。你可以從 Finder 回復。";
 "storage.alert.delete.msg_file" = "檔案「%@」將被移到垃圾桶。你可以從 Finder 回復。";
-"storage.alert.delete.msg_multi" = "所選的 %ld 個項目將被移到垃圾桶。你可以從 Finder 回復。";
 "storage.status.header" = "目前掃描";
 "storage.status.folder" = "所選資料夾";
 "storage.status.folder_none" = "未選擇資料夾";
@@ -121,9 +122,9 @@
 "junk.section.clean_all" = "清理所有已選項目";
 "junk.section.last_scan" = "上次掃描：%@";
 "junk.section.alert.title" = "清理所選的垃圾檔案";
-"junk.section.alert.message" = "將 %@ 移到垃圾桶。\n你可以從 Finder 回復。";
 "junk.category.alert.title" = "清理%@";
 "junk.category.alert.message" = "將選取的 %1$ld 個項目（%2$@）移到垃圾桶。\n你可以在 Finder 中復原。";
+"common.confirm_trash_count_size" = "將選取的 %1$ld 個項目（%2$@）移到垃圾桶。\n你可以在 Finder 中復原。";
 "junk.scope.title" = "選擇個人專屬資源庫（~/Library）";
 "junk.scope.message" = "選擇要掃描垃圾檔案的個人專屬資源庫資料夾。";
 "junk.progress.preparing" = "正在準備掃描…";
@@ -327,6 +328,8 @@
 "duplicate.cleanup_result.title" = "清理完成";
 "duplicate.cleanup_result.body" = "已將 %ld 個重複檔案移到垃圾桶。清空垃圾桶後約可釋放 %@。";
 "duplicate.cleanup_result.body_with_failures" = "已將 %ld 個重複檔案移到垃圾桶。清空垃圾桶後約可釋放 %@。有 %ld 個項目無法移動。";
+"duplicate.cleanup_result.title_none" = "未移到垃圾桶";
+"duplicate.cleanup_result.body_none" = "沒有檔案被移到垃圾桶。失敗 %1$ld 個；因掃描後發生變更而跳過 %2$ld 個。請重新掃描。";
 "duplicate.status.collecting" = "正在收集檔案…";
 "duplicate.status.found_files" = "找到 %ld 個檔案";
 "duplicate.status.grouping_by_size" = "正在依大小分組…";
@@ -343,7 +346,6 @@
 "duplicate.status.cleanup_done" = "已將 %ld 個重複檔案（%@）移到垃圾桶。清空垃圾桶後即可釋放空間。";
 "duplicate.status.cleanup_failed" = "TriClean 無法將所選重複檔案移到垃圾桶。";
 "duplicate.status.cleanup_running" = "正在將重複檔案移到垃圾桶…";
-"duplicate.status.revalidate_needed" = "有 %ld 個群組因無法確認要保留的檔案而被跳過。請重新掃描。";
 "duplicate.status.cleanup_summary" = "已將 %1$ld 個重複檔案（%2$@）移到垃圾桶。清空垃圾桶後即可釋放空間。失敗 %3$ld 個；重新驗證後跳過 %4$ld 個。";
 "duplicate.status.selection_cleared" = "已清除所有待清理的選擇。";
 "duplicate.status.access_denied" = "資料夾存取權限已失效。請重新選擇資料夾。";
@@ -454,7 +456,6 @@
 "photos.select.clear" = "取消選擇";
 "photos.select.all" = "全選";
 "photos.delete.confirm.title" = "要將所選照片移到垃圾桶嗎？";
-"photos.delete.confirm.msg" = "%ld 個項目將被移到垃圾桶。你可以從垃圾桶回復。";
 "photos.delete.confirm.button" = "移到垃圾桶";
 "photos.delete.status.moving" = "正在將 %ld 個項目移到垃圾桶…";
 "photos.delete.status.success" = "已將 %ld 個項目移到垃圾桶。";

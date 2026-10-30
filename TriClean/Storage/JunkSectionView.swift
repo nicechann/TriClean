@@ -534,7 +534,10 @@ struct JunkSectionView: View {
 
     private func cleanAlertMessage(for request: CleanRequest) -> String {
         guard request.categoryID != nil else {
-            return "junk.section.alert.message".localized(with: request.selectedBytesString)
+            return "common.confirm_trash_count_size".localized(
+                with: request.selectedCount,
+                request.selectedBytesString
+            )
         }
         return "junk.category.alert.message".localized(
             with: request.selectedCount,

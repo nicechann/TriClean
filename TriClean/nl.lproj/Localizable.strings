@@ -68,6 +68,8 @@
 "storage.scan.sort.note" = "Tijdens het scannen worden items weergegeven in de volgorde waarin ze worden gevonden. De sortering wordt na afloop toegepast.";
 "storage.results.header" = "Resultaten";
 "storage.alert.delete.title" = "Naar de prullenmand verplaatsen?";
+"storage.msg.protected_skipped" = "%ld beveiligde items overgeslagen. Mappen zoals Documenten, Afbeeldingen of Bibliotheek en de fotobibliotheek kunnen hier niet naar de prullenmand worden verplaatst.";
+"storage.help.protected" = "Beveiligde map – kan hier niet naar de prullenmand worden verplaatst";
 "storage.msg.manual" = "Map ‘%@’ analyseren…";
 "storage.msg.auto" = "Opnieuw analyseren vanwege gewijzigde voorwaarden…";
 "storage.msg.canceled" = "Scan geannuleerd.";
@@ -86,7 +88,6 @@
 "storage.msg.analyzing_home_apps" = "Thuismap en Programma's analyseren…";
 "storage.alert.delete.msg_folder" = "De map ‘%@’ wordt naar de prullenmand verplaatst. Je kunt deze via de Finder terugzetten.";
 "storage.alert.delete.msg_file" = "Het bestand ‘%@’ wordt naar de prullenmand verplaatst. Je kunt dit via de Finder terugzetten.";
-"storage.alert.delete.msg_multi" = "Aantal geselecteerde items dat naar de prullenmand wordt verplaatst: %ld. Je kunt ze via de Finder terugzetten.";
 "storage.status.header" = "Huidige scan";
 "storage.status.folder" = "Geselecteerde map";
 "storage.status.folder_none" = "Geen map geselecteerd";
@@ -121,9 +122,9 @@
 "junk.section.clean_all" = "Alle geselecteerde items opruimen";
 "junk.section.last_scan" = "Laatste scan: %@";
 "junk.section.alert.title" = "Geselecteerde overbodige bestanden opruimen";
-"junk.section.alert.message" = "Verplaats %@ naar de prullenmand.\nJe kunt dit via de Finder terugzetten.";
 "junk.category.alert.title" = "%@ opruimen";
 "junk.category.alert.message" = "Verplaats de %1$ld geselecteerde items (%2$@) naar de prullenmand.\nJe kunt ze herstellen via Finder.";
+"common.confirm_trash_count_size" = "Verplaats de %1$ld geselecteerde items (%2$@) naar de prullenmand.\nJe kunt ze herstellen via Finder.";
 "junk.scope.title" = "Selecteer de persoonlijke bibliotheek (~/Library)";
 "junk.scope.message" = "Selecteer de map met de persoonlijke bibliotheek om te scannen op overbodige bestanden.";
 "junk.progress.preparing" = "Scan voorbereiden…";
@@ -327,6 +328,8 @@
 "duplicate.cleanup_result.title" = "Opruimen voltooid";
 "duplicate.cleanup_result.body" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Als je de prullenmand leegt, komt ongeveer %@ vrij.";
 "duplicate.cleanup_result.body_with_failures" = "Naar de prullenmand verplaatst: %ld dubbele bestanden. Als je de prullenmand leegt, komt ongeveer %@ vrij. Kon %ld items niet verplaatsen.";
+"duplicate.cleanup_result.title_none" = "Niets naar de prullenmand verplaatst";
+"duplicate.cleanup_result.body_none" = "Er zijn geen bestanden naar de prullenmand verplaatst. Mislukt: %1$ld; overgeslagen omdat ze na de scan zijn gewijzigd: %2$ld. Scan opnieuw.";
 "duplicate.status.collecting" = "Bestanden verzamelen…";
 "duplicate.status.found_files" = "Gevonden: %ld bestanden";
 "duplicate.status.grouping_by_size" = "Bestanden groeperen op grootte…";
@@ -343,7 +346,6 @@
 "duplicate.status.cleanup_done" = "Naar de prullenmand verplaatst: %ld dubbele bestanden (%@). Leeg de prullenmand om de ruimte vrij te maken.";
 "duplicate.status.cleanup_failed" = "TriClean kon de geselecteerde dubbele bestanden niet naar de prullenmand verplaatsen.";
 "duplicate.status.cleanup_running" = "Duplicaten naar de prullenmand verplaatsen…";
-"duplicate.status.revalidate_needed" = "Overgeslagen groepen omdat het te bewaren bestand niet kon worden gecontroleerd: %ld. Scan opnieuw.";
 "duplicate.status.cleanup_summary" = "Naar de prullenmand verplaatst: %1$ld dubbele bestanden (%2$@). Leeg de prullenmand om de ruimte vrij te maken. Mislukt: %3$ld; overgeslagen na hercontrole: %4$ld.";
 "duplicate.status.selection_cleared" = "Alle opruimselecties zijn gewist.";
 "duplicate.status.access_denied" = "Maptoegang verlopen. Selecteer de map opnieuw.";
@@ -454,7 +456,6 @@
 "photos.select.clear" = "Deselecteer";
 "photos.select.all" = "Selecteer alles";
 "photos.delete.confirm.title" = "Geselecteerde foto's naar de prullenmand verplaatsen?";
-"photos.delete.confirm.msg" = "Aantal items dat naar de prullenmand wordt verplaatst: %ld. Je kunt ze via de prullenmand terugzetten.";
 "photos.delete.confirm.button" = "Verplaats naar prullenmand";
 "photos.delete.status.moving" = "Items naar de prullenmand verplaatsen: %ld…";
 "photos.delete.status.success" = "Naar de prullenmand verplaatst: %ld items.";

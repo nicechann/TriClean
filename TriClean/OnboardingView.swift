@@ -48,11 +48,12 @@ struct OnboardingView: View {
             ZStack {
                 ForEach(0..<stepCount, id: \.self) { i in
                     if i == step {
-                        Group {
-                            if i < steps.count {
-                                stepContent(steps[i])
-                            } else {
-                                accessContent
+                        // 큰 글자·긴 번역으로 고정 높이를 넘으면 잘라내지 않고 그 단계만 스크롤한다.
+                        // (예전에는 `.clipped()` 때문에 권한 단계의 "허용" 버튼이 잘릴 수 있었다.)
+                        ViewThatFits(in: .vertical) {
+                            stepBody(i)
+                            ScrollView(.vertical) {
+                                stepBody(i).padding(.vertical, 16)
                             }
                         }
                             .transition(
@@ -124,6 +125,15 @@ struct OnboardingView: View {
             .padding(.bottom, 28)
         }
         .frame(width: 480)
+    }
+
+    @ViewBuilder
+    private func stepBody(_ i: Int) -> some View {
+        if i < steps.count {
+            stepContent(steps[i])
+        } else {
+            accessContent
+        }
     }
 
     // MARK: - Folder access step

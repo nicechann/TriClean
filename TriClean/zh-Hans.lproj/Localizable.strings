@@ -68,6 +68,8 @@
 "storage.scan.sort.note" = "扫描过程中按发现顺序显示，完成后应用排序。";
 "storage.results.header" = "结果";
 "storage.alert.delete.title" = "要移到废纸篓吗？";
+"storage.msg.protected_skipped" = "已跳过 %ld 个受保护的项目。「文稿」「图片」「资源库」等标准文件夹和照片图库无法从这里移到废纸篓。";
+"storage.help.protected" = "受保护的文件夹 — 无法从这里移到废纸篓";
 "storage.msg.manual" = "正在分析「%@」文件夹…";
 "storage.msg.auto" = "条件已更改，正在重新分析…";
 "storage.msg.canceled" = "已取消扫描。";
@@ -86,7 +88,6 @@
 "storage.msg.analyzing_home_apps" = "正在分析个人文件夹与应用程序…";
 "storage.alert.delete.msg_folder" = "文件夹「%@」将被移到废纸篓。你可以从 Finder 中恢复。";
 "storage.alert.delete.msg_file" = "文件「%@」将被移到废纸篓。你可以从 Finder 中恢复。";
-"storage.alert.delete.msg_multi" = "已选择的 %ld 个项目将被移到废纸篓。你可以从 Finder 中恢复。";
 "storage.status.header" = "当前扫描";
 "storage.status.folder" = "所选文件夹";
 "storage.status.folder_none" = "未选择文件夹";
@@ -121,9 +122,9 @@
 "junk.section.clean_all" = "清理所有已选项目";
 "junk.section.last_scan" = "上次扫描：%@";
 "junk.section.alert.title" = "清理所选垃圾文件";
-"junk.section.alert.message" = "将 %@ 移到废纸篓。\n你可以从 Finder 中恢复。";
 "junk.category.alert.title" = "清理%@";
 "junk.category.alert.message" = "将选中的 %1$ld 个项目（%2$@）移到废纸篓。\n你可以在“访达”中恢复。";
+"common.confirm_trash_count_size" = "将选中的 %1$ld 个项目（%2$@）移到废纸篓。\n你可以在“访达”中恢复。";
 "junk.scope.title" = "选择个人资源库（~/Library）";
 "junk.scope.message" = "选择要扫描垃圾文件的个人资源库文件夹。";
 "junk.progress.preparing" = "正在准备扫描…";
@@ -327,6 +328,8 @@
 "duplicate.cleanup_result.title" = "清理完成";
 "duplicate.cleanup_result.body" = "已将 %ld 个重复文件移到废纸篓。清倒废纸篓后约可释放 %@。";
 "duplicate.cleanup_result.body_with_failures" = "已将 %ld 个重复文件移到废纸篓。清倒废纸篓后约可释放 %@。有 %ld 个项目无法移动。";
+"duplicate.cleanup_result.title_none" = "未移到废纸篓";
+"duplicate.cleanup_result.body_none" = "没有文件被移到废纸篓。失败 %1$ld 个；因扫描后发生变化而跳过 %2$ld 个。请重新扫描。";
 "duplicate.status.collecting" = "正在收集文件…";
 "duplicate.status.found_files" = "找到 %ld 个文件";
 "duplicate.status.grouping_by_size" = "正在按大小分组…";
@@ -343,7 +346,6 @@
 "duplicate.status.cleanup_done" = "已将 %ld 个重复文件（%@）移到废纸篓。清倒废纸篓后即可释放空间。";
 "duplicate.status.cleanup_failed" = "TriClean 无法将所选重复文件移到废纸篓。";
 "duplicate.status.cleanup_running" = "正在将重复文件移到废纸篓…";
-"duplicate.status.revalidate_needed" = "有 %ld 组因无法确认要保留的文件而被跳过。请重新扫描。";
 "duplicate.status.cleanup_summary" = "已将 %1$ld 个重复文件（%2$@）移到废纸篓。清倒废纸篓后即可释放空间。失败 %3$ld 个；重新校验后跳过 %4$ld 个。";
 "duplicate.status.selection_cleared" = "已清除所有待清理选择。";
 "duplicate.status.access_denied" = "文件夹访问权限已失效。请重新选择文件夹。";
@@ -454,7 +456,6 @@
 "photos.select.clear" = "取消选择";
 "photos.select.all" = "全选";
 "photos.delete.confirm.title" = "要将所选照片移到废纸篓吗？";
-"photos.delete.confirm.msg" = "%ld 个项目将被移到废纸篓。你可以从废纸篓中恢复。";
 "photos.delete.confirm.button" = "移到废纸篓";
 "photos.delete.status.moving" = "正在将 %ld 个项目移到废纸篓…";
 "photos.delete.status.success" = "已将 %ld 个项目移到废纸篓。";

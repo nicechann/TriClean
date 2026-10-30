@@ -32,6 +32,8 @@ struct DuplicateCleanupResult: Identifiable {
     let deletedCount: Int
     let deletedBytes: Int64
     let failedCount: Int
+    /// 보존본·대상이 스캔 이후 바뀌어 재검증에서 제외된 파일 수.
+    var excludedCount: Int = 0
 
     var deletedBytesString: String {
         ByteCountFormatter.string(fromByteCount: deletedBytes, countStyle: .file)
@@ -694,12 +696,13 @@ final class DuplicateScannerViewModel: ObservableObject {
         lastCleanupResult = DuplicateCleanupResult(
             deletedCount: outcome.deletedCount,
             deletedBytes: outcome.deletedBytes,
-            failedCount: outcome.failedCount
+            failedCount: outcome.failedCount,
+            excludedCount: outcome.excludedCount
         )
 
         if outcome.deletedCount == 0 {
             statusMessage = outcome.excludedCount > 0
-                ? "duplicate.status.revalidate_needed".localized(with: outcome.excludedCount)
+                ? "duplicate.cleanup_result.body_none".localized(with: outcome.failedCount, outcome.excludedCount)
                 : "duplicate.status.cleanup_failed".localized
         } else if outcome.failedCount > 0 || outcome.excludedCount > 0 {
             statusMessage = "duplicate.status.cleanup_summary".localized(

@@ -388,19 +388,27 @@ struct LargeFilesView: View {
                 .width(min: 90, ideal: 100, max: 110)
 
                 TableColumn("") { item in
+                    // Documents·Pictures·Library 하위 1단계·사진 보관함 같은 보호 위치는
+                    // 통째로 옮길 수 없다(`ProtectedPaths`). 삭제 단계에서도 다시 막는다.
+                    let isProtected = viewModel.isProtected(item)
                     Button(role: .destructive) {
                         requestDelete(item)
                     } label: {
-                        Image(systemName: "trash")
+                        Image(systemName: isProtected ? "lock.fill" : "trash")
                             .appIconFont(13, weight: .semibold)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(isProtected ? Color.secondary : Color.red)
                             .padding(6)
-                            .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+                            .background(
+                                (isProtected ? Color.secondary : Color.red).opacity(0.12),
+                                in: RoundedRectangle(cornerRadius: 8)
+                            )
                     }
                     .buttonStyle(.plain)
-                    .disabled(viewModel.isScanning || viewModel.isDeleting)
-                    .help("common.trash".localized)
-                    .accessibilityLabel(Text("common.trash".localized + " — " + item.name))
+                    .disabled(viewModel.isScanning || viewModel.isDeleting || isProtected)
+                    .help(isProtected ? "storage.help.protected".localized : "common.trash".localized)
+                    .accessibilityLabel(Text(
+                        (isProtected ? "storage.help.protected".localized : "common.trash".localized) + " — " + item.name
+                    ))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .width(min: 44, ideal: 48, max: 52)
@@ -419,7 +427,10 @@ struct LargeFilesView: View {
                 let key = target.isDirectory ? "storage.alert.delete.msg_folder" : "storage.alert.delete.msg_file"
                 Text(key.localized(with: target.name))
             } else {
-                Text("storage.alert.delete.msg_multi".localized(with: viewModel.deleteTargets.count))
+                Text("common.confirm_trash_count_size".localized(
+                    with: viewModel.deleteTargets.count,
+                    ByteCountFormatter.string(fromByteCount: viewModel.deleteTargetsBytes, countStyle: .file)
+                ))
             }
         }
         .padding(.horizontal, 12)

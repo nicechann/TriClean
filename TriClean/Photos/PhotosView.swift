@@ -143,7 +143,10 @@ struct PhotosView: View {
                 viewModel.deleteSelected()
             }
         } message: {
-            Text("photos.delete.confirm.msg".localized(with: viewModel.selectedCount))
+            Text("common.confirm_trash_count_size".localized(
+                with: viewModel.selectedCount,
+                viewModel.selectedSizeString
+            ))
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView()

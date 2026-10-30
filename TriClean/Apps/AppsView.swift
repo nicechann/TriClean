@@ -1484,8 +1484,12 @@ struct AppsView: View {
     @State private var hoveredAppID: String? = nil
     @State private var showCompactDetailsSheet = false
     @State private var showPaywall = false
+    /// 권한 카드·요약·안내·필터 영역의 실제 높이. 표에 줄 높이를 계산하는 데 쓴다.
+    @State private var topSectionsHeight: CGFloat = 0
 
     private let inspectorBreakpoint: CGFloat = 1400
+    /// 창이 낮거나 글자가 커도 표가 이 높이 아래로 줄지 않게 하고, 대신 화면 전체를 스크롤한다.
+    private let minTableAreaHeight: CGFloat = 320
     private let inspectorMinWidth: CGFloat = 340
     private let inspectorMaxWidth: CGFloat = 420
 
@@ -1519,13 +1523,64 @@ struct AppsView: View {
         }
     }
 
-    private func regularLayout(size: CGSize) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            topSections(compact: false)
+    /// 상단 영역을 뺀 나머지 높이를 표 영역에 준다.
+    ///
+    /// ⚠️ 예전에는 스크롤 없이 상단 영역(약 650pt)과 표(최소 220pt)를 쌓아, 1000×700 창이나
+    ///    큰 글자·긴 번역에서 표 아래가 창 밖으로 잘렸다. 남는 높이가 최소치보다 작으면
+    ///    표는 최소 높이를 유지하고 바깥 ScrollView가 화면 전체를 스크롤한다.
+    private func tableAreaHeight(for size: CGSize) -> CGFloat {
+        max(minTableAreaHeight, size.height - topSectionsHeight - 12)
+    }
 
-            HSplitView {
-                VStack(alignment: .leading, spacing: 10) {
-                    appsTableSection(compact: false, useInspector: true)
+    private func measuredTopSections(compact: Bool) -> some View {
+        topSections(compact: compact)
+            .background(
+                GeometryReader { geometry in
+                    Color.clear
+                        .onAppear { topSectionsHeight = geometry.size.height }
+                        .onValueChange(of: geometry.size.height) { topSectionsHeight = $0 }
+                }
+            )
+    }
+
+    private func regularLayout(size: CGSize) -> some View {
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 12) {
+                measuredTopSections(compact: false)
+
+                HSplitView {
+                    VStack(alignment: .leading, spacing: 10) {
+                        appsTableSection(compact: false, useInspector: true)
+
+                        if let status = viewModel.lastStatusMessage {
+                            Text(status)
+                                .appFont(.footnote)
+                                .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                    inspectorPanel
+                        .frame(minWidth: inspectorMinWidth,
+                               idealWidth: min(max(size.width * 0.30, inspectorMinWidth), inspectorMaxWidth),
+                               maxWidth: inspectorMaxWidth,
+                               maxHeight: .infinity,
+                               alignment: .top)
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .frame(height: tableAreaHeight(for: size))
+            }
+        }
+        .hardTopScrollEdge()
+    }
+
+    private func compactLayout(size: CGSize) -> some View {
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 12) {
+                measuredTopSections(compact: true)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    appsTableSection(compact: true, useInspector: false)
 
                     if let status = viewModel.lastStatusMessage {
                         Text(status)
@@ -1533,32 +1588,10 @@ struct AppsView: View {
                             .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                inspectorPanel
-                    .frame(minWidth: inspectorMinWidth,
-                           idealWidth: min(max(size.width * 0.30, inspectorMinWidth), inspectorMaxWidth),
-                           maxWidth: inspectorMaxWidth,
-                           maxHeight: .infinity,
-                           alignment: .top)
+                .frame(height: tableAreaHeight(for: size), alignment: .topLeading)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-    }
-
-    private func compactLayout(size: CGSize) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            topSections(compact: true)
-            appsTableSection(compact: true, useInspector: false)
-
-            if let status = viewModel.lastStatusMessage {
-                Text(status)
-                    .appFont(.footnote)
-                    .foregroundStyle(viewModel.lastStatusIsError ? .red : .secondary)
-            }
-
-            Spacer(minLength: 0)
-        }
+        .hardTopScrollEdge()
     }
 
     private func topSections(compact: Bool) -> some View {

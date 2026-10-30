@@ -69,7 +69,10 @@ struct DuplicateFinderView: View {
         }
         .alert(item: $viewModel.lastCleanupResult) { result in
             Alert(
-                title: Text("duplicate.cleanup_result.title".localized),
+                // 하나도 옮기지 못했는데 "정리 완료"로 보이지 않도록 제목을 나눈다.
+                title: Text(result.deletedCount > 0
+                    ? "duplicate.cleanup_result.title".localized
+                    : "duplicate.cleanup_result.title_none".localized),
                 message: Text(cleanupMessage(for: result)),
                 dismissButton: .default(Text("common.close".localized))
             )
@@ -590,6 +593,20 @@ struct DuplicateFinderView: View {
     }
 
     private func cleanupMessage(for result: DuplicateCleanupResult) -> String {
+        if result.deletedCount == 0 {
+            return result.failedCount + result.excludedCount > 0
+                ? "duplicate.cleanup_result.body_none".localized(with: result.failedCount, result.excludedCount)
+                : "duplicate.status.cleanup_failed".localized
+        }
+        // 일부가 재검증에서 빠졌다면 결과창에도 그 수를 보여 준다(상태줄에만 두면 놓친다).
+        if result.excludedCount > 0 {
+            return "duplicate.status.cleanup_summary".localized(
+                with: result.deletedCount,
+                result.deletedBytesString,
+                result.failedCount,
+                result.excludedCount
+            )
+        }
         if result.failedCount > 0 {
             return "duplicate.cleanup_result.body_with_failures".localized(
                 with: result.deletedCount,

@@ -649,16 +649,49 @@ final class LargeFilesViewModel: ObservableObject {
 
     func requestDelete(_ item: FolderInfo) {
         guard !isScanning, !isDeleting else { return }
-        deleteTargets = [item]
-        showingDeleteAlert = true
+        presentDeleteConfirmation(for: [item])
     }
 
     func requestDeleteSelected() {
         guard !isScanning, !isDeleting else { return }
         let selected = folderResults.filter { tableSelection.contains($0.id) }
         guard !selected.isEmpty else { return }
-        deleteTargets = selected
+        presentDeleteConfirmation(for: selected)
+    }
+
+    /// 확인창에는 **실제로 옮길 대상**의 개수·용량을 보여 준다.
+    /// 상위 폴더와 그 하위 항목을 함께 고르면 상위 폴더 하나만 옮기고,
+    /// 보호 위치(Documents·Pictures·Library 하위 1단계·사진 보관함 등)는 대상에서 뺀다.
+    private func presentDeleteConfirmation(for items: [FolderInfo]) {
+        let prepared = Self.prepareDeleteTargets(items)
+        if prepared.protectedCount > 0 {
+            scanMessage = "storage.msg.protected_skipped".localized(with: prepared.protectedCount)
+        }
+        guard !prepared.targets.isEmpty else {
+            deleteTargets = []
+            return
+        }
+        deleteTargets = prepared.targets
         showingDeleteAlert = true
+    }
+
+    /// 확인창 문구용 합계. `deleteTargets`는 이미 정규화돼 있어 하위 항목이 중복 합산되지 않는다.
+    var deleteTargetsBytes: Int64 {
+        deleteTargets.reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    /// 목록에서 휴지통 버튼을 비활성화할지. 렌더링마다 불리므로 디스크를 읽지 않는다.
+    func isProtected(_ item: FolderInfo) -> Bool {
+        ProtectedPaths.isProtected(item.url, resolvingSymlinks: false)
+    }
+
+    nonisolated static func prepareDeleteTargets(
+        _ items: [FolderInfo],
+        home: URL = ProtectedPaths.realHomeDirectory
+    ) -> (targets: [FolderInfo], protectedCount: Int) {
+        let normalized = normalizedDeleteTargets(items)
+        let allowed = normalized.filter { !ProtectedPaths.isProtected($0.url, home: home) }
+        return (allowed, normalized.count - allowed.count)
     }
 
     func cancelDeleteRequest() {
@@ -672,7 +705,8 @@ final class LargeFilesViewModel: ObservableObject {
             deleteTargets = []
             return
         }
-        let candidates = Self.normalizedDeleteTargets(deleteTargets)
+        // 확인창을 띄울 때 이미 정규화·보호 위치 제외를 마친 목록이다.
+        let candidates = deleteTargets
         guard !candidates.isEmpty else { return }
         guard !isDeleting else { return }
 
@@ -765,22 +799,39 @@ final class LargeFilesViewModel: ObservableObject {
         }
     }
 
-    nonisolated private static func normalizedDeleteTargets(_ items: [FolderInfo]) -> [FolderInfo] {
-        let sorted = items.sorted { lhs, rhs in
-            let lhsPath = DeletionSafety.resolvedPath(for: lhs.url)
-            let rhsPath = DeletionSafety.resolvedPath(for: rhs.url)
-            if lhsPath.count == rhsPath.count { return lhsPath < rhsPath }
-            return lhsPath.count < rhsPath.count
-        }
+    /// 상위 폴더와 그 하위 항목을 함께 고른 경우 상위 폴더만 남긴다(폴더째 휴지통으로 가므로).
+    ///
+    /// ⚠️ 예전에는 정렬 비교마다 realpath를 두 번 호출하고 포함 여부를 O(n²)로 검사해,
+    ///    수천 행을 고르고 확인하면 메인 스레드가 수 초 멈췄다. 항목마다 경로를 한 번만
+    ///    해석하고, 남긴 폴더 경로 집합에 상위 경로가 있는지만 본다(O(n·깊이)).
+    nonisolated static func normalizedDeleteTargets(_ items: [FolderInfo]) -> [FolderInfo] {
+        typealias ResolvedTarget = (item: FolderInfo, path: String)
+        let resolved: [ResolvedTarget] = items
+            .map { item -> ResolvedTarget in (item, DeletionSafety.resolvedPath(for: item.url)) }
+            .sorted { (lhs: ResolvedTarget, rhs: ResolvedTarget) -> Bool in
+                if lhs.path.count != rhs.path.count { return lhs.path.count < rhs.path.count }
+                return lhs.path < rhs.path
+            }
 
+        var keptPaths = Set<String>()
+        var keptDirectoryPaths = Set<String>()
         var result: [FolderInfo] = []
-        for item in sorted {
-            let isCoveredByParent = result.contains { parent in
-                parent.isDirectory && DeletionSafety.isContained(item.url, inScope: parent.url)
+        for entry in resolved {
+            guard keptPaths.insert(entry.path).inserted else { continue }
+
+            var ancestor = (entry.path as NSString).deletingLastPathComponent
+            var isCoveredByParent = false
+            while ancestor.count > 1 {
+                if keptDirectoryPaths.contains(ancestor) {
+                    isCoveredByParent = true
+                    break
+                }
+                ancestor = (ancestor as NSString).deletingLastPathComponent
             }
-            if !isCoveredByParent {
-                result.append(item)
-            }
+            guard !isCoveredByParent else { continue }
+
+            result.append(entry.item)
+            if entry.item.isDirectory { keptDirectoryPaths.insert(entry.path) }
         }
         return result
     }
@@ -799,6 +850,10 @@ final class LargeFilesViewModel: ObservableObject {
             return LargeDeleteOutcome(succeededURLs: [], rejectedCount: candidates.count)
         }
 
+        // 확인창 단계에서 이미 걸렀지만, 삭제 직전에 링크를 해석한 실제 위치로 한 번 더 막는다.
+        let unprotected = candidates.filter { !ProtectedPaths.isProtected($0.url) }
+        let protectedCount = candidates.count - unprotected.count
+
         // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.
         // 루트 자체, 형제 경로, 심볼릭 링크로 빠져나간 경로는 모두 제외합니다.
         // 폴더는 스캔~삭제 사이에 내부 파일이 바뀌면 크기·수정 시각이 달라진다.
@@ -806,7 +861,7 @@ final class LargeFilesViewModel: ObservableObject {
         // 이유 없이 제외된다. device·inode·항목 유형은 여전히 일치해야 하므로
         // 같은 경로가 다른 폴더로 교체된 경우는 계속 거부된다.
         let outcome = await TrashService.sanitizeAndMoveToTrash(
-            candidates,
+            unprotected,
             scopes: [.descendants(of: validationScope)],
             url: \.url,
             identity: \.fileIdentity,
@@ -816,7 +871,7 @@ final class LargeFilesViewModel: ObservableObject {
 
         return LargeDeleteOutcome(
             succeededURLs: Set(outcome.succeeded.map { $0.url.standardizedFileURL }),
-            rejectedCount: outcome.excludedCount
+            rejectedCount: outcome.excludedCount + protectedCount
         )
     }
 }
