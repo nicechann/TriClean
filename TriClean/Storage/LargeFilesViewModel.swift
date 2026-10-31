@@ -553,6 +553,8 @@ final class LargeFilesViewModel: ObservableObject {
                     // 패키지·숨김 폴더 내부 파일은 합계에만 넣고 개별 행으로는 노출하지 않는다.
                     var packagePrefixes: [String] = []
                     packagePrefixes.reserveCapacity(8)
+                    // 보관함을 담은 폴더(예: ~/Music/Music)는 경로 규칙만으로는 알 수 없어 여기서 기록한다.
+                    var containsManagedLibrary = false
 
                     let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
                     let isPackageRoot = topPackages.contains(folder)
@@ -578,6 +580,10 @@ final class LargeFilesViewModel: ObservableObject {
                             }
 
                             guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else { return }
+
+                            if values.isDirectory == true && ProtectedPaths.isManagedLibrary(url) {
+                                containsManagedLibrary = true
+                            }
 
                             if values.isDirectory == true && (values.isPackage == true || values.isHidden == true) {
                                 let prefix = url.path.hasSuffix("/") ? url.path : (url.path + "/")
@@ -607,7 +613,14 @@ final class LargeFilesViewModel: ObservableObject {
                     guard total >= minBytes else { continue }
 
                     continuation.yield([
-                        FolderInfo(url: folder, sizeBytes: total, isDirectory: true, depth: 0, parentURL: nil)
+                        FolderInfo(
+                            url: folder,
+                            sizeBytes: total,
+                            isDirectory: true,
+                            depth: 0,
+                            parentURL: nil,
+                            containsManagedLibrary: containsManagedLibrary
+                        )
                     ])
                     await Task.yield()
 
@@ -682,16 +695,27 @@ final class LargeFilesViewModel: ObservableObject {
 
     /// 목록에서 휴지통 버튼을 비활성화할지. 렌더링마다 불리므로 디스크를 읽지 않는다.
     func isProtected(_ item: FolderInfo) -> Bool {
-        ProtectedPaths.isProtected(item.url, resolvingSymlinks: false)
+        Self.isProtected(item, resolvingSymlinks: false)
     }
 
+    nonisolated static func isProtected(
+        _ item: FolderInfo,
+        home: URL = ProtectedPaths.realHomeDirectory,
+        resolvingSymlinks: Bool = true
+    ) -> Bool {
+        item.containsManagedLibrary
+            || ProtectedPaths.isProtected(item.url, home: home, resolvingSymlinks: resolvingSymlinks)
+    }
+
+    /// ⚠️ 보호 위치를 **먼저** 빼고 정규화한다. 순서가 반대면 보호 폴더(~/Downloads)와 그 안의
+    ///    파일(~/Downloads/big.dmg)을 함께 골랐을 때 파일이 보호 폴더에 흡수된 뒤 폴더째 빠져,
+    ///    지울 수 있는 파일이 아무 안내 없이 대상에서 사라졌다.
     nonisolated static func prepareDeleteTargets(
         _ items: [FolderInfo],
         home: URL = ProtectedPaths.realHomeDirectory
     ) -> (targets: [FolderInfo], protectedCount: Int) {
-        let normalized = normalizedDeleteTargets(items)
-        let allowed = normalized.filter { !ProtectedPaths.isProtected($0.url, home: home) }
-        return (allowed, normalized.count - allowed.count)
+        let allowed = items.filter { !isProtected($0, home: home) }
+        return (normalizedDeleteTargets(allowed), items.count - allowed.count)
     }
 
     func cancelDeleteRequest() {
@@ -776,7 +800,8 @@ final class LargeFilesViewModel: ObservableObject {
                     isDirectory: info.isDirectory,
                     depth: info.depth,
                     parentURL: info.parentURL,
-                    fileIdentity: info.fileIdentity
+                    fileIdentity: info.fileIdentity,
+                    containsManagedLibrary: info.containsManagedLibrary
                 )
             }
 
@@ -851,7 +876,7 @@ final class LargeFilesViewModel: ObservableObject {
         }
 
         // 확인창 단계에서 이미 걸렀지만, 삭제 직전에 링크를 해석한 실제 위치로 한 번 더 막는다.
-        let unprotected = candidates.filter { !ProtectedPaths.isProtected($0.url) }
+        let unprotected = candidates.filter { !Self.isProtected($0) }
         let protectedCount = candidates.count - unprotected.count
 
         // 사용자가 선택한 스캔 루트의 하위 항목만 삭제할 수 있습니다.

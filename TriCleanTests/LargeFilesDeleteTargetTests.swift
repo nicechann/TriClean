@@ -62,6 +62,33 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
         }
     }
 
+    func test_동기화서비스_루트와_이름뿐인_보관함도_보호한다() {
+        for path in [
+            "Library/Mobile Documents/com~apple~CloudDocs",
+            "Library/CloudStorage/Dropbox",
+            "Pictures/Photo Booth Library"
+        ] {
+            XCTAssertTrue(ProtectedPaths.isProtected(home.appendingPathComponent(path), home: home), path)
+        }
+        // 동기화 폴더 안의 사용자 폴더는 일반 폴더처럼 다룬다.
+        XCTAssertFalse(ProtectedPaths.isProtected(
+            home.appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs/Projects"), home: home
+        ))
+    }
+
+    func test_보관함을_담은_폴더는_스캔표시로_보호한다() {
+        // ~/Music/Music처럼 경로만으로는 알 수 없는 폴더. 스캔이 남긴 표시로 막는다.
+        let musicFolder = FolderInfo(
+            url: home.appendingPathComponent("Work/Music", isDirectory: true),
+            sizeBytes: 100,
+            isDirectory: true,
+            containsManagedLibrary: true
+        )
+        let prepared = LargeFilesViewModel.prepareDeleteTargets([musicFolder, folder("Work/a")], home: home)
+        XCTAssertEqual(names(prepared.targets), ["Work/a"])
+        XCTAssertEqual(prepared.protectedCount, 1)
+    }
+
     // MARK: - 정규화
 
     func test_상위폴더와_하위항목을_함께고르면_상위폴더만_남긴다() {
@@ -90,6 +117,16 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
         )
         XCTAssertEqual(names(prepared.targets), ["Work"])
         XCTAssertEqual(prepared.protectedCount, 3)
+    }
+
+    func test_보호폴더와_그안의_파일을_함께고르면_파일은_대상에_남는다() {
+        // 정규화를 먼저 하면 파일이 보호 폴더에 흡수된 뒤 폴더째 빠져 조용히 사라졌다.
+        let prepared = LargeFilesViewModel.prepareDeleteTargets(
+            [folder("Documents"), file("Documents/Project/build/app.zip", bytes: 500), folder("Pictures")],
+            home: home
+        )
+        XCTAssertEqual(names(prepared.targets), ["Documents/Project/build/app.zip"])
+        XCTAssertEqual(prepared.protectedCount, 2)
     }
 
     func test_정규화는_항목이_많아도_빠르다() {

@@ -61,6 +61,41 @@ private struct WindowMinSizeSetter: NSViewRepresentable {
     }
 }
 
+/// 메인 창을 하나만 유지한다.
+///
+/// 스캐너 ViewModel은 앱 레벨에서 공유되므로, 창이 둘이면 한 창의 삭제 확인창이 떠 있는 사이
+/// 다른 창에서 바뀐 선택·스캔 결과가 그대로 실행 대상이 되고, 한 창의 탭 이동이 다른 창의
+/// 스캔을 취소한다. 이미 메인 창이 떠 있는데 새 창이 붙으면 새 창을 닫고 기존 창을 앞으로 가져온다.
+/// 기존 창이 닫혀 있으면(재열기) 새 창이 메인 창이 된다.
+private struct SingleMainWindowGuard: NSViewRepresentable {
+    @MainActor
+    enum Registry {
+        static weak var mainWindow: NSWindow?
+    }
+
+    final class ProbeView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else { return }
+
+            if let existing = Registry.mainWindow, existing !== window,
+               existing.isVisible || existing.isMiniaturized {
+                // 붙는 도중에 닫지 않도록 다음 런루프에서 처리한다.
+                Task { @MainActor [weak window, weak existing] in
+                    existing?.deminiaturize(nil)
+                    existing?.makeKeyAndOrderFront(nil)
+                    window?.close()
+                }
+                return
+            }
+            Registry.mainWindow = window
+        }
+    }
+
+    func makeNSView(context: Context) -> ProbeView { ProbeView(frame: .zero) }
+    func updateNSView(_ nsView: ProbeView, context: Context) {}
+}
+
 @main
 struct TriCleanApp: App {
     
@@ -147,6 +182,8 @@ struct TriCleanApp: App {
             }
             // ✅ 창 최소 크기 강제(사용자가 강제로 줄여도 깨지지 않도록)
             .background(WindowMinSizeSetter(minContentSize: minWindowContentSize))
+            // 메인 창은 하나만 유지한다(⌘N, 이전 버전에서 여러 창 복원 등).
+            .background(SingleMainWindowGuard())
             // ✅ 레이아웃 최소치(콘텐츠)
             .frame(minWidth: minWindowContentSize.width, minHeight: minWindowContentSize.height)
             // ✅ EnvironmentObject 주입(하위 뷰에서 공통 사용)
@@ -192,13 +229,10 @@ struct TriCleanApp: App {
             }
         }
         .commands {
-            // ⚠️ 메인 창은 하나만 둔다. 스캐너 ViewModel은 앱 레벨에서 공유되므로, 창이 둘이면
-            //    한 창의 삭제 확인창이 떠 있는 사이 다른 창에서 바뀐 선택·스캔 결과가 그대로
-            //    실행 대상이 되고, 한 창의 탭 이동이 다른 창의 스캔을 취소한다.
-            //    "새 윈도우"(⌘N)를 없애고, 메뉴바 등에서 여는 경로는 기존 창을 앞으로 가져온다
-            //    (`openPaywallWindow`).
-            CommandGroup(replacing: .newItem) { }
-
+            // ⚠️ `CommandGroup(replacing: .newItem) { }`로 "새 윈도우"를 없애지 말 것.
+            //    SwiftUI는 Dock 클릭·Finder 재실행(재열기 이벤트)으로 닫힌 창을 다시 열 때 이 명령을
+            //    쓴다. 없애면 메인 창을 닫은 뒤 다시 열 방법이 사라진다(메뉴바 때문에 앱은 계속 실행됨).
+            //    창이 둘 생기는 것은 `SingleMainWindowGuard`가 막는다.
             CommandGroup(after: .appInfo) {
                 if !storeManager.isPurchased {
                     Button("menu.buy_pro".localized) {

@@ -34,6 +34,9 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
     
     /// depth > 0 인 경우, 어떤 상위 폴더 아래에 붙는지(표시/삭제 동기화용)
     let parentURL: URL?
+
+    /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인). 이런 폴더는 통째로 옮기지 않는다.
+    let containsManagedLibrary: Bool
     
     init(
         url: URL,
@@ -41,7 +44,8 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         isDirectory: Bool,
         depth: Int = 0,
         parentURL: URL? = nil,
-        fileIdentity: FileIdentitySnapshot? = nil
+        fileIdentity: FileIdentitySnapshot? = nil,
+        containsManagedLibrary: Bool = false
     ) {
         self.id = Self.stableID(for: url)
         self.url = url
@@ -50,6 +54,7 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         self.depth = depth
         self.parentURL = parentURL
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
+        self.containsManagedLibrary = containsManagedLibrary
     }
     
     static func stableID(for url: URL) -> UUID {
