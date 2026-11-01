@@ -6,6 +6,7 @@
 //  `TRICLEAN_DEMO=1`로 실행하면 실제 디스크를 스캔하지 않고 가상 데이터로 화면을 채운 뒤
 //  정해진 순서로 화면을 넘긴다. 녹화 도구가 표준 출력의 `DEMO_*` 줄로 타이밍을 맞춘다.
 //  삭제·정리 동작은 호출하지 않으며, 모든 경로는 존재하지 않는 `/Users/demo` 아래를 가리킨다.
+//  자막은 `demo.caption.*` 키로 앱 언어(-AppleLanguages)를 따르며, 없는 언어는 앱의 기본 폴백을 쓴다.
 //
 
 #if DEBUG
@@ -29,6 +30,39 @@ enum DemoMode {
     static func emit(_ line: String) {
         print(line)
         fflush(stdout)
+    }
+
+    /// 영상에 나오는 디스크 용량. 실제 Mac의 값을 쓰면 가상 스캔 결과와 섞여 실제 결과처럼 보인다.
+    static let diskInfo = DiskInfo(
+        name: "Macintosh HD",
+        totalBytes: 494_384_795_648,
+        freeBytes: 93_180_000_000,
+        usedBytes: 401_204_795_648
+    )
+
+    /// 장면 자막 키(순서대로).
+    enum Caption: String, CaseIterable {
+        case smartScan = "demo.caption.smart_scan"
+        case junk = "demo.caption.junk"
+        case largeFiles = "demo.caption.large_files"
+        case duplicates = "demo.caption.duplicates"
+        case apps = "demo.caption.apps"
+        case trash = "demo.caption.trash"
+
+        var text: String { rawValue.localized }
+    }
+
+    /// 녹화 도구가 영상 구석에 표시하는 "예시 데이터" 안내.
+    static var sampleDataNote: String { "demo.note.sample_data".localized }
+
+    /// 데모 동안 구매 상태를 강제하고, 시나리오가 성공하든 중간에 실패하든 반드시 되돌린다.
+    @MainActor
+    static func withPurchaseOverride(
+        _ session: DebugPurchaseOverrideSession,
+        _ scenario: () async -> Bool
+    ) async -> Bool {
+        defer { session.restore() }
+        return await scenario()
     }
 
     private static func daysAgo(_ days: Double) -> Date {
@@ -217,9 +251,9 @@ struct DemoDirector: ViewModifier {
         try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
     }
 
-    private func caption(_ text: String) {
+    private func caption(_ caption: DemoMode.Caption) {
         refocus()
-        DemoMode.emit("DEMO_CAPTION \(text)")
+        DemoMode.emit("DEMO_CAPTION \(caption.text)")
     }
 
     /// 녹화 중 다른 앱이 앞으로 나오면 비활성 창 색으로 찍히므로 장면마다 다시 앞으로 가져온다.
@@ -249,9 +283,24 @@ struct DemoDirector: ViewModifier {
 
     @MainActor
     private func run() async {
-        let originalPurchaseOverride = storeManager.debugPurchaseOverride
-        storeManager.debugPurchaseOverride = true
+        let session = storeManager.beginDemoPurchaseOverride()
+        // 녹화 도중 앱이 종료돼도(Cmd-Q 등) 구매 강제값을 원래대로 되돌린다.
+        let terminateObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification, object: nil, queue: .main
+        ) { _ in
+            MainActor.assumeIsolated { session.restore() }
+        }
 
+        _ = await DemoMode.withPurchaseOverride(session) { await performScenario() }
+
+        NotificationCenter.default.removeObserver(terminateObserver)
+        // 녹화 도구가 끝나도록 실패한 경우에도 앱을 닫는다.
+        NSApp.terminate(nil)
+    }
+
+    /// - Returns: 끝까지 진행했는지(창을 찾지 못하면 false).
+    @MainActor
+    private func performScenario() async -> Bool {
         // 시작 화면: 권한은 받은 상태, 결과는 비어 있음
         junkViewModel.libraryURL = DemoMode.library
         junkViewModel.results = []
@@ -265,7 +314,7 @@ struct DemoDirector: ViewModifier {
         await sleep(1.0)
         guard let window = prepareWindow() else {
             DemoMode.emit("DEMO_ERROR no window")
-            return
+            return false
         }
         await sleep(1.0)
         DemoMode.emit("DEMO_WINDOW \(window.windowNumber)")
@@ -273,8 +322,9 @@ struct DemoDirector: ViewModifier {
         await sleep(3.0)
 
         // 1) 스마트 스캔
+        DemoMode.emit("DEMO_NOTE \(DemoMode.sampleDataNote)")
         DemoMode.emit("DEMO_START")
-        caption("클릭 한 번으로 정리할 항목을 찾아요")
+        caption(.smartScan)
         await sleep(1.0)
         junkViewModel.isScanning = true
         junkViewModel.scanProgress = "junk.progress.scanning_format".localized(with: "junk.category.system_caches.title".localized)
@@ -304,23 +354,23 @@ struct DemoDirector: ViewModifier {
 
         // 2) 저장 공간 + 정크
         selection = .storage
-        caption("캐시·로그를 위험도별로 안전하게 정리")
+        caption(.junk)
         await sleep(5.0)
 
         // 3) 대용량 파일
         largeFilesViewModel.applyDemoResults(folder: DemoMode.home, results: DemoMode.largeFileResults())
         selection = .largeFiles
-        caption("큰 파일과 폴더를 트리맵으로 한눈에")
+        caption(.largeFiles)
         await sleep(5.0)
 
         // 4) 중복 파일
         selection = .duplicates
-        caption("내용까지 비교해 정확하게 찾는 중복 파일")
+        caption(.duplicates)
         await sleep(5.0)
 
         // 5) 앱 + 남은 파일
         selection = .apps
-        caption("앱을 지울 때 남은 파일까지 함께")
+        caption(.apps)
         await sleep(1.5)
         if let app = appsViewModel.installedApps.first(where: { $0.name == "PixelForge" }) {
             appsViewModel.selectedInstalledAppIDs = [app.id]
@@ -332,13 +382,12 @@ struct DemoDirector: ViewModifier {
             DemoMode.appDetailsRequests.send(())
         }
         await sleep(2.6)
-        caption("모든 삭제는 휴지통으로, 언제든 되돌릴 수 있어요")
+        caption(.trash)
         await sleep(2.8)
 
         DemoMode.emit("DEMO_END")
         await sleep(0.5)
-        storeManager.debugPurchaseOverride = originalPurchaseOverride
-        NSApp.terminate(nil)
+        return true
     }
 }
 #endif

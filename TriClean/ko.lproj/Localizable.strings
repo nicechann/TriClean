@@ -77,7 +77,9 @@
 "storage.msg.protected_skipped" = "보호된 항목 %ld개는 건너뛰었습니다. 문서·사진·라이브러리 같은 기본 폴더와 사진 보관함은 여기서 휴지통으로 옮길 수 없습니다.";
 "storage.help.protected" = "보호된 폴더 — 여기서 휴지통으로 옮길 수 없습니다";
 "storage.help.incomplete" = "일부 하위 항목을 읽지 못한 폴더 — 폴더째 휴지통으로 옮길 수 없습니다";
+"storage.help.cloud_only" = "클라우드 전용 파일이 들어 있는 폴더 — 폴더째 휴지통으로 옮길 수 없습니다";
 "storage.msg.incomplete_skipped" = "하위 항목을 모두 읽지 못한 폴더 %ld개는 건너뛰었습니다. 폴더 안의 항목을 직접 정리하거나 접근 권한을 확인한 뒤 다시 스캔해 주세요.";
+"storage.msg.cloud_only_skipped" = "클라우드에만 있는 파일이 들어 있는 폴더 %ld개는 건너뛰었습니다. 폴더째 옮기면 클라우드 원본까지 지워질 수 있습니다. 로컬에 있는 파일만 골라 정리해 주세요.";
 "storage.msg.manual" = "'%@' 폴더를 분석 중입니다…";
 "storage.msg.auto" = "조건 변경으로 다시 분석 중입니다…";
 "storage.msg.canceled" = "분석이 취소되었습니다.";
@@ -121,6 +123,7 @@
 "apps.details.library_guide" = "관련 파일 분석을 하려면 상단에서 홈 라이브러리(~/Library)를 선택해 주세요.";
 "apps.details.scanning" = "관련 파일 검색 중…";
 "apps.details.no_related" = "관련 파일이 없거나 찾지 못했습니다.";
+"apps.details.related_unverifiable" = "번들 ID를 확인할 수 없는 앱입니다. 찾은 항목은 다른 앱과 함께 쓰는 데이터일 수 있어 참고용으로만 보여 주며, 여기서 휴지통으로 옮길 수 없습니다. 필요하면 Finder에서 직접 확인해 주세요.";
 "apps.details.found_count" = "관련 파일 (%ld)";
 "apps.details.trash_selected" = "선택 항목 휴지통으로 이동";
 "apps.details.guide" = "테이블에서 앱을 선택해 세부 정보를 확인하거나, 상단의 '앱 파일 직접 선택…' 버튼으로 앱을 지정해 관련 파일(캐시, 설정 등)을 검토합니다.";
@@ -172,6 +175,8 @@
 "apps.status.scan_found_shared" = "관련 항목 %ld개를 찾았습니다. 설치된 다른 앱이나 시스템과 공유될 수 있어 기본 선택하지 않았습니다. 확인 후 직접 선택하세요.";
 "apps.status.scan_found_installed" = "관련 항목 %ld개를 찾았습니다. 앱이 아직 설치되어 있어 기본 선택하지 않았습니다. 앱을 먼저 제거하거나 직접 선택하세요.";
 "apps.status.related_app_running" = "%@(또는 같은 데이터를 쓰는 앱)이 실행 중입니다. 앱을 종료한 뒤 다시 시도하세요.";
+"apps.status.related_no_bundle_id" = "%@ 앱의 번들 ID를 확인할 수 없어 관련 파일을 삭제하지 않았습니다. 실행 여부와 파일의 소유 앱을 확인할 수 없고, 이름으로 찾은 항목은 다른 앱과 함께 쓰는 데이터일 수 있습니다.";
+"apps.status.related_invalid_bundle_id" = "%@ 앱의 번들 ID 형식이 올바르지 않아 관련 파일을 삭제하지 않았습니다. 실행 여부와 파일의 소유 앱을 안전하게 확인할 수 없습니다.";
 
 /* Settings View */
 "settings.display" = "표시";
@@ -671,3 +676,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "휴지통으로 옮긴 항목: %ld개. 디스크 공간을 실제로 확보하려면 Dock의 휴지통을 열어 ‘비우기’를 누르세요.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "클릭 한 번으로 정리할 항목을 찾아요";
+"demo.caption.junk" = "캐시·로그를 위험도별로 안전하게 정리";
+"demo.caption.large_files" = "큰 파일과 폴더를 트리맵으로 한눈에";
+"demo.caption.duplicates" = "내용까지 비교해 정확하게 찾는 중복 파일";
+"demo.caption.apps" = "앱을 지울 때 남은 파일까지 함께";
+"demo.caption.trash" = "모든 삭제는 휴지통으로, 비우기 전까지 되돌릴 수 있어요";
+"demo.note.sample_data" = "화면의 파일·앱·용량은 예시 데이터입니다";

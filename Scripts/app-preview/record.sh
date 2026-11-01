@@ -16,11 +16,13 @@
 #   - 실행한 터미널(또는 상위 앱)에 화면 기록 권한이 필요하다.
 #   - 녹화 중(약 35초)에는 다른 창을 클릭하지 않는다. 창이 비활성 색으로 찍힌다.
 #   - 창이 1400×850pt로 바뀌므로 화면의 보이는 영역이 그보다 커야 한다.
-#   - 자막은 현재 DemoMode.swift에 한국어로 들어 있다.
+#   - 자막·"예시 데이터" 문구는 지정한 언어의 Localizable.strings(demo.*)를 따른다.
+#     앱이 지원하지 않는 언어는 앱과 같은 기본 폴백 규칙을 쓴다.
 set -eu
 
 LANG_CODE=${1:-ko}
-LOCALE=${2:-ko_KR}
+# 로캘을 생략하면 언어 코드를 그대로 써서 날짜·숫자 형식도 그 언어를 따르게 한다.
+LOCALE=${2:-$LANG_CODE}
 ROOT=${0:A:h:h:h}
 OUT_DIR=$ROOT/build/app-preview
 TOOLS=$OUT_DIR/tools
@@ -36,15 +38,23 @@ RAW=$OUT_DIR/raw_$LANG_CODE.mov
 FINAL=$OUT_DIR/TriClean_AppPreview_$LANG_CODE.mov
 : > $OUT_DIR/app.out
 
+# 녹화가 실패해도 app.out을 붙잡고 있는 tail이 남지 않게 한다.
+# pkill 패턴은 정규식이라 "+"를 [+]로 감싼다.
+cleanup() { pkill -f "tail -n [+]1 -f $OUT_DIR/app.out" || true }
+trap cleanup EXIT
+
 # Launch Services로 띄워야 앱이 앞으로 나와 활성 창으로 찍힌다.
 open -n --env TRICLEAN_DEMO=1 --stdout $OUT_DIR/app.out --stderr $OUT_DIR/app.err $APP \
     --args -AppleLanguages "($LANG_CODE)" -AppleLocale $LOCALE
 tail -n +1 -f $OUT_DIR/app.out | $TOOLS/recorder $RAW 2>$OUT_DIR/recorder.log &
 RECORDER_PID=$!
-wait $RECORDER_PID
-# pkill 패턴은 정규식이라 "+"를 [+]로 감싼다.
-pkill -f "tail -n [+]1 -f $OUT_DIR/app.out" || true
+RECORDER_STATUS=0
+wait $RECORDER_PID || RECORDER_STATUS=$?
 cat $OUT_DIR/recorder.log
+if [[ $RECORDER_STATUS -ne 0 ]]; then
+    echo "녹화 실패(종료 코드 $RECORDER_STATUS). $OUT_DIR/recorder.log와 app.err를 확인하세요." >&2
+    exit $RECORDER_STATUS
+fi
 
 $TOOLS/mux $RAW $FINAL
 echo "완료: $FINAL"

@@ -46,10 +46,45 @@ nonisolated enum CloudFileStatus {
     ///
     /// - Parameter values: 이미 읽어둔 리소스 값. `requiredResourceKeys`가 포함되어 있어야 한다.
     static func isDataless(_ values: URLResourceValues) -> Bool {
+        isDataless(Snapshot(values))
+    }
+
+    /// 판정에 쓰는 값만 모은 것. `URLResourceValues`는 테스트에서 임의 값으로 만들 수 없어
+    /// iCloud·File Provider·네트워크 볼륨 같은 경우를 이 값으로 검증한다.
+    nonisolated struct Snapshot {
+        var downloadingStatus: URLUbiquitousItemDownloadingStatus?
+        var volumeIsLocal: Bool?
+        var logicalSize: Int?
+        /// 실제로 차지한 블록 크기. 알 수 없으면 nil.
+        var allocatedSize: Int?
+
+        init(
+            downloadingStatus: URLUbiquitousItemDownloadingStatus? = nil,
+            volumeIsLocal: Bool? = true,
+            logicalSize: Int?,
+            allocatedSize: Int?
+        ) {
+            self.downloadingStatus = downloadingStatus
+            self.volumeIsLocal = volumeIsLocal
+            self.logicalSize = logicalSize
+            self.allocatedSize = allocatedSize
+        }
+
+        init(_ values: URLResourceValues) {
+            self.init(
+                downloadingStatus: values.ubiquitousItemDownloadingStatus,
+                volumeIsLocal: values.volumeIsLocal,
+                logicalSize: values.fileSize,
+                allocatedSize: values.totalFileAllocatedSize ?? values.fileAllocatedSize
+            )
+        }
+    }
+
+    static func isDataless(_ values: Snapshot) -> Bool {
         // 1) iCloud가 상태를 알려주면 그것으로 확정한다.
         //    확정된 경우 아래 블록 휴리스틱으로 다시 판정하지 않는다 —
         //    "로컬에 있다"고 확인된 파일이 블록 수 때문에 뒤집히면 안 된다.
-        if let status = values.ubiquitousItemDownloadingStatus {
+        if let status = values.downloadingStatus {
             return status != .current && status != .downloaded
         }
 
@@ -64,12 +99,12 @@ nonisolated enum CloudFileStatus {
         //    판단 근거가 부족하므로 보수적으로 판정을 포기한다(제외하지 않는다).
         guard values.volumeIsLocal == true else { return false }
 
-        let logicalSize = values.fileSize ?? 0
+        let logicalSize = values.logicalSize ?? 0
         guard logicalSize > 0 else { return false }
 
         // 할당 크기를 읽지 못했다면 판단 근거가 없으므로 "아니다"로 둔다.
         // (근거 없이 제외하면 멀쩡한 파일이 스캔에서 조용히 사라진다.)
-        guard let allocated = values.totalFileAllocatedSize ?? values.fileAllocatedSize else {
+        guard let allocated = values.allocatedSize else {
             return false
         }
 

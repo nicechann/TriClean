@@ -77,7 +77,9 @@
 "storage.msg.protected_skipped" = "Skipped %ld protected item(s). Folders like Documents, Pictures, or Library and the Photos library can't be moved to Trash from here.";
 "storage.help.protected" = "Protected folder — can't be moved to Trash from here";
 "storage.help.incomplete" = "Folder with unreadable items — can't be moved to Trash as a whole";
+"storage.help.cloud_only" = "Folder contains cloud-only files — can't be moved to Trash as a whole";
 "storage.msg.incomplete_skipped" = "Skipped %ld folder(s) whose contents couldn't be fully read. Clean up the items inside directly, or check access permissions and scan again.";
+"storage.msg.cloud_only_skipped" = "Skipped %ld folder(s) containing cloud-only files. Moving the whole folder could delete the originals in the cloud. Select only local files to clean up.";
 "storage.msg.manual" = "Analyzing '%@' folder…";
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
@@ -121,6 +123,7 @@
 "apps.details.library_guide" = "Select Home Library(~/Library) above to analyze related files.";
 "apps.details.scanning" = "Searching related files…";
 "apps.details.no_related" = "No related files found.";
+"apps.details.related_unverifiable" = "This app's bundle ID can't be verified. Items found may be shared with other apps, so they're shown for reference only and can't be moved to Trash here. Check them in Finder if needed.";
 "apps.details.found_count" = "Related files (%ld)";
 "apps.details.trash_selected" = "Move Selected to Trash";
 "apps.details.guide" = "Select an app from the table or use 'Select .app Manually' to review app details and related files (caches, preferences, etc.).";
@@ -172,6 +175,8 @@
 "apps.status.scan_found_shared" = "Found %ld related items. They may be shared with another installed app or the system, so none are preselected. Review before removing.";
 "apps.status.scan_found_installed" = "Found %ld related items. The app is still installed, so none are preselected. Uninstall the app first, or select items yourself.";
 "apps.status.related_app_running" = "%@ (or an app sharing its data) is running. Quit it and try again.";
+"apps.status.related_no_bundle_id" = "Leftover files for %@ were not deleted because its bundle ID couldn't be found. TriClean can't confirm whether the app is running or which app owns the files, and items found by name may be shared with other apps.";
+"apps.status.related_invalid_bundle_id" = "Leftover files for %@ were not deleted because its bundle ID isn't in a valid format. TriClean can't safely confirm whether the app is running or which app owns the files.";
 
 /* Settings View */
 "settings.display" = "Display";
@@ -670,3 +675,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Items moved to Trash: %ld. To actually free up disk space, click the Trash in the Dock and choose Empty.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Find what to clean in one click";
+"demo.caption.junk" = "Clean caches and logs safely, by risk level";
+"demo.caption.large_files" = "See big files and folders at a glance";
+"demo.caption.duplicates" = "Find true duplicates by comparing content";
+"demo.caption.apps" = "Remove apps along with their leftovers";
+"demo.caption.trash" = "Everything goes to Trash — restore it until you empty it";
+"demo.note.sample_data" = "Files, apps, and sizes shown are sample data";

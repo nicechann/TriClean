@@ -71,7 +71,9 @@
 "storage.msg.protected_skipped" = "%ld beveiligde items overgeslagen. Mappen zoals Documenten, Afbeeldingen of Bibliotheek en de fotobibliotheek kunnen hier niet naar de prullenmand worden verplaatst.";
 "storage.help.protected" = "Beveiligde map – kan hier niet naar de prullenmand worden verplaatst";
 "storage.help.incomplete" = "Map met onleesbare items – kan niet in zijn geheel naar de prullenmand worden verplaatst";
+"storage.help.cloud_only" = "Map bevat bestanden die alleen in de cloud staan – kan niet in zijn geheel naar de prullenmand worden verplaatst";
 "storage.msg.incomplete_skipped" = "%ld mappen waarvan de inhoud niet volledig kon worden gelezen, zijn overgeslagen. Ruim de items erin rechtstreeks op of controleer de toegangsrechten en scan opnieuw.";
+"storage.msg.cloud_only_skipped" = "%ld mappen met bestanden die alleen in de cloud staan, zijn overgeslagen. Als je de hele map verplaatst, kunnen de originelen in de cloud worden verwijderd. Selecteer alleen lokale bestanden om op te ruimen.";
 "storage.msg.manual" = "Map ‘%@’ analyseren…";
 "storage.msg.auto" = "Opnieuw analyseren vanwege gewijzigde voorwaarden…";
 "storage.msg.canceled" = "Scan geannuleerd.";
@@ -196,6 +198,7 @@
 "apps.details.library_guide" = "Selecteer hierboven de persoonlijke bibliotheek (~/Library) om gerelateerde bestanden te analyseren.";
 "apps.details.scanning" = "Gerelateerde bestanden zoeken…";
 "apps.details.no_related" = "Geen gerelateerde bestanden gevonden.";
+"apps.details.related_unverifiable" = "De bundle-ID van deze app kan niet worden gecontroleerd. Gevonden items kunnen met andere apps worden gedeeld en worden daarom alleen ter informatie getoond. Ze kunnen hier niet naar de prullenmand worden verplaatst. Controleer ze zo nodig in de Finder.";
 "apps.details.found_count" = "Gerelateerde bestanden (%ld)";
 "apps.details.trash_selected" = "Verplaats selectie naar prullenmand";
 "apps.details.guide" = "Selecteer een app in de tabel of gebruik ‘Selecteer .app handmatig’ om de app-details en gerelateerde bestanden (caches, voorkeuren enzovoort) te bekijken.";
@@ -243,6 +246,8 @@
 "apps.status.scan_found_shared" = "Gevonden: %ld gerelateerde items. Ze worden mogelijk gedeeld met een andere geïnstalleerde app of het systeem en zijn daarom niet vooraf geselecteerd. Controleer ze voordat je ze verwijdert.";
 "apps.status.scan_found_installed" = "Gevonden: %ld gerelateerde items. De app is nog geïnstalleerd en daarom is niets vooraf geselecteerd. Verwijder eerst de app of selecteer zelf items.";
 "apps.status.related_app_running" = "%@ (of een app die dezelfde gegevens gebruikt) is actief. Stop de app en probeer het opnieuw.";
+"apps.status.related_no_bundle_id" = "De resterende bestanden van %@ zijn niet verwijderd omdat de bundle-ID niet gevonden is. TriClean kan niet controleren of de app actief is of bij welke app de bestanden horen, en items die op naam zijn gevonden, kunnen met andere apps worden gedeeld.";
+"apps.status.related_invalid_bundle_id" = "De resterende bestanden van %@ zijn niet verwijderd omdat de bundle-ID geen geldige indeling heeft. TriClean kan niet veilig controleren of de app actief is of bij welke app de bestanden horen.";
 "apps.status.related_invalid" = "Er kunnen geen gerelateerde bestanden worden verwijderd. Gewijzigd en overgeslagen: %ld items.";
 "apps.status.uninstall_invalid" = "Er kunnen geen apps worden verwijderd. Gewijzigd of buiten de toegestane locatie: %ld apps.";
 "apps.status.related_summary" = "Verplaatste gerelateerde items: %1$ld. Mislukt: %2$ld; overgeslagen na hercontrole: %3$ld.";
@@ -600,3 +605,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Naar de prullenmand verplaatst: %ld. Open de prullenmand in het Dock en klik op ‘Leeg’ om echt schijfruimte vrij te maken.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Met één klik vinden wat weg kan";
+"demo.caption.junk" = "Caches en logs veilig opruimen per risiconiveau";
+"demo.caption.large_files" = "Grote bestanden en mappen in één oogopslag";
+"demo.caption.duplicates" = "Echte duplicaten door inhoud te vergelijken";
+"demo.caption.apps" = "Apps verwijderen samen met hun restanten";
+"demo.caption.trash" = "Alles gaat naar de prullenmand, terug te zetten tot je hem leegt";
+"demo.note.sample_data" = "Getoonde bestanden, apps en groottes zijn voorbeeldgegevens";

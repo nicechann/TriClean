@@ -16,6 +16,14 @@ final class SmartScanViewModel: ObservableObject {
     @Published var statusMessage: String = "smartscan.status.ready".localized
 
     func refreshDiskInfo() {
+        #if DEBUG
+        if DemoMode.isActive {
+            diskInfo = DemoMode.diskInfo
+            lastScanDate = Date()
+            statusMessage = "smartscan.status.updated".localized
+            return
+        }
+        #endif
         let volumeURL = FileManager.default.homeDirectoryForCurrentUser
 
         do {

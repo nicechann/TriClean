@@ -73,7 +73,9 @@
 "storage.msg.protected_skipped" = "Se omitieron %ld elementos protegidos. Las carpetas como Documentos, Imágenes o Biblioteca y la fototeca no se pueden mover a la Papelera desde aquí.";
 "storage.help.protected" = "Carpeta protegida: no se puede mover a la Papelera desde aquí";
 "storage.help.incomplete" = "Carpeta con elementos ilegibles: no se puede mover entera a la Papelera";
+"storage.help.cloud_only" = "La carpeta contiene archivos solo en la nube: no se puede mover entera a la Papelera";
 "storage.msg.incomplete_skipped" = "Se omitieron %ld carpetas cuyo contenido no se pudo leer por completo. Limpia directamente los elementos de su interior o revisa los permisos de acceso y vuelve a escanear.";
+"storage.msg.cloud_only_skipped" = "Se omitieron %ld carpetas con archivos solo en la nube. Mover la carpeta entera podría eliminar los originales en la nube. Selecciona solo los archivos locales para limpiar.";
 "storage.msg.manual" = "Analizando la carpeta «%@»…";
 "storage.msg.auto" = "Volviendo a analizar por cambio de criterio…";
 "storage.msg.canceled" = "Análisis cancelado.";
@@ -117,6 +119,7 @@
 "apps.details.library_guide" = "Selecciona arriba la «Biblioteca personal (~/Library)» para analizar los archivos relacionados.";
 "apps.details.scanning" = "Buscando archivos relacionados…";
 "apps.details.no_related" = "No se encontraron archivos relacionados.";
+"apps.details.related_unverifiable" = "No se puede verificar el ID de paquete de esta app. Los elementos encontrados pueden compartirse con otras apps, así que se muestran solo como referencia y no se pueden mover a la Papelera desde aquí. Revísalos en el Finder si es necesario.";
 "apps.details.found_count" = "Archivos relacionados (%ld)";
 "apps.details.trash_selected" = "Mover selección a la Papelera";
 "apps.details.guide" = "Selecciona una app de la tabla o usa «Seleccionar .app manualmente» para revisar los detalles y los archivos relacionados (cachés, preferencias, etc.).";
@@ -169,6 +172,8 @@
 "apps.status.scan_found_shared" = "Se encontraron %ld elementos relacionados. Pueden estar compartidos con otra app instalada o con el sistema, por lo que no se ha preseleccionado ninguno. Revísalos antes de eliminarlos.";
 "apps.status.scan_found_installed" = "Se encontraron %ld elementos relacionados. La app sigue instalada, por lo que no se ha preseleccionado ninguno. Desinstala primero la app o selecciona los elementos tú mismo.";
 "apps.status.related_app_running" = "%@ (o una app que comparte sus datos) está en ejecución. Ciérrala e inténtalo de nuevo.";
+"apps.status.related_no_bundle_id" = "No se eliminaron los archivos restantes de %@ porque no se encontró su ID de paquete. TriClean no puede confirmar si la app está abierta ni a qué app pertenecen los archivos, y los elementos encontrados por nombre pueden compartirse con otras apps.";
+"apps.status.related_invalid_bundle_id" = "No se eliminaron los archivos restantes de %@ porque su ID de paquete no tiene un formato válido. TriClean no puede confirmar con seguridad si la app está abierta ni a qué app pertenecen los archivos.";
 
 /* Settings View */
 "settings.display" = "Visualización";
@@ -662,3 +667,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Movidos a la Papelera: %ld. Para liberar realmente espacio en disco, abre la Papelera del Dock y haz clic en «Vaciar».";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Encuentra qué limpiar con un clic";
+"demo.caption.junk" = "Limpia cachés y registros según su riesgo";
+"demo.caption.large_files" = "Archivos y carpetas grandes de un vistazo";
+"demo.caption.duplicates" = "Duplicados reales comparando el contenido";
+"demo.caption.apps" = "Elimina apps junto con sus restos";
+"demo.caption.trash" = "Todo va a la Papelera: recupéralo hasta vaciarla";
+"demo.note.sample_data" = "Los archivos, apps y tamaños mostrados son datos de ejemplo";

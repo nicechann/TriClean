@@ -3,6 +3,7 @@
 //
 // - DEMO_WINDOW <id>: 해당 창의 영역에서 TriClean의 창만 캡처한다(다른 앱 창은 제외).
 // - DEMO_START / DEMO_CAPTION <문구> / DEMO_END: 녹화 시작, 자막 교체, 종료.
+// - DEMO_NOTE <문구>: 화면이 예시 데이터임을 알리는 작은 문구(오른쪽 위에 계속 표시).
 // - 1920×1080, 30fps H.264로 배경 그라데이션 + 창(그림자 포함) + 상단 자막을 합성한다.
 import AppKit
 import AVFoundation
@@ -50,11 +51,36 @@ func captionImage(_ text: String) -> CIImage {
         .font: NSFont.systemFont(ofSize: 64, weight: .bold),
         .foregroundColor: NSColor.white, .paragraphStyle: para, .shadow: shadow,
     ]
-    let str = NSAttributedString(string: text, attributes: attrs)
+    var str = NSAttributedString(string: text, attributes: attrs)
+    // 독일어 등 긴 번역도 화면 밖으로 잘리지 않도록 폭에 맞춰 글자를 줄인다.
+    var fontSize: CGFloat = 64
+    while str.size().width > 1800, fontSize > 36 {
+        fontSize -= 2
+        var smaller = attrs
+        smaller[.font] = NSFont.systemFont(ofSize: fontSize, weight: .bold)
+        str = NSAttributedString(string: text, attributes: smaller)
+    }
     let size = str.size()
     str.draw(in: CGRect(x: 0, y: (CGFloat(h) - size.height) / 2 - 4, width: CGFloat(w), height: size.height + 8))
     NSGraphicsContext.restoreGraphicsState()
     return CIImage(cgImage: ctx.makeImage()!).transformed(by: .init(translationX: 0, y: 880))
+}
+
+func noteImage(_ text: String) -> CIImage {
+    let w = 1920, h = 60
+    let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: 0,
+                        space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
+    let para = NSMutableParagraphStyle(); para.alignment = .right
+    let str = NSAttributedString(string: text, attributes: [
+        .font: NSFont.systemFont(ofSize: 22, weight: .medium),
+        .foregroundColor: NSColor(white: 1, alpha: 0.75), .paragraphStyle: para,
+    ])
+    let size = str.size()
+    str.draw(in: CGRect(x: 0, y: (CGFloat(h) - size.height) / 2, width: CGFloat(w) - 40, height: size.height + 4))
+    NSGraphicsContext.restoreGraphicsState()
+    return CIImage(cgImage: ctx.makeImage()!).transformed(by: .init(translationX: 0, y: 1080 - 60))
 }
 
 func withAlpha(_ img: CIImage, _ a: CGFloat) -> CIImage {
@@ -74,6 +100,7 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     var nextIndex: Int64 = 0
     var recording = false
     var caption: CIImage?, prevCaption: CIImage?, captionChange: CFAbsoluteTime = 0
+    var note: CIImage?
     var frameCount = 0
 
     func stream(_ stream: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
@@ -155,6 +182,7 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
         if let prevCaption, dt < 0.2 { img = withAlpha(prevCaption, 1 - dt / 0.2).composited(over: img) }
         let fadeIn = prevCaption == nil ? min(1, dt / 0.25) : max(0, min(1, (dt - 0.2) / 0.25))
         if let caption { img = withAlpha(caption, fadeIn).composited(over: img) }
+        if let note { img = note.composited(over: img) }
         return img.cropped(to: canvas)
     }
 
@@ -181,6 +209,10 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
             if !adaptor.append(out, withPresentationTime: CMTime(value: nextIndex, timescale: fps)) { log("append failed \(String(describing: writer.error))") }
             nextIndex += 1
         }
+    }
+
+    func setNote(_ text: String) {
+        q.async { self.note = noteImage(text) }
     }
 
     func setCaption(_ text: String) {
@@ -210,6 +242,8 @@ Thread {
             }
         } else if line == "DEMO_START" {
             rec.begin()
+        } else if line.hasPrefix("DEMO_NOTE ") {
+            rec.setNote(String(line.dropFirst(10)))
         } else if line.hasPrefix("DEMO_CAPTION ") {
             rec.setCaption(String(line.dropFirst(13)))
         } else if line == "DEMO_END" {

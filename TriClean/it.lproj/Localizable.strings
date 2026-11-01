@@ -71,7 +71,9 @@
 "storage.msg.protected_skipped" = "%ld elementi protetti sono stati ignorati. Cartelle come Documenti, Immagini o Libreria e la libreria di Foto non possono essere spostate nel Cestino da qui.";
 "storage.help.protected" = "Cartella protetta: non può essere spostata nel Cestino da qui";
 "storage.help.incomplete" = "Cartella con elementi non leggibili: non può essere spostata intera nel Cestino";
+"storage.help.cloud_only" = "La cartella contiene file solo nel cloud: non può essere spostata intera nel Cestino";
 "storage.msg.incomplete_skipped" = "%ld cartelle il cui contenuto non è stato letto completamente sono state ignorate. Pulisci direttamente gli elementi al loro interno oppure controlla i permessi di accesso e ripeti la scansione.";
+"storage.msg.cloud_only_skipped" = "%ld cartelle con file solo nel cloud sono state ignorate. Spostare l'intera cartella potrebbe eliminare gli originali nel cloud. Seleziona solo i file locali da pulire.";
 "storage.msg.manual" = "Analisi della cartella «%@» in corso…";
 "storage.msg.auto" = "Nuova analisi per modifica delle condizioni…";
 "storage.msg.canceled" = "Scansione annullata.";
@@ -196,6 +198,7 @@
 "apps.details.library_guide" = "Seleziona la Libreria personale (~/Library) qui sopra per analizzare i file correlati.";
 "apps.details.scanning" = "Ricerca dei file correlati…";
 "apps.details.no_related" = "Nessun file correlato trovato.";
+"apps.details.related_unverifiable" = "Il Bundle ID di questa app non può essere verificato. Gli elementi trovati potrebbero essere condivisi con altre app, quindi sono mostrati solo come riferimento e non possono essere spostati nel Cestino da qui. Controllali nel Finder se necessario.";
 "apps.details.found_count" = "File correlati (%ld)";
 "apps.details.trash_selected" = "Sposta la selezione nel Cestino";
 "apps.details.guide" = "Seleziona un'app dalla tabella oppure usa «Seleziona .app manualmente» per esaminare i dettagli dell'app e i file correlati (cache, preferenze e così via).";
@@ -243,6 +246,8 @@
 "apps.status.scan_found_shared" = "Trovati %ld elementi correlati. Potrebbero essere condivisi con un'altra app installata o con il sistema, quindi nessuno è preselezionato. Controllali prima di rimuoverli.";
 "apps.status.scan_found_installed" = "Trovati %ld elementi correlati. L'app è ancora installata, quindi nessuno è preselezionato. Disinstalla prima l'app o seleziona gli elementi manualmente.";
 "apps.status.related_app_running" = "%@ (o un'app che ne condivide i dati) è in esecuzione. Chiudila e riprova.";
+"apps.status.related_no_bundle_id" = "I file residui di %@ non sono stati eliminati perché non è stato trovato il Bundle ID. TriClean non può verificare se l'app è in esecuzione né a quale app appartengono i file, e gli elementi trovati per nome potrebbero essere condivisi con altre app.";
+"apps.status.related_invalid_bundle_id" = "I file residui di %@ non sono stati eliminati perché il Bundle ID non ha un formato valido. TriClean non può verificare in sicurezza se l'app è in esecuzione né a quale app appartengono i file.";
 "apps.status.related_invalid" = "Nessun file correlato può essere rimosso. Elementi modificati e ignorati: %ld.";
 "apps.status.uninstall_invalid" = "Nessuna app può essere rimossa. App modificate o al di fuori della posizione consentita: %ld.";
 "apps.status.related_summary" = "Elementi correlati spostati: %1$ld. Non riusciti: %2$ld; ignorati dopo la riverifica: %3$ld.";
@@ -600,3 +605,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Elementi spostati nel Cestino: %ld. Per liberare davvero spazio su disco, apri il Cestino nel Dock e fai clic su «Svuota».";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Trova cosa pulire con un clic";
+"demo.caption.junk" = "Pulisci cache e log in base al rischio";
+"demo.caption.large_files" = "File e cartelle grandi a colpo d'occhio";
+"demo.caption.duplicates" = "Duplicati veri, confrontando il contenuto";
+"demo.caption.apps" = "Rimuovi le app insieme ai residui";
+"demo.caption.trash" = "Tutto va nel Cestino, recuperabile finché non lo svuoti";
+"demo.note.sample_data" = "File, app e dimensioni mostrati sono dati di esempio";

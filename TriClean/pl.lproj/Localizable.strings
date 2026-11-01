@@ -77,7 +77,9 @@
 "storage.msg.protected_skipped" = "Pominięto chronione elementy: %ld. Folderów takich jak Dokumenty, Obrazki czy Biblioteka oraz biblioteki Zdjęć nie można stąd przenieść do Kosza.";
 "storage.help.protected" = "Folder chroniony – nie można go stąd przenieść do Kosza";
 "storage.help.incomplete" = "Folder z elementami, których nie można odczytać – nie można go przenieść w całości do Kosza";
+"storage.help.cloud_only" = "Folder zawiera pliki dostępne tylko w chmurze – nie można go przenieść w całości do Kosza";
 "storage.msg.incomplete_skipped" = "Pominięto foldery, których zawartości nie udało się w pełni odczytać: %ld. Uporządkuj bezpośrednio elementy w środku lub sprawdź uprawnienia dostępu i przeskanuj ponownie.";
+"storage.msg.cloud_only_skipped" = "Pominięto foldery z plikami dostępnymi tylko w chmurze: %ld. Przeniesienie całego folderu mogłoby usunąć oryginały w chmurze. Wybierz do uporządkowania tylko pliki lokalne.";
 "storage.msg.manual" = "Analizowanie folderu „%@”…";
 "storage.msg.auto" = "Ponowna analiza z powodu zmiany warunków…";
 "storage.msg.canceled" = "Skanowanie anulowane.";
@@ -202,6 +204,7 @@
 "apps.details.library_guide" = "Wybierz powyżej Bibliotekę użytkownika (~/Library), aby przeanalizować pliki powiązane.";
 "apps.details.scanning" = "Wyszukiwanie plików powiązanych…";
 "apps.details.no_related" = "Nie znaleziono plików powiązanych.";
+"apps.details.related_unverifiable" = "Nie można zweryfikować Bundle ID tej aplikacji. Znalezione elementy mogą być współdzielone z innymi aplikacjami, dlatego są pokazywane tylko informacyjnie i nie można ich stąd przenieść do Kosza. W razie potrzeby sprawdź je w Finderze.";
 "apps.details.found_count" = "Pliki powiązane (%ld)";
 "apps.details.trash_selected" = "Przenieś zaznaczone do Kosza";
 "apps.details.guide" = "Wybierz aplikację z tabeli lub użyj opcji „Wybierz plik .app ręcznie”, aby sprawdzić szczegóły aplikacji i pliki powiązane (pamięci podręczne, preferencje itd.).";
@@ -249,6 +252,8 @@
 "apps.status.scan_found_shared" = "Znaleziono elementów powiązanych: %ld. Mogą być współdzielone z inną zainstalowaną aplikacją lub systemem, więc żaden nie został wstępnie zaznaczony. Sprawdź je przed usunięciem.";
 "apps.status.scan_found_installed" = "Znaleziono elementów powiązanych: %ld. Aplikacja jest nadal zainstalowana, więc żaden nie został wstępnie zaznaczony. Najpierw odinstaluj aplikację lub zaznacz elementy samodzielnie.";
 "apps.status.related_app_running" = "Aplikacja %@ (lub aplikacja korzystająca z tych samych danych) jest uruchomiona. Zamknij ją i spróbuj ponownie.";
+"apps.status.related_no_bundle_id" = "Nie usunięto pozostałych plików aplikacji %@, ponieważ nie znaleziono jej Bundle ID. TriClean nie może sprawdzić, czy aplikacja działa ani do której aplikacji należą pliki, a elementy znalezione po nazwie mogą być współdzielone z innymi aplikacjami.";
+"apps.status.related_invalid_bundle_id" = "Nie usunięto pozostałych plików aplikacji %@, ponieważ jej Bundle ID ma nieprawidłowy format. TriClean nie może bezpiecznie sprawdzić, czy aplikacja działa ani do której aplikacji należą pliki.";
 "apps.status.related_invalid" = "Nie można usunąć żadnych plików powiązanych. Pominiętych z powodu zmian: %ld.";
 "apps.status.uninstall_invalid" = "Nie można usunąć żadnych aplikacji. Zmienionych lub poza dozwoloną lokalizacją: %ld.";
 "apps.status.related_summary" = "Przeniesiono elementów powiązanych: %1$ld. Niepowodzeń: %2$ld; pominiętych po ponownej weryfikacji: %3$ld.";
@@ -602,3 +607,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Przeniesiono do Kosza elementów: %ld. Aby faktycznie zwolnić miejsce na dysku, otwórz Kosz w Docku i kliknij „Opróżnij”.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Znajdź, co posprzątać, jednym kliknięciem";
+"demo.caption.junk" = "Bezpiecznie czyść pamięć podręczną i logi według ryzyka";
+"demo.caption.large_files" = "Duże pliki i foldery w jednym widoku";
+"demo.caption.duplicates" = "Prawdziwe duplikaty dzięki porównaniu zawartości";
+"demo.caption.apps" = "Usuwaj aplikacje razem z pozostałościami";
+"demo.caption.trash" = "Wszystko trafia do Kosza – do odzyskania, dopóki go nie opróżnisz";
+"demo.note.sample_data" = "Pokazane pliki, aplikacje i rozmiary to dane przykładowe";

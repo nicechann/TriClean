@@ -20,6 +20,50 @@ import os.log
 
 private let storeLogger = Logger(subsystem: "com.nicechann.TriClean", category: "Store")
 
+#if DEBUG
+/// DEBUG 구매 강제값(`debug.purchaseOverride`)을 잠시 바꾸고, 어떤 경로로 끝나든 원래대로 되돌린다.
+///
+/// ⚠️ 값만 되돌리면 안 된다. 키가 **있는지 없는지**에 따라 StoreManager의 동작이 갈린다
+///    (키가 있으면 StoreKit 대신 강제값을 쓴다). 키가 없던 사용자에게 `false`를 남기면
+///    실제로 구매했어도 DEBUG 빌드에서 계속 Free로 보인다.
+@MainActor
+final class DebugPurchaseOverrideSession {
+    static let key = "debug.purchaseOverride"
+
+    /// 시작 전 값. nil이면 키가 없었다.
+    let originalValue: Bool?
+    private(set) var isRestored = false
+    private let defaults: UserDefaults
+    private let onRestore: (Bool?) -> Void
+
+    init(
+        defaults: UserDefaults,
+        forcing value: Bool,
+        apply: (Bool) -> Void,
+        onRestore: @escaping (Bool?) -> Void = { _ in }
+    ) {
+        self.defaults = defaults
+        self.originalValue = defaults.object(forKey: Self.key) == nil ? nil : defaults.bool(forKey: Self.key)
+        self.onRestore = onRestore
+        apply(value)
+        // `apply`가 저장하지 않는 경우(테스트 등)에도 강제값이 남도록 직접 기록한다.
+        defaults.set(value, forKey: Self.key)
+    }
+
+    /// 원래 상태로 되돌린다. 여러 경로(정상 종료·실패·앱 종료 알림)에서 불려도 한 번만 수행한다.
+    func restore() {
+        guard !isRestored else { return }
+        isRestored = true
+        if let originalValue {
+            defaults.set(originalValue, forKey: Self.key)
+        } else {
+            defaults.removeObject(forKey: Self.key)
+        }
+        onRestore(originalValue)
+    }
+}
+#endif
+
 @MainActor
 final class StoreManager: ObservableObject {
     static let shared = StoreManager()
@@ -39,13 +83,39 @@ final class StoreManager: ObservableObject {
     #if DEBUG
     /// DEBUG 전용: 실제 StoreKit 상태와 관계없이 Free(false) / Pro(true)를 강제합니다.
     /// UserDefaults에 저장되어 앱 재시작 후에도 유지됩니다.
-    @Published var debugPurchaseOverride: Bool = UserDefaults.standard.bool(forKey: "debug.purchaseOverride") {
+    @Published var debugPurchaseOverride: Bool = UserDefaults.standard.bool(forKey: DebugPurchaseOverrideSession.key) {
         didSet {
-            UserDefaults.standard.set(debugPurchaseOverride, forKey: "debug.purchaseOverride")
+            // 데모가 끝나 "키 없음"으로 되돌릴 때는 저장하지 않는다(`restoreDebugPurchaseOverride`).
+            guard persistsDebugPurchaseOverride else { return }
+            UserDefaults.standard.set(debugPurchaseOverride, forKey: DebugPurchaseOverrideSession.key)
             purchaseStateGeneration &+= 1
             isPurchased = debugPurchaseOverride
             hasLoadedPurchaseState = true
         }
+    }
+    private var persistsDebugPurchaseOverride = true
+
+    /// 미리보기 녹화 동안 Pro로 강제하고, 끝나면 원래 상태(키 존재 여부 포함)로 되돌릴 세션을 연다.
+    func beginDemoPurchaseOverride() -> DebugPurchaseOverrideSession {
+        DebugPurchaseOverrideSession(
+            defaults: .standard,
+            forcing: true,
+            apply: { [weak self] value in self?.debugPurchaseOverride = value },
+            onRestore: { [weak self] original in self?.restoreDebugPurchaseOverride(original) }
+        )
+    }
+
+    /// 세션이 UserDefaults를 되돌린 뒤 화면 상태를 맞춘다.
+    /// 원래 강제값이 없었다면 DEBUG 강제값이 아니라 실제 StoreKit 구매 상태를 다시 읽는다.
+    private func restoreDebugPurchaseOverride(_ original: Bool?) {
+        if let original {
+            debugPurchaseOverride = original
+            return
+        }
+        persistsDebugPurchaseOverride = false
+        debugPurchaseOverride = false
+        persistsDebugPurchaseOverride = true
+        Task { _ = await updatePurchasedStatus() }
     }
     #endif
 

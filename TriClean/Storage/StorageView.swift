@@ -41,6 +41,10 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
 
     /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인). 이런 폴더는 통째로 옮기지 않는다.
     let containsManagedLibrary: Bool
+
+    /// 폴더 안에 클라우드에만 있는 파일(iCloud 저장 공간 최적화·Dropbox·OneDrive 자리표시자)이
+    /// 있는지. 통째로 옮기면 클라우드 원본까지 지워질 수 있어 옮기지 않는다.
+    let containsCloudOnlyItems: Bool
     
     init(
         url: URL,
@@ -50,7 +54,8 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         parentURL: URL? = nil,
         fileIdentity: FileIdentitySnapshot? = nil,
         containsManagedLibrary: Bool = false,
-        isScanComplete: Bool = true
+        isScanComplete: Bool = true,
+        containsCloudOnlyItems: Bool = false
     ) {
         self.id = Self.stableID(for: url)
         self.url = url
@@ -61,6 +66,7 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
         self.containsManagedLibrary = containsManagedLibrary
         self.isScanComplete = isScanComplete
+        self.containsCloudOnlyItems = containsCloudOnlyItems
     }
     
     static func stableID(for url: URL) -> UUID {

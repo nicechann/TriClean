@@ -73,7 +73,9 @@
 "storage.msg.protected_skipped" = "%ld éléments protégés ont été ignorés. Les dossiers comme Documents, Images ou Bibliothèque et la photothèque ne peuvent pas être placés dans la corbeille ici.";
 "storage.help.protected" = "Dossier protégé — impossible de le placer dans la corbeille ici";
 "storage.help.incomplete" = "Dossier contenant des éléments illisibles — impossible de le placer entier dans la corbeille";
+"storage.help.cloud_only" = "Le dossier contient des fichiers uniquement dans le cloud — impossible de le placer entier dans la corbeille";
 "storage.msg.incomplete_skipped" = "%ld dossiers dont le contenu n’a pas pu être entièrement lu ont été ignorés. Nettoyez directement les éléments qu’ils contiennent ou vérifiez les autorisations d’accès, puis relancez l’analyse.";
+"storage.msg.cloud_only_skipped" = "%ld dossiers contenant des fichiers uniquement dans le cloud ont été ignorés. Déplacer le dossier entier pourrait supprimer les originaux dans le cloud. Sélectionnez uniquement les fichiers locaux à nettoyer.";
 "storage.msg.manual" = "Analyse du dossier « %@ »…";
 "storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
 "storage.msg.canceled" = "Analyse annulée.";
@@ -117,6 +119,7 @@
 "apps.details.library_guide" = "Sélectionnez ci-dessus « Bibliothèque personnelle (~/Library) » pour analyser les fichiers liés.";
 "apps.details.scanning" = "Recherche des fichiers liés…";
 "apps.details.no_related" = "Aucun fichier lié trouvé.";
+"apps.details.related_unverifiable" = "L'identifiant de bundle de cette app ne peut pas être vérifié. Les éléments trouvés peuvent être partagés avec d'autres apps : ils sont affichés à titre indicatif et ne peuvent pas être placés dans la corbeille ici. Vérifiez-les dans le Finder si nécessaire.";
 "apps.details.found_count" = "Fichiers liés (%ld)";
 "apps.details.trash_selected" = "Placer la sélection dans la corbeille";
 "apps.details.guide" = "Sélectionnez une app dans le tableau ou utilisez « Sélectionner un .app manuellement » pour examiner les détails et les fichiers liés (caches, préférences, etc.).";
@@ -169,6 +172,8 @@
 "apps.status.scan_found_shared" = "%ld éléments liés trouvés. Ils peuvent être partagés avec une autre app installée ou le système ; aucun n'est donc présélectionné. Vérifiez-les avant de les supprimer.";
 "apps.status.scan_found_installed" = "%ld éléments liés trouvés. L'app est toujours installée ; aucun n'est donc présélectionné. Désinstallez d'abord l'app ou sélectionnez les éléments vous-même.";
 "apps.status.related_app_running" = "%@ (ou une app qui partage ses données) est en cours d'exécution. Quittez-la puis réessayez.";
+"apps.status.related_no_bundle_id" = "Les fichiers restants de %@ n'ont pas été supprimés, car son identifiant de bundle est introuvable. TriClean ne peut pas vérifier si l'app est ouverte ni à quelle app appartiennent les fichiers, et les éléments trouvés par nom peuvent être partagés avec d'autres apps.";
+"apps.status.related_invalid_bundle_id" = "Les fichiers restants de %@ n'ont pas été supprimés, car son identifiant de bundle n'a pas un format valide. TriClean ne peut pas vérifier de façon sûre si l'app est ouverte ni à quelle app appartiennent les fichiers.";
 
 /* Settings View */
 "settings.display" = "Affichage";
@@ -662,3 +667,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Éléments placés dans la corbeille : %ld. Pour libérer réellement de l’espace disque, ouvrez la corbeille dans le Dock et cliquez sur « Vider ».";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Trouvez quoi nettoyer en un clic";
+"demo.caption.junk" = "Nettoyez caches et journaux selon leur risque";
+"demo.caption.large_files" = "Gros fichiers et dossiers en un coup d'œil";
+"demo.caption.duplicates" = "De vrais doublons, comparés par contenu";
+"demo.caption.apps" = "Supprimez les apps et leurs restes";
+"demo.caption.trash" = "Tout va à la corbeille, récupérable jusqu'à ce que vous la vidiez";
+"demo.note.sample_data" = "Les fichiers, apps et tailles affichés sont des données d'exemple";

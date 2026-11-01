@@ -13,8 +13,12 @@ import XCTest
 final class LargeFilesDeleteTargetTests: XCTestCase {
 
     private var home: URL!
+    /// 작업 스레드가 제한 시간 안에 멈추지 않았으면 임시 폴더를 지우지 않는다.
+    /// 아직 쓰고 있는 폴더를 지우면 스레드가 다른 테스트의 파일 시스템 상태와 섞일 수 있다.
+    private var preservesTemporaryFolder = false
 
     override func setUpWithError() throws {
+        preservesTemporaryFolder = false
         home = FileManager.default.temporaryDirectory
             .appendingPathComponent("LargeFilesDeleteTargetTests-\(UUID().uuidString)", isDirectory: true)
         for path in ["Documents/Project/build", "Pictures", "Library/Application Support/X", "Work/a", "Work/ab"] {
@@ -26,7 +30,17 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        guard !preservesTemporaryFolder else { return }
         try? FileManager.default.removeItem(at: home)
+    }
+
+    /// 작업 스레드를 멈추고 끝날 때까지 기다린다. 제한 시간을 넘기면 실패로 기록하고 임시 폴더를 남긴다.
+    private func stopWorker(_ worker: FileChurnWorker, file: StaticString = #filePath, line: UInt = #line) {
+        guard worker.stop(timeout: 10) else {
+            XCTFail("파일 생성·삭제 스레드가 10초 안에 끝나지 않았습니다", file: file, line: line)
+            preservesTemporaryFolder = true
+            return
+        }
     }
 
     private func folder(_ relativePath: String) -> FolderInfo {
@@ -198,35 +212,42 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
                 at: item.url.appendingPathComponent("d\(index)"), withIntermediateDirectories: true
             )
         }
-        let stop = ManagedAtomicFlag()
-        let finished = DispatchSemaphore(value: 0)
-        let churn = Thread { [url = item.url] in
-            defer { finished.signal() }
-            var counter = 0
-            while !stop.isSet {
-                let temp = url.appendingPathComponent("d\(counter % 20)/tmp\(counter % 200)")
-                if FileManager.default.fileExists(atPath: temp.path) {
-                    try? FileManager.default.removeItem(at: temp)
-                } else {
-                    try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
-                    FileManager.default.createFile(atPath: temp.appendingPathComponent("x").path, contents: Data([1]))
-                }
-                counter += 1
-            }
-        }
-        churn.start()
-        defer {
-            stop.set()
-            // tearDown이 폴더를 지우기 전에 마지막 파일 작업까지 완료되어야 한다.
-            // 작업 스레드가 멈추면 테스트 전체가 끝나지 않으므로 제한 시간을 둔다.
-            if finished.wait(timeout: .now() + 10) == .timedOut {
-                XCTFail("파일 생성·삭제 스레드가 10초 안에 끝나지 않았습니다")
-            }
-        }
+        let worker = FileChurnWorker(root: item.url, folderCount: 20)
+        worker.start()
+        // tearDown이 폴더를 지우기 전에 마지막 파일 작업까지 끝나야 한다.
+        defer { stopWorker(worker) }
 
         for _ in 0..<60 {
             XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .proceed)
         }
+    }
+
+    func test_작업스레드는_정지후_폴더를_건드리지_않는다() throws {
+        let root = home.appendingPathComponent("Churn", isDirectory: true)
+        for index in 0..<4 {
+            try FileManager.default.createDirectory(
+                at: root.appendingPathComponent("d\(index)"), withIntermediateDirectories: true
+            )
+        }
+        let worker = FileChurnWorker(root: root, folderCount: 4)
+        worker.start()
+        Thread.sleep(forTimeInterval: 0.05)
+        stopWorker(worker)
+        XCTAssertTrue(worker.isFinished)
+
+        // 정지가 확인된 뒤에는 폴더 내용이 더 바뀌지 않아야 한다.
+        let before = try FileManager.default.subpathsOfDirectory(atPath: root.path).sorted()
+        Thread.sleep(forTimeInterval: 0.1)
+        let after = try FileManager.default.subpathsOfDirectory(atPath: root.path).sorted()
+        XCTAssertEqual(before, after)
+
+        // 폴더가 사라져도 작업 스레드가 상위 경로를 다시 만들지 않는다.
+        try FileManager.default.removeItem(at: root)
+        let orphan = FileChurnWorker(root: root, folderCount: 4)
+        orphan.start()
+        Thread.sleep(forTimeInterval: 0.05)
+        stopWorker(orphan)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: root.path))
     }
 
     func test_하위폴더를_읽지못하면_스캔과_삭제검증이_불완전함을_감지한다() async throws {
@@ -269,10 +290,69 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
 
 }
 
-/// 테스트 스레드 간 정지 신호.
-private final class ManagedAtomicFlag: @unchecked Sendable {
+/// 폴더 안에서 임시 항목을 계속 만들고 지우는 작업 스레드(내용이 바뀌는 폴더 재현용).
+///
+/// - 정지는 `stop(timeout:)` 한 곳에서 요청하고, 스레드가 실제로 끝났는지 기다려 확인한다.
+/// - 파일 작업마다 정지 요청을 다시 확인하므로 정지 요청 뒤에는 새 작업을 시작하지 않는다.
+/// - `root/dN`이 이미 있을 때만 그 안에 만든다(중간 경로를 만들지 않는다). 테스트가 폴더를
+///   지운 뒤에 스레드가 남아 있어도 경로를 다시 만들어 다른 테스트와 섞이지 않는다.
+private final class FileChurnWorker: @unchecked Sendable {
+    private let root: URL
+    private let folderCount: Int
     private let lock = NSLock()
-    private var value = false
-    var isSet: Bool { lock.lock(); defer { lock.unlock() }; return value }
-    func set() { lock.lock(); value = true; lock.unlock() }
+    private var stopRequested = false
+    private var finished = false
+    private let finishedSignal = DispatchSemaphore(value: 0)
+
+    init(root: URL, folderCount: Int) {
+        self.root = root
+        self.folderCount = folderCount
+    }
+
+    /// `NSLocking.withLock`은 macOS 14부터라 배포 대상(13.5)에 맞춰 직접 잠근다.
+    private func locked<T>(_ body: () -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body()
+    }
+
+    var isFinished: Bool { locked { finished } }
+    private var shouldStop: Bool { locked { stopRequested } }
+
+    func start() {
+        let thread = Thread { [self] in run() }
+        thread.start()
+    }
+
+    /// 정지를 요청하고 끝날 때까지 기다린다. 제한 시간 안에 끝났으면 true.
+    func stop(timeout: TimeInterval) -> Bool {
+        locked { stopRequested = true }
+        if isFinished { return true }
+        guard finishedSignal.wait(timeout: .now() + timeout) == .success else { return false }
+        // 여러 번 불려도 결과가 같도록 신호를 되돌려 둔다.
+        finishedSignal.signal()
+        return true
+    }
+
+    private func run() {
+        defer {
+            locked { finished = true }
+            finishedSignal.signal()
+        }
+        let fm = FileManager.default
+        var counter = 0
+        while !shouldStop {
+            let parent = root.appendingPathComponent("d\(counter % folderCount)", isDirectory: true)
+            let temp = parent.appendingPathComponent("tmp\(counter % 200)", isDirectory: true)
+            counter += 1
+            guard fm.fileExists(atPath: parent.path) else { continue }
+            if fm.fileExists(atPath: temp.path) {
+                try? fm.removeItem(at: temp)
+            } else {
+                guard (try? fm.createDirectory(at: temp, withIntermediateDirectories: false)) != nil,
+                      !shouldStop else { continue }
+                fm.createFile(atPath: temp.appendingPathComponent("x").path, contents: Data([1]))
+            }
+        }
+    }
 }

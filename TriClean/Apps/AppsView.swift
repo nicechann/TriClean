@@ -1323,9 +1323,16 @@ final class AppsViewModel: ObservableObject {
         // (예: Xcode-beta를 지운 뒤 남은 Xcode)과 TriClean 자신도 여기서 걸러진다.
         // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 삭제 직전에 확인한다.
         // 삭제가 진행되는 동안에도 항목마다 다시 확인한다(`performRelatedRemoval`).
-        if let selectedApp, let bundleID = selectedApp.bundleID, Self.isAppRunningNow(bundleID) {
+        //
+        // 번들 ID가 없거나 형식이 올바르지 않으면 실행 여부도, 항목이 이 앱의 것인지도 확인할 수 없다
+        // (이름으로 찾은 항목은 다른 앱과 공유하는 폴더일 수 있다). 이 경우 삭제하지 않는다.
+        guard let selectedApp else { return }
+        let appPath = selectedApp.appPath
+        if let block = Self.relatedRemovalBlock(bundleID: selectedApp.bundleID, isAppRunning: { bundleID in
+            Self.isAppRunningNow(bundleID) || Self.isAppBundleRunning(URL(fileURLWithPath: appPath))
+        }) {
             lastStatusIsError = true
-            lastStatusMessage = "apps.status.related_app_running".localized(with: selectedApp.name)
+            lastStatusMessage = Self.relatedRemovalBlockMessage(block, appName: selectedApp.name)
             return
         }
 
@@ -1376,8 +1383,8 @@ final class AppsViewModel: ObservableObject {
         // 삭제 대상은 이 시점에 확정한다. 진행 중에는 선택 UI를 잠그고(`isRemoving`),
         // 완료 후에는 실제로 옮겨진 항목만 목록에서 뺀다.
         let targets = sanitized.accepted
-        let bundleID = selectedApp?.bundleID
-        let appName = selectedApp?.name ?? ""
+        let bundleID = selectedApp.bundleID
+        let appName = selectedApp.name
 
         isRemoving = true
         lastStatusMessage = nil
@@ -1390,7 +1397,11 @@ final class AppsViewModel: ObservableObject {
                     targets: targets,
                     libraryRoot: libraryRoot,
                     bundleID: bundleID,
-                    isAppRunning: { await AppsViewModel.isAppRunningNow($0) }
+                    isAppRunning: { bundleID in
+                        // 번들 ID가 같은 앱뿐 아니라 이 경로의 앱 번들(Helper 포함)이 실행 중이어도 멈춘다.
+                        if await AppsViewModel.isAppRunningNow(bundleID) { return true }
+                        return await AppsViewModel.isAppBundleRunning(URL(fileURLWithPath: appPath))
+                    }
                 )
             }.value
 
@@ -1435,6 +1446,44 @@ final class AppsViewModel: ObservableObject {
         return summary.isEmpty ? runningNote : summary + " " + runningNote
     }
 
+    /// 관련 파일을 지울 수 없는 이유.
+    enum RelatedRemovalBlock: Equatable {
+        /// 번들 ID가 없다. 실행 여부와 파일 소유를 확인할 수 없다.
+        case missingBundleID
+        /// 역DNS 형식이 아니다. 공용 폴더 이름과 겹칠 수 있어 소유를 확인할 수 없다.
+        case invalidBundleID
+        /// 대상 앱(또는 같은 번들 ID를 쓰는 앱)이 실행 중이다.
+        case appRunning
+    }
+
+    /// 관련 파일 삭제를 시작해도 되는지. 번들 ID를 먼저 확인하고, 그다음 실행 여부를 본다.
+    nonisolated static func relatedRemovalBlock(
+        bundleID: String?,
+        isAppRunning: (String) -> Bool
+    ) -> RelatedRemovalBlock? {
+        guard let bundleID, !bundleID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .missingBundleID
+        }
+        guard isWellFormedBundleID(bundleID) else { return .invalidBundleID }
+        return isAppRunning(bundleID) ? .appRunning : nil
+    }
+
+    nonisolated static func relatedRemovalBlockMessage(_ block: RelatedRemovalBlock, appName: String) -> String {
+        switch block {
+        case .missingBundleID: return "apps.status.related_no_bundle_id".localized(with: appName)
+        case .invalidBundleID: return "apps.status.related_invalid_bundle_id".localized(with: appName)
+        case .appRunning: return "apps.status.related_app_running".localized(with: appName)
+        }
+    }
+
+    /// Details에 미리 알릴, 실행 여부와 무관하게 정해지는 삭제 불가 사유(번들 ID 문제만).
+    var relatedRemovalUnavailableNote: String? {
+        guard let selectedApp,
+              Self.relatedRemovalBlock(bundleID: selectedApp.bundleID, isAppRunning: { _ in false }) != nil
+        else { return nil }
+        return "apps.details.related_unverifiable".localized
+    }
+
     /// 지금 이 번들 ID의 앱이 실행 중인지. `NSWorkspace`는 메인 스레드에서 읽는다.
     static func isAppRunningNow(_ bundleID: String) -> Bool {
         isBundleIDRunning(bundleID, runningBundleIDs: NSWorkspace.shared.runningApplications.map(\.bundleIdentifier))
@@ -1456,6 +1505,14 @@ final class AppsViewModel: ObservableObject {
         isAppRunning: (String) async -> Bool,
         mover: TrashService.Mover = .system
     ) async -> TrashService.Outcome<AppsRelatedItem> {
+        // 번들 ID를 확인할 수 없으면 실행 여부·소유를 검증할 수 없으므로 하나도 옮기지 않는다.
+        // (호출부에서 먼저 막지만, 이 함수만 따로 불려도 안전하도록 여기서도 막는다.)
+        guard relatedRemovalBlock(bundleID: bundleID, isAppRunning: { _ in false }) == nil,
+              let bundleID
+        else {
+            return TrashService.Outcome(succeeded: [], failed: [], excluded: targets, firstFailure: nil)
+        }
+
         // ~/Library/Caches/<bundleID> 같은 관련 폴더는 사용자가 목록에서 항목을 고르는 사이에도
         // 해당 앱이 파일을 쓰면서 크기·수정 시각이 달라진다. 엄격 비교를 유지하면 정상 대상이
         // 이유 없이 "제외됨"으로 빠지므로, 디렉터리에 한해 내용 변경을 허용한다.
@@ -1468,7 +1525,7 @@ final class AppsViewModel: ObservableObject {
             allowsDirectoryContentChanges: { $0.isDirectory },
             logCategory: "AppsRelatedRemoval",
             preflight: { item in
-                if let bundleID, await isAppRunning(bundleID) { return .stop }
+                if await isAppRunning(bundleID) { return .stop }
                 return DeletionSafety.isFreeOfSymlinks(item.url, below: libraryRoot) ? .proceed : .skip
             },
             mover: mover
@@ -2112,6 +2169,13 @@ struct AppsView: View {
                             .foregroundStyle(.secondary)
                     }
 
+                    if let note = viewModel.relatedRemovalUnavailableNote {
+                        Label(note, systemImage: "exclamationmark.triangle")
+                            .appFont(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
                     if viewModel.userLibraryFolderURL == nil {
                         Text("apps.details.library_guide".localized)
                             .appFont(.footnote)
@@ -2163,7 +2227,10 @@ struct AppsView: View {
                             Button("apps.details.trash_selected".localized) {
                                 requestPremiumAlert(.removeRelatedFiles)
                             }
-                            .disabled(viewModel.isRemoving || viewModel.selectedRelatedCount == 0)
+                            .disabled(
+                                viewModel.isRemoving || viewModel.selectedRelatedCount == 0
+                                    || viewModel.relatedRemovalUnavailableNote != nil
+                            )
                         }
                     }
                 }

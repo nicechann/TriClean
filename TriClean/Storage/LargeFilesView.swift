@@ -392,9 +392,13 @@ struct LargeFilesView: View {
                     // 하위 항목을 모두 읽지 못한 폴더는 통째로 옮길 수 없다. 삭제 단계에서도 다시 막는다.
                     let lock = viewModel.deleteLock(for: item)
                     let isProtected = lock != nil
-                    let lockHelp = lock == .incomplete
-                        ? "storage.help.incomplete".localized
-                        : "storage.help.protected".localized
+                    let lockHelp: String = {
+                        switch lock {
+                        case .cloudOnly: return "storage.help.cloud_only".localized
+                        case .incomplete: return "storage.help.incomplete".localized
+                        case .protected, nil: return "storage.help.protected".localized
+                        }
+                    }()
                     Button(role: .destructive) {
                         requestDelete(item)
                     } label: {

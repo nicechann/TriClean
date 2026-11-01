@@ -73,7 +73,9 @@
 "storage.msg.protected_skipped" = "保護された項目 %ld 件をスキップしました。書類・ピクチャ・ライブラリなどの標準フォルダや写真ライブラリは、ここからゴミ箱に入れることはできません。";
 "storage.help.protected" = "保護されたフォルダ — ここからゴミ箱に入れることはできません";
 "storage.help.incomplete" = "読み取れない項目を含むフォルダ — フォルダごとゴミ箱に入れることはできません";
+"storage.help.cloud_only" = "クラウドのみのファイルを含むフォルダ — フォルダごとゴミ箱に入れることはできません";
 "storage.msg.incomplete_skipped" = "内容をすべて読み取れなかったフォルダ %ld 件をスキップしました。フォルダ内の項目を直接整理するか、アクセス権を確認してから再スキャンしてください。";
+"storage.msg.cloud_only_skipped" = "クラウドのみのファイルを含むフォルダ %ld 件をスキップしました。フォルダごと移動するとクラウド上の元ファイルまで削除される可能性があります。ローカルにあるファイルだけを選んで整理してください。";
 "storage.msg.manual" = "「%@」フォルダを分析中…";
 "storage.msg.auto" = "条件が変更されたため再分析中…";
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
@@ -117,6 +119,7 @@
 "apps.details.library_guide" = "上で「ホームライブラリ (~/Library)」を選択すると関連ファイルを分析できます。";
 "apps.details.scanning" = "関連ファイルを検索中…";
 "apps.details.no_related" = "関連ファイルは見つかりませんでした。";
+"apps.details.related_unverifiable" = "このAppのバンドルIDを確認できません。見つかった項目は他のAppと共有するデータの可能性があるため参考として表示するのみで、ここからゴミ箱に入れることはできません。必要に応じてFinderで確認してください。";
 "apps.details.found_count" = "関連ファイル (%ld)";
 "apps.details.trash_selected" = "選択した項目をゴミ箱に入れる";
 "apps.details.guide" = "テーブルからAppを選択するか「.appを手動で選択」を使って、App詳細と関連ファイル (キャッシュ、環境設定など) を確認してください。";
@@ -169,6 +172,8 @@
 "apps.status.scan_found_shared" = "%ld 個の関連項目が見つかりました。ほかのAppやシステムと共有されている可能性があるため、あらかじめ選択していません。確認してから選択してください。";
 "apps.status.scan_found_installed" = "%ld 個の関連項目が見つかりました。Appがまだインストールされているため、あらかじめ選択していません。先にAppを削除するか、項目を自分で選択してください。";
 "apps.status.related_app_running" = "%@(または同じデータを使うApp)が実行中です。Appを終了してから再度お試しください。";
+"apps.status.related_no_bundle_id" = "%@ のバンドルIDを確認できないため、関連ファイルを削除しませんでした。Appが実行中かどうかやファイルの持ち主を確認できず、名前で見つけた項目は他のAppと共有するデータの可能性があります。";
+"apps.status.related_invalid_bundle_id" = "%@ のバンドルIDの形式が正しくないため、関連ファイルを削除しませんでした。Appが実行中かどうかやファイルの持ち主を安全に確認できません。";
 
 /* Settings View */
 "settings.display" = "表示";
@@ -662,3 +667,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "ゴミ箱に移動した項目: %ld。ディスクの空き領域を実際に増やすには、Dockのゴミ箱を開いて「空にする」をクリックしてください。";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "ワンクリックで整理できる項目を発見";
+"demo.caption.junk" = "キャッシュやログをリスク別に安全に整理";
+"demo.caption.large_files" = "大きなファイルとフォルダをひと目で";
+"demo.caption.duplicates" = "内容まで比較して正確に見つける重複ファイル";
+"demo.caption.apps" = "Appと一緒に残ったファイルまで削除";
+"demo.caption.trash" = "削除はすべてゴミ箱へ。空にするまで元に戻せます";
+"demo.note.sample_data" = "表示されているファイル・App・容量はサンプルデータです";

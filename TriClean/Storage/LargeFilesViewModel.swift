@@ -436,9 +436,28 @@ final class LargeFilesViewModel: ObservableObject {
     ///     잡혀 최소 크기 필터에 걸러진다. 따라서 이 화면은 클라우드 파일을 건드리지 않는다.
     ///     (논리 크기로 바꾸면 자리표시자가 목록에 올라오고, 삭제 시 다운로드가 유발된다.
     ///      중복 탐색이 실제로 그 문제를 겪었다 — `CloudFileStatus` 참고.)
-    nonisolated private static func fileSize(from values: URLResourceValues) -> Int {
-        values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
+    ///
+    /// ⚠️ 할당 크기를 알 수 없을 때 논리 크기로 대신하지 않는다. 클라우드 자리표시자·네트워크 볼륨에서는
+    ///    논리 크기가 실제 디스크 점유와 무관해, 지워도 공간이 생기지 않는 파일을 "확보 가능한 용량"으로
+    ///    보여 주게 된다. 클라우드 전용 파일은 지우면 클라우드 원본까지 사라질 수 있다.
+    /// - Returns: 지우면 확보되는 로컬 용량. 클라우드 전용이거나 할당 크기를 알 수 없으면 nil
+    ///   (삭제 후보로 내놓지 않고 폴더 합계에도 넣지 않는다).
+    nonisolated static func reclaimableBytes(from values: CloudFileStatus.Snapshot) -> Int64? {
+        guard !CloudFileStatus.isDataless(values), let allocated = values.allocatedSize else { return nil }
+        return Int64(allocated)
     }
+
+    /// 스캔·삭제 직전 확인에 쓰는 키. 클라우드 판정 키를 반드시 함께 읽는다.
+    nonisolated static let fileScanKeys: [URLResourceKey] = Array(Set<URLResourceKey>([
+        .isDirectoryKey,
+        .isRegularFileKey,
+        .isSymbolicLinkKey,
+        .fileAllocatedSizeKey,
+        .totalFileAllocatedSizeKey,
+        .fileSizeKey,
+        .isPackageKey,
+        .isHiddenKey
+    ]).union(CloudFileStatus.requiredResourceKeys))
 
     nonisolated static func scanStructuredItemsBatches(
         of root: URL,
@@ -451,14 +470,7 @@ final class LargeFilesViewModel: ObservableObject {
                 let fm = FileManager.default
                 let rootStd = root.standardizedFileURL
 
-                let directKeys: [URLResourceKey] = [
-                    .isDirectoryKey,
-                    .isRegularFileKey,
-                    .fileAllocatedSizeKey,
-                    .totalFileAllocatedSizeKey,
-                    .fileSizeKey,
-                    .isPackageKey
-                ]
+                let directKeys = Self.fileScanKeys
 
                 guard let directItems = try? fm.contentsOfDirectory(
                     at: rootStd,
@@ -494,7 +506,8 @@ final class LargeFilesViewModel: ObservableObject {
                         }
 
                         if values.isRegularFile == true {
-                            let size = Int64(Self.fileSize(from: values))
+                            // 클라우드 전용·할당 크기 미확인 파일은 삭제 후보로 내놓지 않는다.
+                            guard let size = Self.reclaimableBytes(from: CloudFileStatus.Snapshot(values)) else { return }
                             let sizeMB = Double(size) / 1024.0 / 1024.0
                             if sizeMB >= minSizeMB {
                                 rootFiles.append(
@@ -517,15 +530,7 @@ final class LargeFilesViewModel: ObservableObject {
                     await Task.yield()
                 }
 
-                let scanKeys: [URLResourceKey] = [
-                    .isDirectoryKey,
-                    .isRegularFileKey,
-                    .fileAllocatedSizeKey,
-                    .totalFileAllocatedSizeKey,
-                    .fileSizeKey,
-                    .isPackageKey,
-                    .isHiddenKey
-                ]
+                let scanKeys = Self.fileScanKeys
 
                 for folderURL in topFolders {
                     if Task.isCancelled { break }
@@ -560,6 +565,8 @@ final class LargeFilesViewModel: ObservableObject {
                     packagePrefixes.reserveCapacity(8)
                     // 보관함을 담은 폴더(예: ~/Music/Music)는 경로 규칙만으로는 알 수 없어 여기서 기록한다.
                     var containsManagedLibrary = false
+                    // 클라우드 전용 파일이 든 폴더를 통째로 옮기면 클라우드 원본까지 지워질 수 있다.
+                    var containsCloudOnlyItems = false
 
                     let minBytes = Int64(minSizeMB * 1024.0 * 1024.0)
                     let isPackageRoot = topPackages.contains(folder)
@@ -604,7 +611,13 @@ final class LargeFilesViewModel: ObservableObject {
 
                             guard values.isRegularFile == true else { return }
 
-                            let size = Int64(Self.fileSize(from: values))
+                            let snapshot = CloudFileStatus.Snapshot(values)
+                            if CloudFileStatus.isDataless(snapshot) {
+                                containsCloudOnlyItems = true
+                                return
+                            }
+                            // 할당 크기를 알 수 없으면 합계에도 넣지 않는다(확보 용량을 부풀리지 않는다).
+                            guard let size = Self.reclaimableBytes(from: snapshot) else { return }
                             total += size
 
                             guard size >= minBytes, !isPackageRoot, values.isHidden != true else { return }
@@ -631,7 +644,8 @@ final class LargeFilesViewModel: ObservableObject {
                             depth: 0,
                             parentURL: nil,
                             containsManagedLibrary: containsManagedLibrary,
-                            isScanComplete: isScanComplete
+                            isScanComplete: isScanComplete,
+                            containsCloudOnlyItems: containsCloudOnlyItems
                         )
                     ])
                     await Task.yield()
@@ -679,6 +693,8 @@ final class LargeFilesViewModel: ObservableObject {
     enum DeleteLock {
         /// 기본 폴더·~/Library 하위·보관함 등 보호 위치
         case protected
+        /// 클라우드에만 있는 파일이 들어 있는 폴더(옮기면 클라우드 원본까지 지워질 수 있다)
+        case cloudOnly
         /// 하위 항목 일부를 읽지 못해 안에 무엇이 있는지 확인할 수 없는 폴더
         case incomplete
     }
@@ -703,6 +719,9 @@ final class LargeFilesViewModel: ObservableObject {
         var notes: [String] = []
         if prepared.protectedCount > 0 {
             notes.append("storage.msg.protected_skipped".localized(with: prepared.protectedCount))
+        }
+        if prepared.cloudOnlyCount > 0 {
+            notes.append("storage.msg.cloud_only_skipped".localized(with: prepared.cloudOnlyCount))
         }
         if prepared.incompleteCount > 0 {
             notes.append("storage.msg.incomplete_skipped".localized(with: prepared.incompleteCount))
@@ -738,6 +757,7 @@ final class LargeFilesViewModel: ObservableObject {
             || ProtectedPaths.isProtected(item.url, home: home, resolvingSymlinks: resolvingSymlinks) {
             return .protected
         }
+        if item.containsCloudOnlyItems { return .cloudOnly }
         return item.isScanComplete ? nil : .incomplete
     }
 
@@ -756,18 +776,20 @@ final class LargeFilesViewModel: ObservableObject {
     nonisolated static func prepareDeleteTargets(
         _ items: [FolderInfo],
         home: URL = ProtectedPaths.realHomeDirectory
-    ) -> (targets: [FolderInfo], protectedCount: Int, incompleteCount: Int) {
+    ) -> (targets: [FolderInfo], protectedCount: Int, cloudOnlyCount: Int, incompleteCount: Int) {
         var allowed: [FolderInfo] = []
         var protectedCount = 0
+        var cloudOnlyCount = 0
         var incompleteCount = 0
         for item in items {
             switch deleteLock(for: item, home: home) {
             case .protected: protectedCount += 1
+            case .cloudOnly: cloudOnlyCount += 1
             case .incomplete: incompleteCount += 1
             case nil: allowed.append(item)
             }
         }
-        return (normalizedDeleteTargets(allowed), protectedCount, incompleteCount)
+        return (normalizedDeleteTargets(allowed), protectedCount, cloudOnlyCount, incompleteCount)
     }
 
     func cancelDeleteRequest() {
@@ -859,7 +881,8 @@ final class LargeFilesViewModel: ObservableObject {
                     parentURL: info.parentURL,
                     fileIdentity: info.fileIdentity,
                     containsManagedLibrary: info.containsManagedLibrary,
-                    isScanComplete: info.isScanComplete
+                    isScanComplete: info.isScanComplete,
+                    containsCloudOnlyItems: info.containsCloudOnlyItems
                 )
             }
 
@@ -921,10 +944,19 @@ final class LargeFilesViewModel: ObservableObject {
 
     /// Recheck directory contents immediately before each move, including the recycle fallback.
     /// An unreadable subtree cannot establish that the folder contains no protected library.
+    /// 스캔 이후 클라우드 전용으로 바뀐 파일(저장 공간 최적화로 내용이 내려간 경우 등)도 여기서 막는다.
     nonisolated static func deletionPreflight(_ item: FolderInfo) -> TrashService.Preflight {
         guard !isProtected(item) else { return .skip }
-        guard item.isDirectory else { return .proceed }
-        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey]
+        let keys = Set(fileScanKeys)
+        guard item.isDirectory else {
+            // 스캔 때 읽은 값이 URL에 남아 있을 수 있으므로 지우고 지금 상태를 읽는다.
+            var url = item.url
+            url.removeAllCachedResourceValues()
+            guard let values = try? url.resourceValues(forKeys: keys),
+                  reclaimableBytes(from: CloudFileStatus.Snapshot(values)) != nil
+            else { return .skip }
+            return .proceed
+        }
         var complete = true
         guard let enumerator = FileManager.default.enumerator(
             at: item.url,
@@ -948,6 +980,9 @@ final class LargeFilesViewModel: ObservableObject {
             }
             if values.isSymbolicLink == true { continue }
             if values.isDirectory == true && ProtectedPaths.isManagedLibrary(url) { return .skip }
+            if values.isRegularFile == true && CloudFileStatus.isDataless(CloudFileStatus.Snapshot(values)) {
+                return .skip
+            }
         }
         return complete ? .proceed : .skip
     }

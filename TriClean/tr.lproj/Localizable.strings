@@ -75,7 +75,9 @@
 "storage.msg.protected_skipped" = "Korunan %ld öğe atlandı. Belgeler, Resimler veya Kitaplık gibi klasörler ve Fotoğraflar arşivi buradan Çöp Sepeti'ne taşınamaz.";
 "storage.help.protected" = "Korunan klasör — buradan Çöp Sepeti'ne taşınamaz";
 "storage.help.incomplete" = "Okunamayan öğeler içeren klasör — tamamı Çöp Sepeti'ne taşınamaz";
+"storage.help.cloud_only" = "Klasör yalnızca bulutta bulunan dosyalar içeriyor — tamamı Çöp Sepeti'ne taşınamaz";
 "storage.msg.incomplete_skipped" = "İçeriği tamamen okunamayan %ld klasör atlandı. İçindeki öğeleri doğrudan temizleyin veya erişim izinlerini kontrol edip yeniden tarayın.";
+"storage.msg.cloud_only_skipped" = "Yalnızca bulutta bulunan dosyalar içeren %ld klasör atlandı. Klasörün tamamını taşımak buluttaki orijinalleri silebilir. Temizlemek için yalnızca yerel dosyaları seçin.";
 "storage.msg.manual" = "“%@” klasörü inceleniyor…";
 "storage.msg.auto" = "Koşullar değiştiği için yeniden inceleniyor…";
 "storage.msg.canceled" = "Tarama iptal edildi.";
@@ -200,6 +202,7 @@
 "apps.details.library_guide" = "İlgili dosyaları incelemek için yukarıdan Kişisel Kitaplık'ı (~/Library) seçin.";
 "apps.details.scanning" = "İlgili dosyalar aranıyor…";
 "apps.details.no_related" = "İlgili dosya bulunamadı.";
+"apps.details.related_unverifiable" = "Bu uygulamanın Bundle ID'si doğrulanamıyor. Bulunan öğeler başka uygulamalarla paylaşılıyor olabileceğinden yalnızca bilgi amaçlı gösterilir ve buradan Çöp Sepeti'ne taşınamaz. Gerekirse Finder'da kontrol edin.";
 "apps.details.found_count" = "İlgili dosyalar (%ld)";
 "apps.details.trash_selected" = "Seçilenleri Çöp Sepeti'ne Taşı";
 "apps.details.guide" = "Uygulama ayrıntılarını ve ilgili dosyaları (önbellek, tercihler vb.) incelemek için tablodan bir uygulama seçin ya da “.app dosyasını elle seç”i kullanın.";
@@ -247,6 +250,8 @@
 "apps.status.scan_found_shared" = "%ld ilgili öğe bulundu. Yüklü başka bir uygulama veya sistemle paylaşılıyor olabilecekleri için hiçbiri önceden seçilmedi. Kaldırmadan önce gözden geçirin.";
 "apps.status.scan_found_installed" = "%ld ilgili öğe bulundu. Uygulama hâlâ yüklü olduğu için hiçbiri önceden seçilmedi. Önce uygulamayı kaldırın veya öğeleri kendiniz seçin.";
 "apps.status.related_app_running" = "%@ (veya aynı verileri kullanan bir uygulama) çalışıyor. Uygulamadan çıkıp yeniden deneyin.";
+"apps.status.related_no_bundle_id" = "%@ uygulamasının Bundle ID'si bulunamadığı için artık dosyaları silinmedi. TriClean uygulamanın çalışıp çalışmadığını veya dosyaların hangi uygulamaya ait olduğunu doğrulayamaz; adla bulunan öğeler başka uygulamalarla paylaşılıyor olabilir.";
+"apps.status.related_invalid_bundle_id" = "%@ uygulamasının Bundle ID'si geçerli biçimde olmadığı için artık dosyaları silinmedi. TriClean uygulamanın çalışıp çalışmadığını veya dosyaların hangi uygulamaya ait olduğunu güvenle doğrulayamaz.";
 "apps.status.related_invalid" = "Kaldırılabilecek ilgili dosya yok. Değiştiği için atlanan: %ld.";
 "apps.status.uninstall_invalid" = "Kaldırılabilecek uygulama yok. Değişen veya izin verilen konum dışında olan: %ld.";
 "apps.status.related_summary" = "Taşınan ilgili öğe: %1$ld. Başarısız: %2$ld; yeniden doğrulama sonrası atlanan: %3$ld.";
@@ -600,3 +605,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Çöp Sepeti'ne taşınan öğe: %ld. Disk alanını gerçekten boşaltmak için Dock'taki Çöp Sepeti'ni açıp “Boşalt”a tıklayın.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Temizlenecekleri tek tıkla bulun";
+"demo.caption.junk" = "Önbellek ve günlükleri risk düzeyine göre güvenle temizleyin";
+"demo.caption.large_files" = "Büyük dosya ve klasörler tek bakışta";
+"demo.caption.duplicates" = "İçeriği karşılaştırarak gerçek kopyaları bulun";
+"demo.caption.apps" = "Uygulamaları artıklarıyla birlikte kaldırın";
+"demo.caption.trash" = "Her şey Çöp Sepeti'ne gider, boşaltana kadar geri alınabilir";
+"demo.note.sample_data" = "Gösterilen dosyalar, uygulamalar ve boyutlar örnek verilerdir";

@@ -71,7 +71,9 @@
 "storage.msg.protected_skipped" = "%ld itens protegidos foram ignorados. Pastas como Documentos, Imagens ou Biblioteca e a fototeca não podem ser movidas para o Lixo aqui.";
 "storage.help.protected" = "Pasta protegida — não pode ser movida para o Lixo aqui";
 "storage.help.incomplete" = "Pasta com itens ilegíveis — não pode ser movida inteira para o Lixo";
+"storage.help.cloud_only" = "A pasta contém arquivos só na nuvem — não pode ser movida inteira para o Lixo";
 "storage.msg.incomplete_skipped" = "%ld pastas cujo conteúdo não pôde ser lido por completo foram ignoradas. Limpe diretamente os itens dentro delas ou verifique as permissões de acesso e analise novamente.";
+"storage.msg.cloud_only_skipped" = "%ld pastas com arquivos só na nuvem foram ignoradas. Mover a pasta inteira pode apagar os originais na nuvem. Selecione apenas os arquivos locais para limpar.";
 "storage.msg.manual" = "Analisando a pasta “%@”…";
 "storage.msg.auto" = "Reanalisando devido a alteração nas condições…";
 "storage.msg.canceled" = "Escaneamento cancelado.";
@@ -196,6 +198,7 @@
 "apps.details.library_guide" = "Selecione a Biblioteca pessoal (~/Library) acima para analisar os arquivos relacionados.";
 "apps.details.scanning" = "Buscando arquivos relacionados…";
 "apps.details.no_related" = "Nenhum arquivo relacionado encontrado.";
+"apps.details.related_unverifiable" = "Não é possível verificar o Bundle ID deste app. Os itens encontrados podem ser compartilhados com outros apps, por isso aparecem só como referência e não podem ser movidos para o Lixo aqui. Verifique-os no Finder, se necessário.";
 "apps.details.found_count" = "Arquivos relacionados (%ld)";
 "apps.details.trash_selected" = "Mover selecionados para o Lixo";
 "apps.details.guide" = "Selecione um app na tabela ou use “Selecionar .app manualmente” para revisar os detalhes do app e seus arquivos relacionados (caches, preferências etc.).";
@@ -243,6 +246,8 @@
 "apps.status.scan_found_shared" = "%ld itens relacionados encontrados. Eles podem ser compartilhados com outro app instalado ou com o sistema, então nenhum foi pré-selecionado. Revise antes de remover.";
 "apps.status.scan_found_installed" = "%ld itens relacionados encontrados. O app ainda está instalado, então nenhum foi pré-selecionado. Desinstale o app primeiro ou selecione os itens você mesmo.";
 "apps.status.related_app_running" = "%@ (ou um app que compartilha seus dados) está em execução. Encerre-o e tente novamente.";
+"apps.status.related_no_bundle_id" = "Os arquivos restantes de %@ não foram apagados porque o Bundle ID não foi encontrado. O TriClean não consegue confirmar se o app está aberto nem a qual app os arquivos pertencem, e itens encontrados pelo nome podem ser compartilhados com outros apps.";
+"apps.status.related_invalid_bundle_id" = "Os arquivos restantes de %@ não foram apagados porque o Bundle ID não está em um formato válido. O TriClean não consegue confirmar com segurança se o app está aberto nem a qual app os arquivos pertencem.";
 "apps.status.related_invalid" = "Nenhum arquivo relacionado pode ser removido. Itens alterados e ignorados: %ld.";
 "apps.status.uninstall_invalid" = "Nenhum app pode ser removido. Apps alterados ou fora do local permitido: %ld.";
 "apps.status.related_summary" = "Itens relacionados movidos: %1$ld. Falhas: %2$ld; ignorados após revalidação: %3$ld.";
@@ -600,3 +605,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "Itens movidos para o Lixo: %ld. Para liberar espaço em disco de verdade, abra o Lixo no Dock e clique em “Esvaziar”.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Encontre o que limpar com um clique";
+"demo.caption.junk" = "Limpe caches e logs com segurança, por nível de risco";
+"demo.caption.large_files" = "Arquivos e pastas grandes num relance";
+"demo.caption.duplicates" = "Duplicatas reais comparando o conteúdo";
+"demo.caption.apps" = "Remova apps junto com os restos";
+"demo.caption.trash" = "Tudo vai para o Lixo e pode ser recuperado até esvaziá-lo";
+"demo.note.sample_data" = "Os arquivos, apps e tamanhos mostrados são dados de exemplo";

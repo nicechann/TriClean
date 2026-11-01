@@ -101,7 +101,7 @@ final class StorageViewModel: ObservableObject {
             appsScopeURLs = [DemoMode.applicationsFolder]
             homeFolderBytes = 268_400_000_000
             appsFolderBytes = 41_700_000_000
-            loadDiskInfo()
+            diskInfo = DemoMode.diskInfo
             return
         }
         #endif

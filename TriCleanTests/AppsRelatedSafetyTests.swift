@@ -367,4 +367,82 @@ final class AppsRelatedSafetyTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: app.url.path))
     }
 
+    // MARK: - 번들 ID를 확인할 수 없는 앱
+
+    func test_번들ID가_없거나_형식이_틀리면_삭제를_시작하지_않는다() {
+        var runningChecks = 0
+        let running: (String) -> Bool = { _ in runningChecks += 1; return false }
+
+        XCTAssertEqual(AppsViewModel.relatedRemovalBlock(bundleID: nil, isAppRunning: running), .missingBundleID)
+        XCTAssertEqual(AppsViewModel.relatedRemovalBlock(bundleID: "  ", isAppRunning: running), .missingBundleID)
+        XCTAssertEqual(AppsViewModel.relatedRemovalBlock(bundleID: "Google", isAppRunning: running), .invalidBundleID)
+        XCTAssertEqual(AppsViewModel.relatedRemovalBlock(bundleID: "com..foo", isAppRunning: running), .invalidBundleID)
+        XCTAssertEqual(AppsViewModel.relatedRemovalBlock(bundleID: "com.example/../x", isAppRunning: running), .invalidBundleID)
+        // 번들 ID를 확인할 수 없으면 실행 여부를 묻지도 않는다(확인할 대상이 없다).
+        XCTAssertEqual(runningChecks, 0)
+    }
+
+    func test_정상_번들ID는_실행중일때만_막는다() {
+        XCTAssertNil(AppsViewModel.relatedRemovalBlock(bundleID: bundleID, isAppRunning: { _ in false }))
+        XCTAssertEqual(
+            AppsViewModel.relatedRemovalBlock(bundleID: bundleID, isAppRunning: { $0 == self.bundleID }),
+            .appRunning
+        )
+    }
+
+    func test_삭제불가_사유마다_다른_안내를_보여준다() {
+        let messages = [
+            AppsViewModel.relatedRemovalBlockMessage(.missingBundleID, appName: "Foo"),
+            AppsViewModel.relatedRemovalBlockMessage(.invalidBundleID, appName: "Foo"),
+            AppsViewModel.relatedRemovalBlockMessage(.appRunning, appName: "Foo"),
+        ]
+        XCTAssertEqual(Set(messages).count, 3)
+        XCTAssertEqual(messages[0], "apps.status.related_no_bundle_id".localized(with: "Foo"))
+        XCTAssertEqual(messages[1], "apps.status.related_invalid_bundle_id".localized(with: "Foo"))
+        for message in messages {
+            XCTAssertTrue(message.contains("Foo"), message)
+            XCTAssertFalse(message.hasPrefix("apps.status."), "번역이 없습니다: \(message)")
+        }
+    }
+
+    func test_번들ID가_없으면_이름으로_찾은_항목을_옮기지_않는다() async throws {
+        try write("Application Support/Foo/data.bin")
+        let targets = AppsViewModel.findRelatedItems(in: library, appName: "Foo", bundleID: nil)
+        XCTAssertFalse(targets.isEmpty)
+
+        for invalid in [nil, "", "Foo", "com..foo"] as [String?] {
+            var runningChecks = 0
+            let outcome = await AppsViewModel.performRelatedRemoval(
+                targets: targets,
+                libraryRoot: library,
+                bundleID: invalid,
+                isAppRunning: { _ in runningChecks += 1; return false },
+                mover: mover
+            )
+            XCTAssertEqual(outcome.succeededCount, 0, String(describing: invalid))
+            XCTAssertEqual(outcome.excludedCount, targets.count, String(describing: invalid))
+            XCTAssertEqual(runningChecks, 0)
+        }
+        for item in targets {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: item.url.path), item.url.path)
+        }
+    }
+
+    func test_정상_번들ID는_항목마다_실행여부를_확인하고_옮긴다() async throws {
+        try write("Caches/\(bundleID)/a.bin")
+        try write("HTTPStorages/\(bundleID)/b.bin")
+        let targets = scan().filter { $0.url.lastPathComponent == bundleID }
+        XCTAssertEqual(targets.count, 2)
+
+        var checkedIDs: [String] = []
+        let outcome = await AppsViewModel.performRelatedRemoval(
+            targets: targets,
+            libraryRoot: library,
+            bundleID: bundleID,
+            isAppRunning: { checkedIDs.append($0); return false },
+            mover: mover
+        )
+        XCTAssertEqual(outcome.succeededCount, 2)
+        XCTAssertEqual(checkedIDs, [bundleID, bundleID])
+    }
 }

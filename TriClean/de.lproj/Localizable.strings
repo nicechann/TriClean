@@ -73,7 +73,9 @@
 "storage.msg.protected_skipped" = "%ld geschützte Elemente wurden übersprungen. Ordner wie Dokumente, Bilder oder Library sowie die Fotos-Mediathek können hier nicht in den Papierkorb verschoben werden.";
 "storage.help.protected" = "Geschützter Ordner – kann hier nicht in den Papierkorb verschoben werden";
 "storage.help.incomplete" = "Ordner mit nicht lesbaren Elementen – kann nicht als Ganzes in den Papierkorb verschoben werden";
-"storage.msg.incomplete_skipped" = "%ld Ordner, deren Inhalt nicht vollständig gelesen werden konnte, wurden übersprungen. Räume die Elemente darin direkt auf oder prüfe die Zugriffsrechte und scanne erneut.";
+"storage.help.cloud_only" = "Ordner enthält reine Cloud-Dateien – kann nicht als Ganzes in den Papierkorb verschoben werden";
+"storage.msg.incomplete_skipped" = "%ld Ordner, deren Inhalt nicht vollständig gelesen werden konnte, wurden übersprungen. Bereinigen Sie die Elemente darin direkt oder prüfen Sie die Zugriffsrechte und scannen Sie erneut.";
+"storage.msg.cloud_only_skipped" = "%ld Ordner mit reinen Cloud-Dateien wurden übersprungen. Wenn Sie den ganzen Ordner verschieben, können die Originale in der Cloud gelöscht werden. Wählen Sie zum Aufräumen nur lokale Dateien aus.";
 "storage.msg.manual" = "Ordner „%@“ wird analysiert…";
 "storage.msg.auto" = "Bedingung geändert – wird neu analysiert…";
 "storage.msg.canceled" = "Scan abgebrochen.";
@@ -117,6 +119,7 @@
 "apps.details.library_guide" = "Wählen Sie oben „Privat-Library (~/Library)“ aus, um zugehörige Dateien zu analysieren.";
 "apps.details.scanning" = "Zugehörige Dateien werden gesucht…";
 "apps.details.no_related" = "Keine zugehörigen Dateien gefunden.";
+"apps.details.related_unverifiable" = "Die Bundle-ID dieser App kann nicht überprüft werden. Gefundene Elemente können mit anderen Apps geteilt sein. Sie werden daher nur zur Information angezeigt und können hier nicht in den Papierkorb verschoben werden. Prüfen Sie sie bei Bedarf im Finder.";
 "apps.details.found_count" = "Zugehörige Dateien (%ld)";
 "apps.details.trash_selected" = "Auswahl in den Papierkorb legen";
 "apps.details.guide" = "Wählen Sie eine App aus der Tabelle oder verwenden Sie „.app manuell auswählen“, um App-Details und zugehörige Dateien (Caches, Einstellungen usw.) zu prüfen.";
@@ -169,6 +172,8 @@
 "apps.status.scan_found_shared" = "%ld zugehörige Elemente gefunden. Sie werden möglicherweise mit einer anderen installierten App oder dem System geteilt und sind daher nicht vorausgewählt. Bitte vor dem Entfernen prüfen.";
 "apps.status.scan_found_installed" = "%ld zugehörige Elemente gefunden. Die App ist noch installiert, daher ist nichts vorausgewählt. Deinstallieren Sie zuerst die App oder wählen Sie Elemente selbst aus.";
 "apps.status.related_app_running" = "%@ (oder eine App, die dieselben Daten nutzt) läuft. Beenden Sie sie und versuchen Sie es erneut.";
+"apps.status.related_no_bundle_id" = "Die Restdateien von %@ wurden nicht gelöscht, weil keine Bundle-ID gefunden wurde. TriClean kann nicht prüfen, ob die App läuft oder zu welcher App die Dateien gehören. Nach Namen gefundene Elemente können mit anderen Apps geteilt sein.";
+"apps.status.related_invalid_bundle_id" = "Die Restdateien von %@ wurden nicht gelöscht, weil die Bundle-ID kein gültiges Format hat. TriClean kann nicht sicher prüfen, ob die App läuft oder zu welcher App die Dateien gehören.";
 
 /* Settings View */
 "settings.display" = "Anzeige";
@@ -551,7 +556,7 @@
 "storage.msg.trash_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
 "storage.msg.trash_partial" = "%ld Elemente wurden in den Papierkorb verschoben. %ld Elemente sind fehlgeschlagen.";
 "storage.msg.trash_failed" = "Die ausgewählten Elemente konnten nicht in den Papierkorb verschoben werden.";
-"storage.msg.trash_all_skipped" = "Alle Elemente wurden bei der letzten Prüfung vor dem Löschen ausgeschlossen und nicht in den Papierkorb verschoben. Scanne erneut und versuche es noch einmal.";
+"storage.msg.trash_all_skipped" = "Alle Elemente wurden bei der letzten Prüfung vor dem Löschen ausgeschlossen und nicht in den Papierkorb verschoben. Scannen Sie erneut und versuchen Sie es noch einmal.";
 "storage.msg.trash_skipped_note" = "%ld Elemente wurden bei der letzten Prüfung vor dem Löschen ausgeschlossen.";
 "junk.progress.cleaning" = "%ld ausgewählte Elemente werden in den Papierkorb verschoben…";
 "junk.progress.clean_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
@@ -662,3 +667,12 @@
 
 /* 휴지통 안내 배너 */
 "trash.reminder.message" = "In den Papierkorb verschoben: %ld. Um tatsächlich Speicherplatz freizugeben, öffnen Sie den Papierkorb im Dock und klicken Sie auf „Entleeren“.";
+
+/* App Store 미리보기 영상 자막 (DEBUG 데모 모드 전용) */
+"demo.caption.smart_scan" = "Mit einem Klick finden, was weg kann";
+"demo.caption.junk" = "Caches und Logs sicher nach Risiko bereinigen";
+"demo.caption.large_files" = "Große Dateien und Ordner auf einen Blick";
+"demo.caption.duplicates" = "Echte Duplikate per Inhaltsvergleich finden";
+"demo.caption.apps" = "Apps samt Resten entfernen";
+"demo.caption.trash" = "Alles landet im Papierkorb – wiederherstellbar bis zum Leeren";
+"demo.note.sample_data" = "Gezeigte Dateien, Apps und Größen sind Beispieldaten";
