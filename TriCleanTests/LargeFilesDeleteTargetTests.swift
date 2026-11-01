@@ -199,7 +199,9 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
             )
         }
         let stop = ManagedAtomicFlag()
+        let finished = DispatchSemaphore(value: 0)
         let churn = Thread { [url = item.url] in
+            defer { finished.signal() }
             var counter = 0
             while !stop.isSet {
                 let temp = url.appendingPathComponent("d\(counter % 20)/tmp\(counter % 200)")
@@ -213,7 +215,11 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
             }
         }
         churn.start()
-        defer { stop.set() }
+        defer {
+            stop.set()
+            // tearDown이 폴더를 지우기 전에 마지막 파일 작업까지 완료되어야 한다.
+            finished.wait()
+        }
 
         for _ in 0..<60 {
             XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .proceed)
