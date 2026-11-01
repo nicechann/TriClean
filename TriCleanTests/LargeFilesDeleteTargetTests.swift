@@ -136,4 +136,61 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
             XCTAssertEqual(LargeFilesViewModel.normalizedDeleteTargets(items).count, 1)
         }
     }
+    func test_스캔후_추가된_보관함은_삭제직전에_차단한다() throws {
+        let item = folder("Work")
+        XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .proceed)
+        try FileManager.default.createDirectory(
+            at: item.url.appendingPathComponent(".hidden/Photos.photoslibrary"),
+            withIntermediateDirectories: true
+        )
+        XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .skip)
+    }
+
+    func test_불완전한_스캔결과는_상위폴더_삭제대상에서_제외한다() {
+        let item = FolderInfo(url: home.appendingPathComponent("Work"), sizeBytes: 100,
+                              isDirectory: true, isScanComplete: false)
+        let prepared = LargeFilesViewModel.prepareDeleteTargets([item], home: home)
+        XCTAssertTrue(prepared.targets.isEmpty)
+        XCTAssertEqual(prepared.protectedCount, 1)
+        XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .skip)
+    }
+
+    func test_하위폴더를_읽지못하면_스캔과_삭제검증이_불완전함을_감지한다() async throws {
+        let blocked = home.appendingPathComponent("Work/blocked")
+        try FileManager.default.createDirectory(at: blocked, withIntermediateDirectories: true)
+        try Data(repeating: 1, count: 4096).write(to: home.appendingPathComponent("Work/file.bin"))
+        try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: blocked.path)
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: blocked.path) }
+        if (try? FileManager.default.contentsOfDirectory(atPath: blocked.path)) != nil {
+            throw XCTSkip("This environment can read permission-restricted directories")
+        }
+        var results: [FolderInfo] = []
+        for await batch in LargeFilesViewModel.scanStructuredItemsBatches(
+            of: home, minSizeMB: 0, ignoredFolderURLs: [], batchSize: 50
+        ) { results.append(contentsOf: batch) }
+        let work = try XCTUnwrap(results.first { $0.url.lastPathComponent == "Work" })
+        XCTAssertFalse(work.isScanComplete)
+        XCTAssertEqual(LargeFilesViewModel.deletionPreflight(folder("Work")), .skip)
+    }
+
+    func test_폴백직전에_추가된_보관함도_이동하지않는다() async throws {
+        let item = folder("Work")
+        let library = item.url.appendingPathComponent("Photos.photoslibrary")
+        let mover = TrashService.Mover(
+            trashItem: { _ in
+                try FileManager.default.createDirectory(at: library, withIntermediateDirectories: true)
+                throw NSError(domain: NSCocoaErrorDomain, code: NSFileWriteNoPermissionError)
+            },
+            recycle: { _ in XCTFail("Protected library must not reach recycle"); return nil }
+        )
+        let outcome = await TrashService.sanitizeAndMoveToTrash(
+            [item], scopes: [.descendants(of: home)], url: \.url, identity: \.fileIdentity,
+            allowsDirectoryContentChanges: { $0.isDirectory }, logCategory: "LargeFilesTests",
+            preflight: { LargeFilesViewModel.deletionPreflight($0) }, mover: mover
+        )
+        XCTAssertTrue(outcome.succeeded.isEmpty)
+        XCTAssertEqual(outcome.excludedCount, 1)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: library.path))
+    }
+
 }

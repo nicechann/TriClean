@@ -440,7 +440,7 @@ final class LargeFilesViewModel: ObservableObject {
         values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0
     }
 
-    nonisolated private static func scanStructuredItemsBatches(
+    nonisolated static func scanStructuredItemsBatches(
         of root: URL,
         minSizeMB: Double,
         ignoredFolderURLs: Set<URL>,
@@ -537,11 +537,15 @@ final class LargeFilesViewModel: ObservableObject {
                     //    `.skipsHiddenFiles`로 순회하면 그 크기가 합계에서 빠져, 사용자는 "250 MB"를
                     //    지운다고 보고 실제로는 수 GB를 지우게 된다. 합계에는 숨김 항목을 포함하고,
                     //    숨김 항목을 개별 삭제 행으로 노출하지만 않는다.
+                    var isScanComplete = true
                     guard let enumerator = fm.enumerator(
                         at: folder,
                         includingPropertiesForKeys: scanKeys,
                         options: [],
-                        errorHandler: { _, _ in true }
+                        errorHandler: { _, _ in
+                            isScanComplete = false
+                            return true
+                        }
                     ) else {
                         continue
                     }
@@ -579,7 +583,10 @@ final class LargeFilesViewModel: ObservableObject {
                                 return
                             }
 
-                            guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else { return }
+                            guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else {
+                                isScanComplete = false
+                                return
+                            }
 
                             if values.isDirectory == true && ProtectedPaths.isManagedLibrary(url) {
                                 containsManagedLibrary = true
@@ -619,7 +626,8 @@ final class LargeFilesViewModel: ObservableObject {
                             isDirectory: true,
                             depth: 0,
                             parentURL: nil,
-                            containsManagedLibrary: containsManagedLibrary
+                            containsManagedLibrary: containsManagedLibrary,
+                            isScanComplete: isScanComplete
                         )
                     ])
                     await Task.yield()
@@ -703,7 +711,7 @@ final class LargeFilesViewModel: ObservableObject {
         home: URL = ProtectedPaths.realHomeDirectory,
         resolvingSymlinks: Bool = true
     ) -> Bool {
-        item.containsManagedLibrary
+        !item.isScanComplete || item.containsManagedLibrary
             || ProtectedPaths.isProtected(item.url, home: home, resolvingSymlinks: resolvingSymlinks)
     }
 
@@ -801,7 +809,8 @@ final class LargeFilesViewModel: ObservableObject {
                     depth: info.depth,
                     parentURL: info.parentURL,
                     fileIdentity: info.fileIdentity,
-                    containsManagedLibrary: info.containsManagedLibrary
+                    containsManagedLibrary: info.containsManagedLibrary,
+                    isScanComplete: info.isScanComplete
                 )
             }
 
@@ -861,6 +870,28 @@ final class LargeFilesViewModel: ObservableObject {
         return result
     }
 
+    /// Recheck directory contents immediately before each move, including the recycle fallback.
+    /// An unreadable subtree cannot establish that the folder contains no protected library.
+    nonisolated static func deletionPreflight(_ item: FolderInfo) -> TrashService.Preflight {
+        guard !isProtected(item) else { return .skip }
+        guard item.isDirectory else { return .proceed }
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey]
+        var complete = true
+        guard let enumerator = FileManager.default.enumerator(
+            at: item.url,
+            includingPropertiesForKeys: Array(keys),
+            options: [],
+            errorHandler: { _, _ in complete = false; return false }
+        ) else { return .skip }
+        while let object = enumerator.nextObject() {
+            guard !Task.isCancelled, let url = object as? URL,
+                  let values = try? url.resourceValues(forKeys: keys) else { return .skip }
+            if values.isSymbolicLink == true { continue }
+            if values.isDirectory == true && ProtectedPaths.isManagedLibrary(url) { return .skip }
+        }
+        return complete ? .proceed : .skip
+    }
+
     nonisolated private static func moveToTrash(
         _ candidates: [FolderInfo],
         securityScopedBy securityScopedURL: URL,
@@ -891,7 +922,8 @@ final class LargeFilesViewModel: ObservableObject {
             url: \.url,
             identity: \.fileIdentity,
             allowsDirectoryContentChanges: { $0.isDirectory },
-            logCategory: "LargeFiles"
+            logCategory: "LargeFiles",
+            preflight: { Self.deletionPreflight($0) }
         )
 
         return LargeDeleteOutcome(

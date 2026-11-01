@@ -35,7 +35,10 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
     /// depth > 0 인 경우, 어떤 상위 폴더 아래에 붙는지(표시/삭제 동기화용)
     let parentURL: URL?
 
-    /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인). 이런 폴더는 통째로 옮기지 않는다.
+    /// 하위 항목을 모두 읽었는지. 일부만 읽은 폴더는 통째로 옮기지 않는다.
+    let isScanComplete: Bool
+    /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인).
+
     let containsManagedLibrary: Bool
     
     init(
@@ -45,7 +48,8 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         depth: Int = 0,
         parentURL: URL? = nil,
         fileIdentity: FileIdentitySnapshot? = nil,
-        containsManagedLibrary: Bool = false
+        containsManagedLibrary: Bool = false,
+        isScanComplete: Bool = true
     ) {
         self.id = Self.stableID(for: url)
         self.url = url
@@ -55,6 +59,7 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
         self.parentURL = parentURL
         self.fileIdentity = fileIdentity ?? FileIdentitySnapshot.captureItem(url)
         self.containsManagedLibrary = containsManagedLibrary
+        self.isScanComplete = isScanComplete
     }
     
     static func stableID(for url: URL) -> UUID {

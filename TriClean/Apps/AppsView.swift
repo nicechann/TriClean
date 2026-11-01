@@ -1233,10 +1233,15 @@ final class AppsViewModel: ObservableObject {
         Task {
             defer { scopeTokens.forEach { $0.stop() } }
 
-            let (succeeded, deletionFailed) = await Task.detached(priority: .userInitiated) {
-                await AppsViewModel.performUninstall(targets: sanitized.accepted)
+            let (succeeded, deletionFailed, newlyRunning) = await Task.detached(priority: .userInitiated) {
+                await AppsViewModel.performUninstall(
+                    targets: sanitized.accepted,
+                    isRunning: { await AppsViewModel.isAppBundleRunning($0) }
+                )
             }.value
             let failed = rejectedApps + deletionFailed
+            let runningCount = runningApps.count + newlyRunning.count
+            let runningNote = runningCount == 0 ? "" : " " + "apps.status.running_skipped".localized(with: runningCount)
 
             self.isRemoving = false
             self.lastFailedApps = failed
@@ -1260,7 +1265,7 @@ final class AppsViewModel: ObservableObject {
                 self.lastStatusMessage = "apps.status.uninstall_all_fail".localized + runningNote
                 completion(.uninstallPartialFail(successCount: 0, failedCount: failed.count))
             } else if !succeeded.isEmpty && failed.isEmpty {
-                self.lastStatusIsError = !runningApps.isEmpty
+                self.lastStatusIsError = runningCount > 0
                 self.lastStatusMessage = "apps.status.uninstall_success".localized(with: succeeded.count) + runningNote + relatedNote
                 completion(nil)
             } else if !succeeded.isEmpty && !failed.isEmpty {
@@ -1268,27 +1273,46 @@ final class AppsViewModel: ObservableObject {
                 self.lastStatusMessage = "apps.status.uninstall_partial_fail".localized(with: succeeded.count, failed.count) + runningNote + relatedNote
                 completion(.uninstallPartialFail(successCount: succeeded.count, failedCount: failed.count))
             } else {
-                if !runningApps.isEmpty {
+                if runningCount > 0 {
                     self.lastStatusIsError = true
-                    self.lastStatusMessage = "apps.status.running_skipped".localized(with: runningApps.count)
+                    self.lastStatusMessage = "apps.status.running_skipped".localized(with: runningCount)
                 }
                 completion(nil)
             }
         }
     }
 
-    nonisolated private static func performUninstall(
-        targets: [AppsInstalledApp]
-    ) async -> ([AppsInstalledApp], [AppsInstalledApp]) {
+    static func isAppBundleRunning(_ url: URL) -> Bool {
+        let path = DeletionSafety.resolvedPath(for: url)
+        let prefix = DeletionSafety.scopePath(for: url)
+        return NSWorkspace.shared.runningApplications.contains { app in
+            guard let bundleURL = app.bundleURL else { return false }
+            let runningPath = DeletionSafety.resolvedPath(for: bundleURL)
+            return runningPath == path || runningPath.hasPrefix(prefix)
+        }
+    }
+
+    nonisolated static func performUninstall(
+        targets: [AppsInstalledApp],
+        isRunning: (URL) async -> Bool,
+        mover: TrashService.Mover = .system
+    ) async -> ([AppsInstalledApp], [AppsInstalledApp], [AppsInstalledApp]) {
+        var runningIDs = Set<String>()
         let outcome = await TrashService.moveToTrash(
             targets,
             url: \.url,
             identity: \.fileIdentity,
-            logCategory: "AppsUninstall"
+            logCategory: "AppsUninstall",
+            preflight: { app in
+                guard await isRunning(app.url) else { return .proceed }
+                runningIDs.insert(app.id)
+                return .skip
+            },
+            mover: mover
         )
-
-        // 정체성 재검증에서 제외된 앱도 사용자에게는 "실패"로 알려 이름을 노출한다.
-        return (outcome.succeeded, outcome.failed + outcome.excluded)
+        let running = outcome.excluded.filter { runningIDs.contains($0.id) }
+        let invalid = outcome.excluded.filter { !runningIDs.contains($0.id) }
+        return (outcome.succeeded, outcome.failed + invalid, running)
     }
 
     func removeSelectedRelatedItems() {

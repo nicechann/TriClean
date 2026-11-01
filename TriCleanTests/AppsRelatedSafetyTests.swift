@@ -323,4 +323,48 @@ final class AppsRelatedSafetyTests: XCTestCase {
         XCTAssertEqual(vm.relatedItems.map(\.id), [fromB.id])
         XCTAssertFalse(vm.isScanning)
     }
+    private func installedApp(_ name: String) throws -> AppsInstalledApp {
+        let url = library.appendingPathComponent(name + ".app")
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return AppsInstalledApp(name: name, bundleID: "com.example." + name, url: url,
+                                canUninstall: true, isSystemApp: false, isAppStoreApp: false,
+                                modifiedDate: nil)
+    }
+
+    func test_일괄제거_도중_실행된_앱은_이동하지않는다() async throws {
+        let first = try installedApp("First")
+        let second = try installedApp("Second")
+        let (succeeded, failed, running) = await AppsViewModel.performUninstall(
+            targets: [first, second],
+            isRunning: { url in
+                url == second.url && !FileManager.default.fileExists(atPath: first.url.path)
+            }, mover: mover
+        )
+        XCTAssertEqual(succeeded.map(\.id), [first.id])
+        XCTAssertTrue(failed.isEmpty)
+        XCTAssertEqual(running.map(\.id), [second.id])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: second.url.path))
+    }
+
+    func test_폴백직전에_실행된_앱도_제거하지않는다() async throws {
+        let app = try installedApp("Fallback")
+        let marker = library.appendingPathComponent("running-marker")
+        let fallbackMover = TrashService.Mover(
+            trashItem: { _ in
+                try Data().write(to: marker)
+                throw NSError(domain: NSCocoaErrorDomain, code: NSFileWriteNoPermissionError)
+            },
+            recycle: { _ in XCTFail("A running app must not reach recycle"); return nil }
+        )
+        let (succeeded, failed, running) = await AppsViewModel.performUninstall(
+            targets: [app],
+            isRunning: { _ in FileManager.default.fileExists(atPath: marker.path) },
+            mover: fallbackMover
+        )
+        XCTAssertTrue(succeeded.isEmpty)
+        XCTAssertTrue(failed.isEmpty)
+        XCTAssertEqual(running.map(\.id), [app.id])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: app.url.path))
+    }
+
 }
