@@ -218,7 +218,10 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
         defer {
             stop.set()
             // tearDown이 폴더를 지우기 전에 마지막 파일 작업까지 완료되어야 한다.
-            finished.wait()
+            // 작업 스레드가 멈추면 테스트 전체가 끝나지 않으므로 제한 시간을 둔다.
+            if finished.wait(timeout: .now() + 10) == .timedOut {
+                XCTFail("파일 생성·삭제 스레드가 10초 안에 끝나지 않았습니다")
+            }
         }
 
         for _ in 0..<60 {
