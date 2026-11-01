@@ -95,6 +95,9 @@ struct ContentView: View {
             if selection == nil { selection = .smartScan }
             memoryViewModel.refresh()
         }
+        #if DEBUG
+        .modifier(DemoDirector(selection: $selection))
+        #endif
     }
 }
 

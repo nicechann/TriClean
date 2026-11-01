@@ -1092,3 +1092,12 @@ final class DuplicateScannerViewModel: ObservableObject {
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 }
+
+#if DEBUG
+extension DuplicateScannerViewModel {
+    /// 미리보기 영상용 데모 스캔 파일 수(`DemoMode`).
+    func applyDemoScannedCount(_ count: Int) {
+        totalFilesScanned = count
+    }
+}
+#endif

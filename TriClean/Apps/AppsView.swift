@@ -1521,6 +1521,9 @@ struct AppsView: View {
             PaywallView()
                 .environmentObject(storeManager)
         }
+        #if DEBUG
+        .onReceive(DemoMode.appDetailsRequests) { showCompactDetailsSheet = true }
+        #endif
     }
 
     /// 상단 영역을 뺀 나머지 높이를 표 영역에 준다.
@@ -2302,3 +2305,13 @@ struct AppsView: View {
         .environmentObject(AppsViewModel())
         .environmentObject(StoreManager.shared)
 }
+
+#if DEBUG
+extension AppsViewModel {
+    /// 미리보기 영상용 데모 권한 상태(`DemoMode`).
+    func applyDemoScopes(applications: URL, library: URL) {
+        applicationsFolderURL = applications
+        userLibraryFolderURL = library
+    }
+}
+#endif

@@ -72,6 +72,9 @@ final class JunkScannerViewModel: ObservableObject {
     /// 같은 규칙을 써야 "스캔은 되는데 정리는 전부 제외"되는 불일치가 생기지 않는다.
     var isValidLibraryPath: Bool {
         guard let url = libraryURL else { return false }
+        #if DEBUG
+        if DemoMode.isActive { return true }
+        #endif
         return isLibraryLike(url)
     }
     

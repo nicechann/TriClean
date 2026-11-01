@@ -900,3 +900,19 @@ final class LargeFilesViewModel: ObservableObject {
         )
     }
 }
+
+#if DEBUG
+extension LargeFilesViewModel {
+    /// 미리보기 영상용 데모 결과를 채운다(`DemoMode`).
+    func applyDemoResults(folder: URL, results: [FolderInfo]) {
+        selectedFolderURL = folder
+        folderResults = results
+        discoveredResults = results
+        scanMessage = "storage.msg.completed".localized(
+            with: folder.lastPathComponent,
+            results.filter(\.isDirectory).count,
+            results.filter { !$0.isDirectory }.count
+        )
+    }
+}
+#endif

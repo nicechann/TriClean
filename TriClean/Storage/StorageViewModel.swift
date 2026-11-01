@@ -95,6 +95,16 @@ final class StorageViewModel: ObservableObject {
 
     /// 화면이 나타날 때 호출. 권한(선택)이 있는 스코프만 보수적으로 계산한다.
     func onAppear() {
+        #if DEBUG
+        if DemoMode.isActive {
+            homeScopeURL = DemoMode.home
+            appsScopeURLs = [DemoMode.applicationsFolder]
+            homeFolderBytes = 268_400_000_000
+            appsFolderBytes = 41_700_000_000
+            loadDiskInfo()
+            return
+        }
+        #endif
         // 설정·온보딩의 공통 권한 화면에서 이 ViewModel 생성 이후 권한을 받을 수 있으므로
         // 화면에 다시 들어올 때 비어 있는 스코프만 저장소에서 새로 읽는다.
         if homeScopeURL == nil {
