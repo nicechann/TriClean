@@ -542,8 +542,9 @@ final class LargeFilesViewModel: ObservableObject {
                         at: folder,
                         includingPropertiesForKeys: scanKeys,
                         options: [],
-                        errorHandler: { _, _ in
-                            isScanComplete = false
+                        errorHandler: { _, error in
+                            // 순회 도중 사라진 임시 파일은 읽지 못한 항목이 아니다(활성 폴더에서 흔하다).
+                            if !Self.isVanishedItemError(error) { isScanComplete = false }
                             return true
                         }
                     ) else {
@@ -583,8 +584,11 @@ final class LargeFilesViewModel: ObservableObject {
                                 return
                             }
 
-                            guard let values = try? url.resourceValues(forKeys: Set(scanKeys)) else {
-                                isScanComplete = false
+                            let values: URLResourceValues
+                            do {
+                                values = try url.resourceValues(forKeys: Set(scanKeys))
+                            } catch {
+                                if !Self.isVanishedItemError(error) { isScanComplete = false }
                                 return
                             }
 
@@ -665,7 +669,18 @@ final class LargeFilesViewModel: ObservableObject {
 
     nonisolated private struct LargeDeleteOutcome: Sendable {
         let succeededURLs: Set<URL>
-        let rejectedCount: Int
+        /// 휴지통 이동을 시도했으나 실패한 항목 수
+        let failedCount: Int
+        /// 보호 위치·경계 검사·정체성/삭제 직전 확인에서 빠져 시도하지 않은 항목 수
+        let skippedCount: Int
+    }
+
+    /// 폴더째 휴지통으로 옮길 수 없는 이유. 목록의 잠금 아이콘과 안내 문구를 구분하는 데 쓴다.
+    enum DeleteLock {
+        /// 기본 폴더·~/Library 하위·보관함 등 보호 위치
+        case protected
+        /// 하위 항목 일부를 읽지 못해 안에 무엇이 있는지 확인할 수 없는 폴더
+        case incomplete
     }
 
     func requestDelete(_ item: FolderInfo) {
@@ -685,8 +700,15 @@ final class LargeFilesViewModel: ObservableObject {
     /// 보호 위치(Documents·Pictures·Library 하위 1단계·사진 보관함 등)는 대상에서 뺀다.
     private func presentDeleteConfirmation(for items: [FolderInfo]) {
         let prepared = Self.prepareDeleteTargets(items)
+        var notes: [String] = []
         if prepared.protectedCount > 0 {
-            scanMessage = "storage.msg.protected_skipped".localized(with: prepared.protectedCount)
+            notes.append("storage.msg.protected_skipped".localized(with: prepared.protectedCount))
+        }
+        if prepared.incompleteCount > 0 {
+            notes.append("storage.msg.incomplete_skipped".localized(with: prepared.incompleteCount))
+        }
+        if !notes.isEmpty {
+            scanMessage = notes.joined(separator: " ")
         }
         guard !prepared.targets.isEmpty else {
             deleteTargets = []
@@ -701,18 +723,31 @@ final class LargeFilesViewModel: ObservableObject {
         deleteTargets.reduce(0) { $0 + $1.sizeBytes }
     }
 
-    /// 목록에서 휴지통 버튼을 비활성화할지. 렌더링마다 불리므로 디스크를 읽지 않는다.
-    func isProtected(_ item: FolderInfo) -> Bool {
-        Self.isProtected(item, resolvingSymlinks: false)
+    /// 목록에서 휴지통 버튼을 잠글지와 그 이유. 렌더링마다 불리므로 디스크를 읽지 않는다.
+    func deleteLock(for item: FolderInfo) -> DeleteLock? {
+        Self.deleteLock(for: item, resolvingSymlinks: false)
     }
 
+    nonisolated static func deleteLock(
+        for item: FolderInfo,
+        home: URL = ProtectedPaths.realHomeDirectory,
+        resolvingSymlinks: Bool = true
+    ) -> DeleteLock? {
+        // 두 사유가 겹치면 보호 위치를 우선 안내한다(다시 스캔해도 풀리지 않는 이유이므로).
+        if item.containsManagedLibrary
+            || ProtectedPaths.isProtected(item.url, home: home, resolvingSymlinks: resolvingSymlinks) {
+            return .protected
+        }
+        return item.isScanComplete ? nil : .incomplete
+    }
+
+    /// 폴더째 휴지통으로 옮길 수 없는지(보호 위치이거나 내용을 모두 확인하지 못함).
     nonisolated static func isProtected(
         _ item: FolderInfo,
         home: URL = ProtectedPaths.realHomeDirectory,
         resolvingSymlinks: Bool = true
     ) -> Bool {
-        !item.isScanComplete || item.containsManagedLibrary
-            || ProtectedPaths.isProtected(item.url, home: home, resolvingSymlinks: resolvingSymlinks)
+        deleteLock(for: item, home: home, resolvingSymlinks: resolvingSymlinks) != nil
     }
 
     /// ⚠️ 보호 위치를 **먼저** 빼고 정규화한다. 순서가 반대면 보호 폴더(~/Downloads)와 그 안의
@@ -721,9 +756,18 @@ final class LargeFilesViewModel: ObservableObject {
     nonisolated static func prepareDeleteTargets(
         _ items: [FolderInfo],
         home: URL = ProtectedPaths.realHomeDirectory
-    ) -> (targets: [FolderInfo], protectedCount: Int) {
-        let allowed = items.filter { !isProtected($0, home: home) }
-        return (normalizedDeleteTargets(allowed), items.count - allowed.count)
+    ) -> (targets: [FolderInfo], protectedCount: Int, incompleteCount: Int) {
+        var allowed: [FolderInfo] = []
+        var protectedCount = 0
+        var incompleteCount = 0
+        for item in items {
+            switch deleteLock(for: item, home: home) {
+            case .protected: protectedCount += 1
+            case .incomplete: incompleteCount += 1
+            case nil: allowed.append(item)
+            }
+        }
+        return (normalizedDeleteTargets(allowed), protectedCount, incompleteCount)
     }
 
     func cancelDeleteRequest() {
@@ -773,14 +817,19 @@ final class LargeFilesViewModel: ObservableObject {
             guard let self else { return }
 
             let succeededURLs = outcome.succeededURLs
-            let acceptedCount = max(0, candidates.count - outcome.rejectedCount)
-            let failedCount = outcome.rejectedCount + max(0, acceptedCount - succeededURLs.count)
+            let failedCount = outcome.failedCount
+            // 삭제 직전 확인에서 빠진 항목은 "실패"가 아니라 안전을 위해 옮기지 않은 것이다.
+            let skippedNote = outcome.skippedCount > 0
+                ? " " + "storage.msg.trash_skipped_note".localized(with: outcome.skippedCount)
+                : ""
 
             self.isDeleting = false
             self.deleteTargets = []
 
             guard !succeededURLs.isEmpty else {
-                self.scanMessage = "storage.msg.trash_failed".localized
+                self.scanMessage = failedCount == 0 && outcome.skippedCount > 0
+                    ? "storage.msg.trash_all_skipped".localized
+                    : "storage.msg.trash_failed".localized + skippedNote
                 return
             }
 
@@ -824,9 +873,9 @@ final class LargeFilesViewModel: ObservableObject {
             let remainingIDs = Set(self.folderResults.map(\.id))
             self.tableSelection.formIntersection(remainingIDs)
 
-            self.scanMessage = failedCount > 0
+            self.scanMessage = (failedCount > 0
                 ? "storage.msg.trash_partial".localized(with: succeededURLs.count, failedCount)
-                : "storage.msg.trash_done".localized(with: succeededURLs.count)
+                : "storage.msg.trash_done".localized(with: succeededURLs.count)) + skippedNote
 
             // 삭제 중에 슬라이더가 바뀌었다면 `runScan`이 거부했으므로 여기서 한 번 반영한다.
             self.autoRescanIfNeeded(minSizeMB: self.minFolderSizeMB)
@@ -881,15 +930,45 @@ final class LargeFilesViewModel: ObservableObject {
             at: item.url,
             includingPropertiesForKeys: Array(keys),
             options: [],
-            errorHandler: { _, _ in complete = false; return false }
+            errorHandler: { _, error in
+                // 사라진 하위 항목 안에는 지킬 보관함도 남아 있지 않으므로 계속 확인한다.
+                if isVanishedItemError(error) { return true }
+                complete = false
+                return false
+            }
         ) else { return .skip }
         while let object = enumerator.nextObject() {
-            guard !Task.isCancelled, let url = object as? URL,
-                  let values = try? url.resourceValues(forKeys: keys) else { return .skip }
+            guard !Task.isCancelled, let url = object as? URL else { return .skip }
+            let values: URLResourceValues
+            do {
+                values = try url.resourceValues(forKeys: keys)
+            } catch {
+                if isVanishedItemError(error) { continue }
+                return .skip
+            }
             if values.isSymbolicLink == true { continue }
             if values.isDirectory == true && ProtectedPaths.isManagedLibrary(url) { return .skip }
         }
         return complete ? .proceed : .skip
+    }
+
+    /// 순회 중 사라진 항목(ENOENT)으로 생긴 오류인지.
+    ///
+    /// ⚠️ 빌드 산출물·캐시·내려받는 중인 파일처럼 내용이 계속 바뀌는 폴더는 순회하는 동안
+    ///    임시 항목이 생겼다 사라진다. 이를 "읽지 못한 항목"으로 보면 이런 폴더가 잠기거나
+    ///    삭제 직전 확인에서 매번 빠진다(실측: 내용이 바뀌는 폴더 순회 300회 중 39~58회).
+    ///    권한 거부 등 다른 오류는 계속 불완전으로 본다.
+    nonisolated static func isVanishedItemError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain,
+           nsError.code == NSFileReadNoSuchFileError || nsError.code == NSFileNoSuchFileError {
+            return true
+        }
+        if nsError.domain == NSPOSIXErrorDomain, nsError.code == Int(ENOENT) { return true }
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
+            return isVanishedItemError(underlying)
+        }
+        return false
     }
 
     nonisolated private static func moveToTrash(
@@ -903,7 +982,7 @@ final class LargeFilesViewModel: ObservableObject {
 
         // 결과 표시용 장기 토큰이 이미 열려 있으면 중첩 start 실패는 문제가 아니다.
         guard token != nil || hasPersistentAccess else {
-            return LargeDeleteOutcome(succeededURLs: [], rejectedCount: candidates.count)
+            return LargeDeleteOutcome(succeededURLs: [], failedCount: candidates.count, skippedCount: 0)
         }
 
         // 확인창 단계에서 이미 걸렀지만, 삭제 직전에 링크를 해석한 실제 위치로 한 번 더 막는다.
@@ -928,7 +1007,8 @@ final class LargeFilesViewModel: ObservableObject {
 
         return LargeDeleteOutcome(
             succeededURLs: Set(outcome.succeeded.map { $0.url.standardizedFileURL }),
-            rejectedCount: outcome.excludedCount + protectedCount
+            failedCount: outcome.failedCount,
+            skippedCount: outcome.excludedCount + outcome.interruptedCount + protectedCount
         )
     }
 }

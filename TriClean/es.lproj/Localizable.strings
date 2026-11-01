@@ -72,6 +72,8 @@
 "storage.alert.delete.title" = "¿Mover a la Papelera?";
 "storage.msg.protected_skipped" = "Se omitieron %ld elementos protegidos. Las carpetas como Documentos, Imágenes o Biblioteca y la fototeca no se pueden mover a la Papelera desde aquí.";
 "storage.help.protected" = "Carpeta protegida: no se puede mover a la Papelera desde aquí";
+"storage.help.incomplete" = "Carpeta con elementos ilegibles: no se puede mover entera a la Papelera";
+"storage.msg.incomplete_skipped" = "Se omitieron %ld carpetas cuyo contenido no se pudo leer por completo. Limpia directamente los elementos de su interior o revisa los permisos de acceso y vuelve a escanear.";
 "storage.msg.manual" = "Analizando la carpeta «%@»…";
 "storage.msg.auto" = "Volviendo a analizar por cambio de criterio…";
 "storage.msg.canceled" = "Análisis cancelado.";
@@ -549,6 +551,8 @@
 "storage.msg.trash_done" = "%ld elementos movidos a la Papelera.";
 "storage.msg.trash_partial" = "%ld elementos movidos a la Papelera. %ld elementos fallaron.";
 "storage.msg.trash_failed" = "No se pudieron mover los elementos seleccionados a la Papelera.";
+"storage.msg.trash_all_skipped" = "Todos los elementos se excluyeron en la comprobación final antes de eliminar y no se movieron a la Papelera. Vuelve a escanear e inténtalo de nuevo.";
+"storage.msg.trash_skipped_note" = "%ld elementos se excluyeron en la comprobación final antes de eliminar.";
 "junk.progress.cleaning" = "Moviendo %ld elementos seleccionados a la Papelera…";
 "junk.progress.clean_done" = "%ld elementos movidos a la Papelera.";
 "junk.progress.clean_failed" = "No se pudieron mover los elementos basura seleccionados a la Papelera.";

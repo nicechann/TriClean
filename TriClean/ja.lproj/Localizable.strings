@@ -72,6 +72,8 @@
 "storage.alert.delete.title" = "ゴミ箱に入れますか？";
 "storage.msg.protected_skipped" = "保護された項目 %ld 件をスキップしました。書類・ピクチャ・ライブラリなどの標準フォルダや写真ライブラリは、ここからゴミ箱に入れることはできません。";
 "storage.help.protected" = "保護されたフォルダ — ここからゴミ箱に入れることはできません";
+"storage.help.incomplete" = "読み取れない項目を含むフォルダ — フォルダごとゴミ箱に入れることはできません";
+"storage.msg.incomplete_skipped" = "内容をすべて読み取れなかったフォルダ %ld 件をスキップしました。フォルダ内の項目を直接整理するか、アクセス権を確認してから再スキャンしてください。";
 "storage.msg.manual" = "「%@」フォルダを分析中…";
 "storage.msg.auto" = "条件が変更されたため再分析中…";
 "storage.msg.canceled" = "スキャンをキャンセルしました。";
@@ -549,6 +551,8 @@
 "storage.msg.trash_done" = "%ld 個の項目をゴミ箱に移動しました。";
 "storage.msg.trash_partial" = "%ld 個の項目をゴミ箱に移動しました。%ld 個の項目は失敗しました。";
 "storage.msg.trash_failed" = "選択した項目をゴミ箱に移動できませんでした。";
+"storage.msg.trash_all_skipped" = "削除直前の確認ですべての項目が除外されたため、ゴミ箱に移動しませんでした。再スキャンしてからもう一度お試しください。";
+"storage.msg.trash_skipped_note" = "%ld 件の項目は削除直前の確認で除外されました。";
 "junk.progress.cleaning" = "選択した %ld 個の項目をゴミ箱に移動中…";
 "junk.progress.clean_done" = "%ld 個の項目をゴミ箱に移動しました。";
 "junk.progress.clean_failed" = "選択したジャンク項目をゴミ箱に移動できませんでした。";

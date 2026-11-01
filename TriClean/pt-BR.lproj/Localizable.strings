@@ -70,6 +70,8 @@
 "storage.alert.delete.title" = "Mover para o Lixo?";
 "storage.msg.protected_skipped" = "%ld itens protegidos foram ignorados. Pastas como Documentos, Imagens ou Biblioteca e a fototeca não podem ser movidas para o Lixo aqui.";
 "storage.help.protected" = "Pasta protegida — não pode ser movida para o Lixo aqui";
+"storage.help.incomplete" = "Pasta com itens ilegíveis — não pode ser movida inteira para o Lixo";
+"storage.msg.incomplete_skipped" = "%ld pastas cujo conteúdo não pôde ser lido por completo foram ignoradas. Limpe diretamente os itens dentro delas ou verifique as permissões de acesso e analise novamente.";
 "storage.msg.manual" = "Analisando a pasta “%@”…";
 "storage.msg.auto" = "Reanalisando devido a alteração nas condições…";
 "storage.msg.canceled" = "Escaneamento cancelado.";
@@ -105,6 +107,8 @@
 "storage.msg.trash_done" = "%ld itens movidos para o Lixo.";
 "storage.msg.trash_partial" = "%ld itens movidos para o Lixo. %ld falharam.";
 "storage.msg.trash_failed" = "Não foi possível mover os itens selecionados para o Lixo.";
+"storage.msg.trash_all_skipped" = "Todos os itens foram excluídos na verificação final antes da remoção e não foram movidos para o Lixo. Analise novamente e tente outra vez.";
+"storage.msg.trash_skipped_note" = "%ld itens foram excluídos na verificação final antes da remoção.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "Arquivos grandes";

@@ -151,8 +151,73 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
                               isDirectory: true, isScanComplete: false)
         let prepared = LargeFilesViewModel.prepareDeleteTargets([item], home: home)
         XCTAssertTrue(prepared.targets.isEmpty)
-        XCTAssertEqual(prepared.protectedCount, 1)
+        // 보호 위치와는 안내 문구가 달라야 하므로 따로 센다.
+        XCTAssertEqual(prepared.protectedCount, 0)
+        XCTAssertEqual(prepared.incompleteCount, 1)
         XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .skip)
+    }
+
+    func test_잠금사유는_보호위치를_우선하고_불완전과_구분한다() {
+        let incomplete = FolderInfo(url: home.appendingPathComponent("Work"), sizeBytes: 100,
+                                    isDirectory: true, isScanComplete: false)
+        let protectedAndIncomplete = FolderInfo(url: home.appendingPathComponent("Pictures"), sizeBytes: 100,
+                                                isDirectory: true, isScanComplete: false)
+        XCTAssertEqual(LargeFilesViewModel.deleteLock(for: incomplete, home: home), .incomplete)
+        XCTAssertEqual(LargeFilesViewModel.deleteLock(for: protectedAndIncomplete, home: home), .protected)
+        XCTAssertNil(LargeFilesViewModel.deleteLock(for: folder("Work/a"), home: home))
+
+        let prepared = LargeFilesViewModel.prepareDeleteTargets(
+            [incomplete, protectedAndIncomplete, folder("Documents/Project")], home: home
+        )
+        XCTAssertEqual(names(prepared.targets), ["Documents/Project"])
+        XCTAssertEqual(prepared.protectedCount, 1)
+        XCTAssertEqual(prepared.incompleteCount, 1)
+    }
+
+    func test_사라진_항목_오류만_순회를_계속할_오류로_본다() {
+        let posix = NSError(domain: NSPOSIXErrorDomain, code: Int(ENOENT))
+        let cocoa = NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoSuchFileError,
+                            userInfo: [NSUnderlyingErrorKey: posix])
+        XCTAssertTrue(LargeFilesViewModel.isVanishedItemError(cocoa))
+        XCTAssertTrue(LargeFilesViewModel.isVanishedItemError(posix))
+        XCTAssertTrue(LargeFilesViewModel.isVanishedItemError(
+            NSError(domain: NSCocoaErrorDomain, code: NSFileReadUnknownError, userInfo: [NSUnderlyingErrorKey: posix])
+        ))
+        XCTAssertFalse(LargeFilesViewModel.isVanishedItemError(
+            NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoPermissionError)
+        ))
+        XCTAssertFalse(LargeFilesViewModel.isVanishedItemError(NSError(domain: NSPOSIXErrorDomain, code: Int(EACCES))))
+    }
+
+    /// 빌드 산출물·캐시처럼 내용이 계속 바뀌는 폴더도 삭제 직전 확인을 통과해야 한다.
+    /// 수정 전에는 순회 중 사라진 하위 폴더 때문에 약 15~20%가 `.skip`으로 빠졌다.
+    func test_내용이_계속_바뀌는_폴더도_삭제직전_확인을_통과한다() throws {
+        let item = folder("Work")
+        for index in 0..<20 {
+            try FileManager.default.createDirectory(
+                at: item.url.appendingPathComponent("d\(index)"), withIntermediateDirectories: true
+            )
+        }
+        let stop = ManagedAtomicFlag()
+        let churn = Thread { [url = item.url] in
+            var counter = 0
+            while !stop.isSet {
+                let temp = url.appendingPathComponent("d\(counter % 20)/tmp\(counter % 200)")
+                if FileManager.default.fileExists(atPath: temp.path) {
+                    try? FileManager.default.removeItem(at: temp)
+                } else {
+                    try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+                    FileManager.default.createFile(atPath: temp.appendingPathComponent("x").path, contents: Data([1]))
+                }
+                counter += 1
+            }
+        }
+        churn.start()
+        defer { stop.set() }
+
+        for _ in 0..<60 {
+            XCTAssertEqual(LargeFilesViewModel.deletionPreflight(item), .proceed)
+        }
     }
 
     func test_하위폴더를_읽지못하면_스캔과_삭제검증이_불완전함을_감지한다() async throws {
@@ -193,4 +258,12 @@ final class LargeFilesDeleteTargetTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: library.path))
     }
 
+}
+
+/// 테스트 스레드 간 정지 신호.
+private final class ManagedAtomicFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = false
+    var isSet: Bool { lock.lock(); defer { lock.unlock() }; return value }
+    func set() { lock.lock(); value = true; lock.unlock() }
 }

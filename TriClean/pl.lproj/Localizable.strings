@@ -76,6 +76,8 @@
 "storage.alert.delete.title" = "Przenieść do Kosza?";
 "storage.msg.protected_skipped" = "Pominięto chronione elementy: %ld. Folderów takich jak Dokumenty, Obrazki czy Biblioteka oraz biblioteki Zdjęć nie można stąd przenieść do Kosza.";
 "storage.help.protected" = "Folder chroniony – nie można go stąd przenieść do Kosza";
+"storage.help.incomplete" = "Folder z elementami, których nie można odczytać – nie można go przenieść w całości do Kosza";
+"storage.msg.incomplete_skipped" = "Pominięto foldery, których zawartości nie udało się w pełni odczytać: %ld. Uporządkuj bezpośrednio elementy w środku lub sprawdź uprawnienia dostępu i przeskanuj ponownie.";
 "storage.msg.manual" = "Analizowanie folderu „%@”…";
 "storage.msg.auto" = "Ponowna analiza z powodu zmiany warunków…";
 "storage.msg.canceled" = "Skanowanie anulowane.";
@@ -111,6 +113,8 @@
 "storage.msg.trash_done" = "Przeniesiono do Kosza elementów: %ld.";
 "storage.msg.trash_partial" = "Przeniesiono do Kosza elementów: %ld. Niepowodzeń: %ld.";
 "storage.msg.trash_failed" = "Nie można przenieść wybranych elementów do Kosza.";
+"storage.msg.trash_all_skipped" = "Wszystkie elementy zostały wykluczone podczas ostatniego sprawdzenia przed usunięciem i nie zostały przeniesione do Kosza. Przeskanuj ponownie i spróbuj jeszcze raz.";
+"storage.msg.trash_skipped_note" = "Elementy wykluczone podczas ostatniego sprawdzenia przed usunięciem: %ld.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "Duże pliki";

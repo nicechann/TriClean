@@ -70,6 +70,8 @@
 "storage.alert.delete.title" = "要移到废纸篓吗？";
 "storage.msg.protected_skipped" = "已跳过 %ld 个受保护的项目。「文稿」「图片」「资源库」等标准文件夹和照片图库无法从这里移到废纸篓。";
 "storage.help.protected" = "受保护的文件夹 — 无法从这里移到废纸篓";
+"storage.help.incomplete" = "包含无法读取项目的文件夹 — 无法整个移到废纸篓";
+"storage.msg.incomplete_skipped" = "已跳过 %ld 个内容未能完整读取的文件夹。请直接清理其中的项目，或检查访问权限后重新扫描。";
 "storage.msg.manual" = "正在分析「%@」文件夹…";
 "storage.msg.auto" = "条件已更改，正在重新分析…";
 "storage.msg.canceled" = "已取消扫描。";
@@ -105,6 +107,8 @@
 "storage.msg.trash_done" = "已将 %ld 个项目移到废纸篓。";
 "storage.msg.trash_partial" = "已将 %ld 个项目移到废纸篓，%ld 个项目失败。";
 "storage.msg.trash_failed" = "无法将所选项目移到废纸篓。";
+"storage.msg.trash_all_skipped" = "所有项目都在删除前的最终检查中被排除，未移到废纸篓。请重新扫描后再试一次。";
+"storage.msg.trash_skipped_note" = "%ld 个项目在删除前的最终检查中被排除。";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "大文件";

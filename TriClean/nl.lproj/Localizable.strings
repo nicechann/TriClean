@@ -70,6 +70,8 @@
 "storage.alert.delete.title" = "Naar de prullenmand verplaatsen?";
 "storage.msg.protected_skipped" = "%ld beveiligde items overgeslagen. Mappen zoals Documenten, Afbeeldingen of Bibliotheek en de fotobibliotheek kunnen hier niet naar de prullenmand worden verplaatst.";
 "storage.help.protected" = "Beveiligde map – kan hier niet naar de prullenmand worden verplaatst";
+"storage.help.incomplete" = "Map met onleesbare items – kan niet in zijn geheel naar de prullenmand worden verplaatst";
+"storage.msg.incomplete_skipped" = "%ld mappen waarvan de inhoud niet volledig kon worden gelezen, zijn overgeslagen. Ruim de items erin rechtstreeks op of controleer de toegangsrechten en scan opnieuw.";
 "storage.msg.manual" = "Map ‘%@’ analyseren…";
 "storage.msg.auto" = "Opnieuw analyseren vanwege gewijzigde voorwaarden…";
 "storage.msg.canceled" = "Scan geannuleerd.";
@@ -105,6 +107,8 @@
 "storage.msg.trash_done" = "Naar de prullenmand verplaatst: %ld items.";
 "storage.msg.trash_partial" = "Naar de prullenmand verplaatst: %ld items. Mislukt: %ld.";
 "storage.msg.trash_failed" = "Kan de geselecteerde items niet naar de prullenmand verplaatsen.";
+"storage.msg.trash_all_skipped" = "Alle items zijn bij de laatste controle vóór verwijderen uitgesloten en niet naar de prullenmand verplaatst. Scan opnieuw en probeer het nog eens.";
+"storage.msg.trash_skipped_note" = "Bij de laatste controle vóór verwijderen uitgesloten: %ld items.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "Grote bestanden";

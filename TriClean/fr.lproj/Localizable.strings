@@ -72,6 +72,8 @@
 "storage.alert.delete.title" = "Placer dans la corbeille ?";
 "storage.msg.protected_skipped" = "%ld éléments protégés ont été ignorés. Les dossiers comme Documents, Images ou Bibliothèque et la photothèque ne peuvent pas être placés dans la corbeille ici.";
 "storage.help.protected" = "Dossier protégé — impossible de le placer dans la corbeille ici";
+"storage.help.incomplete" = "Dossier contenant des éléments illisibles — impossible de le placer entier dans la corbeille";
+"storage.msg.incomplete_skipped" = "%ld dossiers dont le contenu n’a pas pu être entièrement lu ont été ignorés. Nettoyez directement les éléments qu’ils contiennent ou vérifiez les autorisations d’accès, puis relancez l’analyse.";
 "storage.msg.manual" = "Analyse du dossier « %@ »…";
 "storage.msg.auto" = "Nouvelle analyse en raison d'un changement de critère…";
 "storage.msg.canceled" = "Analyse annulée.";
@@ -549,6 +551,8 @@
 "storage.msg.trash_done" = "%ld éléments placés dans la corbeille.";
 "storage.msg.trash_partial" = "%ld éléments placés dans la corbeille. %ld éléments ont échoué.";
 "storage.msg.trash_failed" = "Impossible de placer les éléments sélectionnés dans la corbeille.";
+"storage.msg.trash_all_skipped" = "Tous les éléments ont été exclus lors de la vérification finale avant suppression et n’ont pas été placés dans la corbeille. Relancez l’analyse et réessayez.";
+"storage.msg.trash_skipped_note" = "%ld éléments ont été exclus lors de la vérification finale avant suppression.";
 "junk.progress.cleaning" = "Déplacement de %ld éléments sélectionnés vers la corbeille…";
 "junk.progress.clean_done" = "%ld éléments placés dans la corbeille.";
 "junk.progress.clean_failed" = "Impossible de placer les éléments indésirables sélectionnés dans la corbeille.";

@@ -388,9 +388,13 @@ struct LargeFilesView: View {
                 .width(min: 90, ideal: 100, max: 110)
 
                 TableColumn("") { item in
-                    // Documents·Pictures·Library 하위 1단계·사진 보관함 같은 보호 위치는
-                    // 통째로 옮길 수 없다(`ProtectedPaths`). 삭제 단계에서도 다시 막는다.
-                    let isProtected = viewModel.isProtected(item)
+                    // Documents·Pictures·Library 하위 1단계·사진 보관함 같은 보호 위치와
+                    // 하위 항목을 모두 읽지 못한 폴더는 통째로 옮길 수 없다. 삭제 단계에서도 다시 막는다.
+                    let lock = viewModel.deleteLock(for: item)
+                    let isProtected = lock != nil
+                    let lockHelp = lock == .incomplete
+                        ? "storage.help.incomplete".localized
+                        : "storage.help.protected".localized
                     Button(role: .destructive) {
                         requestDelete(item)
                     } label: {
@@ -405,9 +409,9 @@ struct LargeFilesView: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(viewModel.isScanning || viewModel.isDeleting || isProtected)
-                    .help(isProtected ? "storage.help.protected".localized : "common.trash".localized)
+                    .help(isProtected ? lockHelp : "common.trash".localized)
                     .accessibilityLabel(Text(
-                        (isProtected ? "storage.help.protected".localized : "common.trash".localized) + " — " + item.name
+                        (isProtected ? lockHelp : "common.trash".localized) + " — " + item.name
                     ))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }

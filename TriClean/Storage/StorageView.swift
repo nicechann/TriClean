@@ -36,9 +36,10 @@ nonisolated struct FolderInfo: Identifiable, Hashable, Sendable {
     let parentURL: URL?
 
     /// 하위 항목을 모두 읽었는지. 일부만 읽은 폴더는 통째로 옮기지 않는다.
+    /// (순회 중 사라진 임시 항목은 읽지 못한 것으로 보지 않는다)
     let isScanComplete: Bool
-    /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인).
 
+    /// 폴더 안에 사진·음악·TV 보관함이 들어 있는지(스캔 중 확인). 이런 폴더는 통째로 옮기지 않는다.
     let containsManagedLibrary: Bool
     
     init(

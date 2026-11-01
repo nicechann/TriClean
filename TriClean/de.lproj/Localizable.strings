@@ -72,6 +72,8 @@
 "storage.alert.delete.title" = "In den Papierkorb legen?";
 "storage.msg.protected_skipped" = "%ld geschützte Elemente wurden übersprungen. Ordner wie Dokumente, Bilder oder Library sowie die Fotos-Mediathek können hier nicht in den Papierkorb verschoben werden.";
 "storage.help.protected" = "Geschützter Ordner – kann hier nicht in den Papierkorb verschoben werden";
+"storage.help.incomplete" = "Ordner mit nicht lesbaren Elementen – kann nicht als Ganzes in den Papierkorb verschoben werden";
+"storage.msg.incomplete_skipped" = "%ld Ordner, deren Inhalt nicht vollständig gelesen werden konnte, wurden übersprungen. Räume die Elemente darin direkt auf oder prüfe die Zugriffsrechte und scanne erneut.";
 "storage.msg.manual" = "Ordner „%@“ wird analysiert…";
 "storage.msg.auto" = "Bedingung geändert – wird neu analysiert…";
 "storage.msg.canceled" = "Scan abgebrochen.";
@@ -549,6 +551,8 @@
 "storage.msg.trash_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
 "storage.msg.trash_partial" = "%ld Elemente wurden in den Papierkorb verschoben. %ld Elemente sind fehlgeschlagen.";
 "storage.msg.trash_failed" = "Die ausgewählten Elemente konnten nicht in den Papierkorb verschoben werden.";
+"storage.msg.trash_all_skipped" = "Alle Elemente wurden bei der letzten Prüfung vor dem Löschen ausgeschlossen und nicht in den Papierkorb verschoben. Scanne erneut und versuche es noch einmal.";
+"storage.msg.trash_skipped_note" = "%ld Elemente wurden bei der letzten Prüfung vor dem Löschen ausgeschlossen.";
 "junk.progress.cleaning" = "%ld ausgewählte Elemente werden in den Papierkorb verschoben…";
 "junk.progress.clean_done" = "%ld Elemente wurden in den Papierkorb verschoben.";
 "junk.progress.clean_failed" = "Die ausgewählten Junk-Elemente konnten nicht in den Papierkorb verschoben werden.";

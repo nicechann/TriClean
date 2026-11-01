@@ -1157,19 +1157,10 @@ final class AppsViewModel: ObservableObject {
         }
 
         // 실행 중인 앱 번들을 휴지통으로 옮기면 리소스 지연 로딩·업데이트·재실행이 깨진다.
-        // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 삭제 직전에 확인한다.
-        let runningPaths = Set(
-            NSWorkspace.shared.runningApplications.compactMap { $0.bundleURL.map(DeletionSafety.resolvedPath(for:)) }
-        )
+        // 선택 시점과 삭제 시점 사이에 실행될 수 있으므로 여기서 한 번 거르고,
+        // 일괄 제거 도중 실행된 앱은 `performUninstall`의 항목별 사전 점검이 다시 막는다.
         let selectedDeletable = deletableSelectedApps
-        let runningApps = selectedDeletable.filter { app in
-            let appPath = DeletionSafety.resolvedPath(for: app.url)
-            let appScopePath = DeletionSafety.scopePath(for: app.url)
-            // 메인 앱뿐 아니라 앱 번들 내부의 Login Item/Helper가 실행 중이어도 건너뛴다.
-            return runningPaths.contains { runningPath in
-                runningPath == appPath || runningPath.hasPrefix(appScopePath)
-            }
-        }
+        let runningApps = selectedDeletable.filter { Self.isAppBundleRunning($0.url) }
         let runningIDs = Set(runningApps.map(\.id))
         let candidates = selectedDeletable.filter { !runningIDs.contains($0.id) }
 
@@ -1282,6 +1273,7 @@ final class AppsViewModel: ObservableObject {
         }
     }
 
+    /// 앱 번들이나 번들 안의 Login Item·Helper가 실행 중인지.
     static func isAppBundleRunning(_ url: URL) -> Bool {
         let path = DeletionSafety.resolvedPath(for: url)
         let prefix = DeletionSafety.scopePath(for: url)

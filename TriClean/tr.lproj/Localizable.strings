@@ -74,6 +74,8 @@
 "storage.alert.delete.title" = "Çöp Sepeti'ne taşınsın mı?";
 "storage.msg.protected_skipped" = "Korunan %ld öğe atlandı. Belgeler, Resimler veya Kitaplık gibi klasörler ve Fotoğraflar arşivi buradan Çöp Sepeti'ne taşınamaz.";
 "storage.help.protected" = "Korunan klasör — buradan Çöp Sepeti'ne taşınamaz";
+"storage.help.incomplete" = "Okunamayan öğeler içeren klasör — tamamı Çöp Sepeti'ne taşınamaz";
+"storage.msg.incomplete_skipped" = "İçeriği tamamen okunamayan %ld klasör atlandı. İçindeki öğeleri doğrudan temizleyin veya erişim izinlerini kontrol edip yeniden tarayın.";
 "storage.msg.manual" = "“%@” klasörü inceleniyor…";
 "storage.msg.auto" = "Koşullar değiştiği için yeniden inceleniyor…";
 "storage.msg.canceled" = "Tarama iptal edildi.";
@@ -109,6 +111,8 @@
 "storage.msg.trash_done" = "%ld öğe Çöp Sepeti'ne taşındı.";
 "storage.msg.trash_partial" = "%ld öğe Çöp Sepeti'ne taşındı. Başarısız: %ld.";
 "storage.msg.trash_failed" = "Seçilen öğeler Çöp Sepeti'ne taşınamadı.";
+"storage.msg.trash_all_skipped" = "Silmeden önceki son kontrolde tüm öğeler hariç tutulduğu için Çöp Sepeti'ne taşınmadı. Yeniden tarayıp tekrar deneyin.";
+"storage.msg.trash_skipped_note" = "Silmeden önceki son kontrolde hariç tutulan öğe: %ld.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "Büyük dosyalar";

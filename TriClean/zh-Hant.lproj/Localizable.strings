@@ -70,6 +70,8 @@
 "storage.alert.delete.title" = "要移到垃圾桶嗎？";
 "storage.msg.protected_skipped" = "已跳過 %ld 個受保護的項目。「文件」「圖片」「資源庫」等標準資料夾和照片圖庫無法從這裡移到垃圾桶。";
 "storage.help.protected" = "受保護的資料夾 — 無法從這裡移到垃圾桶";
+"storage.help.incomplete" = "包含無法讀取項目的資料夾 — 無法整個移到垃圾桶";
+"storage.msg.incomplete_skipped" = "已跳過 %ld 個內容未能完整讀取的資料夾。請直接清理其中的項目，或檢查存取權限後重新掃描。";
 "storage.msg.manual" = "正在分析「%@」資料夾…";
 "storage.msg.auto" = "條件已變更，正在重新分析…";
 "storage.msg.canceled" = "已取消掃描。";
@@ -105,6 +107,8 @@
 "storage.msg.trash_done" = "已將 %ld 個項目移到垃圾桶。";
 "storage.msg.trash_partial" = "已將 %ld 個項目移到垃圾桶，%ld 個項目失敗。";
 "storage.msg.trash_failed" = "無法將所選項目移到垃圾桶。";
+"storage.msg.trash_all_skipped" = "所有項目都在刪除前的最終檢查中被排除，未移到垃圾桶。請重新掃描後再試一次。";
+"storage.msg.trash_skipped_note" = "%ld 個項目在刪除前的最終檢查中被排除。";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "大型檔案";

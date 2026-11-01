@@ -76,6 +76,8 @@
 "storage.alert.delete.title" = "Move to Trash?";
 "storage.msg.protected_skipped" = "Skipped %ld protected item(s). Folders like Documents, Pictures, or Library and the Photos library can't be moved to Trash from here.";
 "storage.help.protected" = "Protected folder — can't be moved to Trash from here";
+"storage.help.incomplete" = "Folder with unreadable items — can't be moved to Trash as a whole";
+"storage.msg.incomplete_skipped" = "Skipped %ld folder(s) whose contents couldn't be fully read. Clean up the items inside directly, or check access permissions and scan again.";
 "storage.msg.manual" = "Analyzing '%@' folder…";
 "storage.msg.auto" = "Re-analyzing due to condition change…";
 "storage.msg.canceled" = "Scan canceled.";
@@ -557,6 +559,8 @@
 "storage.msg.trash_done" = "%ld items moved to Trash.";
 "storage.msg.trash_partial" = "%ld items moved to Trash. %ld items failed.";
 "storage.msg.trash_failed" = "Could not move the selected items to Trash.";
+"storage.msg.trash_all_skipped" = "All items were excluded by the final check before deletion and were not moved to Trash. Scan again and try once more.";
+"storage.msg.trash_skipped_note" = "%ld item(s) were excluded by the final check before deletion.";
 "junk.progress.cleaning" = "Moving %ld selected items to Trash…";
 "junk.progress.clean_done" = "%ld items moved to Trash.";
 "junk.progress.clean_failed" = "Could not move the selected junk items to Trash.";

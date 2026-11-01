@@ -70,6 +70,8 @@
 "storage.alert.delete.title" = "Spostare nel Cestino?";
 "storage.msg.protected_skipped" = "%ld elementi protetti sono stati ignorati. Cartelle come Documenti, Immagini o Libreria e la libreria di Foto non possono essere spostate nel Cestino da qui.";
 "storage.help.protected" = "Cartella protetta: non può essere spostata nel Cestino da qui";
+"storage.help.incomplete" = "Cartella con elementi non leggibili: non può essere spostata intera nel Cestino";
+"storage.msg.incomplete_skipped" = "%ld cartelle il cui contenuto non è stato letto completamente sono state ignorate. Pulisci direttamente gli elementi al loro interno oppure controlla i permessi di accesso e ripeti la scansione.";
 "storage.msg.manual" = "Analisi della cartella «%@» in corso…";
 "storage.msg.auto" = "Nuova analisi per modifica delle condizioni…";
 "storage.msg.canceled" = "Scansione annullata.";
@@ -105,6 +107,8 @@
 "storage.msg.trash_done" = "%ld elementi spostati nel Cestino.";
 "storage.msg.trash_partial" = "%ld elementi spostati nel Cestino. %ld non riusciti.";
 "storage.msg.trash_failed" = "Impossibile spostare nel Cestino gli elementi selezionati.";
+"storage.msg.trash_all_skipped" = "Tutti gli elementi sono stati esclusi dal controllo finale prima dell’eliminazione e non sono stati spostati nel Cestino. Ripeti la scansione e riprova.";
+"storage.msg.trash_skipped_note" = "%ld elementi sono stati esclusi dal controllo finale prima dell’eliminazione.";
 
 /* MARK: - 대용량 파일 */
 "largefiles.title" = "File grandi";
